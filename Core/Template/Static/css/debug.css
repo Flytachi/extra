@@ -1,0 +1,55 @@
+#warframe_debug-bar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 5px;
+    z-index: 999999;
+}
+
+#warframe_debug-bar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+#warframe_debug-bar a:hover {
+    color: #f1f1f1;
+}
+
+#warframe_debug-btn {
+    font-size: 15px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 3px 9px;
+    border: none;
+    border-radius: 10%;
+}
+
+#warframe_debug-btn:hover {
+    background-color: #444;
+}
+
+#warframe_debug-btn_div {
+    /* transition: margin-left .5s; */
+    /* padding: 2px; */
+    z-index: 999999;
+    position: fixed; 
+    right: 1px; 
+    bottom: 1px;
+}
+
+/* На небольших экранах, где высота меньше 450px, измените стиль sidenav (меньше отступов и меньший размер шрифта) */
+@media screen and (max-height: 450px) {
+    #warframe_debug-bar { padding-top: 15px; }
+    #warframe_debug-bar a { font-size: 18px; }
+}

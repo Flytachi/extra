@@ -1,0 +1,11 @@
+<VirtualHost *:__PORT__>
+    ServerAdmin __ADMIN__
+    DocumentRoot "__ROOT__"
+    ServerName __NAME__
+    ServerAlias __ALIAS__
+
+    <Directory __DIR__>
+        AllowOverride All
+    </Directory>
+
+</VirtualHost>

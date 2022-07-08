@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+// Версия PHP 7.4
+if (PHP_VERSION == 7.4) {
+    
+    require 'App/extra/Core/__load__.php';
+    new Console\Core($argc, $argv);
+
+}else {
+    echo "\033[32m"." Пожалуйста используйте PHP версии => 7.4\n";
+    echo "\033[33m"." Текущая версия PHP => " . PHP_VERSION . "\n";
+}
+
+?>

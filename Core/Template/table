@@ -1,0 +1,65 @@
+<?php
+require '../../tools/warframe.php';
+
+importModel('_TableIndex_');
+
+$tb = new _TableIndex_;
+
+dd($tb->list());
+
+/*
+* Скрипт на Html:
+* -----------------------------------------------------------------------
+
+    Поле для поиска
+        <input type="text" id="search_input">
+
+    Место выведения результата
+        <div id="search_display"></div>
+
+
+* -----------------------------------------------------------------------
+* Скрипт на Js + Ajax:
+* -----------------------------------------------------------------------
+
+    <script type="text/javascript">
+
+        var cXhr = null;
+		function credoSearch(params = '') {
+			if (document.querySelector('#search_display')) {
+				if(cXhr && cXhr.readyState != 4) cXhr.abort();
+				var display = document.querySelector('#search_display');
+				isLoading(display);
+
+				cXhr = $.ajax({
+					type: "GET",
+					url: "<?= api('table/_TableIndex_') ?>"+params,
+					success: function (result) {
+						isLoaded(display);
+						display.innerHTML = result;
+					},
+				});
+
+			}
+		}
+
+        $(document).ready(() => credoSearch());
+
+    </script>
+
+* -----------------------------------------------------------------------
+* Ajax поиск
+* -----------------------------------------------------------------------
+
+    Добавить в ajax запрос 
+        data: {
+            CRD_search: document.querySelector('#search_input').value,
+        },
+
+    JavaScript
+        $("#search_input").keyup(() => credoSearch());
+
+* -----------------------------------------------------------------------
+*/
+?>
+

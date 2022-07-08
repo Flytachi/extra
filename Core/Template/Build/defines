@@ -1,0 +1,25 @@
+<?php
+
+// Dirs
+define('APP_FOLDER', 'App');
+define('APP_PUBLIC', 'public');
+
+// Cfg
+define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
+define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
+
+// Template
+define('VIEW_FOLDER', 'views');
+define('VIEW_TEMPLATE', 'template.php');
+
+// Route
+define('ROUTE_MAIN_CONTROLLER', 'Main');
+define('ROUTE_MAIN_ACTION', 'index');
+define('ROUTE_PLUGIN_SYSTEM', true);
+
+if (ROUTE_PLUGIN_SYSTEM) {
+    define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');
+    define('ROUTE_PLUGIN_MAIN_ACTION', 'index');
+}
+
+?>

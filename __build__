@@ -1,0 +1,67 @@
+#!/usr/bin/env php
+<?php
+// Версия PHP 7.4
+if (PHP_VERSION == 7.4) {
+    
+    $ROOT = dirname(__DIR__, 2);
+   
+    $DIRS = [
+        "$ROOT/App/controllers",
+        "$ROOT/App/models",
+        "$ROOT/App/dist",
+        "$ROOT/App/dist/data",
+        "$ROOT/public",
+        "$ROOT/public/static",
+        "$ROOT/public/views",
+        "$ROOT/public/views/error",
+    ];
+    $FILES = array(
+        "$ROOT/App/defines.php" => "$ROOT/App/extra/Core/Template/Build/defines",
+        "$ROOT/App/bootstrap.php" => "$ROOT/App/extra/Core/Template/Build/bootstrap",
+        "$ROOT/.gitignore" => "$ROOT/App/extra/Core/Template/Build/gitignore",
+        "$ROOT/box" => "$ROOT/App/extra/Core/Template/Build/box",
+        //
+        "$ROOT/public/.htaccess" => "$ROOT/App/extra/Core/Template/Build/htaccess",
+        "$ROOT/public/index.php" => "$ROOT/App/extra/Core/Template/Build/index",
+        "$ROOT/public/views/template.php" => "$ROOT/App/extra/Core/Template/Build/template",
+        //
+        "$ROOT/public/views/error/400.php" => "$ROOT/App/extra/Core/Template/Build/Errors/400",
+        "$ROOT/public/views/error/401.php" => "$ROOT/App/extra/Core/Template/Build/Errors/401",
+        "$ROOT/public/views/error/403.php" => "$ROOT/App/extra/Core/Template/Build/Errors/403",
+        "$ROOT/public/views/error/404.php" => "$ROOT/App/extra/Core/Template/Build/Errors/404",
+        "$ROOT/public/views/error/419.php" => "$ROOT/App/extra/Core/Template/Build/Errors/419",
+        "$ROOT/public/views/error/423.php" => "$ROOT/App/extra/Core/Template/Build/Errors/423",
+        "$ROOT/public/views/error/500.php" => "$ROOT/App/extra/Core/Template/Build/Errors/500",
+        "$ROOT/public/views/error/503.php" => "$ROOT/App/extra/Core/Template/Build/Errors/503",
+        "$ROOT/public/views/error/system.php" => "$ROOT/App/extra/Core/Template/Build/Errors/system",
+    );
+
+    foreach ($DIRS as $dirPath) if(!is_dir($dirPath)) mkdir($dirPath);
+    
+    foreach ($FILES as $filePath => $template) {
+        if (!file_exists($filePath)) {
+            $fr = fopen($filePath, 'w');
+            fwrite($fr, file_get_contents($template));
+            fclose($fr);
+        }
+    }
+
+    require $ROOT . '/App/extra/Function/Console.php';
+    multiCopy("$ROOT/App/extra/Core/Template/Static", "$ROOT/public/static/warframe");
+
+    require $ROOT . '/App/extra/Core/Command/__cfg.php';
+    require $ROOT . '/App/extra/Core/Command/__make.php';
+    require $ROOT . '/App/defines.php';
+    new __Cfg("init");
+    new __Make('controller', 'main');
+
+    echo "\033[32m"." BUILDING SUCCESS.\n";
+
+}else {
+    echo "\033[32m"." Пожалуйста используйте PHP версии => 7.4\n";
+    echo "\033[33m"." Текущая версия PHP => ".PHP_VERSION."\n";
+}
+
+echo "\033[0m";
+
+?>

@@ -1,0 +1,39 @@
+<?php
+
+class _ControllerIndex_ extends Controller
+{
+    public $onHook = false;
+	public $onAuthHook = false;
+
+	public $onDelete = false;
+	public $onAuthDelete = false;
+
+    public $onRestore = false;
+	public $onAuthRestore = false;
+	
+	public $onRemove = false;
+	public $onAuthRemove = false;
+
+    public function index()
+    {
+        dd("index");
+    }
+
+    public function get($pk = null)
+	{
+		if ($pk) {
+			$this->getElement($pk);
+			header('Content-type: application/json');
+			echo json_encode($this->model->getData());
+		} else dd("Form in create new element");
+        /*
+        if($pk) $this->getElement($pk);
+        $this->view('.', array(
+            'model' => $this->model
+        ));
+        */
+	}
+    
+}
+
+?>

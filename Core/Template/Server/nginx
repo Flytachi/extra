@@ -1,0 +1,49 @@
+server {
+    listen __PORT__;
+    server_name __HOSTS__;
+    root __ROOT__;
+    
+    # limit_conn perip 10;
+    # limit_conn perserver 100;
+    __ERRORS__
+
+    # Security
+    if ($request_method !~ ^(GET|HEAD|POST)$ ) {return 444;}
+    if ($http_user_agent ~* LWP::Simple|BBBike|wget) {return 403;}
+    if ($http_user_agent ~* msnbot|scrapbot) {return 403;}
+    if ($http_referer ~* (babes|forsale|girl|jewelry|love|nudit|organic|poker|porn|sex|teen) ){return 403;}
+    
+    location ~ (core.x|box|.zip|.key|.cfg|.gitignore|.json)$ {return 404;}
+    location /storage/ {
+        valid_referers none blocked __HOSTS__;
+        if ($invalid_referer) {return 403;}
+    }
+
+    location / {
+        index index.html index.htm index.php;
+        try_files $uri $uri/ @rewrite;
+    }
+
+    location ~* ^/(backup|extra|tools|model)($|\/) {
+        deny all;
+        return 404;
+    }
+
+    location ~ \.php$ {
+        try_files $fastcgi_script_name =404;
+        include fastcgi_params;
+
+        fastcgi_pass                        unix:/run/php-fpm7/php-fpm.sock;
+        fastcgi_index                       index.php;
+        fastcgi_buffers                     8 16k;
+        fastcgi_buffer_size                 32k;
+
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_param SCRIPT_FILENAME       $realpath_root$fastcgi_script_name;
+        #fastcgi_param PHP_ADMIN_VALUE      "open_basedir=$base/:/usr/lib/php/:/tmp/";
+    }
+
+    location @rewrite {
+        rewrite ^ $uri.php last;
+    }
+}
