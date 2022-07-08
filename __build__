@@ -3,6 +3,23 @@
 // Версия PHP 7.4
 if (PHP_VERSION == 7.4) {
     
+    if (is_dir(__DIR__ . '/.git')) {
+        function rrmdir($dir) { 
+            if (is_dir($dir)) { 
+                $objects = scandir($dir); 
+                foreach ($objects as $object) { 
+                    if ($object != "." && $object != "..") { 
+                        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object); 
+                    } 
+                }
+                reset($objects); 
+                rmdir($dir); 
+            }
+        }
+    
+        rrmdir(__DIR__ . '/.git');
+    }
+    
     $ROOT = dirname(__DIR__, 2);
    
     $DIRS = [
