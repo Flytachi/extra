@@ -79,7 +79,7 @@ function importController(String ...$controllers){
 
 function importPluginController(String $plugin, String ...$controllers){
     foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/controllers/$controller.php";
+        $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin/controllers/$controller.php";
         if (file_exists($path)) {
             try { 
                 include $path;
@@ -94,7 +94,7 @@ function importPluginController(String $plugin, String ...$controllers){
 
 function importPluginModel(String $plugin, String ...$models){
     foreach ($models as $model) {
-        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/models/$model.php";
+        $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin/models/$model.php";
         if (file_exists($path)) {
             try { 
                 if( !class_exists($model) ) include $path;
@@ -111,7 +111,7 @@ function importPluginModel(String $plugin, String ...$models){
 function checkPlugin(String $plugin)
 {
     if(empty($plugin)) return false;
-    $path = dirname(__DIR__, 3) . "/Plugins/$plugin";
+    $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin";
     return is_dir($path);
 }
 
