@@ -8,7 +8,6 @@ trait CredoQuery
 
             if ($data = implode(',', $items)) $this->Data($data);
             $this->generateSql();
-            $this->db = (new Connect($this->DatabaseCfg(), $this->debug))->connection();
             $get = $this->db->query($this->CRD_sql)->fetch(\PDO::FETCH_OBJ);
             return $get;
 
@@ -66,7 +65,6 @@ trait CredoQuery
                 $this->CRD_sql .= " LIMIT $this->CRD_limit OFFSET $offset";
             }
 
-            $this->db = (new Connect($this->DatabaseCfg(), $this->debug))->connection();
             $list = $this->db->query($this->CRD_sql)->fetchAll(\PDO::FETCH_OBJ);
             if ($counter) {
                 $off_count = (($this->CRD_limit) ? $offset : 0) + 1;
@@ -86,7 +84,6 @@ trait CredoQuery
 
             $this->Data("id");
             $this->generateSql();
-            $this->db = (new Connect($this->DatabaseCfg(), $this->debug))->connection();
             $get = $this->db->query($this->CRD_sql)->fetchColumn();
             return $get;
 

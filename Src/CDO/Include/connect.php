@@ -1,12 +1,9 @@
 <?php
 
-class Connect
-{
-    private String $DNS;
-    private String $user;
-    private String $password;
-    private Bool $debug;
 
+class CDO extends PDO
+{
+    
     function __construct(Array $params, $debug = false)
     {
         if (is_null($params['DRIVER'])) dieConnection("Connection: driver not found!");
@@ -19,37 +16,31 @@ class Connect
         $this->user = $params['USER'];
         $this->password = $params['PASS'];
         $this->debug = $debug;
-    }
-
-    public function connection()
-    {
         try {
-            $db = new PDO($this->DNS, $this->user, $this->password);
-            $db->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $db->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
-            if ( $this->debug ) $db->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return $db;
+            parent::__construct($this->DNS, $this->user, $this->password);
+            $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
+            if ( $this->debug ) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
             dieConnection($e->getMessage());
         }
     }
 
-    final public function cInsert(String $tb, Array $post)
+    final public function insert(String $tb, Array $post)
     {
         $col = implode(",", array_keys($post));
         $val = ":".implode(", :", array_keys($post));
         $sql = "INSERT INTO $tb ($col) VALUES ($val)";
         try{
-            $db = $this->connection();
-            $db->prepare($sql)->execute($post);
-            return $db->lastInsertId();
+            $this->prepare($sql)->execute($post);
+            return $this->lastInsertId();
         }
         catch (\PDOException $ex) {
             return $ex->getMessage();
         }
     }
 
-    final public function cUpdate(string $tb, array $post, $pk)
+    final public function update(string $tb, array $post, $pk)
     {
         foreach (array_keys($post) as $key) {
             if (isset($col)) {
@@ -79,8 +70,7 @@ class Connect
             $sql = "UPDATE $tb SET $col WHERE id = $pk";
         }
         try{
-            $db = $this->connection();
-            $stm = $db->prepare($sql)->execute($post);
+            $stm = $this->prepare($sql)->execute($post);
             return $stm;
         }
         catch (\PDOException $ex) {
@@ -88,11 +78,10 @@ class Connect
         }
     }
 
-    final public function cDelete($tb, $pk, $name_pk = null)
+    final public function delete($tb, $pk, $name_pk = null)
     {
         $name_pk = ($name_pk) ? $name_pk : "id";
-        $db = $this->connection();
-        $stmt = $db->prepare("DELETE FROM $tb WHERE $name_pk = :item");
+        $stmt = $this->prepare("DELETE FROM $tb WHERE $name_pk = :item");
         $stmt->bindValue(':item', $pk);
         $stmt->execute();
         return $stmt->rowCount();
@@ -112,7 +101,7 @@ class Connect
     static function cleanForm(Array $array) 
     {
         foreach ($array as $key => $value) {
-            $array[$key] = Connect::clean($value);
+            $array[$key] = CDO::clean($value);
         };
         return $array;
     }

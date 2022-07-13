@@ -14,7 +14,7 @@ abstract class Credo implements CredoInterface
     private String $CRD_searchGetName = 'CRD_search=';
     private Int $CRD_limit = 0;
     private Bool $CRD_error = false;
-    public PDO $db;
+    public CDO $db;
 
     use 
         CredoQuery,
@@ -24,13 +24,18 @@ abstract class Credo implements CredoInterface
 
     
     public function __construct($table_As = null) {
-        $this->debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
         if ($table_As) $this->CRD_as = $table_As;
+        $this->debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
+        $this->setCfg();
     }
 
-    public function DatabaseCfg()
+    public function setCfg($cfgDatabase = null)
     {
-        return cfgGet()['DATABASE'];
+        if ($cfgDatabase) {
+            $this->db = new CDO($cfgDatabase, $this->debug);
+        } else {
+            $this->db = new CDO(cfgGet()['DATABASE'], $this->debug);
+        }
     }
 
     private function generateSql()

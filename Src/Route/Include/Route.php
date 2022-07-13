@@ -141,6 +141,7 @@ class Route
 	static function redirect(String $url = null, Array $param = null) {
 		if ($url) header("location: /$url " . arrayToRequest($param));
 		else header("location:" . $_SERVER['HTTP_REFERER']);
+		exit;
 	}
 	
 	static function ErrorPage($code)

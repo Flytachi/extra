@@ -4,15 +4,14 @@ trait ModelTSave
 {
     public function saveBefore()
     {
-        $this->db = $this->con->connection();
         $this->db->beginTransaction();
-        $this->setData(Connect::cleanForm($this->getData()));
-        $this->setData(Connect::toNull($this->getData()));
+        $this->setData(CDO::cleanForm($this->getData()));
+        $this->setData(CDO::toNull($this->getData()));
     }
 
     public function saveBody()
     {
-        $object = $this->con->cInsert($this->table, $this->getData());
+        $object = $this->db->insert($this->table, $this->getData());
         if (!is_numeric($object)) $this->error($object);
         $this->setPk($object);
     }
@@ -27,15 +26,14 @@ trait ModelTUpdate
 {
     public function updateBefore()
     {
-        $this->db = $this->con->connection();
         $this->db->beginTransaction();
-        $this->setData(Connect::cleanForm($this->getData()));
-        $this->setData(Connect::toNull($this->getData()));
+        $this->setData(CDO::cleanForm($this->getData()));
+        $this->setData(CDO::toNull($this->getData()));
     }
 
     public function updateBody()
     {
-        $object = $this->con->cUpdate($this->table, $this->getData(), $this->getPk());
+        $object = $this->db->update($this->table, $this->getData(), $this->getPk());
         if (!is_numeric($object) and $object <= 0) $this->error($object);
     }
 
@@ -49,13 +47,12 @@ trait ModelTDelete
 {
     public function deleteBefore()
     {
-        $this->db = $this->con->connection();
         $this->db->beginTransaction();
     }
 
     public function deleteBody()
     {
-        $object = $this->con->cDelete($this->table, $this->getPk());
+        $object = $this->db->delete($this->table, $this->getPk());
         if ($object <= 0) $this->error($object);
     }
 

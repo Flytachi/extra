@@ -12,7 +12,6 @@ abstract class Model extends Credo implements ModelInterface
     private $pk;
     private $data = [];
     protected $table = '';
-    public Connect $con;
 
     use
         ModelTSave,
@@ -59,7 +58,6 @@ abstract class Model extends Credo implements ModelInterface
     final public function save($data)
     {
         $this->setData($data);
-        $this->con = new Connect($this->DatabaseCfg(), $this->debug);
         $this->saveBefore();
         $this->saveBody();
         $this->saveAfter();
@@ -70,7 +68,6 @@ abstract class Model extends Credo implements ModelInterface
     {
         $this->setPk($pk);
         $this->setData($data);
-        $this->con = new Connect($this->DatabaseCfg(), $this->debug); 
         $this->updateBefore();
         $this->updateBody();
         $this->updateAfter();
@@ -80,7 +77,6 @@ abstract class Model extends Credo implements ModelInterface
     final public function delete($pk)
     {
         $this->setPk($pk);
-        $this->con = new Connect($this->DatabaseCfg(), $this->debug);
         $this->deleteBefore();
         $this->deleteBody();
         $this->deleteAfter();
