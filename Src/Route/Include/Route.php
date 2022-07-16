@@ -115,7 +115,7 @@ class Route
 		}
 	}
 
-	static function urlToArray(string $url)
+	static function urlToArray(string $url): array
     {
         $code = explode('?', $url);
         $result = [];
@@ -130,7 +130,8 @@ class Route
         return array('url' => $code[0], 'get' => $result);
     }
 
-	static function isAuth($redirect = false){
+	static function isAuth($redirect = false)
+	{
 		if ($redirect) {
 			if (empty($_SESSION['id'])) Route::redirect("auth/login");
 		} else {
@@ -138,13 +139,14 @@ class Route
 		}
 	}
 	
-	static function redirect(String $url = null, Array $param = null) {
+	static function redirect(String $url = null, Array $param = null): never
+	{
 		if ($url) header("location: /$url " . arrayToRequest($param));
 		else header("location:" . $_SERVER['HTTP_REFERER']);
-		exit;
+		exit();
 	}
 	
-	static function ErrorPage($code)
+	static function ErrorPage($code): never
 	{
         header("HTTP/1.1 $code " . Route::$ErrorStatus["$code"]);
 		header("Status: $code " . Route::$ErrorStatus["$code"]);
@@ -152,7 +154,7 @@ class Route
 		die;
 	}
 
-	static function ErrorResponseJson($data)
+	static function ErrorResponseJson($data): never
 	{
         header('Content-type: application/json');
 		echo json_encode($data);

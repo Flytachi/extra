@@ -1,6 +1,6 @@
 <?php
 
-function dieConnection($_error = null)
+function dieConnection($_error = null): never
 {
     die(include dirname(__DIR__, 3) . "/" . APP_PUBLIC . "/" . VIEW_FOLDER . "/error/system.php"); 
 }
@@ -11,20 +11,24 @@ function cfgGet(): array
     return json_decode(zlib_decode(hex2bin( str_replace("\n", "", file_get_contents(CFG_PATH_CLOSE)) )), true);
 }
 
-function dd($value = null) {
+function dd($value = null): never
+{
     echo '<pre style="background-color: black; color: #00ff00; border-style: solid; border-color: #ff0000; border-width: medium;">';
     print_r($value);
     echo '</pre>';
+    exit();
 }
 
-function parad($title = null, $value = null) {
+function parad($title = null, $value = null) 
+{
     echo '<pre style="background-color: black; color: #00ff00; border-style: solid; border-color: #ff0000; border-width: medium;">';
     echo "<strong style=\"color: #ffffff;\">$title</strong><br>";
     print_r($value);
     echo '</pre>';
 }
 
-function getDirContent($dir, $filter = '', &$results = array()) {
+function getDirContent($dir, $filter = '', &$results = array())
+{
     $files = scandir($dir);
 
     foreach($files as $key => $value){
@@ -40,13 +44,15 @@ function getDirContent($dir, $filter = '', &$results = array()) {
     return $results;
 }
 
-function importLib(String ...$libs){
+function importLib(String ...$libs)
+{
     foreach ($libs as $lib) {
         include dirname(__DIR__, 2) ."/libs/$lib";
     }
 }
 
-function importModel(String ...$models){
+function importModel(String ...$models)
+{
     foreach ($models as $model) {
         $path = dirname(__DIR__, 2) .'/models/' . $model . '.php';
         if (file_exists($path)) {
@@ -62,7 +68,8 @@ function importModel(String ...$models){
     }
 }
 
-function importController(String ...$controllers){
+function importController(String ...$controllers)
+{
     foreach ($controllers as $controller) {
         $path = dirname(__DIR__, 2) .'/controllers/' . $controller . '.php';
         if (file_exists($path)) {
@@ -77,7 +84,8 @@ function importController(String ...$controllers){
     }
 }
 
-function importPluginController(String $plugin, String ...$controllers){
+function importPluginController(String $plugin, String ...$controllers)
+{
     foreach ($controllers as $controller) {
         $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin/controllers/$controller.php";
         if (file_exists($path)) {

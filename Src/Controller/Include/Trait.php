@@ -22,11 +22,10 @@ trait ControllerCrudMethod
 		$this->renderJsonSuccess($result);
     }
 
-	public function delete($pk = null)
+	public function delete($pk)
     {
 		if ($this->onAuthDelete == true) Route::isAuth();
 		if ($this->onDelete == false) Route::ErrorPage('404');
-        if (!$pk) Route::ErrorPage(400);
 
 		$this->prepareDelete($pk);
 
@@ -38,11 +37,10 @@ trait ControllerCrudMethod
 		} else Route::ErrorPage(404);
     }
 
-	public function restore($pk = null)
+	public function restore($pk)
     {
 		if ($this->onAuthRestore == true) Route::isAuth();
 		if ($this->onRestore == false) Route::ErrorPage('404');
-        if (!$pk) Route::ErrorPage(400);
 
 		$this->prepareRestore($pk);
 
@@ -54,11 +52,10 @@ trait ControllerCrudMethod
 		} else Route::ErrorPage(404);
     }
 
-	public function remove($pk = null)
+	public function remove($pk)
     {
 		if ($this->onAuthRemove == true) Route::isAuth();
 		if ($this->onRemove == false) Route::ErrorPage('404');
-        if (!$pk) Route::ErrorPage(400);
 
 		$this->prepareRemove($pk);
 
@@ -70,8 +67,8 @@ trait ControllerCrudMethod
 		} else Route::ErrorPage(404);
     }
 
-	public function prepareHook($pk = null, $data) {}
-	public function prepareHookUpdate($pk, $data) {}
+	public function prepareHook($data, $pk = null) {}
+	public function prepareHookUpdate($data, $pk) {}
 	public function prepareHookSave($data) {}
 	public function prepareDelete($pk) {}
 	public function prepareRestore($pk) {}

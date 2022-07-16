@@ -1,11 +1,13 @@
 <?php
 
-function isMaster() {
+function isMaster(): bool
+{
     if (isset($_SESSION) and isset($_SESSION['is_master']) and $_SESSION['is_master']) return true;
     else return false;
 }
 
-function isAdmin() {
+function isAdmin(): bool
+{
     if (isset($_SESSION) and isset($_SESSION['is_admin']) and $_SESSION['is_admin']) return true;
     else return false;
 }
@@ -20,7 +22,8 @@ function isPermission(String $name)
     
 }
 
-function arrayToRequest(Array $param = null) {
+function arrayToRequest(Array $param = null) 
+{
     if ($param == null) return null;
     else {
         $str = "?";

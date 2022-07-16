@@ -83,13 +83,14 @@ abstract class Model extends Credo implements ModelInterface
         return $this->getPk();
     }
 
-    final public function csrfToken(){
+    final public function csrfToken()
+    {
         $token = bin2hex(random_bytes(24));
         $_SESSION['CSRFTOKEN'] =  $token;
         echo "<input type=\"hidden\" name=\"csrf_token\" value=\"$token\">";
     }
 
-    final public function stop()
+    final public function stop(): never
     {
         if($this->db->inTransaction()) $this->db->rollBack();
         exit;

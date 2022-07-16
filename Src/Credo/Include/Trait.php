@@ -236,7 +236,7 @@ trait CredoPanel
         }
     }
 
-    final private function buildPanel(int $page)
+    private function buildPanel(int $page)
     {
         $this->selfP = $this->CRD_firstBack = $this->CRD_nextLast = "";
 
