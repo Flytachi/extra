@@ -22,17 +22,17 @@ class CDO extends PDO
             $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
             if ( $this->debug ) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
-            dieConnection($e->getMessage());
+            if($debug) dieConnection($e->getMessage());
+            else Route::ErrorPage(500);
         }
     }
 
-    final public function insert(String $tb, Array $post)
+    final public function insert(String $table, Array $post)
     {
         $col = implode(",", array_keys($post));
         $val = ":".implode(", :", array_keys($post));
-        $sql = "INSERT INTO $tb ($col) VALUES ($val)";
         try{
-            $this->prepare($sql)->execute($post);
+            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($post);
             return $this->lastInsertId();
         }
         catch (\PDOException $ex) {
@@ -40,54 +40,50 @@ class CDO extends PDO
         }
     }
 
-    final public function update(string $tb, array $post, $pk)
+    final public function update(String $table, Array $post, Int|String|Array $pk)
     {
-        foreach (array_keys($post) as $key) {
-            if (isset($col)) {
-                $col .= ", ".$key."=:".$key;
-            }else{
-                $col = $key."=:".$key;
-            }
+        // Set
+        $set = "";
+        foreach ($post as $key => $value) {
+            $post["S_$key"] = $value; unset($post[$key]);
+            $set .= ", $key=:S_$key";
         }
-        if (is_array($pk)) {
-            foreach ($pk as $key => $value) {
-                if (is_array($value)) {
-                    if (isset($filter)) {
-                        $filter .= " AND ".$key." IN (".implode(',', $value).")";
-                    }else{
-                        $filter = $key." IN (".implode(',', $value).")";
-                    }
-                } else {
-                    if (isset($filter)) {
-                        $filter .= " AND ".$key."=".$value;
-                    }else{
-                        $filter = $key."=".$value;
-                    }
-                }
-            }
-            $sql = "UPDATE $tb SET $col WHERE $filter";
-        }else {
-            $sql = "UPDATE $tb SET $col WHERE id = $pk";
+
+        // Where
+        $where = "";
+        if(!is_array($pk)) $pk = array('id'=>$pk);
+        foreach ($pk as $key => $value) {
+            $pk["W_$key"] = $value; unset($pk[$key]);
+            $where .= " AND $key=:W_$key";
         }
-        try{
-            $stm = $this->prepare($sql)->execute($post);
-            return $stm;
-        }
-        catch (\PDOException $ex) {
-            return $ex->getMessage();
+
+        // Send
+        try {
+            $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
+            $stm->execute(array_merge($pk,$post));
+            return $stm->rowCount();
+        } catch (\PDOException $ex) {
+            return ($this->debug) ? $ex->getMessage() : "Ошибка обновления элемента.";
         }
     }
 
-    final public function delete($tb, $pk, $name_pk = null)
+    final public function delete(String $table, Int|String|Array $pk)
     {
-        $name_pk = ($name_pk) ? $name_pk : "id";
-        $stmt = $this->prepare("DELETE FROM $tb WHERE $name_pk = :item");
-        $stmt->bindValue(':item', $pk);
-        $stmt->execute();
-        return $stmt->rowCount();
+        $where = '';
+        if(!is_array($pk)) $pk = array('id'=>$pk);
+        foreach (array_keys($pk) as $key) $where .= " AND $key=:$key";
+
+        // Send
+        try {
+            $stmt = $this->prepare("DELETE FROM $table WHERE " . ltrim($where, " AND "));
+            $stmt->execute($pk);
+            return $stmt->rowCount();
+        } catch (\PDOException $ex) {
+            return ($this->debug) ? $ex->getMessage() : "Ошибка удаления элемента.";
+        }
     }
 
-    static function clean($value = "")
+    static function clean(Array|String|Int $value = "")
     {
         if (!is_array($value)) {
             $value = trim($value);
@@ -98,7 +94,7 @@ class CDO extends PDO
         return $value;
     }
 
-    static function cleanForm(Array $array) 
+    static function cleanForm(Array $array): array
     {
         foreach ($array as $key => $value) {
             $array[$key] = CDO::clean($value);
@@ -106,12 +102,10 @@ class CDO extends PDO
         return $array;
     }
 
-    static function toNull(Array $array)
+    static function toNull(Array $array): array
     {
         foreach ($array as $key => $value) {
-            if(!$value){
-                $array[$key] = null;
-            }
+            if(!$value) $array[$key] = null;
         }
         return $array;
     }

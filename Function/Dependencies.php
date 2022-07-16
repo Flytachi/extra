@@ -11,7 +11,7 @@ function cfgGet(): array
     return json_decode(zlib_decode(hex2bin( str_replace("\n", "", file_get_contents(CFG_PATH_CLOSE)) )), true);
 }
 
-function dd($value = null): never
+function dd(...$value): never
 {
     echo '<pre style="background-color: black; color: #00ff00; border-style: solid; border-color: #ff0000; border-width: medium;">';
     print_r($value);

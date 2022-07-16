@@ -34,7 +34,7 @@ trait ModelTUpdate
     public function updateBody()
     {
         $object = $this->db->update($this->table, $this->getData(), $this->getPk());
-        if (!is_numeric($object) and $object <= 0) $this->error($object);
+        if (!is_numeric($object)) $this->error($object);
     }
 
     public function updateAfter()
@@ -53,7 +53,7 @@ trait ModelTDelete
     public function deleteBody()
     {
         $object = $this->db->delete($this->table, $this->getPk());
-        if ($object <= 0) $this->error($object);
+        if (!is_numeric($object)) $this->error($object);
     }
 
     public function deleteAfter()
