@@ -3,8 +3,9 @@
 abstract class Credo implements CredoInterface
 {
 
+    public String $CRD_as = '';
+    
     private String $CRD_sql;
-    private String $CRD_as = '';
     private String $CRD_data = '*';
     private String $CRD_join = '';
     private String $CRD_where = '';

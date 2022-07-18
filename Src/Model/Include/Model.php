@@ -40,6 +40,11 @@ abstract class Model extends Credo implements ModelInterface
         return $this->table;
     }
 
+    final public function getTableAs()
+    {
+        return $this->CRD_as;
+    }
+
     final public function getData(String $item = null)
     {
         return ($item == null) ? $this->data : ((array) $this->data)[$item] ?? null;

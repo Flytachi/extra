@@ -98,7 +98,7 @@ trait CredoQuery
 
 trait CredoParams
 {
-    final public function as(String $context = "")
+    final public function as(String $context)
     {
         /*
             Установка столбцов которые хотим вытащить, по умолчаню все!
@@ -125,35 +125,35 @@ trait CredoParams
         return $this;
     }
 
-    final public function Join(String $context = null, String $on = null)
+    final public function Join(Model $model, String $on)
     {
         /*
             Установка дополнений в скрипе!
             До WHERE!
         */
-        if($on) $context = $context . " ON(" . $on . ")";
+        $context = $model->getTable() . ' ' . $model->getTableAs() . " ON(" . $on . ")";
         $this->CRD_join .= " JOIN " . $context;
         return $this;
     }
 
-    final public function JoinLEFT(String $context = null, String $on = null)
+    final public function JoinLEFT(Model $model, String $on)
     {
         /*
             Установка дополнений в скрипе!
             До WHERE!
         */
-        if($on) $context = $context . " ON(" . $on . ")";
+        $context = $model->getTable() . ' ' . $model->getTableAs() . " ON(" . $on . ")";
         $this->CRD_join .= " LEFT JOIN " . $context;
         return $this;
     }
 
-    final public function JoinRIGHT(String $context = null, String $on = null)
+    final public function JoinRIGHT(Model $model, String $on)
     {
         /*
             Установка дополнений в скрипе!
             До WHERE!
         */
-        if($on) $context = $context . " ON(" . $on . ")";
+        $context = $model->getTable() . ' ' . $model->getTableAs() . " ON(" . $on . ")";
         $this->CRD_join .= " RIGHT JOIN " . $context;
         return $this;
     }
@@ -193,7 +193,7 @@ trait CredoParams
         return $this;
     }
 
-    final public function Order(String $context = null)
+    final public function Order(String $context)
     {
         /*
             Установка порядка сортировки!
@@ -202,7 +202,7 @@ trait CredoParams
         return $this;
     }
 
-    final public function Group(String $context = null)
+    final public function Group(String $context)
     {
         /*
             Установка групировки!
