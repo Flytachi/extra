@@ -2,7 +2,7 @@
 
 class _ModelIndex_ extends Model
 {
-    public $table = '_TableIndex_';
+    public string $table = '_TableIndex_';
 
     
 }

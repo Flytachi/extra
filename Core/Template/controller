@@ -2,17 +2,17 @@
 
 class _ControllerIndex_ extends Controller
 {
-    public $onHook = false;
-	public $onAuthHook = false;
+    public bool $onHook = false;
+	public bool $onAuthHook = false;
 
-	public $onDelete = false;
-	public $onAuthDelete = false;
+	public bool $onDelete = false;
+	public bool $onAuthDelete = false;
 
-    public $onRestore = false;
-	public $onAuthRestore = false;
+    public bool $onRestore = false;
+	public bool $onAuthRestore = false;
 	
-	public $onRemove = false;
-	public $onAuthRemove = false;
+	public bool $onRemove = false;
+	public bool $onAuthRemove = false;
 
     public function index()
     {

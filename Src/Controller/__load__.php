@@ -4,17 +4,17 @@ abstract class Controller {
 	
     public Model $model;
     public $template = VIEW_TEMPLATE;
-    protected $onHook = false;
-    protected $onAuthHook = false;
+    protected bool $onHook = false;
+    protected bool $onAuthHook = false;
 
-    protected $onDelete = false;
-    protected $onAuthDelete = false;
+    protected bool $onDelete = false;
+    protected bool $onAuthDelete = false;
     
-    protected $onRestore = false;
-    protected $onAuthRestore = false;
+    protected bool $onRestore = false;
+    protected bool $onAuthRestore = false;
     
-    protected $onRemove = false;
-    protected $onAuthRemove = false;
+    protected bool $onRemove = false;
+    protected bool $onAuthRemove = false;
 
     final public function setModel(string $modelName): void
     {
@@ -50,10 +50,10 @@ abstract class Controller {
         if (empty($_POST)) Route::ErrorPage(400);
         $this->csrfTokenChange();
 
-        $this->prepareHook($pk, $_POST);
+        $this->prepareHook($_POST, $pk);
 
         if ( $pk ) {
-            $this->prepareHookUpdate($pk, $_POST);
+            $this->prepareHookUpdate($_POST, $pk);
             $result = $this->model->update($pk, $_POST);
         } else {
             $this->prepareHookSave($_POST);
@@ -157,12 +157,12 @@ abstract class Controller {
         PREPARE
     ---------------------------------------------
     */
-    public function prepareHook($data, $pk = null) {}
-    public function prepareHookUpdate($data, $pk) {}
-    public function prepareHookSave($data) {}
-    public function prepareDelete($pk) {}
-    public function prepareRestore($pk) {}
-    public function prepareRemove($pk) {}
+    public function prepareHook(array $data, string $pk = null) {}
+    public function prepareHookUpdate(array $data, string $pk) {}
+    public function prepareHookSave(array $data) {}
+    public function prepareDelete(string $pk) {}
+    public function prepareRestore(string $pk) {}
+    public function prepareRemove(string $pk) {}
     /*
     ---------------------------------------------
     */
