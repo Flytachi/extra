@@ -2,7 +2,14 @@
 
 class CDO extends PDO
 {
-    
+    /**
+     * 
+     * CDO
+     * 
+     * @version 1.0
+     */
+
+
     function __construct(array $params, $debug = false)
     {
         if (is_null($params['DRIVER'])) dieConnection("Connection: driver not found!");
@@ -45,7 +52,7 @@ class CDO extends PDO
         $set = "";
         foreach ($post as $key => $value) {
             $post["S_$key"] = $value; unset($post[$key]);
-            $set .= ", $key=:S_$key";
+            $set .= ", `$key`=:S_$key";
         }
 
         // Where
@@ -53,7 +60,7 @@ class CDO extends PDO
         if(!is_array($pk)) $pk = array('id'=>$pk);
         foreach ($pk as $key => $value) {
             $pk["W_$key"] = $value; unset($pk[$key]);
-            $where .= " AND $key=:W_$key";
+            $where .= " AND `$key`=:W_$key";
         }
 
         // Send
@@ -70,7 +77,7 @@ class CDO extends PDO
     {
         $where = '';
         if(!is_array($pk)) $pk = array('id'=>$pk);
-        foreach (array_keys($pk) as $key) $where .= " AND $key=:$key";
+        foreach (array_keys($pk) as $key) $where .= " AND `$key`=:$key";
 
         // Send
         try {

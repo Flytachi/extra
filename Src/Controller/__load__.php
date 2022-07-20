@@ -1,7 +1,15 @@
 <?php
 
-abstract class Controller {
-	
+abstract class Controller 
+{
+    /**
+     * 
+     * Controller
+     * 
+     * @version 3.0
+     */
+
+
     public Model $model;
     public $template = VIEW_TEMPLATE;
     protected bool $onHook = false;
