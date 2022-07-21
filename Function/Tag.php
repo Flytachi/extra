@@ -12,7 +12,7 @@ function isAdmin(): bool
     else return false;
 }
 
-function isPermission(String $name)
+function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
     else {
@@ -22,7 +22,7 @@ function isPermission(String $name)
     
 }
 
-function arrayToRequest(Array $param = null) 
+function arrayToRequest(array $param = null): string
 {
     if ($param == null) return null;
     else {
@@ -32,7 +32,7 @@ function arrayToRequest(Array $param = null)
     }
 }
 
-function isActiveLink($link, $class = 'active')
+function isActiveLink(array|string $link, string $class = 'active'): void
 {
     if (is_array($link)) {
         if (in_array($_SERVER['REQUEST_URI'], $link)) echo $class; 
@@ -41,7 +41,7 @@ function isActiveLink($link, $class = 'active')
     }
 }
 
-function import(String $path)
+function import(string $path): void
 {
     include dirname(__DIR__, 3) . "/" . APP_PUBLIC . "/" . VIEW_FOLDER . "/$path.php";
 }
