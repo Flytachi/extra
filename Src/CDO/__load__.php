@@ -1,6 +1,8 @@
 <?php
 
-class CDO extends PDO
+namespace Extra\Src;
+
+class CDO extends \PDO
 {
     /**
      * 
@@ -24,16 +26,16 @@ class CDO extends PDO
         $this->debug = $debug;
         try {
             parent::__construct($this->DNS, $this->user, $this->password);
-            $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
-            if ( $this->debug ) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->SetAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+            $this->SetAttribute(\PDO::ATTR_EMULATE_PREPARES, False);
+            if ( $this->debug ) $this->SetAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $e) {
             if($debug) dieConnection($e->getMessage());
             else Route::ErrorPage(500);
         }
     }
 
-    final public function insert(string $table, array $post): int|string
+    final public function insert(string $table, array $post): string|false
     {
         $col = implode(",", array_keys($post));
         $val = ":".implode(", :", array_keys($post));
@@ -43,6 +45,7 @@ class CDO extends PDO
         }
         catch (\PDOException $ex) {
             return $ex->getMessage();
+            return ($this->debug) ? $ex->getMessage() : "Ошибка создания элемента.";
         }
     }
 

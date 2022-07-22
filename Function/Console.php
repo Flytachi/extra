@@ -22,4 +22,33 @@ function multiCopy($source, $dest, $over=false)
     }
 }
 
+function motherboardSeries(): string
+{
+    ob_start();
+    switch (PHP_OS) {
+        case 'Linux':
+            $result = system("cat /sys/devices/virtual/dmi/id/board_name"); 
+            break;
+        
+        case 'WINNT':
+            $result = system("wmic baseboard get product"); 
+            break;
+    }
+    ob_clean(); 
+    return $result;
+}
+
+function guardKeySet(string $license): void
+{
+    $fp = fopen(LICENSE_PATH_KEY, "w+");
+    fwrite($fp, $license);
+    fclose($fp);
+}
+
+function guardKeyGet(): object
+{
+    $data = file_get_contents(LICENSE_PATH_KEY);
+    return json_decode(zlib_decode(hex2bin($data)));
+}
+
 ?>

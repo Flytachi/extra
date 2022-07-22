@@ -1,5 +1,7 @@
 <?php
 
+namespace Extra\Src;
+
 abstract class Controller 
 {
     /**

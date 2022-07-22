@@ -1,5 +1,7 @@
 <?php
 
+use Extra\Src\Controller;
+
 class _ControllerIndex_ extends Controller
 {
     public bool $onHook = false;

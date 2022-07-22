@@ -1,5 +1,7 @@
 <?php
 
+namespace Extra\Src;
+
 class Route
 {
 	/**
@@ -41,6 +43,8 @@ class Route
 		
 		// Imports
 		if (checkPlugin($pluginName)) {
+			$path = dirname(__DIR__, 4) . "/Plugins/Frame.$pluginName/__frame__.php";
+			if ( file_exists($path) ) require $path;
 			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
 			if ( !empty($routes[4]) ) $params = ucfirst($routes[4]);
@@ -49,9 +53,9 @@ class Route
 			// Prefix
 			$modelName = $controllerName . 'Model';
 			$controllerName = $controllerName . 'Controller';
-
-			importPluginModel($pluginName, $modelName);
-			importPluginController($pluginName, $controllerName);
+		
+			importPluginModel(PLUGIN_NAME, $modelName);
+			importPluginController(PLUGIN_NAME, $controllerName);
 		} else {
 			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
 			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
@@ -73,7 +77,7 @@ class Route
 			// вызываем действие контроллера
 			try {
 				$controller->$actionName($params);
-			} catch (Throwable $e) {
+			} catch (\Throwable $e) {
 				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 				else Route::ErrorPage(400);
 			}
@@ -112,7 +116,7 @@ class Route
 			// вызываем действие контроллера
 			try {
 				$controller->$actionName($params);
-			} catch (Throwable $e) {
+			} catch (\Throwable $e) {
 				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 				else Route::ErrorPage(400);
 			}

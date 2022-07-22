@@ -22,7 +22,7 @@ function isPermission(string $name): bool
     
 }
 
-function arrayToRequest(array $param = null): string
+function arrayToRequest(array $param = null): ?string
 {
     if ($param == null) return null;
     else {

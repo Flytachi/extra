@@ -87,9 +87,9 @@ function importController(string ...$controllers): void
 function importPluginController(string $plugin, string ...$controllers): void
 {
     foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin/controllers/$controller.php";
+        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/controllers/$controller.php";
         if (file_exists($path)) {
-            try { 
+            try {
                 include $path;
             } catch (\Throwable $th) { 
                 if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в контроллере');
@@ -103,9 +103,9 @@ function importPluginController(string $plugin, string ...$controllers): void
 function importPluginModel(string $plugin, string ...$models): void
 {
     foreach ($models as $model) {
-        $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin/models/$model.php";
+        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/models/$model.php";
         if (file_exists($path)) {
-            try { 
+            try {
                 if( !class_exists($model) ) include $path;
             }
             catch (\Throwable $th) { 

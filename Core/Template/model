@@ -1,5 +1,7 @@
 <?php
 
+use Extra\Src\Model;
+
 class _ModelIndex_ extends Model
 {
     public string $table = '_TableIndex_';

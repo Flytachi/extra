@@ -1,5 +1,7 @@
 <?php
 
+namespace Extra\Src;
+
 abstract class Model
 {
     /**
@@ -209,7 +211,7 @@ abstract class Model
         QUERY
     ---------------------------------------------
     */
-    final public function get(string ...$items): object
+    final public function get(string ...$items): mixed
     {
         try {
 
@@ -224,7 +226,7 @@ abstract class Model
         }
     }
 
-    final public function by(array $params, string $item = ''): object
+    final public function by(array $params, string $item = ''): mixed
     {
         try {
             $where = '';
@@ -247,7 +249,7 @@ abstract class Model
         }
     }
 
-    final public function byId(int $id, string $item = ''): object
+    final public function byId(string $id, string $item = ''): mixed
     {
         try {
 
@@ -285,7 +287,7 @@ abstract class Model
         }
     }
 
-    final public function getId(): object
+    final public function getId(): mixed
     {
         try {
 

@@ -4,6 +4,9 @@
 define('APP_FOLDER', 'App');
 define('APP_PUBLIC', 'public');
 
+// License
+define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
+
 // Cfg
 define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
 define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
