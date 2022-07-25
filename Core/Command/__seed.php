@@ -43,7 +43,7 @@ class __Seed
 
     private function create_file(): bool
     {
-        $file = fopen(APP_FOLDER . "/$this->path/$this->name.$this->format", "w");
+        $file = fopen(FOLDER_APP . "/$this->path/$this->name.$this->format", "w");
         fwrite($file, json_encode($this->json, JSON_PRETTY_PRINT));
         return fclose($file);
     }

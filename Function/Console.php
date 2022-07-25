@@ -22,6 +22,20 @@ function multiCopy($source, $dest, $over=false)
     }
 }
 
+function softLicenseCorrect(): bool
+{
+    $cfg = cfgGet();
+    if ($cfg['SECURITY']['PRODUCT_GUARD']) {
+        $license = licenseKey();
+        $toDay = strtotime(date('Y-m-d'));
+        if (
+            ($cfg['SECURITY']['PRODUCT_FIRMWARE'] . '-' . motherboardSeries() === $license->licenseFirmware . '-' . $license->motherboardSeries)
+            and ($license->licenseDateFrom <= $toDay and $toDay <= $license->licenseDateTo)
+        ) return true;
+        else return false;
+    } else return true;
+}
+
 function motherboardSeries(): string
 {
     ob_start();
@@ -38,14 +52,7 @@ function motherboardSeries(): string
     return $result;
 }
 
-function guardKeySet(string $license): void
-{
-    $fp = fopen(LICENSE_PATH_KEY, "w+");
-    fwrite($fp, $license);
-    fclose($fp);
-}
-
-function guardKeyGet(): object
+function licenseKey(): object
 {
     $data = file_get_contents(LICENSE_PATH_KEY);
     return json_decode(zlib_decode(hex2bin($data)));

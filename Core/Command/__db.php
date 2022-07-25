@@ -4,8 +4,8 @@ class __Db
 {
     private $argument;
     private $name;
-    private String $path_database = APP_FOLDER . "/dist/database.sql";
-    private String $path_data_seed = APP_FOLDER . "/dist/data";
+    private String $path_database = FOLDER_APP . "/dist/database.sql";
+    private String $path_data_seed = FOLDER_APP . "/dist/data";
     private String $path_connection = "/Src/Connection/__load__.php";
     private String $seed_format = "json";
 

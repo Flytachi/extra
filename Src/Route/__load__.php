@@ -8,15 +8,17 @@ class Route
      * 
      * Route
      * 
-     * @version 2.0
+     * @version 3.0
      */
 
 	
-	static array $ErrorStatus = array(
+	static array $httpStatus = array(
+		200 => 'Success',
 		400 => 'Bad Request',
 		401 => 'Unauthorized',
 		403 => 'Forbidden',
 		404 => 'Not Found',
+		405 => 'Method Not Allowed',
 		419 => 'Authentication Timeout (not in RFC 2616)',
 		423 => 'Locked',
 		500 => 'Internal Server Error',
@@ -28,66 +30,8 @@ class Route
 		if (ROUTE_PLUGIN_SYSTEM) Route::routePlugin();
 		else Route::routeApp();	
 	}
-
-	static function routePlugin(): void
-	{
-		$pluginName = "";
-		$controllerName = ROUTE_PLUGIN_MAIN_CONTROLLER;
-		$actionName = ROUTE_MAIN_ACTION;
-		$params = null;
-
-		$data = Route::urlToArray($_SERVER['REQUEST_URI']);
-		$routes = explode('/', $data['url']);
-
-		if ( !empty($routes[1]) ) $pluginName = ucfirst($routes[1]);
-		
-		// Imports
-		if (checkPlugin($pluginName)) {
-			$path = dirname(__DIR__, 4) . "/Plugins/Frame.$pluginName/__frame__.php";
-			if ( file_exists($path) ) require $path;
-			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
-			if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
-			if ( !empty($routes[4]) ) $params = ucfirst($routes[4]);
-			$_GET = $data['get'];
-			
-			// Prefix
-			$modelName = $controllerName . 'Model';
-			$controllerName = $controllerName . 'Controller';
-		
-			importPluginModel(PLUGIN_NAME, $modelName);
-			importPluginController(PLUGIN_NAME, $controllerName);
-		} else {
-			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
-			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
-			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
-			$_GET = $data['get'];
-			
-			// Prefix
-			$modelName = $controllerName . 'Model';
-			$controllerName = $controllerName . 'Controller';
-
-			importModel($modelName);
-			importController($controllerName);
-		}
-		
-		// Imitation
-		$controller = new $controllerName;
-		if(class_exists($modelName)) $controller->setModel($modelName);
-		if(is_callable([$controller, $actionName])) {
-			// вызываем действие контроллера
-			try {
-				$controller->$actionName($params);
-			} catch (\Throwable $e) {
-				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-				else Route::ErrorPage(400);
-			}
-		} else {
-			// здесь также разумнее было бы кинуть исключение
-			Route::ErrorPage(404);
-		}
-	}
 	
-	static function routeApp(): void
+	static function routeApp(): never
 	{
 		$controllerName = ROUTE_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
@@ -97,6 +41,7 @@ class Route
 		$routes = explode('/', $data['url']);
 
 		if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
+		if ($controllerName === "Api") Route::routeApi($data);
 		if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 		if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
 		$_GET = $data['get'];
@@ -113,6 +58,91 @@ class Route
 		$controller = new $controllerName;
 		if(class_exists($modelName)) $controller->setModel($modelName);
 		if(is_callable([$controller, $actionName])) {
+			try {
+				$controller->$actionName($params);
+			} catch (\Throwable $e) {
+				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+				else Route::ErrorPage(400);
+			}
+			exit;
+		} else Route::ErrorPage(404);
+	}
+
+	static function routeApi(array $data): never
+	{
+		$routes = explode('/', $data['url']);
+		$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
+		$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
+		$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+		$_GET = $data['get'];
+		
+		// Prefix
+		$controllerName = $controllerName . 'Api';
+		
+		// Imports
+		importApi($controllerName);
+
+		// Imitation
+		$controller = new $controllerName;
+		if(is_callable([$controller, $actionName])) {
+			try {
+				$controller->$actionName($params);
+			} catch (\Throwable $e) {
+				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+				else Route::ApiError(500);
+			}
+			exit;
+		} else Route::ApiError(405);
+	}
+
+	static function routePlugin(): never
+	{
+		$pluginName = "";
+		$controllerName = ROUTE_PLUGIN_MAIN_CONTROLLER;
+		$actionName = ROUTE_MAIN_ACTION;
+		$params = null;
+
+		$data = Route::urlToArray($_SERVER['REQUEST_URI']);
+		$routes = explode('/', $data['url']);
+
+		if ( !empty($routes[1]) ) $pluginName = ucfirst($routes[1]);
+		if ($pluginName === "Api") Route::routeApi($data);
+
+		// Checking
+		if (checkPlugin($pluginName)) {
+			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
+			if ( file_exists($path) ) require $path;
+			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
+			if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
+			if ( !empty($routes[4]) ) $params = ucfirst($routes[4]);
+			$_GET = $data['get'];
+			
+			// Prefix
+			$modelName = $controllerName . 'Model';
+			$controllerName = $controllerName . 'Controller';
+		
+			// Imports
+			importPluginModel(PLUGIN_NAME, $modelName);
+			importPluginController(PLUGIN_NAME, $controllerName);
+		} else {
+			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
+			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
+			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
+			$_GET = $data['get'];
+			
+			// Prefix
+			$modelName = $controllerName . 'Model';
+			$controllerName = $controllerName . 'Controller';
+
+			// Imports
+			importModel($modelName);
+			importController($controllerName);
+		}
+		
+		// Imitation
+		$controller = new $controllerName;
+		if(class_exists($modelName)) $controller->setModel($modelName);
+		if(is_callable([$controller, $actionName])) {
 			// вызываем действие контроллера
 			try {
 				$controller->$actionName($params);
@@ -120,10 +150,8 @@ class Route
 				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 				else Route::ErrorPage(400);
 			}
-		} else {
-			// здесь также разумнее было бы кинуть исключение
-			Route::ErrorPage(404);
-		}
+			exit;
+		} else Route::ErrorPage(404);
 	}
 
 	static function urlToArray(string $url): array
@@ -159,8 +187,8 @@ class Route
 	
 	static function ErrorPage(int $code): never
 	{
-        header("HTTP/1.1 $code " . Route::$ErrorStatus[$code]);
-		header("Status: $code " . Route::$ErrorStatus[$code]);
+        header("HTTP/1.1 $code " . Route::$httpStatus[$code]);
+		header("Status: $code " . Route::$httpStatus[$code]);
 		if(explode('/', $_SERVER['PHP_SELF'])[1] != 'error') die( include VIEW_FOLDER . "/error/$code.php" );
 		die;
 	}
@@ -171,7 +199,35 @@ class Route
 		echo json_encode($data);
 		die;
 	}
-	
+
+	static function ApiSuccess(mixed $data = null): never
+	{
+		$code = 200;
+		$status = Route::$httpStatus['200'];
+		header("HTTP/1.1 $code " . $status);
+		header("Status: $code " . $status);
+		header('Content-type: application/json');
+		echo json_encode(array(
+			'statusCode' => $code,
+			'statusDescription' => $status,
+			'result' => $data
+		));
+		die;
+	}
+
+	static function ApiError(int $code, array $data = []): never
+	{
+		$status = Route::$httpStatus[$code];
+		header("HTTP/1.1 $code " . $status);
+		header("Status: $code " . $status);
+		header('Content-type: application/json');
+		echo json_encode(array(
+			'statusCode' => $code,
+			'statusDescription' => $status,
+			'result' => $data
+		));
+		die;
+	}
 }
 
 ?>

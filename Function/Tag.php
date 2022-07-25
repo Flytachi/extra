@@ -43,7 +43,7 @@ function isActiveLink(array|string $link, string $class = 'active'): void
 
 function import(string $path): void
 {
-    include dirname(__DIR__, 3) . "/" . APP_PUBLIC . "/" . VIEW_FOLDER . "/$path.php";
+    include dirname(__DIR__, 3) . "/" . FOLDER_PUBLIC . "/" . VIEW_FOLDER . "/$path.php";
 }
 
 ?>

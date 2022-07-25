@@ -11,7 +11,8 @@ class __Cfg
             'SERVER_PORT' => 80,
         ),
         'SECURITY' => array(
-            'SERIAL' => null,
+            'PRODUCT_GUARD' => null,
+            'PRODUCT_FIRMWARE' => null,
         ),
         'GLOBAL_SETTING' => array(
             'TIME_ZONE' => 'Asia/Samarkand',

@@ -44,9 +44,9 @@ class __Component
             $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
             $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
             $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
-            $template = str_replace("__ROOT__", $dir . APP_PUBLIC . '/', $template);
+            $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
             $template = str_replace("__DIR__", $dir, $template);
-            $fp = fopen($dir . APP_FOLDER . '/apache.conf', "w");
+            $fp = fopen($dir . FOLDER_APP . '/apache.conf', "w");
             fwrite($fp, $template);
             fclose($fp);
             echo "\033[32m". " Apache конфигурация сгенерирована успешно!\n";

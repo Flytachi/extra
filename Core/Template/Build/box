@@ -3,7 +3,7 @@
 // Версия PHP 8
 if (PHP_VERSION_ID <= 80107) {
     
-    require 'App/extra/Core/__load__.php';
+    require 'app/extra/Core/__load__.php';
     new Console\Core($argc, $argv);
 
 }else {

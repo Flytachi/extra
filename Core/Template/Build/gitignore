@@ -4,6 +4,7 @@
 /.settings
 /.idea
 
-## ----
-/App/.cfg
-/App/*.conf
+## App ----
+/app/.conf
+/app/.cfg
+/app/.crt

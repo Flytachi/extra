@@ -1,8 +1,10 @@
 <?php
 
+use Extra\Src\Route;
+
 function dieConnection($_error = null): never
 {
-    die(include dirname(__DIR__, 3) . "/" . APP_PUBLIC . "/" . VIEW_FOLDER . "/error/system.php"); 
+    die(include dirname(__DIR__, 3) . "/" . FOLDER_PUBLIC . "/" . VIEW_FOLDER . "/error/system.php"); 
 }
 
 function cfgGet(): array
@@ -84,15 +86,31 @@ function importController(string ...$controllers): void
     }
 }
 
+function importApi(string ...$controllers): void
+{
+    foreach ($controllers as $controller) {
+        $path = dirname(__DIR__, 2) .'/api/' . $controller . '.php';
+        if (file_exists($path)) {
+            try { 
+                include $path;
+            } catch (\Throwable $th) { 
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ApiError(500, array('error' => 'Ошибка в контроллере!'));
+                else dd($th);
+                die;
+            }
+        } else Route::ApiError(405);
+    }
+}
+
 function importPluginController(string $plugin, string ...$controllers): void
 {
     foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/controllers/$controller.php";
+        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/controllers/$controller.php";
         if (file_exists($path)) {
             try {
                 include $path;
             } catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в контроллере');
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
                 else dd($th);
                 die;
             }
@@ -103,13 +121,13 @@ function importPluginController(string $plugin, string ...$controllers): void
 function importPluginModel(string $plugin, string ...$models): void
 {
     foreach ($models as $model) {
-        $path = dirname(__DIR__, 3) . "/Plugins/$plugin/models/$model.php";
+        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/models/$model.php";
         if (file_exists($path)) {
             try {
                 if( !class_exists($model) ) include $path;
             }
             catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в модели');
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
                 else dd($th);
                 die;
             }
@@ -120,7 +138,7 @@ function importPluginModel(string $plugin, string ...$models): void
 function checkPlugin(string $plugin): bool
 {
     if(empty($plugin)) return false;
-    $path = dirname(__DIR__, 3) . "/Plugins/Frame.$plugin";
+    $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/Frame.$plugin";
     return is_dir($path);
 }
 

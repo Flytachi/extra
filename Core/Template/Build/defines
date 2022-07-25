@@ -1,8 +1,12 @@
 <?php
 
+// EXTRA
+define('EXTRA_KEY', '__extra_key__');
+
 // Dirs
-define('APP_FOLDER', 'App');
-define('APP_PUBLIC', 'public');
+define('FOLDER_APP', 'app');
+define('FOLDER_PLUGIN', 'plugins');
+define('FOLDER_PUBLIC', 'public');
 
 // License
 define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
@@ -19,6 +23,7 @@ define('VIEW_TEMPLATE', 'template.php');
 define('ROUTE_MAIN_CONTROLLER', 'Main');
 define('ROUTE_MAIN_ACTION', 'index');
 define('ROUTE_PLUGIN_SYSTEM', true);
+define('ROUTE_API_SYSTEM', true);
 
 if (ROUTE_PLUGIN_SYSTEM) {
     define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');
