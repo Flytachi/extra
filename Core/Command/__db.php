@@ -6,7 +6,7 @@ class __Db
     private $name;
     private String $path_database = FOLDER_APP . "/dist/database.sql";
     private String $path_data_seed = FOLDER_APP . "/dist/data";
-    private String $path_connection = "/Src/Connection/__load__.php";
+    private String $path_cdo = "/Src/CDO/__load__.php";
     private String $seed_format = "json";
 
 
@@ -37,11 +37,10 @@ class __Db
 
     private function migrate()
     {
-        require dirname(__DIR__, 2) . $this->path_connection;
+        require dirname(__DIR__, 2) . $this->path_cdo;
         $ini = cfgGet();
-
-        $db = (new Connect($ini['DATABASE']))->connection($ini['GLOBAL_SETTING']['DEBUG']);
-
+        $db = new \Extra\Src\CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        
         try {
             $sql = file_get_contents($this->path_database);
             $db->exec($sql);
@@ -60,9 +59,9 @@ class __Db
 
     private function seed()
     {
-        require dirname(__DIR__, 2) . $this->path_connection;
+        require dirname(__DIR__, 2) . $this->path_cdo;
         $ini = cfgGet();
-        $this->db = (new Connect($ini['DATABASE']))->connection($ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new \Extra\Src\CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
 
         if (isset($this->name)) {
 
@@ -72,7 +71,7 @@ class __Db
             }
 
             $data = json_decode(file_get_contents("$this->path_data_seed/$this->name.$this->seed_format"), true);
-            foreach ($data as $row) $this->cInsert($this->name, $row);
+            foreach ($data as $row) $db->insert($this->name, $row);
 
         }else{
 
@@ -82,7 +81,7 @@ class __Db
                 $i = 0;
                 foreach ($data as $row) {
                     $i++;
-                    $this->cInsert($table, $row);
+                    $db->insert($table, $row);
                 }
                 echo "\033[32m"." Таблица $table ($i).\n";
             }
@@ -90,20 +89,6 @@ class __Db
         }
 
         echo "\033[32m"." Данные успешно внесены.\n";
-    }
-
-    private function cInsert(string $tb, array $post)
-    {
-        $col = implode(",", array_keys($post));
-        $val = ":".implode(", :", array_keys($post));
-        $sql = "INSERT INTO $tb ($col) VALUES ($val)";
-        try{
-            $this->db->prepare($sql)->execute($post);
-            return $this->db->lastInsertId();
-        }
-        catch (\PDOException $ex) {
-            return $ex->getMessage();
-        }
     }
 
     private function help()

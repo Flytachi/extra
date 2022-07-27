@@ -28,7 +28,7 @@ class __Seed
     {
         require dirname(__DIR__, 2) . $this->path_cdo;
         $ini = cfgGet();
-        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new \Extra\Src\CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
 
         if ($db->query("SHOW TABLES LIKE '$this->name';")->rowCount()) {
             foreach ($db->query("SELECT * FROM $this->name") as $value) {
