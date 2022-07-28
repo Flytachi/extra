@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 3.0
+     * @version 4.3
      */
 
 	
@@ -71,17 +71,31 @@ class Route
 	static function routeApi(array $data): never
 	{
 		$routes = explode('/', $data['url']);
-		$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
-		$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
-		$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
 		$_GET = $data['get'];
-		
+		$chP = checkPlugin(ucfirst($routes[2]));
+		if (ROUTE_PLUGIN_SYSTEM and $chP) {
+			$pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
+			$controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
+			$actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+			$params         = ( !empty($routes[5]) ) ? ucfirst($routes[5]) : null;
+		} else {
+			$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
+			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
+			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+		}
+				
 		// Prefix
 		$controllerName = $controllerName . 'Api';
 		
 		// Imports
-		importApi($controllerName);
-
+		if (ROUTE_PLUGIN_SYSTEM and $chP) {
+			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
+			if ( file_exists($path) ) require $path;
+			importPluginApi(PLUGIN_NAME, $controllerName);
+		} else {
+			importApi($controllerName);
+		}
+		
 		// Imitation
 		$controller = new $controllerName;
 		if(is_callable([$controller, $actionName])) {

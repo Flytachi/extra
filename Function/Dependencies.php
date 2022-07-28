@@ -135,6 +135,22 @@ function importPluginModel(string $plugin, string ...$models): void
     }
 }
 
+function importPluginApi(string $plugin, string ...$controllers): void
+{
+    foreach ($controllers as $controller) {
+        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/api/$controller.php";
+        if (file_exists($path)) {
+            try {
+                include $path;
+            } catch (\Throwable $th) { 
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ApiError(500, array('error' => 'Ошибка в контроллере!'));
+                else dd($th);
+                die;
+            }
+        } else Route::ApiError(405);
+    }
+}
+
 function checkPlugin(string $plugin): bool
 {
     if(empty($plugin)) return false;
