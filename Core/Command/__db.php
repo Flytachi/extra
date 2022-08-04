@@ -4,7 +4,7 @@ class __Db
 {
     private $argument;
     private $name;
-    private String $path_database = FOLDER_APP . "/dist/database.sql";
+    private String $path_database = FOLDER_APP . "/dist/";
     private String $path_data_seed = FOLDER_APP . "/dist/data";
     private String $path_cdo = "/Src/CDO/__load__.php";
     private String $seed_format = "json";
@@ -41,12 +41,16 @@ class __Db
         $ini = cfgGet();
         $db = new \Extra\Src\CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
         
-        try {
-            $sql = file_get_contents($this->path_database);
-            $db->exec($sql);
-            echo "\033[32m"." Миграция прошла успешно.\n";
-        } catch (\Exception $e) {
-            echo "\033[31m"." Во время миграции произошла ошибка.\n";
+        if ($this->name) {
+            try {
+                $sql = file_get_contents($this->path_database . $this->name . '.sql');
+                $db->exec($sql);
+                echo "\033[32m"." Миграция прошла успешно.\n";
+            } catch (\Exception $e) {
+                echo "\033[31m"." Во время миграции произошла ошибка.\n";
+            }
+        } else {
+            echo "\033[31m"." Не выбран файл.\n";
         }
     }
 
