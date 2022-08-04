@@ -51,6 +51,7 @@ class __Cfg
         elseif ($this->argument == "gen") $this->generate();
         elseif ($this->argument == "edit") $this->edit();
         elseif ($this->argument == "show") $this->show();
+        elseif ($this->argument == "apache") $this->apache();
         else echo "\033[31m"." Не такого аргумента.\n";
     }
 
@@ -110,6 +111,26 @@ class __Cfg
         }
     }
 
+    private function apache()
+    {
+        $file = dirname(__DIR__) . '/Template/Server/apache';
+        $errors = "";
+        if (file_exists(CFG_PATH_CLOSE)) {
+            $ini = cfgGet();
+            $dir = dirname(__DIR__, 4) . '/';
+            $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
+            $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
+            $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
+            $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
+            $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
+            $template = str_replace("__DIR__", $dir, $template);
+            $fp = fopen($dir . FOLDER_APP . '/apache.conf', "w");
+            fwrite($fp, $template);
+            fclose($fp);
+            echo "\033[32m". " Apache конфигурация сгенерирована успешно!\n";
+        } else echo "Configuration file not found.\n";
+    }
+
     private function help()
     {
         echo "\033[33m"." =======> Help <======= \n";
@@ -117,6 +138,8 @@ class __Cfg
         echo "\033[33m"."  :gen      -  Сгенерировать конфигурации.\n";
         echo "\033[33m"."  :edit     -  Изменить настройки.\n";
         echo "\033[33m"."  :show     -  Просмотр настроек.\n";
+        echo "\033[33m"."  :apache   -  Создать конфигурационный файл (Apache).\n";
+        echo "\033[33m"."  :nginx    -  Создать конфигурационный файл (Nginx).\n";
         echo "\033[33m"." =======> Help <======= \n";
     }
 

@@ -5,7 +5,6 @@ class __Component
     private $argument;
     private $name;
     private $c = "";
-    private String $path = "Components";
 
     function __construct($value = null, $name = null)
     {
@@ -23,8 +22,7 @@ class __Component
     private function resolution()
     {
         if ($this->argument == "init") $this->init();
-        elseif ($this->argument == "apache") $this->apache();
-        // elseif ($this->argument == "nginx") $this->nginx();
+        elseif ($this->argument == "install") $this->install();
         else echo "\033[31m"." Не такого аргумента.\n";
     }
     
@@ -33,51 +31,22 @@ class __Component
         $this->init_components();        
     }
 
-    private function apache()
+    private function install()
     {
-        $file = dirname(__DIR__) . '/Template/Server/apache';
-        $errors = "";
-        if (file_exists(CFG_PATH_CLOSE)) {
-            $ini = cfgGet();
-            $dir = dirname(__DIR__, 4) . '/';
-            $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
-            $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
-            $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
-            $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
-            $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
-            $template = str_replace("__DIR__", $dir, $template);
-            $fp = fopen($dir . FOLDER_APP . '/apache.conf', "w");
-            fwrite($fp, $template);
-            fclose($fp);
-            echo "\033[32m". " Apache конфигурация сгенерирована успешно!\n";
-        } else echo "Configuration file not found.\n";
+        require dirname(__DIR__, 2) . '/Function/Console.php';
+        $root = dirname(__DIR__, 4);
+        $path = dirname(__DIR__) . "/Package/$this->name";
+
+        if (is_dir($path)) {
+            if (is_dir("$path/controllers")) multiCopy("$path/controllers", "$root/app/controllers");
+            if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
+            if (is_dir("$path/models")) multiCopy("$path/models", "$root/app/models");
+            if (is_dir("$path/views")) multiCopy("$path/views", "$root/" . FOLDER_PUBLIC . "/views/$this->name");
+            if (is_dir("$path/static")) multiCopy("$path/static", "$root/" . FOLDER_PUBLIC . "/static/$this->name");
+        } else {
+            echo "\033[33m". " Пакет $this->name не существует!\n";
+        }
     }
-
-    // private function nginx()
-    // {
-    //     $file = dirname(__DIR__) . '/Template/Server/nginx';
-    //     $errors = "";
-    //     if (file_exists(cfgPathClose)) {
-    //         $ini = cfgGet();
-    //         $template = str_replace("__PORT__", $ini['PORT'], file_get_contents($file));
-    //         $template = str_replace("__ROOT__", dirname(__DIR__, 3), $template);
-    //         $template = str_replace("__HOSTS__", implode(' ', $ini['HOSTS']), $template);
-    //         foreach (glob(dirname(__DIR__)."/$this->path/__FOLDER__ERROR__/*") as $value) {
-    //             $ext = ( $temp = mb_strtolower(strstr(basename($value), '_', true)) ) ? ".$temp" : "";
-    //             $name = mb_strtolower(substr(strstr(basename($value), '_'), 2, -2));
-    //             $errors .= "\n\terror_page $name /error/$name$ext;";
-    //         }
-    //         $template = str_replace("__ERRORS__", $errors, $template);
-
-    //         $fp = fopen(dirname(__DIR__, 3)."/tools/nginx.conf", "w");
-    //         fwrite($fp, $template);
-    //         fclose($fp);
-
-    //     } else echo "Configuration file not found.\n";
-
-        
-        
-    // }
 
     private function init_components()
     {
@@ -123,8 +92,7 @@ class __Component
     {
         echo "\033[33m"." =======> Help <======= \n";
         echo "\033[33m"."  :init   -  Инициализация фреймфорка.\n";
-        echo "\033[33m"."  :apache -  Создать конфигурационный файл (Apache).\n";
-        echo "\033[33m"."  :nginx  -  Создать конфигурационный файл (Nginx).\n";
+        echo "\033[33m"."  :auth   -  Инициализация шаблона аунтификации.\n";
         echo "\033[33m"." =======> Help <======= \n";
     }
 
