@@ -12,6 +12,7 @@ function isAdmin(): bool
     else return false;
 }
 
+/*
 function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
@@ -19,8 +20,8 @@ function isPermission(string $name): bool
         importModel('UserPermissionModel');
         return (new UserPermissionModel)->getPermission($name); 
     }
-    
 }
+*/
 
 function arrayToRequest(array $param = null): ?string
 {

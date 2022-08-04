@@ -19,7 +19,7 @@ abstract class Api
         if (!$this->headers) Route::ApiError(400);
     }
 
-    final private function AuthorizationHeader(): void
+    final public function AuthorizationHeader(): void
     {
         if (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
         elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
