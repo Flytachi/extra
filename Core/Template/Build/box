@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 // Версия PHP 8
-if (PHP_VERSION_ID <= 80107) {
+if (PHP_VERSION_ID >= 80000) {
     
     require 'app/extra/Core/__load__.php';
     new Console\Core($argc, $argv);

@@ -12,7 +12,9 @@ class __Cfg
         ),
         'SECURITY' => array(
             'PRODUCT_GUARD' => null,
-            'PRODUCT_FIRMWARE' => null,
+            'PRODUCT_HOST' => null,
+            'PRODUCT_KEY' => null,
+            'PRODUCT_FIRMWARE' => null
         ),
         'GLOBAL_SETTING' => array(
             'TIME_ZONE' => 'Asia/Samarkand',
@@ -54,10 +56,6 @@ class __Cfg
 
     private function init()
     {
-        if(file_exists(CFG_PATH_CLOSE)) {
-            echo "\033[33m". " " . basename(CFG_PATH_CLOSE) . " уже существует!\n";
-            return 0;
-        }
         if(file_exists(CFG_PATH_OPEN)) {
             echo "\033[33m". " " . basename(CFG_PATH_OPEN) . " уже существует!\n";
             return 0;
@@ -76,15 +74,11 @@ class __Cfg
         if (file_exists(CFG_PATH_OPEN)) {
             $sett = parse_ini_file(CFG_PATH_OPEN, true);
             if (!file_exists(CFG_PATH_CLOSE)) {
-                $fp = fopen(CFG_PATH_CLOSE, "x");
+                rename(CFG_PATH_OPEN, CFG_PATH_CLOSE);
+                $fp = fopen(CFG_PATH_CLOSE, "w+");
                 fwrite($fp, chunk_split( bin2hex(zlib_encode(json_encode($sett), ZLIB_ENCODING_DEFLATE)) , 50, "\n") );
                 fclose($fp);
-                if (unlink(CFG_PATH_OPEN)) {
-                    echo "\033[32m". " " . basename(CFG_PATH_CLOSE) . " сгенерирован успешно!\n";
-                }else {
-                    unlink(CFG_PATH_CLOSE);
-                    echo "\033[31m"."Ошибка при генерации.\n";
-                }
+                echo "\033[32m". " " . basename(CFG_PATH_CLOSE) . " сгенерирован успешно!\n";
             }else{
                 echo "\033[33m". " " . basename(CFG_PATH_CLOSE) . " уже существует!\n";
             }
@@ -96,10 +90,11 @@ class __Cfg
     private function edit()
     {
         if (file_exists(CFG_PATH_CLOSE)) {
-            $fp = fopen(CFG_PATH_OPEN, "x");
-            fwrite($fp, $this->arrayToIni(cfgGet()));
+            $cfg = $this->arrayToIni(cfgGet());
+            rename(CFG_PATH_CLOSE, CFG_PATH_OPEN);
+            $fp = fopen(CFG_PATH_OPEN, "w+");
+            fwrite($fp, $cfg);
             fclose($fp);
-            unlink(CFG_PATH_CLOSE);
             echo "\033[32m". " " . basename(CFG_PATH_OPEN) . " сгенерирован успешно!\n";
         }else{
             echo "\033[33m". " " . basename(CFG_PATH_CLOSE) . " не существует!\n";

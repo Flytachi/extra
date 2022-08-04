@@ -95,9 +95,11 @@ class Route
 		} else {
 			importApi($controllerName);
 		}
+		importModel('ApiModel');
 		
 		// Imitation
 		$controller = new $controllerName;
+		if(class_exists('ApiModel')) $controller->setModel('ApiModel');
 		if(is_callable([$controller, $actionName])) {
 			try {
 				$controller->$actionName($params);

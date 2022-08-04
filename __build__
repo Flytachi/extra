@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 // Версия PHP 8
-if (PHP_VERSION_ID <= 80107) {
+if (PHP_VERSION_ID >= 80000) {
     
     if (is_dir(__DIR__ . '/.git')) {
         function rrmdir($dir) { 
@@ -23,6 +23,7 @@ if (PHP_VERSION_ID <= 80107) {
     $ROOT = dirname(__DIR__, 2);
    
     $DIRS = [
+        "$ROOT/app/api",
         "$ROOT/app/controllers",
         "$ROOT/app/models",
         "$ROOT/app/dist",

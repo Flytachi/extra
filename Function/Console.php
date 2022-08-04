@@ -52,10 +52,12 @@ function motherboardSeries(): string
     return $result;
 }
 
-function licenseKey(): object
+function licenseKey(): object|null
 {
-    $data = file_get_contents(LICENSE_PATH_KEY);
-    return json_decode(zlib_decode(hex2bin($data)));
+    if (file_exists(LICENSE_PATH_KEY)) {
+        $data = file_get_contents(LICENSE_PATH_KEY);
+        return json_decode(zlib_decode(hex2bin($data)));
+    } else return null;
 }
 
 ?>
