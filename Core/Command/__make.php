@@ -21,9 +21,9 @@ class __Make
     private function resolution()
     {
         try {
-            if ($this->argument == "model") $this->mModel();
-            elseif($this->argument == "table") $this->mTable();
-            elseif($this->argument == "controller") $this->mController();
+            if ($this->argument == "controller") $this->mController();
+            elseif($this->argument == "api") $this->mApi();
+            elseif($this->argument == "model") $this->mModel();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
         } catch (\Error $e) {
             // echo $e->getMessage();
@@ -49,6 +49,14 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
     
+    private function mApi(){
+        $file = dirname(__DIR__) . "/Template/$this->argument";
+        if ($this->name) {
+            $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name . 'Api'), basename(dirname(__DIR__, 3)) . '/api', $template);
+        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+    }
+
     private function mTable(){
         $file = dirname(__DIR__) . "/Template/$this->argument";
         if ($this->name) {

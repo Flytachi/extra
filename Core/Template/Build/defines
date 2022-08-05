@@ -22,8 +22,8 @@ define('VIEW_TEMPLATE', 'template.php');
 // Route
 define('ROUTE_MAIN_CONTROLLER', 'Main');
 define('ROUTE_MAIN_ACTION', 'index');
-define('ROUTE_PLUGIN_SYSTEM', true);
-define('ROUTE_API_SYSTEM', true);
+define('ROUTE_PLUGIN_SYSTEM', false);
+define('ROUTE_API_SYSTEM', false);
 
 if (ROUTE_PLUGIN_SYSTEM) {
     define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');

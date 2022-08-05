@@ -46,6 +46,10 @@ function getDirContent($dir, $filter = '', &$results = array())
     return $results;
 }
 
+// *******************
+// * Imports
+// *******************
+
 function importLib(string ...$libs): void
 {
     foreach ($libs as $lib) {
@@ -150,6 +154,10 @@ function importPluginApi(string $plugin, string ...$controllers): void
         } else Route::ApiError(405);
     }
 }
+
+// *******************
+// * End Imports
+// *******************
 
 function checkPlugin(string $plugin): bool
 {

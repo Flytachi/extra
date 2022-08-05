@@ -51,6 +51,8 @@ class Route
 		$controllerName = $controllerName . 'Controller';
 		
 		// Imports
+		$funcPath = dirname(__DIR__, 3) . '/functions.php';
+		if ( file_exists($funcPath) ) require $funcPath;
 		importModel($modelName);
 		importController($controllerName);
 		
@@ -93,6 +95,8 @@ class Route
 			if ( file_exists($path) ) require $path;
 			importPluginApi(PLUGIN_NAME, $controllerName);
 		} else {
+			$funcPath = dirname(__DIR__, 3) . '/functions.php';
+			if ( file_exists($funcPath) ) require $funcPath;
 			importApi($controllerName);
 		}
 		importModel('ApiModel');
@@ -138,6 +142,8 @@ class Route
 			$controllerName = $controllerName . 'Controller';
 		
 			// Imports
+			$funcPath = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/functions.php";
+			if ( file_exists($funcPath) ) require $funcPath;
 			importPluginModel(PLUGIN_NAME, $modelName);
 			importPluginController(PLUGIN_NAME, $controllerName);
 		} else {
@@ -151,6 +157,8 @@ class Route
 			$controllerName = $controllerName . 'Controller';
 
 			// Imports
+			$funcPath = dirname(__DIR__, 3) . '/functions.php';
+			if ( file_exists($funcPath) ) require $funcPath;
 			importModel($modelName);
 			importController($controllerName);
 		}

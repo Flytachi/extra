@@ -35,6 +35,7 @@ if (PHP_VERSION_ID >= 80000) {
     ];
     $FILES = array(
         "$ROOT/app/defines.php" => "$ROOT/app/extra/Core/Template/Build/defines",
+        "$ROOT/app/functions.php" => "$ROOT/app/extra/Core/Template/Build/functions",
         "$ROOT/app/bootstrap.php" => "$ROOT/app/extra/Core/Template/Build/bootstrap",
         "$ROOT/.gitignore" => "$ROOT/app/extra/Core/Template/Build/gitignore",
         "$ROOT/box" => "$ROOT/app/extra/Core/Template/Build/box",

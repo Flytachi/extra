@@ -1,24 +1,9 @@
 <?php
 
-function isMaster(): bool
-{
-    if (isset($_SESSION) and isset($_SESSION['is_master']) and $_SESSION['is_master']) return true;
-    else return false;
-}
-
 function isAdmin(): bool
 {
     if (isset($_SESSION) and isset($_SESSION['is_admin']) and $_SESSION['is_admin']) return true;
     else return false;
-}
-
-function isPermission(string $name): bool
-{
-    if (isAdmin()) return true;
-    else {
-        importModel('UserPermissionModel');
-        return (new UserPermissionModel)->getPermission($name); 
-    }
 }
 
 function arrayToRequest(array $param = null): ?string
