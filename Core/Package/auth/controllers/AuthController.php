@@ -36,7 +36,7 @@ class AuthController extends Controller
             if ($user = $userModel->Where("username = '$login' AND password = '$password' AND is_delete IS NULL")->get()) {
                 $_SESSION['id'] = $user->id;
                 $_SESSION['is_admin'] = $user->is_admin;
-                if ($info = (new UserInfoModel)->by(array('user_id' => $user->id))) {
+                if ($info = (new UserInfoModel)->isUser($user->id)) {
                     $_SESSION['name'] = $info->name;
                 }
                 $this->renderJsonSuccess('Верификация прошла успешно');

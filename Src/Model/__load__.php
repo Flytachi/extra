@@ -8,7 +8,7 @@ abstract class Model
      * 
      * Model
      * 
-     * @version 10.1
+     * @version 10.2
      */
 
     
@@ -23,6 +23,7 @@ abstract class Model
     private string $CRD_where = '';
     private string $CRD_order = '';
     private string $CRD_group = '';
+    private string $CRD_union = '';
     private string $CRD_search = '';
     private string $CRD_searchGetName = 'CRD_search=';
     private int $CRD_limit = 0;
@@ -371,6 +372,12 @@ abstract class Model
         return $this;
     }
 
+    final public function Union(Model $model): Model
+    {
+        $this->CRD_union .= ' UNION ' . $model->getSql();
+        return $this;
+    }
+
     final public function Where(string|array $context): Model
     {
         /*
@@ -444,10 +451,11 @@ abstract class Model
     {
         try {
             $this->CRD_sql = "SELECT $this->CRD_data FROM $this->table $this->CRD_as";
-            if($this->CRD_join)  $this->CRD_sql .= " " . $this->CRD_join;
-            if($this->CRD_where) $this->CRD_sql .= " " . $this->CRD_where;
-            if($this->CRD_group) $this->CRD_sql .= " " . $this->CRD_group;
-            if($this->CRD_order) $this->CRD_sql .= " " . $this->CRD_order;
+            if($this->CRD_join)  $this->CRD_sql .= $this->CRD_join;
+            if($this->CRD_where) $this->CRD_sql .= $this->CRD_where;
+            if($this->CRD_union) $this->CRD_sql .= $this->CRD_union;
+            if($this->CRD_group) $this->CRD_sql .= $this->CRD_group;
+            if($this->CRD_order) $this->CRD_sql .= $this->CRD_order;
             $this->CRD_search = (isset($_GET['CRD_search']) and $_GET['CRD_search']) ? $this->CRD_searchGetName.$_GET['CRD_search'] : "";
         } catch (\Throwable $th) {
             if ($this->CRD_error) $this->errorX($th);
