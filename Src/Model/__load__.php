@@ -8,7 +8,7 @@ abstract class Model
      * 
      * Model
      * 
-     * @version 10.3
+     * @version 10.4
      */
 
     
@@ -317,7 +317,7 @@ abstract class Model
         /*
             Установка столбцов которые хотим вытащить, по умолчаню все!
         */
-        $this->CRD_as = ' ' . $context;
+        $this->CRD_as = $context;
         return $this;
     }
 
@@ -450,7 +450,7 @@ abstract class Model
     private function generateSql(): void
     {
         try {
-            $this->CRD_sql = "SELECT $this->CRD_data FROM $this->table $this->CRD_as";
+            $this->CRD_sql = "SELECT $this->CRD_data FROM $this->table $this->CRD_as ";
             if($this->CRD_join)  $this->CRD_sql .= $this->CRD_join;
             if($this->CRD_where) $this->CRD_sql .= $this->CRD_where;
             if($this->CRD_union) $this->CRD_sql .= $this->CRD_union;
