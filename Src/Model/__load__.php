@@ -8,7 +8,7 @@ abstract class Model
      * 
      * Model
      * 
-     * @version 10.2
+     * @version 10.3
      */
 
     
@@ -317,7 +317,7 @@ abstract class Model
         /*
             Установка столбцов которые хотим вытащить, по умолчаню все!
         */
-        $this->CRD_as = $context;
+        $this->CRD_as = ' ' . $context;
         return $this;
     }
 
