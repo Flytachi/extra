@@ -15,6 +15,9 @@ define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
 define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
 define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
 
+// Path
+define('PATH_MEDIA', dirname(__DIR__) . '/' . FOLDER_PUBLIC . '/media/');
+
 // Template
 define('VIEW_FOLDER', 'views');
 define('VIEW_TEMPLATE', 'template.php');

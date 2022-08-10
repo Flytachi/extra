@@ -35,17 +35,17 @@ class __Make
     private function mModel(){
         $file = dirname(__DIR__) . "/Template/$this->argument";
         if ($this->name) {
-            $template = str_replace("_ModelIndex_", $this->UC_word($this->name) . 'Model', file_get_contents($file));
+            $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
             $template = str_replace("_TableIndex_", strtolower($this->name), $template);
-            $this->create_file($this->UC_word($this->name . 'Model'), basename(dirname(__DIR__, 3)) . '/models', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
     private function mController(){
         $file = dirname(__DIR__) . "/Template/$this->argument";
         if ($this->name) {
-            $template = str_replace("_ControllerIndex_", $this->UC_word($this->name) . 'Controller', file_get_contents($file));
-            $this->create_file($this->UC_word($this->name . 'Controller'), basename(dirname(__DIR__, 3)) . '/controllers', $template);
+            $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/controllers', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
     
@@ -53,15 +53,7 @@ class __Make
         $file = dirname(__DIR__) . "/Template/$this->argument";
         if ($this->name) {
             $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file($this->UC_word($this->name . 'Api'), basename(dirname(__DIR__, 3)) . '/api', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
-    }
-
-    private function mTable(){
-        $file = dirname(__DIR__) . "/Template/$this->argument";
-        if ($this->name) {
-            $template = str_replace("_TableIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file('api/table', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/api', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
