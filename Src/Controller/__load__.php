@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 3.0
+     * @version 3.6
      */
 
 
@@ -25,6 +25,9 @@ abstract class Controller
     
     protected bool $onRemove = false;
     protected bool $onAuthRemove = false;
+
+    public array $uploadFileFormat;
+    public int $uploadFileSize;
 
     final public function setModel(string $modelName): void
     {
@@ -46,6 +49,57 @@ abstract class Controller
         $object = $this->model->byId($pk);
         if ($object) $this->model->setData($object);
         else Route::ErrorPage(404);
+    }
+
+    final public function uploadFile(array $file): string
+    {
+        $uploadFolder = str_replace('Controller', '', get_class($this));
+        // $uploadDir = PATH_MEDIA . $uploadFolder;
+        if( !is_dir(PATH_MEDIA . $uploadFolder) ) mkdir(PATH_MEDIA . $uploadFolder, 0777);
+
+        if ( $file['name'] ) {
+            // Upload File
+            if ($file['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath = $file['tmp_name'];
+                $fileSize = $file['size'];
+                $fileNameCmps = explode(".", $file['name']);
+                $fileExtension = strtolower(end($fileNameCmps));
+                $newFileName = sha1(time() . $file['name']) . '.' . $fileExtension;
+                // $fileType = $file['type'];
+
+                // File size
+                if (!$this->uploadFileSize or ($this->uploadFileSize and $this->uploadFileSize < $fileSize) ) {
+                    Route::ErrorResponseJson(array(
+                        'status' => 'error',
+                        'message' => 'Error file is too big!'
+                    ));
+                }
+        
+                // File format
+                if (empty($this->uploadFileFormat) or ($this->uploadFileFormat and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
+
+                    if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
+                    else{
+                        Route::ErrorResponseJson(array(
+                            'status' => 'error',
+                            'message' => 'Error writing to database!'
+                        ));
+                    }
+        
+                }else {
+                    Route::ErrorResponseJson(array(
+                        'status' => 'error',
+                        'message' => 'Error unsupported file format!'
+                    ));
+                }
+
+            }else {
+                Route::ErrorResponseJson(array(
+                    'status' => 'error',
+                    'message' => 'Error loading to temporary folder!'
+                ));
+            }   
+        }
     }
 
     /*  
