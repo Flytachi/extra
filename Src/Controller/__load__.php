@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 3.6
+     * @version 3.9
      */
 
 
@@ -29,12 +29,17 @@ abstract class Controller
     public array $uploadFileFormat;
     public int $uploadFileSize;
 
+    function __call($name, $arguments)
+    {
+        Route::ErrorPage(404);
+    }
+
     final public function setModel(string $modelName): void
     {
         $this->model = new $modelName;
     }
 
-    final public function csrfTokenChange(): void
+    final protected function csrfTokenChange(): void
     {
         if ((isset($_SESSION['CSRFTOKEN']) and isset($_POST['csrf_token']) and hash_equals($_SESSION['CSRFTOKEN'], $_POST['csrf_token']))) {
 
@@ -44,14 +49,14 @@ abstract class Controller
         } else Route::ErrorPage(419);
     }
 
-    final public function getElement($pk)
+    final protected function getElement($pk): void
     {
         $object = $this->model->byId($pk);
         if ($object) $this->model->setData($object);
         else Route::ErrorPage(404);
     }
 
-    final public function uploadFile(array $file): string
+    final protected function uploadFile(array $file): string
     {
         $uploadFolder = str_replace('Controller', '', get_class($this));
         // $uploadDir = PATH_MEDIA . $uploadFolder;
@@ -179,34 +184,34 @@ abstract class Controller
         RESPONSE
     ---------------------------------------------
     */
-    final public function render(string $content, mixed $data = null): void
+    final protected function render(string $content, mixed $data = null): void
     {
         if(is_array($data)) extract($data);
         $content = VIEW_FOLDER . "/$content.php";
         include VIEW_FOLDER . "/" . $this->template;
     }
 
-    final public function view(string $content, mixed $data = null): void
+    final protected function view(string $content, mixed $data = null): void
     {
         if(is_array($data)) extract($data);
         include VIEW_FOLDER . "/$content.php";
     }
 
-    final public function renderJson(array $data): never
+    final protected function renderJson(array $data): never
     {
         header('Content-type: application/json');
         echo json_encode( $data );
         die;
     }
 
-    final public function renderJsonSuccess(string $message): never
+    final protected function renderJsonSuccess(string $message): never
     {
         header('Content-type: application/json');
         echo json_encode( array('status' => 'success', 'message' => $message) );
         die;
     }
 
-    final public function renderJsonError(string $message): never
+    final protected function renderJsonError(string $message): never
     {
         header('Content-type: application/json');
         echo json_encode( array('status' => 'error', 'message' => $message) );
@@ -221,12 +226,12 @@ abstract class Controller
         PREPARE
     ---------------------------------------------
     */
-    public function prepareHook(array $data, string $pk = null) {}
-    public function prepareHookUpdate(array $data, string $pk) {}
-    public function prepareHookSave(array $data) {}
-    public function prepareDelete(string $pk) {}
-    public function prepareRestore(string $pk) {}
-    public function prepareRemove(string $pk) {}
+    protected function prepareHook(array $data, string $pk = null) {}
+    protected function prepareHookUpdate(array $data, string $pk) {}
+    protected function prepareHookSave(array $data) {}
+    protected function prepareDelete(string $pk) {}
+    protected function prepareRestore(string $pk) {}
+    protected function prepareRemove(string $pk) {}
     /*
     ---------------------------------------------
     */

@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 4.3
+     * @version 4.5
      */
 
 	
@@ -57,17 +57,15 @@ class Route
 		importController($controllerName);
 		
 		// Imitation
-		$controller = new $controllerName;
-		if(class_exists($modelName)) $controller->setModel($modelName);
-		if(is_callable([$controller, $actionName])) {
-			try {
-				$controller->$actionName($params);
-			} catch (\Throwable $e) {
-				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-				else Route::ErrorPage(400);
-			}
-			exit;
-		} else Route::ErrorPage(404);
+		try {
+			$controller = new $controllerName;
+			if(class_exists($modelName)) $controller->setModel($modelName);
+			$controller->$actionName($params);
+		} catch (\Throwable $e) {
+			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else Route::ErrorPage(400);
+		}
+		exit;
 	}
 
 	static function routeApi(array $data): never
@@ -102,17 +100,15 @@ class Route
 		importModel('ApiModel');
 		
 		// Imitation
-		$controller = new $controllerName;
-		if(class_exists('ApiModel')) $controller->setModel('ApiModel');
-		if(is_callable([$controller, $actionName])) {
-			try {
-				$controller->$actionName($params);
-			} catch (\Throwable $e) {
-				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-				else Route::ApiError(500);
-			}
-			exit;
-		} else Route::ApiError(405);
+		try {
+			$controller = new $controllerName;
+			if(class_exists('ApiModel')) $controller->setModel('ApiModel');
+			$controller->$actionName($params);
+		} catch (\Throwable $e) {
+			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else Route::ApiError(500);
+		}
+		exit;
 	}
 
 	static function routePlugin(): never
@@ -164,18 +160,15 @@ class Route
 		}
 		
 		// Imitation
-		$controller = new $controllerName;
-		if(class_exists($modelName)) $controller->setModel($modelName);
-		if(is_callable([$controller, $actionName])) {
-			// вызываем действие контроллера
-			try {
-				$controller->$actionName($params);
-			} catch (\Throwable $e) {
-				if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-				else Route::ErrorPage(400);
-			}
-			exit;
-		} else Route::ErrorPage(404);
+		try {
+			$controller = new $controllerName;
+			if(class_exists($modelName)) $controller->setModel($modelName);
+			$controller->$actionName($params);
+		} catch (\Throwable $e) {
+			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else Route::ErrorPage(400);
+		}
+		exit;
 	}
 
 	static function urlToArray(string $url): array
