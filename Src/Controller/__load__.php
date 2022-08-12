@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 3.9
+     * @version 4.0
      */
 
 
@@ -204,7 +204,7 @@ abstract class Controller
         die;
     }
 
-    final protected function renderJsonSuccess(string $message): never
+    final protected function renderJsonSuccess(string $message = null): never
     {
         header('Content-type: application/json');
         echo json_encode( array('status' => 'success', 'message' => $message) );

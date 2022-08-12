@@ -8,7 +8,7 @@ abstract class Model
      * 
      * Model
      * 
-     * @version 10.4
+     * @version 10.6
      */
 
     
@@ -227,7 +227,7 @@ abstract class Model
         }
     }
 
-    final public function by(array $params, string $item = ''): mixed
+    final public function by(array $params, string|array $item = ''): mixed
     {
         try {
             $where = '';
@@ -250,11 +250,11 @@ abstract class Model
         }
     }
 
-    final public function byId(string $id, string $item = ''): mixed
+    final public function byId(string $id, string|array $item = ''): mixed
     {
         try {
-
-            $this->Where("id = $id");
+            $prefix = ($this->CRD_as) ? $this->CRD_as.'.' : '';
+            $this->Where($prefix . "id = $id");
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
 
