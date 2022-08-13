@@ -1,9 +1,9 @@
-<table class="table table-vcenter table-sm">
+<table class="warframe_table">
     <thead>
         <tr>
             <th>Код</th>
             <th>Описание</th>
-            <th class="text-center" style="width: 100px;">Actions</th>
+            <th style="width: 200px;">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -11,15 +11,13 @@
             <tr>
                 <td><?= $perm->name ?></td>
                 <td><?= $perm->description ?></td>
-                <td class="text-center">
-                    <div class="btn-group">
-                        <button onclick="checkModal('/permission/get/<?= $perm->name ?>')" type="button" class="btn btn-sm btn-secondary js-tooltip-enabled" data-toggle="tooltip" title="" data-original-title="Edit">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-                        <button onclick="AjaxQuery('/permission/remove/<?= $perm->name ?>')" type="button" class="btn btn-sm btn-secondary js-tooltip-enabled" data-toggle="tooltip" title="" data-original-title="Delete">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
+                <td>
+                    <button onclick="checkModal('/permission/get/<?= $perm->name ?>')" type="button" class="warframe_btn" title="Редактировать">
+                        Edit
+                    </button>
+                    <button onclick="AjaxQuery('/permission/remove/<?= $perm->name ?>')" type="button" class="warframe_btn" title="Удалить">
+                        Remove
+                    </button>
                 </td>
             </tr>
         <?php endforeach; ?>

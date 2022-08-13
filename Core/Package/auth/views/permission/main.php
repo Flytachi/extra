@@ -1,26 +1,15 @@
-<div class="content">
-    
-    <div class="row invisible" data-toggle="appear">
+<div class="warframe_header">
+    <span class="warframe_header-title">Привелегии</span><br>
+    <span id="message"></span>
+</div>
 
-        <div class="col-md-12">
-            <div class="block block-rounded block-themed block-bordered">
+<div class="warframe_card">
+    <div class="warframe_card-body">
 
-                <div class="block-header bg-flat-darker">
-                    <h3 class="block-title">Список Привелегий</h3>
-                    <div class="block-options">
-                        <button onclick="checkModal('/permission/get')" class="btn btn-sm btn-secondary">
-                            <i class="fa fa-plus"></i> Добавить
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="block-content" id="search_display"></div>
-
-            </div>
-        </div>
+        <button onclick="checkModal('/permission/get')" class="warframe_btn">Добавить</button>
+        <div id="search_display"></div>
 
     </div>
-
 </div>
 
 <script type="text/javascript">

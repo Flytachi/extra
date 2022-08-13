@@ -1,34 +1,18 @@
 <form action="/permission/hook/<?= $model->getData('name') ?>" method="post" onsubmit="submitForm()">
-    <div class="block block-themed block-transparent mb-0">
-        <div class="block-header bg-primary-dark">
-            <h3 class="block-title"><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Привелегию</h3>
-            <div class="block-options">
-                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                    <i class="si si-close"></i>
-                </button>
-            </div>
-        </div>
-        <div class="block-content">
+    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Привелегию</h3>
+    <div class="warframe_form-group">
 
-            <?php $model->csrfToken() ?>
+        <?php $model->csrfToken() ?>
 
-            <div class="form-group">
-                <label for="example-name">Код</label>
-                <input type="text" class="form-control" id="example-name" name="name" value="<?= $model->getData('name') ?>" placeholder="Введите код" required>
-            </div>
+        <label for="inp-name">Код</label>
+        <input type="text" id="inp-name" name="name" value="<?= $model->getData('name') ?>" placeholder="Введите код" required>
+        
 
-            <div class="form-group">
-                <label for="example-description">Описание</label>
-                <input type="text" class="form-control" id="example-description" name="description" value="<?= $model->getData('description') ?>" placeholder="Введите описание" required>
-            </div>
+        <label for="inp-description">Описание</label>
+        <input type="text" id="inp-description" name="description" value="<?= $model->getData('description') ?>" placeholder="Введите описание" required>
 
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-alt-secondary" data-dismiss="modal">Закрыть</button>
-        <button type="submit" class="btn btn-alt-success">
-            <i class="fa fa-check"></i> Сохранить
-        </button>
+        <button type="submit" class="warframe_btn">Сохранить</button>
+
     </div>
 </form>
 
@@ -40,24 +24,14 @@
             url: $(event.target).attr("action"),
             data: $(event.target).serializeArray(),
             success: function (response) {
-                $('#modalDefault').modal('hide');
+                modal.style.display = "none";
                 if (response.status == "success") {
-                    Codebase.helpers('notify', {
-                        align: 'right',
-                        from: 'top',
-                        type: response.status,
-                        icon: 'fa fa-check mr-5',
-                        message: "Успешно!"
-                    });
+                    $("#message").css("color", "green");
+                    $("#message").html("Успешно!");
                     credoSearch();
                 } else {
-                    Codebase.helpers('notify', {
-                        align: 'right',
-                        from: 'top',
-                        type: 'danger',
-                        icon: 'fa fa-times mr-5',
-                        message: response.message
-                    });
+                    $("#message").css("color", "red");
+                    $("#message").html(response.message);
                 }
             },
         });
