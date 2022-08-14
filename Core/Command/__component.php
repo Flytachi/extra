@@ -38,6 +38,7 @@ class __Component
         $path = dirname(__DIR__) . "/Package/$this->name";
 
         if (is_dir($path)) {
+            if (is_dir("$path/api")) multiCopy("$path/api", "$root/app/api");
             if (is_dir("$path/controllers")) multiCopy("$path/controllers", "$root/app/controllers");
             if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
             if (is_dir("$path/models")) multiCopy("$path/models", "$root/app/models");

@@ -1,12 +1,14 @@
 <div class="warframe_header">
     <span class="warframe_header-title">Группы</span><br>
-    <span id="message"></span>
+    <button onclick="checkModal('/user/changePassword/<?= $_SESSION['id'] ?>')" class="warframe_btn">Изменить мой пароль</button>
+    <a href="/auth/logout" class="warframe_btn">Выйти</a>
 </div>
 
 <div class="warframe_card">
     <div class="warframe_card-body">
 
         <button onclick="checkModal('/group/get')" class="warframe_btn">Добавить</button>
+        <span id="message"></span>
         <div id="search_display"></div>
 
     </div>

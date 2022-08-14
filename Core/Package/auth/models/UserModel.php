@@ -27,7 +27,9 @@ class UserModel extends Model
 
             if ( $userInfo ) $this->db->update($modelInfo->getTable(), $this->info, array('user_id' => $this->getPk()));
             else $this->db->insert($modelInfo->getTable(), $this->info);
-            $this->permission((new GroupPermissionModel)->getAllPermission($this->info['group_id']));
+            if (isset($this->info['group_id'])) {
+                $this->permission((new GroupPermissionModel)->getAllPermission($this->info['group_id']));
+            }
         }
     }
 

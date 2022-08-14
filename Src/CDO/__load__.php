@@ -8,7 +8,7 @@ class CDO extends \PDO
      * 
      * CDO
      * 
-     * @version 1.0
+     * @version 1.4
      */
 
 
@@ -80,7 +80,20 @@ class CDO extends \PDO
     {
         $where = '';
         if(!is_array($pk)) $pk = array('id'=>$pk);
-        foreach (array_keys($pk) as $key) $where .= " AND `$key`=:$key";
+        foreach ($pk as $key => $value) {
+            if (is_array($value)) {
+
+                $body = '';
+                foreach ($value as $vKey => $vValue) {
+                    $name = $key . "_in_$vKey";
+                    $body .= ":$name,";
+                    $pk[$name] = $vValue;
+                }
+                $where .= " AND `$key` IN (" . rtrim($body, ',') . ")";
+                unset($pk[$key]);
+
+            } else $where .= " AND `$key`=:$key";
+        }
 
         // Send
         try {

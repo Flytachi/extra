@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 4.0
+     * @version 4.1
      */
 
 
@@ -114,8 +114,8 @@ abstract class Controller
     */
     public function hook(string $pk = null): void
     {
-        if ($this->onAuthHook == true) Route::isAuth();
-        if ($this->onHook == false) Route::ErrorPage('404');
+        if ($this->onAuthHook === true) $this->prepareAuth();
+        if ($this->onHook === false) Route::ErrorPage('404');
         if (empty($_POST)) Route::ErrorPage(400);
         $this->csrfTokenChange();
 
@@ -133,8 +133,8 @@ abstract class Controller
 
     public function delete(string $pk): void
     {
-        if ($this->onAuthDelete == true) Route::isAuth();
-        if ($this->onDelete == false) Route::ErrorPage('404');
+        if ($this->onAuthDelete === true) $this->prepareAuth();
+        if ($this->onDelete === false) Route::ErrorPage('404');
 
         $this->prepareDelete($pk);
 
@@ -148,8 +148,8 @@ abstract class Controller
 
     public function restore(string $pk): void
     {
-        if ($this->onAuthRestore == true) Route::isAuth();
-        if ($this->onRestore == false) Route::ErrorPage('404');
+        if ($this->onAuthRestore === true) $this->prepareAuth();
+        if ($this->onRestore === false) Route::ErrorPage('404');
 
         $this->prepareRestore($pk);
 
@@ -163,8 +163,8 @@ abstract class Controller
 
     public function remove(string $pk): void
     {
-        if ($this->onAuthRemove == true) Route::isAuth();
-        if ($this->onRemove == false) Route::ErrorPage('404');
+        if ($this->onAuthRemove === true) $this->prepareAuth();
+        if ($this->onRemove === false) Route::ErrorPage('404');
 
         $this->prepareRemove($pk);
 
@@ -226,6 +226,11 @@ abstract class Controller
         PREPARE
     ---------------------------------------------
     */
+    public function prepareAuth(): void
+    {
+        Route::isAuth();
+    }
+
     protected function prepareHook(array $data, string $pk = null) {}
     protected function prepareHookUpdate(array $data, string $pk) {}
     protected function prepareHookSave(array $data) {}

@@ -14,6 +14,9 @@ class UserController extends Controller
     public bool $onRestore = true;
 	public bool $onAuthRestore = true;
 
+    public bool $onRemove = true;
+	public bool $onAuthRemove = true;
+
     public function prepareHookSave($data)
     {
         if(!isPermission('user_create')) Route::ErrorPage(423);
@@ -55,7 +58,7 @@ class UserController extends Controller
         $this->model->Data("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
         $this->model->JoinLEFT(new UserInfoModel('ui'), 'u.id=ui.user_id');
         $this->model->JoinLEFT(new GroupModel('g'), 'g.id=ui.group_id');
-        $this->model->Where('u.is_delete IS NULL')->Limit(10);
+        $this->model->Limit(10);
         $this->view('auth/user/table', $this->model);
     }
 
@@ -79,9 +82,13 @@ class UserController extends Controller
     public function get($pk = null)
 	{
         Route::isAuth();
-        if(!(isPermission('user_create') or isPermission('user_update'))) Route::ErrorPage(423);
         importModel('GroupModel', 'UserInfoModel');
-        if($pk) $this->getElement($pk);
+        if($pk) {
+            if (!isPermission('user_update')) Route::ErrorPage(423);
+            $this->getElement($pk);
+        } else {
+            if (!isPermission('user_create')) Route::ErrorPage(423);
+        }
         $this->view('auth/user/form', array(
             'model' => $this->model,
             'userInfo' => (new UserInfoModel)->isUser($pk),
@@ -90,7 +97,7 @@ class UserController extends Controller
 	}
 
     /*
-    public function get($pk = null)
+    public function getPerm($pk = null)
 	{
         Route::isAuth();
         if(!(isPermission('user_create') or isPermission('user_update'))) Route::ErrorPage(423);

@@ -1,11 +1,14 @@
-<form action="/user/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3>Сменить Пароль Пользователя "<?= $model->getData('username') ?>"</h3>
+<form action="/firmwareEnterprise/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
+    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Предприятие</h3>
     <div class="warframe_form-group">
 
         <?php $model->csrfToken() ?>
 
-        <label for="inp-password">Пароль</label>
-        <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>
+        <label for="inp-name">Название</label>
+        <input type="text" id="inp-name" name="name" value="<?= $model->getData('name') ?>" placeholder="Введите название" required>
+
+        <label for="inp-contact">Контакты</label>
+        <input type="text" id="inp-contact" name="contact" value="<?= $model->getData('contact') ?>" placeholder="Введите контакты" required>
 
         <button type="submit" class="warframe_btn">Сохранить</button>
 
@@ -13,6 +16,7 @@
 </form>
 
 <script>
+
     function submitForm() {
         event.preventDefault();
         $.ajax({

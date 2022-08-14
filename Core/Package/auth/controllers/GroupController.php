@@ -7,43 +7,31 @@ class GroupController extends Controller
 {
     public bool $onHook = true;
 	public bool $onAuthHook = true;
+	
+	public bool $onRemove = true;
+	public bool $onAuthRemove = true;
 
-	public bool $onDelete = false;
-	public bool $onAuthDelete = false;
-
-    public bool $onRestore = false;
-	public bool $onAuthRestore = false;
-	//
-	public bool $onRemove = false;
-	public bool $onAuthRemove = false;
-
-    public function isAuth($r = false)
+    public function prepareAuth():void
     {
-        Route::isAuth($r);
-        if(!isAdmin()) Route::ErrorPage(423);
-    }
-
-    public function hookPrepare($post, $pk = null)
-    {
-        if(!isAdmin()) Route::ErrorPage(423);
+        Route::isAuthAdmin();
     }
 
     public function index()
     {
-        $this->isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('auth/group/main');
     }
 
     public function list()
     {
-        $this->isAuth();
+        Route::isAuthAdmin();
         $this->model->Limit(10);
         $this->view('auth/group/table', $this->model);
     }
 
     public function get($pk = null)
 	{
-		$this->isAuth();
+        Route::isAuthAdmin();
         if($pk) $this->getElement($pk);
         importModel('PermissionModel', 'GroupPermissionModel');
 

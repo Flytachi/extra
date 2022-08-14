@@ -1,17 +1,12 @@
 <div class="warframe_header">
-    <span class="warframe_header-title">Пользователи</span><br>
-    <button onclick="checkModal('/user/changePassword/<?= $_SESSION['id'] ?>')" class="warframe_btn">Изменить мой пароль</button>
-    <a href="/auth/logout" class="warframe_btn">Выйти</a>
+    <span class="warframe_header-title">Лицензии</span><br>
+    <span id="message"></span>
 </div>
 
 <div class="warframe_card">
     <div class="warframe_card-body">
-        
-        <?php if(isPermission('user_create')): ?>
-            <button onclick="checkModal('/user/get')" class="warframe_btn">Добавить</button>
-        <?php endif; ?>
-        
-        <span id="message"></span>
+
+        <button onclick="checkModal('/firmwareLicense/get')" class="warframe_btn">Добавить</button>
         <div id="search_display"></div>
 
     </div>
@@ -28,7 +23,7 @@
 
             cXhr = $.ajax({
                 type: "GET",
-                url: "/user/list"+params,
+                url: "/firmwareLicense/list"+params,
                 success: function (result) {
                     isLoaded(display);
                     display.innerHTML = result;

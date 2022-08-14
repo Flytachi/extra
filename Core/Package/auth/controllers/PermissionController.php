@@ -8,47 +8,30 @@ class PermissionController extends Controller
     public bool $onHook = true;
 	public bool $onAuthHook = true;
 
-	public bool $onDelete = false;
-	public bool $onAuthDelete = false;
-
-    public bool $onRestore = false;
-	public bool $onAuthRestore = false;
-	
 	public bool $onRemove = true;
 	public bool $onAuthRemove = true;
 
-    public function isAuth($r = false)
+    public function prepareAuth():void
     {
-        Route::isAuth($r);
-        if(!isAdmin()) Route::ErrorPage(423);
-    }
-
-    public function hookPrepare($post, $pk = null)
-    {
-        if(!isAdmin()) Route::ErrorPage(423);
-    }
-
-    public function prepareRemove($pk)
-    {
-        if(!isAdmin()) Route::ErrorPage(423);
+        Route::isAuthAdmin();
     }
 
     public function index()
     {
-        $this->isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('auth/permission/main');
     }
 
     public function list()
     {
-        $this->isAuth();
+        Route::isAuthAdmin();
         $this->model->Limit(10);
         $this->view('auth/permission/table', $this->model);
     }
 
     public function get($pk = null)
 	{
-        $this->isAuth();
+        Route::isAuthAdmin();
         if($pk) {
             $object = $this->model->by(array('name'=> $pk));   
             if ($object) $this->model->setData($object);
@@ -62,9 +45,8 @@ class PermissionController extends Controller
 
     public function remove(string $pk): void
     {
-        if ($this->onAuthRemove == true) Route::isAuth();
-		if ($this->onRemove == false) Route::ErrorPage('404');
-        if(!isAdmin()) Route::ErrorPage(423);
+        if ($this->onAuthRemove === true) $this->prepareAuth();
+		if ($this->onRemove === false) Route::ErrorPage('404');
         if (!$pk) Route::ErrorPage(400);
         $this->prepareRemove($pk);
 		if ($this->model->by(array('name'=> $pk))) {

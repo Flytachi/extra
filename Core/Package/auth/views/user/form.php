@@ -17,7 +17,7 @@
             <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>
         <?php endif; ?>
 
-        <?php if(isAdmin()): ?>
+        <?php if(isAdmin() and !$model->getData('is_admin')): ?>
 
             <label for="inp-group_id">Группа</label>
             <select id="inp-group_id" name="info[group_id]" placeholder="Выберите группу" required>

@@ -50,7 +50,20 @@ class GroupModel extends Model
             $userModel->permission($this->permissions);
         }
     }
-    
+
+    public function deleteBody(): void
+    {
+        importModel('GroupPermissionModel', 'UserPermissionModel');
+        $userPerm = new UserPermissionModel;
+
+        $object = $this->db->delete($this->table, $this->getPk());
+        if (!is_numeric($object)) $this->error($object);
+
+        $obj = $this->db->delete($userPerm->getTable(), 
+            array('name' => (new GroupPermissionModel)->getAllPermission($this->getPk()))
+        );
+        if (!is_numeric($obj)) $this->error($obj);
+    }
 }
 
 ?>

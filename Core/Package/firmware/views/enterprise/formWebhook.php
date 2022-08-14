@@ -1,11 +1,13 @@
-<form action="/user/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3>Сменить Пароль Пользователя "<?= $model->getData('username') ?>"</h3>
+<form action="/firmwareWebhook/hook/<?= $webHook->id ?? null ?>" method="post" onsubmit="submitForm()">
+    <h3>Api ключ</h3>
     <div class="warframe_form-group">
 
         <?php $model->csrfToken() ?>
 
-        <label for="inp-password">Пароль</label>
-        <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>
+        <input type="hidden" name="enterprise_id" value="<?= $model->getData('id') ?>">
+
+        <label for="inp-unique_key">Api ключ</label>
+        <input type="text" id="inp-unique_key" name="unique_key" value="<?= $webHook->unique_key ?? uniqid(time()) ?>" required>
 
         <button type="submit" class="warframe_btn">Сохранить</button>
 
@@ -13,6 +15,7 @@
 </form>
 
 <script>
+
     function submitForm() {
         event.preventDefault();
         $.ajax({

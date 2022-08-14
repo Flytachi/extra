@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 4.5
+     * @version 4.7
      */
 
 	
@@ -193,6 +193,16 @@ class Route
 		} else {
 			if (empty($_SESSION['id'])) Route::ErrorPage(423);
 		}
+	}
+
+	static function isAuthAdmin(bool|int $redirect = false):void
+	{
+		if ($redirect) {
+			if (empty($_SESSION['id'])) Route::redirect("auth/login");
+		} else {
+			if (empty($_SESSION['id'])) Route::ErrorPage(423);
+		}
+		if (!$_SESSION['is_admin']) Route::ErrorPage(423);
 	}
 	
 	static function redirect(string $url = null, array $param = null): never
