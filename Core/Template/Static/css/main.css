@@ -128,7 +128,7 @@ body {
 }
 
 /* Forms */
-input[type=text], select, input[type=password] {
+input[type=text], select, input[type=password], input[type=file] {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -164,3 +164,27 @@ input[type=text], select, input[type=password] {
 }
   
 .pagination .page-item:hover:not(.active) {background-color: #ddd;}
+
+
+/* Flex */
+.warframe_flex-row {
+    display: flex;
+    flex-direction: row; 
+}
+
+.warframe_flex-col {
+    padding: 15px;
+    margin: 0 15px;
+}
+
+.warframe_flex-row-multicolum { 
+    display: flex; 
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    flex-flow: row wrap;
+}
+
+.warframe_flex-row-multicolum .warframe_flex-col { 
+    width: 30%; 
+    margin: 0 15px 15px
+}
