@@ -8,7 +8,7 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 1.8
+     * @version 1.9
      */
     
     private string $headers = '';
@@ -53,7 +53,7 @@ abstract class Api
     
     /* --------------------------------------------- */
 
-    final private function AuthorizationHeader(): void
+    private function AuthorizationHeader(): void
     {
         if (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
         elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);

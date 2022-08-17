@@ -151,7 +151,7 @@ class __Cfg
             if (is_array($v))
             {
                 //subsection case
-                $sec = array_merge((array) $parent, (array) $k);
+                $sec = [...(array) $parent, ...(array) $k];
                 $out .= PHP_EOL;
                 $out .= '[' . join('.', $sec) . ']' . PHP_EOL;
                 $out .= $this->arrayToIni($v, $sec);

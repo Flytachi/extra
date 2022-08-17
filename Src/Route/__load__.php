@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 4.7
+     * @version 4.9
      */
 
 	
@@ -25,13 +25,13 @@ class Route
 		503 => 'Service Unavailable',
 	);
 
-	static function start(): void
+	final static function start(): void
 	{
 		if (ROUTE_PLUGIN_SYSTEM) Route::routePlugin();
 		else Route::routeApp();	
 	}
 	
-	static function routeApp(): never
+	final static function routeApp(): never
 	{
 		$controllerName = ROUTE_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
@@ -68,7 +68,7 @@ class Route
 		exit;
 	}
 
-	static function routeApi(array $data): never
+	final static function routeApi(array $data): never
 	{
 		$routes = explode('/', $data['url']);
 		$_GET = $data['get'];
@@ -111,7 +111,7 @@ class Route
 		exit;
 	}
 
-	static function routePlugin(): never
+	final static function routePlugin(): never
 	{
 		$pluginName = "";
 		$controllerName = ROUTE_PLUGIN_MAIN_CONTROLLER;
@@ -171,7 +171,7 @@ class Route
 		exit;
 	}
 
-	static function urlToArray(string $url): array
+	final static function urlToArray(string $url): array
     {
         $code = explode('?', $url);
         $result = [];
@@ -205,14 +205,14 @@ class Route
 		if (!$_SESSION['is_admin']) Route::ErrorPage(423);
 	}
 	
-	static function redirect(string $url = null, array $param = null): never
+	final static function redirect(string $url = null, array $param = null): never
 	{
 		if ($url) header("location: /$url " . arrayToRequest($param));
 		else header("location:" . $_SERVER['HTTP_REFERER']);
 		exit();
 	}
 	
-	static function ErrorPage(int $code): never
+	final static function ErrorPage(int $code): never
 	{
         header("HTTP/1.1 $code " . Route::$httpStatus[$code]);
 		header("Status: $code " . Route::$httpStatus[$code]);
@@ -220,14 +220,14 @@ class Route
 		die;
 	}
 
-	static function ErrorResponseJson(array $data): never
+	final static function ErrorResponseJson(array $data): never
 	{
         header('Content-type: application/json');
 		echo json_encode($data);
 		die;
 	}
 
-	static function ApiSuccess(mixed $data = null): never
+	final static function ApiSuccess(mixed $data = null): never
 	{
 		$code = 200;
 		$status = Route::$httpStatus['200'];
@@ -242,7 +242,7 @@ class Route
 		die;
 	}
 
-	static function ApiError(int $code, array $data = []): never
+	final static function ApiError(int $code, array $data = []): never
 	{
 		$status = Route::$httpStatus[$code];
 		header("HTTP/1.1 $code " . $status);

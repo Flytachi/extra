@@ -8,7 +8,7 @@ class CDO extends \PDO
      * 
      * CDO
      * 
-     * @version 1.4
+     * @version 1.5
      */
 
 
@@ -69,7 +69,7 @@ class CDO extends \PDO
         // Send
         try {
             $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
-            $stm->execute(array_merge($pk,$post));
+            $stm->execute([...$pk, ...$post]);
             return $stm->rowCount();
         } catch (\PDOException $ex) {
             return ($this->debug) ? $ex->getMessage() : "Ошибка обновления элемента.";
