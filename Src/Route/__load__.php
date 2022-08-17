@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 4.9
+     * @version 5.0
      */
 
 	
@@ -47,19 +47,19 @@ class Route
 		$_GET = $data['get'];
 
 		// Prefix
-		$modelRepository = $controllerName . 'Repository';
+		$repositoryName = $controllerName . 'Repository';
 		$controllerName = $controllerName . 'Controller';
 		
 		// Imports
 		$funcPath = dirname(__DIR__, 3) . '/functions.php';
 		if ( file_exists($funcPath) ) require $funcPath;
-		importRepository($modelRepository);
+		importRepository($repositoryName);
 		importController($controllerName);
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists($modelRepository)) $controller->setRepository($modelRepository);
+			if(class_exists($repositoryName)) $controller->setRepository($repositoryName);
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
@@ -97,12 +97,12 @@ class Route
 			if ( file_exists($funcPath) ) require $funcPath;
 			importApi($controllerName);
 		}
-		importModel('ApiModel');
+		importRepository('ApiRepository');
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists('ApiModel')) $controller->setModel('ApiModel');
+			if(class_exists('ApiRepository')) $controller->setRepository('ApiRepository');
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
@@ -134,13 +134,13 @@ class Route
 			$_GET = $data['get'];
 			
 			// Prefix
-			$modelName = $controllerName . 'Model';
+			$repositoryName = $controllerName . 'Repository';
 			$controllerName = $controllerName . 'Controller';
 		
 			// Imports
 			$funcPath = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/functions.php";
 			if ( file_exists($funcPath) ) require $funcPath;
-			importPluginModel(PLUGIN_NAME, $modelName);
+			importPluginRepository(PLUGIN_NAME, $repositoryName);
 			importPluginController(PLUGIN_NAME, $controllerName);
 		} else {
 			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
@@ -149,20 +149,20 @@ class Route
 			$_GET = $data['get'];
 			
 			// Prefix
-			$modelName = $controllerName . 'Model';
+			$repositoryName = $controllerName . 'Repository';
 			$controllerName = $controllerName . 'Controller';
 
 			// Imports
 			$funcPath = dirname(__DIR__, 3) . '/functions.php';
 			if ( file_exists($funcPath) ) require $funcPath;
-			importModel($modelName);
+			importRepository($repositoryName);
 			importController($controllerName);
 		}
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists($modelName)) $controller->setModel($modelName);
+			if(class_exists($repositoryName)) $controller->setRepository($repositoryName);
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
