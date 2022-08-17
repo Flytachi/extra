@@ -57,6 +57,22 @@ function importLib(string ...$libs): void
     }
 }
 
+function importController(string ...$controllers): void
+{
+    foreach ($controllers as $controller) {
+        $path = dirname(__DIR__, 2) .'/controllers/' . $controller . '.php';
+        if (file_exists($path)) {
+            try { 
+                include $path;
+            } catch (\Throwable $th) { 
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в контроллере');
+                else dd($th);
+                die;
+            }
+        } else Route::ErrorPage(404);
+    }
+}
+
 function importRepository(string ...$repository): void
 {
     foreach ($repository as $repo) {
@@ -91,22 +107,6 @@ function importModel(string ...$models): void
     }
 }
 
-function importController(string ...$controllers): void
-{
-    foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 2) .'/controllers/' . $controller . '.php';
-        if (file_exists($path)) {
-            try { 
-                include $path;
-            } catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в контроллере');
-                else dd($th);
-                die;
-            }
-        } else Route::ErrorPage(404);
-    }
-}
-
 function importApi(string ...$controllers): void
 {
     foreach ($controllers as $controller) {
@@ -136,6 +136,23 @@ function importPluginController(string $plugin, string ...$controllers): void
                 die;
             }
         } else Route::ErrorPage(404);
+    }
+}
+
+function importPluginRepository(string $plugin, string ...$repository): void
+{
+    foreach ($repository as $repo) {
+        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/repository/$repo.php";
+        if (file_exists($path)) {
+            try {
+                if( !class_exists($repo) ) include $path;
+            }
+            catch (\Throwable $th) { 
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
+                else dd($th);
+                die;
+            }
+        }
     }
 }
 

@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 4.2
+     * @version 5.0
      */
 
 
@@ -47,6 +47,13 @@ abstract class Controller
             unset($_POST['csrf_token']);
     
         } else Route::ErrorPage(419);
+    }
+
+    final protected function csrfTokenGen(): string
+    {
+        $token = bin2hex(random_bytes(24));
+        $_SESSION['CSRFTOKEN'] =  $token;
+        return "<input type=\"hidden\" name=\"csrf_token\" value=\"$token\">";
     }
 
     final protected function getElement($pk): mixed

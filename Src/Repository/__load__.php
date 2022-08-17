@@ -4,6 +4,13 @@ namespace Extra\Src;
 
 class Repository
 {
+    /**
+     * 
+     * Repository
+     * 
+     * @version 1.0
+     */
+
 
     protected string $table;
     protected string $modelName = 'stdClass';
@@ -24,7 +31,8 @@ class Repository
 
     function __destruct()
     {
-        unset($this->db);   
+        unset($this->CRD_SQL);
+        unset($this->db);
     }
 
     /*
@@ -56,17 +64,17 @@ class Repository
         $this->data = (array) $data;
     }
 
-    final public function getData(String $item = null)
+    final public function getData(string $item = ''): mixed
     {
-        return ($item == null) ? $this->data : $this->data[$item] ?? null;
+        return ($item) ? $this->data : $this->data[$item] ?? '';
     }
 
-    final public function setDataItem(String $item, $value = null): void
+    final public function setDataItem(string $item, $value = null): void
     {
         $this->data[$item] = $value;
     }
 
-    final public function deleteDataItem(String $item): void
+    final public function deleteDataItem(string $item): void
     {
         unset($this->data[$item]);
     }
@@ -78,9 +86,15 @@ class Repository
 
     /*  
     ---------------------------------------------
-    PARAMETRS
+        PARAMETRS SQL
     ---------------------------------------------
     */
+    final public function getSearch()
+    {
+        $this->CRD_SQL['search'] = (isset($_GET['search']) and $_GET['search']) ? 'search=' . $_GET['search'] : "";
+        $search = str_replace('search=', '', $this->CRD_SQL['search']);
+        return $this->clsDta($search);
+    }
 
     final public function buildSql(): string
     {
@@ -89,12 +103,12 @@ class Repository
             $sql .= array_key_exists('option', $this->CRD_SQL) ? $this->CRD_SQL['option'] : '*';
             $sql .= ' FROM ' . $this->table;
             if(array_key_exists('as', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['as'];
-            if(array_key_exists('join', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['join'];
-            if(array_key_exists('where', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['where'];
-            if(array_key_exists('union', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['union'];
-            if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['group'];
-            if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['order'];
-            // $this->CRD_search = (isset($_GET['CRD_search']) and $_GET['CRD_search']) ? $this->CRD_searchGetName.$_GET['CRD_search'] : "";
+            if(array_key_exists('join', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['join']);
+            if(array_key_exists('where', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['where']);
+            if(array_key_exists('union', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['union']);
+            if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
+            if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
+            if(array_key_exists('search', $this->CRD_SQL) and $this->CRD_SQL['search']) $sql .= 'search=' . $this->CRD_SQL['order'];
             if (array_key_exists('limit', $this->CRD_SQL)) {
                 $page = (int)(isset($_GET['CRD_page'])) ? (int) $_GET['CRD_page'] : $page = 1;
                 $offset = (int) $this->CRD_SQL['limit'] * ($page - 1);
@@ -207,7 +221,6 @@ class Repository
 
             $get = $this->db->query($this->buildSql());
             $get->setFetchMode(\PDO::FETCH_CLASS, $this->modelName);
-            // $get = $this->db->query($this->buildSql())->fetch(\PDO::FETCH_CLASS);
             return $get->fetch();
 
         } catch (\Throwable $th) {
@@ -227,6 +240,30 @@ class Repository
             else echo 'Ошибка в генерации скрипта <strong>"LIST"</strong>';
         }
     }
+
+    // START column is_delete
+    final public function getAllDelete(): array
+    {
+        $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
+        if (array_key_exists('where', $this->CRD_SQL)) {
+            $this->CRD_SQL['where'] .= ' AND ' . $as . 'is_delete = 1';
+        } else {
+            $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 1';
+        }
+        return $this->getAll();
+    }
+    
+    final public function getAllNotDelete(): array
+    {
+        $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
+        if (array_key_exists('where', $this->CRD_SQL)) {
+            $this->CRD_SQL['where'] .= ' AND ' . $as . 'is_delete = 0';
+        } else {
+            $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 0';
+        }
+        return $this->getAll();
+    }
+    // END column is_delete
 
     final public function getBy(array $params, string|array $item = ''): mixed
     {
@@ -303,7 +340,6 @@ class Repository
     {
         $this->db->beginTransaction();
         $this->setData(CDO::cleanForm($this->getData()));
-        $this->setData(CDO::toNull($this->getData()));
     }
 
     public function saveBody(): void
@@ -332,7 +368,6 @@ class Repository
     {
         $this->db->beginTransaction();
         $this->setData(CDO::cleanForm($this->getData()));
-        $this->setData(CDO::toNull($this->getData()));
     }
 
     public function updateBody(): void
@@ -375,6 +410,16 @@ class Repository
     ---------------------------------------------
     */
 
+    private function clsDta(array|string $value): array|string
+    {
+        if (!is_array($value)) {
+            $value = trim($value);
+            $value = stripslashes($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value);
+        }
+        return $value;
+    }
 
     private function errorX(\Throwable $error): never
     {

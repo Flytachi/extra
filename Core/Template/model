@@ -4,9 +4,28 @@ use Extra\Src\Model;
 
 class _ModelIndex_ extends Model
 {
-    public string $table = '_TableIndex_';
+    protected $id;
+    protected $is_delete;
 
-    
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    public function getIsDelete()
+    {
+        return $this->is_delete;
+    }
+
+    public function setIsDelete($is_delete)
+    {
+        $this->is_delete = $is_delete;
+    }
 }
 
 ?>

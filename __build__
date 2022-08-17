@@ -25,9 +25,10 @@ if (PHP_VERSION_ID >= 80000) {
     $DIRS = [
         "$ROOT/app/api",
         "$ROOT/app/controllers",
-        "$ROOT/app/models",
         "$ROOT/app/dist",
         "$ROOT/app/dist/data",
+        "$ROOT/app/models",
+        "$ROOT/app/repository",
         "$ROOT/public",
         "$ROOT/public/static",
         "$ROOT/public/views",

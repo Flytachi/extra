@@ -21,9 +21,10 @@ class __Make
     private function resolution()
     {
         try {
-            if ($this->argument == "controller") $this->mController();
-            elseif($this->argument == "api") $this->mApi();
+            if($this->argument == "api") $this->mApi();
+            elseif ($this->argument == "controller") $this->mController();
             elseif($this->argument == "model") $this->mModel();
+            elseif(in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
         } catch (\Error $e) {
             // echo $e->getMessage();
@@ -32,28 +33,49 @@ class __Make
         
     }
 
-    private function mModel(){
-        $file = dirname(__DIR__) . "/Template/$this->argument";
-        if ($this->name) {
-            $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $template = str_replace("_TableIndex_", strtolower($this->name), $template);
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
+    private function mApi(){
+        if (!strrpos($this->name, 'Api')) {
+            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            return;
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/api";
+            $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/api', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
     private function mController(){
-        $file = dirname(__DIR__) . "/Template/$this->argument";
-        if ($this->name) {
+        if (!strrpos($this->name, 'Controller')) {
+            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            return;
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/controllers', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
+
+    private function mModel(){
+        if (!strrpos($this->name, 'Model')) {
+            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            return;
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/model";
+            $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
+        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+    }
     
-    private function mApi(){
-        $file = dirname(__DIR__) . "/Template/$this->argument";
-        if ($this->name) {
-            $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/api', $template);
+    private function mRepository(){
+        if (!strrpos($this->name, 'Repository')) {
+            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            return;
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/repository";
+            $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
+            $template = str_replace("_RepositoryModel_", $this->UC_word(str_replace('Repository', 'Model', $this->name)), $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/repository', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 

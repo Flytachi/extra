@@ -21,17 +21,16 @@ class _ControllerIndex_ extends Controller
         dd("index");
     }
 
-    public function get($pk = null)
+    public function get($pk = '')
 	{
 		if ($pk) {
-			$this->getElement($pk);
 			header('Content-type: application/json');
-			echo json_encode($this->model->getData());
+			echo (string) $this->getElement($pk);
 		} else dd("Form in create new element");
         /*
-        if($pk) $this->getElement($pk);
         $this->view('.', array(
-            'model' => $this->model
+            'model' => ($pk) ? $this->getElement($pk) : new $this->repo->modelName,
+            'inputCsrf' => $this->csrfTokenGen()
         ));
         */
 	}

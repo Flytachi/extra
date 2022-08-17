@@ -1,0 +1,12 @@
+<?php
+
+use Extra\Src\Repository;
+
+class _RepositoryIndex_ extends Repository
+{
+    public string $table = '_RepositoryTable_';
+    public string $modelName = '_RepositoryModel_';
+    
+}
+
+?>
