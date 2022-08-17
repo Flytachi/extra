@@ -57,6 +57,23 @@ function importLib(string ...$libs): void
     }
 }
 
+function importRepository(string ...$repository): void
+{
+    foreach ($repository as $repo) {
+        $path = dirname(__DIR__, 2) .'/repository/' . $repo . '.php';
+        if (file_exists($path)) {
+            try { 
+                if( !class_exists($repo) ) include $path;
+            }
+            catch (\Throwable $th) { 
+                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) dd('Ошибка в модели');
+                else dd($th);
+                die;
+            }
+        }
+    }
+}
+
 function importModel(string ...$models): void
 {
     foreach ($models as $model) {

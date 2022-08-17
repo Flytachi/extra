@@ -47,19 +47,19 @@ class Route
 		$_GET = $data['get'];
 
 		// Prefix
-		$modelName = $controllerName . 'Model';
+		$modelRepository = $controllerName . 'Repository';
 		$controllerName = $controllerName . 'Controller';
 		
 		// Imports
 		$funcPath = dirname(__DIR__, 3) . '/functions.php';
 		if ( file_exists($funcPath) ) require $funcPath;
-		importModel($modelName);
+		importRepository($modelRepository);
 		importController($controllerName);
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists($modelName)) $controller->setModel($modelName);
+			if(class_exists($modelRepository)) $controller->setRepository($modelRepository);
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
