@@ -1,23 +1,21 @@
-<form action="/user/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Пользователя</h3>
+<form action="/user/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
+    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Пользователя</h3>
     <div class="warframe_form-group">
 
-        <?php $model->csrfToken() ?>
+        <?= $inputCsrf ?>
 
         <label for="inp-name">Имя пользователя</label>
         <input type="text" id="inp-name" name="info[name]" value="<?= $userInfo->name ?? null ?>" placeholder="Введите имя пользователя" required>
 
-
         <label for="inp-username">Логин</label>
-        <input type="text" id="inp-username" name="username" value="<?= $model->getData('username') ?>" placeholder="Введите логин" required>
+        <input type="text" id="inp-username" name="username" value="<?= $model->username ?>" placeholder="Введите логин" required>
 
-
-        <?php if(!$model->getData('id')): ?>
+        <?php if(!$model->id): ?>
             <label for="inp-password">Пароль</label>
             <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>
         <?php endif; ?>
 
-        <?php if(isAdmin() and !$model->getData('is_admin')): ?>
+        <?php if(isAdmin() and !$model->is_admin): ?>
 
             <label for="inp-group_id">Группа</label>
             <select id="inp-group_id" name="info[group_id]" placeholder="Выберите группу" required>

@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 5.0
+     * @version 5.7
      */
 
 	
@@ -41,7 +41,7 @@ class Route
 		$routes = explode('/', $data['url']);
 
 		if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
-		if ($controllerName === "Api") Route::routeApi($data);
+		if ( $controllerName === 'Api' ) Route::routeApi($data);
 		if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 		if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
 		$_GET = $data['get'];
@@ -68,49 +68,6 @@ class Route
 		exit;
 	}
 
-	final static function routeApi(array $data): never
-	{
-		$routes = explode('/', $data['url']);
-		$_GET = $data['get'];
-		$chP = checkPlugin(ucfirst($routes[2]));
-		if (ROUTE_PLUGIN_SYSTEM and $chP) {
-			$pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
-			$controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
-			$actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
-			$params         = ( !empty($routes[5]) ) ? ucfirst($routes[5]) : null;
-		} else {
-			$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
-			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
-			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
-		}
-				
-		// Prefix
-		$controllerName = $controllerName . 'Api';
-		
-		// Imports
-		if (ROUTE_PLUGIN_SYSTEM and $chP) {
-			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
-			if ( file_exists($path) ) require $path;
-			importPluginApi(PLUGIN_NAME, $controllerName);
-		} else {
-			$funcPath = dirname(__DIR__, 3) . '/functions.php';
-			if ( file_exists($funcPath) ) require $funcPath;
-			importApi($controllerName);
-		}
-		importRepository('ApiRepository');
-		
-		// Imitation
-		try {
-			$controller = new $controllerName;
-			if(class_exists('ApiRepository')) $controller->setRepository('ApiRepository');
-			$controller->$actionName($params);
-		} catch (\Throwable $e) {
-			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else Route::ApiError(500);
-		}
-		exit;
-	}
-
 	final static function routePlugin(): never
 	{
 		$pluginName = "";
@@ -122,7 +79,7 @@ class Route
 		$routes = explode('/', $data['url']);
 
 		if ( !empty($routes[1]) ) $pluginName = ucfirst($routes[1]);
-		if ($pluginName === "Api") Route::routeApi($data);
+		if ( $pluginName === 'Api' ) Route::routeApi($data);
 
 		// Checking
 		if (checkPlugin($pluginName)) {
@@ -171,6 +128,50 @@ class Route
 		exit;
 	}
 
+	final static function routeApi(array $data): never
+	{
+		if (!ROUTE_API_SYSTEM) Route::ApiError(400);
+		$routes = explode('/', $data['url']);
+		$_GET = $data['get'];
+		$chP = checkPlugin(ucfirst($routes[2]));
+		if (ROUTE_PLUGIN_SYSTEM and $chP) {
+			$pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
+			$controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
+			$actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+			$params         = ( !empty($routes[5]) ) ? ucfirst($routes[5]) : null;
+		} else {
+			$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
+			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
+			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+		}
+				
+		// Prefix
+		$controllerName = $controllerName . 'Api';
+		
+		// Imports
+		if (ROUTE_PLUGIN_SYSTEM and $chP) {
+			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
+			if ( file_exists($path) ) require $path;
+			importPluginApi(PLUGIN_NAME, $controllerName);
+		} else {
+			$funcPath = dirname(__DIR__, 3) . '/functions.php';
+			if ( file_exists($funcPath) ) require $funcPath;
+			importApi($controllerName);
+		}
+		importRepository('ApiRepository');
+		
+		// Imitation
+		try {
+			$controller = new $controllerName;
+			if(class_exists('ApiRepository')) $controller->setRepository('ApiRepository');
+			$controller->$actionName($params);
+		} catch (\Throwable $e) {
+			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else Route::ApiError(500);
+		}
+		exit;
+	}
+
 	final static function urlToArray(string $url): array
     {
         $code = explode('?', $url);
@@ -189,7 +190,7 @@ class Route
 	static function isAuth(bool|int $redirect = false):void
 	{
 		if ($redirect) {
-			if (empty($_SESSION['id'])) Route::redirect("auth/login");
+			if (empty($_SESSION['id'])) Route::redirect('auth/login');
 		} else {
 			if (empty($_SESSION['id'])) Route::ErrorPage(423);
 		}
@@ -198,17 +199,17 @@ class Route
 	static function isAuthAdmin(bool|int $redirect = false):void
 	{
 		if ($redirect) {
-			if (empty($_SESSION['id'])) Route::redirect("auth/login");
+			if (empty($_SESSION['id'])) Route::redirect('auth/login');
 		} else {
 			if (empty($_SESSION['id'])) Route::ErrorPage(423);
 		}
-		if (!$_SESSION['is_admin']) Route::ErrorPage(423);
+		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) Route::ErrorPage(423);
 	}
 	
 	final static function redirect(string $url = null, array $param = null): never
 	{
-		if ($url) header("location: /$url " . arrayToRequest($param));
-		else header("location:" . $_SERVER['HTTP_REFERER']);
+		if ($url) header('location: /' . $url . arrayToRequest($param));
+		else header('location:' . $_SERVER['HTTP_REFERER']);
 		exit();
 	}
 	

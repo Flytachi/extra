@@ -1,11 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.0
--- https://www.phpmyadmin.net/
---
--- Хост: localhost
--- Время создания: Июл 21 2022 г., 12:46
--- Версия сервера: 10.8.3-MariaDB
--- Версия PHP: 7.4.29
 
 SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,10 +9,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
-
---
--- База данных: `phoenix`
---
 
 -- --------------------------------------------------------
 
@@ -72,8 +60,8 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `username` char(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` char(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_admin` tinyint(1) DEFAULT NULL,
-  `is_delete` tinyint(1) DEFAULT NULL,
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

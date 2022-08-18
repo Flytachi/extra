@@ -28,15 +28,15 @@ class AuthController extends Controller
     {
         if ($_POST['username'] and $_POST['password']) {
 
-            importModel('UserModel', 'UserInfoModel');
-            $userModel = new UserModel;
+            importRepository('UserRepository', 'UserInfoRepository');
+            $userModel = new UserRepository;
             $login = CDO::clean($_POST['username']);
             $password = sha1(CDO::clean($_POST['password']));
             
-            if ($user = $userModel->Where("username = '$login' AND password = '$password' AND is_delete IS NULL")->get()) {
+            if ($user = $userModel->getBy(array('username' => $login, 'password' => $password, 'is_delete' => 0))) {
                 $_SESSION['id'] = $user->id;
                 $_SESSION['is_admin'] = $user->is_admin;
-                if ($info = (new UserInfoModel)->isUser($user->id)) {
+                if ($info = (new UserInfoRepository)->isUser($user->id)) {
                     $_SESSION['name'] = $info->name;
                 }
                 $this->renderJsonSuccess('Верификация прошла успешно');
@@ -50,7 +50,6 @@ class AuthController extends Controller
         session_destroy();
         Route::redirect('auth/login');
     }
-    
 }
 
 ?>

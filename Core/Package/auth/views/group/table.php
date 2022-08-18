@@ -6,14 +6,14 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach($data->list() as $group): ?>
+        <?php foreach($table as $row): ?>
             <tr>
-                <td><?= $group->name ?></td>
+                <td><?= $row->name ?></td>
                 <td>
-                    <button onclick="checkModal('/group/get/<?= $group->id ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/group/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <button onclick="AjaxQuery('/group/remove/<?= $group->id ?>')" type="button" class="warframe_btn" title="Удалить">
+                    <button onclick="AjaxQuery('/group/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                         Remove
                     </button>
                 </td>
@@ -22,4 +22,4 @@
     </tbody>
 </table>
 
-<?php $data->panel() ?>
+<?= $panel ?>

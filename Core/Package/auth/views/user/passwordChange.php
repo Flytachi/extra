@@ -1,8 +1,8 @@
-<form action="/user/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3>Сменить Пароль Пользователя "<?= $model->getData('username') ?>"</h3>
+<form action="/user/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
+    <h3>Сменить Пароль Пользователя "<?= $model->username ?>"</h3>
     <div class="warframe_form-group">
 
-        <?php $model->csrfToken() ?>
+        <?= $inputCsrf ?>
 
         <label for="inp-password">Пароль</label>
         <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>

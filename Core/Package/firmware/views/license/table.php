@@ -1,34 +1,43 @@
 <table class="warframe_table">
     <thead>
         <tr>
-            <th style="width: 50px;">№</th>
             <th>Предприятие</th>
             <th>Устройство</th>
             <th>Срок</th>
-            <th style="width: 300px;">Действия</th>
+            <th style="width: 285px;">Действия</th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach($data->list(1) as $license): ?>
-            <tr>
-                <th><?= $license->count ?></th>
-                <td><?= $license->enterprise ?></td>
-                <td><?= $license->series ?></td>
-                <td><?= $license->date_from ?> => <?= $license->date_to ?></td>
+        <?php foreach($table as $row): ?>
+            <tr <?php if($row->is_delete) echo 'style="background-color:red; color:white;"' ?>>
+                <td><?= $row->enterprise ?></td>
+                <td><?= $row->series ?></td>
+                <td><?= $row->date_from ?> => <?= $row->date_to ?></td>
                 <td>
-                    <a href="/firmwareLicense/getFile/<?= $license->id ?>" type="button" class="warframe_btn" title="Скачать файл">
-                        Load
-                    </a>
-                    <button onclick="checkModal('/firmwareLicense/get/<?= $license->id ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <?php if(!$row->is_delete): ?>
+                        <a href="/firmwareLicense/getFile/<?= $row->id ?>" type="button" class="warframe_btn" title="Скачать файл">
+                            Load
+                        </a>
+                    <?php endif; ?>
+                    <button onclick="checkModal('/firmwareLicense/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <button onclick="AjaxQuery('/firmwareLicense/delete/<?= $license->id ?>')" type="button" class="warframe_btn" title="Удалить">
-                        Remove
-                    </button>
+                    <?php if($row->is_delete): ?>
+                        <button onclick="AjaxQuery('/firmwareLicense/restore/<?= $row->id ?>')" type="button" class="warframe_btn" title="Восстановить">
+                            Restore
+                        </button>
+                        <button onclick="AjaxQuery('/firmwareLicense/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
+                            Remove
+                        </button>
+                    <?php else: ?>
+                        <button onclick="AjaxQuery('/firmwareLicense/delete/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
+                            Delete
+                        </button>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
 
-<?php $data->panel() ?>
+<?= $panel ?>

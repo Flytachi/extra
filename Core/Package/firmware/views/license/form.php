@@ -1,27 +1,26 @@
-<form action="/firmwareLicense/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Лицензию</h3>
+<form action="/firmwareLicense/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
+    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Лицензию</h3>
         
     <div class="warframe_form-group">
 
-        <?php $model->csrfToken() ?>
+        <?= $inputCsrf ?>
 
         <label for="inp-enterprise_id">Предприятие</label>
         <select id="inp-enterprise_id" name="enterprise_id" style="width: 100%;" data-placeholder="Выберите предприятие" required>
             <option></option>
             <?php foreach($enterpriseList as $row): ?>
-                <option value="<?= $row->id ?>" <?php if($row->id == $model->getData('enterprise_id')) echo 'selected' ?>><?= $row->name ?></option>
+                <option value="<?= $row->id ?>" <?php if($row->id == $model->enterprise_id) echo 'selected' ?>><?= $row->name ?></option>
             <?php endforeach; ?>
         </select>
 
         <label for="inp-series">Серия устройства</label>
-        <input type="text" id="inp-series" name="series" value="<?= $model->getData('series') ?>" placeholder="Введите серию" required>
-
+        <input type="text" id="inp-series" name="series" value="<?= $model->series ?>" placeholder="Введите серию" required>
 
         <label for="example-date_from">Дата (от)</label>
-        <input type="date" name="date_from" id="example-date_from" value="<?= $model->getData('date_from') ?>" required>
+        <input type="date" name="date_from" id="example-date_from" value="<?= $model->date_from ?>" required>
 
         <label for="example-date_to">Дата (до)</label>
-        <input type="date" name="date_to" id="example-date_to" value="<?= $model->getData('date_to') ?>" required>
+        <input type="date" name="date_to" id="example-date_to" value="<?= $model->date_to ?>" required>
 
         <button type="submit" class="warframe_btn">Сохранить</button>
 

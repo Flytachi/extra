@@ -4,9 +4,9 @@ use Extra\Src\Model;
 
 class FirmwareWebhookModel extends Model
 {
-    public string $table = 'firmware_webhooks';
-
-    
+    public $id;
+    public $enterprise_id;
+    public $unique_key;
 }
 
 ?>

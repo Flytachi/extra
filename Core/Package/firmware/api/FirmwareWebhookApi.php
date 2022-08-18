@@ -5,22 +5,23 @@ use Extra\Src\Route;
 
 class FirmwareWebhookApi extends Api
 {
-    
     public function giveLicense()
     {
         // $this->authorizationBearer();
         $body = $this->requestJson();
 
-        importModel('FirmwareWebhookModel', 'FirmwareLicenseModel');
+        importRepository('FirmwareWebhookRepository', 'FirmwareLicenseRepository');
         
-        $enterprise = (new FirmwareWebhookModel)->Where("unique_key = '$body->key'")->get();
+        $enterprise = (new FirmwareWebhookRepository)->getBy(array('unique_key' => $body->key));
         if(!$enterprise) Route::ApiError(401);
 
-        $license = (new FirmwareLicenseModel)->Data("series, date_from, date_to")->Order("id DESC")->Where("is_delete IS NULL AND enterprise_id = '$enterprise->enterprise_id'")->get();
-        $license->firmware = EXTRA_KEY;
+        $licenseRepo = (new FirmwareLicenseRepository);
+        $licenseRepo->Option("series, date_from, date_to");
+        $licenseRepo->Order("id DESC");
+        $license = $licenseRepo->getBy(array('is_delete' => 0, 'enterprise_id' => $enterprise->enterprise_id));
+        if ($license) $license->firmware = EXTRA_KEY;
         Route::ApiSuccess( $license );
     }
-
 }
 
 ?>

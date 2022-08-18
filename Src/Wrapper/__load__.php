@@ -4,6 +4,13 @@ namespace Extra\Src;
 
 class Wrapper
 {
+    /**
+     * 
+     * Wrapper
+     * 
+     * @version 1.2
+     */
+
     static int $totalPages;
     static string $params;
     
@@ -52,10 +59,9 @@ class Wrapper
     final static function panel(Repository $repo): string
     {
         if ($repo->getSql('limit') > 0) {
-            $option = $repo->getSql('option') ?? '*';
-            $sql = str_replace($option, 'COUNT(' . $option . ')', $repo->buildSql());
+            $sql = $repo->buildSql();
             Wrapper::$totalPages = ceil(
-                $repo->db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->fetchColumn() / $repo->getSql('limit')
+                $repo->db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / $repo->getSql('limit')
             );
             if (Wrapper::$totalPages <= 1) return '';
             $page = (int)(isset($_GET['CRD_page'])) ? $_GET['CRD_page'] : $page = 1;

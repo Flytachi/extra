@@ -2,6 +2,7 @@
 
 use Extra\Src\Controller;
 use Extra\Src\Route;
+use Extra\Src\Wrapper;
 
 class UserController extends Controller
 {
@@ -53,21 +54,24 @@ class UserController extends Controller
     {
         Route::isAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
-        importModel('UserInfoModel', 'GroupModel');
-        $this->model->as('u');
-        $this->model->Data("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
-        $this->model->JoinLEFT(new UserInfoModel('ui'), 'u.id=ui.user_id');
-        $this->model->JoinLEFT(new GroupModel('g'), 'g.id=ui.group_id');
-        $this->model->Limit(10);
-        $this->view('auth/user/table', $this->model);
+        importRepository('UserInfoRepository', 'GroupRepository');
+        $this->repo->as('u');
+        $this->repo->Option("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
+        $this->repo->JoinLEFT(new UserInfoRepository('ui'), 'u.id=ui.user_id');
+        $this->repo->JoinLEFT(new GroupRepository('g'), 'g.id=ui.group_id');
+        $this->repo->Limit(10);
+        $this->view('auth/user/table', Wrapper::paginator($this->repo));
     }
 
     public function changePassword($pk)
     {
         Route::isAuth();
-        $this->getElement($pk);
-        if(!$this->permissionChangePassword($this->model->get())) Route::ErrorPage(423);
-        $this->view('auth/user/passwordChange', array('model'=> $this->model));
+        $object = $this->getElement($pk);
+        if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
+        $this->view('auth/user/passwordChange', array(
+            'model'=> $object,
+            'inputCsrf' => $this->csrfTokenGen()
+        ));
     }
 
     public function permissionChangePassword($user)
@@ -82,17 +86,18 @@ class UserController extends Controller
     public function get($pk = null)
 	{
         Route::isAuth();
-        importModel('GroupModel', 'UserInfoModel');
+        importRepository('GroupRepository', 'UserInfoRepository');
         if($pk) {
             if (!isPermission('user_update')) Route::ErrorPage(423);
-            $this->getElement($pk);
+            $object = $this->getElement($pk);
         } else {
             if (!isPermission('user_create')) Route::ErrorPage(423);
         }
         $this->view('auth/user/form', array(
-            'model' => $this->model,
-            'userInfo' => (new UserInfoModel)->isUser($pk),
-            'groupList' => (new GroupModel)->list()
+            'model' => $object ?? new $this->repo->modelName,
+            'userInfo' => (new UserInfoRepository)->isUser($pk),
+            'groupList' => (new GroupRepository)->getAll(),
+            'inputCsrf' => $this->csrfTokenGen()
         ));
 	}
 
@@ -111,7 +116,6 @@ class UserController extends Controller
         ));
 	}
     */
-    
 }
 
 ?>

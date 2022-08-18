@@ -7,13 +7,13 @@ class FirewallController extends Controller
 {
     public function index()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('firewall/main', array('confList' => array_keys(cfgGet())));
     }
 
     public function apache()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('firewall/panel/form', array(
             'settName' => 'APACHE',
             'confList' => cfgGet()['APACHE']
@@ -22,7 +22,7 @@ class FirewallController extends Controller
 
     public function security()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('firewall/panel/form', array(
             'settName' => 'SECURITY',
             'confList' => cfgGet()['SECURITY']
@@ -31,7 +31,7 @@ class FirewallController extends Controller
 
     public function global_setting()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('firewall/panel/form', array(
             'settName' => 'GLOBAL_SETTING',
             'confList' => cfgGet()['GLOBAL_SETTING']
@@ -40,7 +40,7 @@ class FirewallController extends Controller
 
     public function database()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $this->render('firewall/panel/form', array(
             'settName' => 'DATABASE',
             'confList' => cfgGet()['DATABASE']
@@ -49,7 +49,7 @@ class FirewallController extends Controller
 
     public function license()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $cfg = cfgGet();
         $license = licenseKey();
         $this->render('firewall/panel/license', array(
@@ -71,7 +71,7 @@ class FirewallController extends Controller
 
     public function liceseSpell()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         if ($_FILES['license'] and $_FILES['license']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['license']['tmp_name'];
             $fileName = $_FILES['license']['name'];
@@ -88,7 +88,7 @@ class FirewallController extends Controller
 
     public function spell()
     {
-        Route::isAuth(1);
+        Route::isAuthAdmin(1);
         $cfgNew = cfgGet();
         foreach ($_POST as $key => $value) {
             if (isset($cfgNew[$key])) $cfgNew[$key] = $value;
@@ -129,21 +129,20 @@ class FirewallController extends Controller
         $response = json_decode(curl_exec($curl));
         curl_close($curl);
         if ($response->statusCode == 200) {
-            $license = array(
-                'licenseFirmware' => $response->result->firmware,
-                'licenseDateFrom' => strtotime($response->result->date_from),
-                'licenseDateTo' => strtotime($response->result->date_to),
-                'motherboardSeries' => $response->result->series,
-            );
-            $fp = fopen(LICENSE_PATH_KEY, "w");
-            fwrite($fp, bin2hex(zlib_encode(json_encode($license), ZLIB_ENCODING_DEFLATE)));
-            fclose($fp);
-            $this->renderJsonSuccess('Лицензия успешно обновленна!');
-        } else {
-            $this->renderJsonError($response);
-        }
+            if ($response->result) {
+                $license = array(
+                    'licenseFirmware' => $response->result->firmware,
+                    'licenseDateFrom' => strtotime($response->result->date_from),
+                    'licenseDateTo' => strtotime($response->result->date_to),
+                    'motherboardSeries' => $response->result->series,
+                );
+                $fp = fopen(LICENSE_PATH_KEY, "w");
+                fwrite($fp, bin2hex(zlib_encode(json_encode($license), ZLIB_ENCODING_DEFLATE)));
+                fclose($fp);
+                $this->renderJsonSuccess('Лицензия успешно обновленна!');
+            } else $this->renderJsonError('Нет доступных лицензий!');
+        } else $this->renderJsonError($response);
     }
-
 }
 
 ?>

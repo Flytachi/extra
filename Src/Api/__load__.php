@@ -8,11 +8,11 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 1.9
+     * @version 2.0
      */
     
     private string $headers = '';
-    public Model $model;
+    public Repository $repo;
 
     function __construct()
     {
@@ -20,12 +20,12 @@ abstract class Api
         if (empty($this->getHeaders())) Route::ApiError(400);
     }
 
-    final public function setModel(string $modelName): void
+    final public function setRepository(string $repositoryName): void
     {
-        $this->model = new $modelName;
+        $this->repo = new $repositoryName;
     }
 
-    /*  
+    /*
     ---------------------------------------------
         AUTHORIZATION
     ---------------------------------------------
@@ -68,7 +68,7 @@ abstract class Api
     {
         $token = $this->getBearerToken();
         if (empty($token)) Route::ApiError(400);
-        if (empty($this->model->Where("token = '$token'")->get())) Route::ApiError(401);
+        if (empty($this->repo->getBy(array('token' => $token)))) Route::ApiError(401);
     }
     /*
     ---------------------------------------------

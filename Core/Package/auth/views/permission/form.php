@@ -1,15 +1,14 @@
-<form action="/permission/hook/<?= $model->getData('name') ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Привелегию</h3>
+<form action="/permission/hook/<?= $model->name ?>" method="post" onsubmit="submitForm()">
+    <h3><?= ($model->name) ? 'Изменить' : 'Создать' ?> Привелегию</h3>
     <div class="warframe_form-group">
 
-        <?php $model->csrfToken() ?>
+        <?= $inputCsrf ?>
 
         <label for="inp-name">Код</label>
-        <input type="text" id="inp-name" name="name" value="<?= $model->getData('name') ?>" placeholder="Введите код" required>
+        <input type="text" id="inp-name" name="name" value="<?= $model->name ?>" placeholder="Введите код" required>
         
-
         <label for="inp-description">Описание</label>
-        <input type="text" id="inp-description" name="description" value="<?= $model->getData('description') ?>" placeholder="Введите описание" required>
+        <input type="text" id="inp-description" name="description" value="<?= $model->description ?>" placeholder="Введите описание" required>
 
         <button type="submit" class="warframe_btn">Сохранить</button>
 

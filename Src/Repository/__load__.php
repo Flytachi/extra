@@ -8,13 +8,14 @@ class Repository
      * 
      * Repository
      * 
-     * @version 1.0
+     * @version 2.0
      */
 
 
     protected string $table;
     protected string $modelName = 'stdClass';
     private array $CRD_SQL = [];
+    private string $pk;
     private array $data;
     public CDO $db;
     private bool $CRD_debug;
@@ -22,7 +23,7 @@ class Repository
     public function __construct($table_As = '')
     {
         if(get_parent_class($this)) {
-            if ($table_As) $this->CRD_as = $table_As;
+            if ($table_As) $this->CRD_SQL['as'] = $table_As;
             if ($this->modelName !== 'stdClass') importModel($this->modelName);
         }else $this->table = $table_As;
         $this->CRD_debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
@@ -66,7 +67,7 @@ class Repository
 
     final public function getData(string $item = ''): mixed
     {
-        return ($item) ? $this->data : $this->data[$item] ?? '';
+        return ($item) ? ($this->data[$item] ?? '') : $this->data;
     }
 
     final public function setDataItem(string $item, $value = null): void
@@ -146,20 +147,27 @@ class Repository
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         $this->CRD_SQL['join'] .= ' JOIN ' . $context;
+        if (array_key_exists('join', $this->CRD_SQL)) {
+            $this->CRD_SQL['join'] .= ' JOIN ' . $context;
+        } else $this->CRD_SQL['join'] = 'JOIN ' . $context;
         return $this;
     }
 
     final public function JoinLEFT(Repository $repository, string $on): Repository
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
-        $this->CRD_SQL['join'] .= ' LEFT JOIN ' . $context;
+        if (array_key_exists('join', $this->CRD_SQL)) {
+            $this->CRD_SQL['join'] .= ' LEFT JOIN ' . $context;
+        } else $this->CRD_SQL['join'] = 'LEFT JOIN ' . $context;
         return $this;
     }
 
     final public function JoinRIGHT(Repository $repository, string $on): Repository
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
-        $this->CRD_SQL['join'] .= ' RIGHT JOIN ' . $context;
+        if (array_key_exists('join', $this->CRD_SQL)) {
+            $this->CRD_SQL['join'] .= ' RIGHT JOIN ' . $context;
+        } else $this->CRD_SQL['join'] = 'RIGHT JOIN ' . $context;
         return $this;
     }
 
@@ -180,7 +188,9 @@ class Repository
 
     final public function Union(Repository $repository): Repository
     {
-        $this->CRD_SQL['union'] .= ' UNION ' . $repository->getSql();
+        if (array_key_exists('union', $this->CRD_SQL)) {
+            $this->CRD_SQL['union'] .= ' UNION ' . $repository->getSql();
+        } else $this->CRD_SQL['union'] = 'UNION ' . $repository->getSql();
         return $this;
     }
 
@@ -218,7 +228,6 @@ class Repository
         try {
 
             if ($data = implode(',', $items)) $this->Option($data);
-
             $get = $this->db->query($this->buildSql());
             $get->setFetchMode(\PDO::FETCH_CLASS, $this->modelName);
             return $get->fetch();

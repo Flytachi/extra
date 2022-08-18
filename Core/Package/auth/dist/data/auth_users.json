@@ -4,6 +4,6 @@
         "username": "admin",
         "password": "d033e22ae348aeb5660fc2140aec35850c4da997",
         "is_admin": 1,
-        "is_delete": null
+        "is_delete": 0
     }
 ]

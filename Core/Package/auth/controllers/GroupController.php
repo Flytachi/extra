@@ -2,6 +2,7 @@
 
 use Extra\Src\Controller;
 use Extra\Src\Route;
+use Extra\Src\Wrapper;
 
 class GroupController extends Controller
 {
@@ -25,23 +26,23 @@ class GroupController extends Controller
     public function list()
     {
         Route::isAuthAdmin();
-        $this->model->Limit(10);
-        $this->view('auth/group/table', $this->model);
+        $this->repo->Limit(10);
+        $this->view('auth/group/table', Wrapper::paginator($this->repo));
     }
 
     public function get($pk = null)
 	{
         Route::isAuthAdmin();
-        if($pk) $this->getElement($pk);
-        importModel('PermissionModel', 'GroupPermissionModel');
+        if($pk) $object = $this->getElement($pk);
+        importRepository('PermissionRepository', 'GroupPermissionRepository');
 
         $this->view('auth/group/form', array(
-            'model' => $this->model,
-            'permissionList' => (new PermissionModel)->list(),
-            'permission' => ($pk) ? (new GroupPermissionModel)->getAllPermission($pk) : [],
+            'model' => $object ?? new $this->repo->modelName,
+            'permissionList' => (new PermissionRepository)->getAll(),
+            'permission' => ($pk) ? (new GroupPermissionRepository)->getAllPermission($pk) : [],
+            'inputCsrf' => $this->csrfTokenGen()
         ));
 	}
-    
 }
 
 ?>

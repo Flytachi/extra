@@ -7,15 +7,15 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach($data->list() as $perm): ?>
+        <?php foreach($table as $row): ?>
             <tr>
-                <td><?= $perm->name ?></td>
-                <td><?= $perm->description ?></td>
+                <td><?= $row->name ?></td>
+                <td><?= $row->description ?></td>
                 <td>
-                    <button onclick="checkModal('/permission/get/<?= $perm->name ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/permission/get/<?= $row->name ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <button onclick="AjaxQuery('/permission/remove/<?= $perm->name ?>')" type="button" class="warframe_btn" title="Удалить">
+                    <button onclick="AjaxQuery('/permission/remove/<?= $row->name ?>')" type="button" class="warframe_btn" title="Удалить">
                         Remove
                     </button>
                 </td>
@@ -24,4 +24,4 @@
     </tbody>
 </table>
 
-<?php $data->panel() ?>
+<?= $panel ?>

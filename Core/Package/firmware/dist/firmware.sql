@@ -1,11 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.0
--- https://www.phpmyadmin.net/
---
--- Хост: localhost
--- Время создания: Авг 14 2022 г., 12:15
--- Версия сервера: 10.8.3-MariaDB
--- Версия PHP: 8.1.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -17,10 +9,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- База данных: `warframe`
---
-
 -- --------------------------------------------------------
 
 --
@@ -31,7 +19,7 @@ CREATE TABLE `firmware_enterprises` (
   `id` bigint(20) NOT NULL,
   `name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `contact` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `is_delete` tinyint(1) DEFAULT NULL,
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
   `create_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -47,7 +35,7 @@ CREATE TABLE `firmware_licenses` (
   `series` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
-  `is_delete` tinyint(1) DEFAULT NULL
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -59,7 +47,7 @@ CREATE TABLE `firmware_licenses` (
 CREATE TABLE `firmware_webhooks` (
   `id` bigint(20) NOT NULL,
   `enterprise_id` bigint(20) NOT NULL,
-  `unique_key` char(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `unique_key` char(50) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

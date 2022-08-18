@@ -46,13 +46,13 @@
                             <strong>Серия Устройства:</strong> <?= $license['motherboardSeries'] ?>
                         </p>
                         <?php $toDay = strtotime(date('Y-m-d')); ?>
-                        <?php if($license['licenseDateFrom'] <= $toDay and $toDay <= $license['licenseDateTo']): ?>
+                        <?php if(($license['licenseDateFrom'] <= $toDay and $toDay <= $license['licenseDateTo']) and $license['motherboardSeries'] === $device['series']): ?>
                             <p style="color:green">
                                 Лицензия актуальна.
                             </p>
                         <?php else: ?>
                             <p style="color:red">
-                                Лицензия просрочена.
+                                Не верная или просроченая лицензия.
                             </p>
                         <?php endif; ?>
                     <?php else: ?>

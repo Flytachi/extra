@@ -4,9 +4,10 @@ use Extra\Src\Model;
 
 class ApiModel extends Model
 {
-    public string $table = 'auth_apis';
-
-    
+    public $id;
+    public $token;
+    public $username;
+    public $password;
 }
 
 ?>

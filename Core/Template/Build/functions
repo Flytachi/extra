@@ -4,8 +4,8 @@ function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
     else {
-        importModel('UserPermissionModel');
-        return (new UserPermissionModel)->getPermission($name); 
+        importRepository('UserPermissionRepository');
+        return (new UserPermissionRepository)->getPermission($name); 
     }
 }
 

@@ -1,11 +1,11 @@
-<form action="/group/hook/<?= $model->getData('id') ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->getData('id')) ? 'Изменить' : 'Создать' ?> Группу</h3>
+<form action="/group/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
+    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Группу</h3>
     <div class="warframe_form-group">
 
-        <?php $model->csrfToken() ?>
+        <?= $inputCsrf ?>
 
         <label for="inp-name">Название</label>
-        <input type="text" id="inp-name" name="name" value="<?= $model->getData('name') ?>" placeholder="Введите название" required>
+        <input type="text" id="inp-name" name="name" value="<?= $model->name ?>" placeholder="Введите название" required>
 
         <label>Привелегии</label>
         <?php foreach ($permissionList as $item): ?>

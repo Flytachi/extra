@@ -2,6 +2,7 @@
 
 use Extra\Src\Controller;
 use Extra\Src\Route;
+use Extra\Src\Wrapper;
 
 class FirmwareLicenseController extends Controller
 {
@@ -31,40 +32,40 @@ class FirmwareLicenseController extends Controller
     public function list()
     {
         Route::isAuthAdmin();
-        importModel('FirmwareEnterpriseModel');
-        $this->model->as('l');
-        $this->model->Data("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to");
-        $this->model->JoinLEFT(new FirmwareEnterpriseModel('e'), 'e.id=l.enterprise_id');
-        $this->model->Where('l.is_delete IS NULL')->Limit(10);
-        $this->view('firmware/license/table', $this->model);
+        importRepository('FirmwareEnterpriseRepository');
+        $this->repo->as('l');
+        $this->repo->Option("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
+        $this->repo->JoinLEFT(new FirmwareEnterpriseRepository('e'), 'e.id=l.enterprise_id');
+        $this->repo->Limit(10);
+        $this->view('firmware/license/table', Wrapper::paginator($this->repo));
     }
 
     public function get($pk = null)
 	{
         Route::isAuthAdmin();
-        importModel('FirmwareEnterpriseModel');
-        if($pk) $this->getElement($pk);
+        importRepository('FirmwareEnterpriseRepository');
+        if($pk) $object = $this->getElement($pk);
         $this->view('firmware/license/form', array(
-            'model' => $this->model,
-            'enterpriseList' => (new FirmwareEnterpriseModel)->Where("is_delete IS NULL")->list()
+            'model' => $object ?? new $this->repo->modelName,
+            'enterpriseList' => (new FirmwareEnterpriseRepository)->getAllNotDelete(),
+            'inputCsrf' => $this->csrfTokenGen()
         ));
 	}
 
     public function getFile($pk)
     {
         Route::isAuthAdmin(1);
-        $this->getElement($pk);
+        $object = $this->getElement($pk);
         $license = array(
             'licenseFirmware' => EXTRA_KEY,
-            'licenseDateFrom' => strtotime($this->model->getData('date_from')),
-            'licenseDateTo' => strtotime($this->model->getData('date_to')),
-            'motherboardSeries' => $this->model->getData('series'), // motherboardSeries()
+            'licenseDateFrom' => strtotime($object->date_from),
+            'licenseDateTo' => strtotime($object->date_to),
+            'motherboardSeries' => $object->series, // motherboardSeries()
         );
         header("Content-type: text/plain");
         header("Content-Disposition: attachment; filename=license.crt");
         echo bin2hex(zlib_encode(json_encode($license), ZLIB_ENCODING_DEFLATE));
     }
-
 }
 
 ?>

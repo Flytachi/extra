@@ -2,7 +2,7 @@
 
 function isAdmin(): bool
 {
-    if (isset($_SESSION) and isset($_SESSION['is_admin']) and $_SESSION['is_admin']) return true;
+    if (isset($_SESSION['is_admin']) and $_SESSION['is_admin'] === 1) return true;
     else return false;
 }
 
