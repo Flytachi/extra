@@ -44,10 +44,12 @@ class UserRepository extends Repository
         if (!is_numeric($obj)) $this->error($obj);
 
         // Create
-        foreach ($permissions as $permission) {
-            if (!$this->db->query("SELECT id FROM " . $userPerm->table . " WHERE user_id=" . $this->getPk() . " AND name LIKE '$permission'")->fetchColumn()) {
-                $obj = $this->db->insert($userPerm->table, array('user_id' => $this->getPk(), 'name' => $permission));
-                if (!is_numeric($obj)) $this->error($obj);
+        if (is_array($permissions)) {
+            foreach ($permissions as $permission) {
+                if (!$this->db->query("SELECT id FROM " . $userPerm->table . " WHERE user_id=" . $this->getPk() . " AND name LIKE '$permission'")->fetchColumn()) {
+                    $obj = $this->db->insert($userPerm->table, array('user_id' => $this->getPk(), 'name' => $permission));
+                    if (!is_numeric($obj)) $this->error($obj);
+                }
             }
         }
     }

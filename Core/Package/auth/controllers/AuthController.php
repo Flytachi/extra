@@ -6,18 +6,6 @@ use Extra\Src\CDO;
 
 class AuthController extends Controller
 {
-    public bool $onHook = false;
-	public bool $onAuthHook = false;
-
-	public bool $onDelete = false;
-	public bool $onAuthDelete = false;
-
-    public bool $onRestore = false;
-	public bool $onAuthRestore = false;
-	
-	public bool $onRemove = false;
-	public bool $onAuthRemove = false;
-
     public function login()
     {
         if (isset($_SESSION['id'])) Route::ErrorPage(423);
