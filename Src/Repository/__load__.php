@@ -8,7 +8,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 2.0
+     * @version 2.1
      */
 
 
@@ -255,7 +255,7 @@ class Repository
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
         if (array_key_exists('where', $this->CRD_SQL)) {
-            $this->CRD_SQL['where'] .= ' AND ' . $as . 'is_delete = 1';
+            $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 1 AND ', $this->CRD_SQL['where']);
         } else {
             $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 1';
         }
@@ -266,7 +266,7 @@ class Repository
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
         if (array_key_exists('where', $this->CRD_SQL)) {
-            $this->CRD_SQL['where'] .= ' AND ' . $as . 'is_delete = 0';
+            $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 0 AND ', $this->CRD_SQL['where']);
         } else {
             $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 0';
         }
