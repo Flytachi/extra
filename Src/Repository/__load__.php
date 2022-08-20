@@ -8,7 +8,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 2.2
+     * @version 2.3
      */
 
 
@@ -299,7 +299,7 @@ class Repository
     final public function getById(string $id, string|array $item = ''): mixed
     {
         try {
-            $prefix = (array_key_exists('as', $this->CRD_SQL)) ? $this->CRD['as'].'.' : '';
+            $prefix = (array_key_exists('as', $this->CRD_SQL)) ? $this->CRD_SQL['as'].'.' : '';
             $this->Where($prefix . "id = $id");
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
