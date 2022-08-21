@@ -1,0 +1,10 @@
+<?php
+
+use Extra\Src\Api;
+
+class _ApiIndex_ extends Api
+{
+
+}
+
+?>

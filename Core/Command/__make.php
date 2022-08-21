@@ -98,7 +98,12 @@ class __Make
 
     private function help()
     {
-        echo "\033[33m"." Help in create.\n";
+        echo "\033[33m"." =======> Help <======= \n";
+        echo "\033[33m"."  :api          -  Создать Api-контроллер.\n";
+        echo "\033[33m"."  :controller   -  Создать контроллер для обработки запросов.\n";
+        echo "\033[33m"."  :model        -  Создать Model (слепок таблицы, базы данных).\n";
+        echo "\033[33m"."  :repository   -  Создать Repository для соединения с базой данных.\n";
+        echo "\033[33m"." =======> Help <======= \n";
     }
 
 }
