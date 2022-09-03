@@ -32,7 +32,6 @@ class FirmwareLicenseController extends Controller
     public function list()
     {
         Route::isAuthAdmin();
-        importRepository('FirmwareEnterpriseRepository');
         $this->repo->as('l');
         $this->repo->Option("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
         $this->repo->JoinLEFT(new FirmwareEnterpriseRepository('e'), 'e.id=l.enterprise_id');
@@ -43,7 +42,6 @@ class FirmwareLicenseController extends Controller
     public function get($pk = null)
 	{
         Route::isAuthAdmin();
-        importRepository('FirmwareEnterpriseRepository');
         if($pk) $object = $this->getElement($pk);
         $this->view('firmware/license/form', array(
             'model' => $object ?? new $this->repo->modelName,

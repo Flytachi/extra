@@ -8,7 +8,7 @@ abstract class Model
      * 
      * Model
      * 
-     * @version 11.0
+     * @version 12.0
      */
 
     function __toString()

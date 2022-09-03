@@ -8,7 +8,7 @@ class Wrapper
      * 
      * Wrapper
      * 
-     * @version 1.2
+     * @version 2.0
      */
 
     static int $totalPages;

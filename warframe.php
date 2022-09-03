@@ -1,18 +1,48 @@
 <?php
 
-require dirname(__DIR__) . '/defines.php';
+class Warframe
+{
+    public static array $cfg;
 
-// ! Import function
-foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
-date_default_timezone_set(cfgGet()['GLOBAL_SETTING']['TIME_ZONE']);
-// ! END Import
+    public final static function loader()
+    {
+        require dirname(__DIR__) . '/defines.php';
+        Warframe::loadFunction();
+        Warframe::$cfg = cfgGet();
+        Warframe::loadSrc();
+        if (!Warframe::softLicenseCorrect()) dieConnection('The software license is incorrect or outdated.');
+    }
 
-// ! Import src
-foreach (glob(dirname(__FILE__)."/Src/*") as $src) require $src . '/__load__.php';
-// ! END Import
+    public final static function loadFunction()
+    {
+        foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
+        date_default_timezone_set(cfgGet()['GLOBAL_SETTING']['TIME_ZONE']);
+    }
 
-// ! License
-if (!softLicenseCorrect()) dieConnection('The software license is incorrect or outdated.');
-// ! END License
+    public final static function loadSrc()
+    {
+        spl_autoload_register(function($class) {
+            $file = dirname(__FILE__, 2) .'/'. lcfirst(str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.class.php');
+            if (file_exists($file)) {
+                require $file;
+                return true;
+            } else return false; 
+        });
+    }
+
+    public final static function softLicenseCorrect()
+    {
+        if (Warframe::$cfg['SECURITY']['PRODUCT_GUARD']) {
+            $license = licenseKey();
+            $toDay = strtotime(date('Y-m-d'));
+            if (
+                (Warframe::$cfg['SECURITY']['PRODUCT_FIRMWARE'] . '-' . motherboardSeries() === $license->licenseFirmware . '-' . $license->motherboardSeries)
+                and ($license->licenseDateFrom <= $toDay and $toDay <= $license->licenseDateTo)
+            ) return true;
+            else return false;
+        } else return true;
+    }
+
+}
 
 ?>

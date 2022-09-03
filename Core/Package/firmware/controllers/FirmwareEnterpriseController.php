@@ -50,7 +50,6 @@ class FirmwareEnterpriseController extends Controller
     {
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
-        importRepository('FirmwareWebhookRepository');
         $this->view('firmware/enterprise/formWebhook', array(
             'model' => $object ?? new $this->repo->modelName,
             'webHook' => (new FirmwareWebhookRepository)->getBy(array('enterprise_id' => $pk)),

@@ -16,7 +16,6 @@ class AuthController extends Controller
     {
         if ($_POST['username'] and $_POST['password']) {
 
-            importRepository('UserRepository', 'UserInfoRepository');
             $userModel = new UserRepository;
             $login = CDO::clean($_POST['username']);
             $password = sha1(CDO::clean($_POST['password']));

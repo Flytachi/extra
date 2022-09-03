@@ -6,7 +6,7 @@ class __Db
     private $name;
     private String $path_database = FOLDER_APP . "/dist/";
     private String $path_data_seed = FOLDER_APP . "/dist/data";
-    private String $path_cdo = "/Src/CDO/__load__.php";
+    private String $path_cdo = "/Src/CDO.class.php";
     private String $seed_format = "json";
 
 

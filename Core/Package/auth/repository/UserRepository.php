@@ -21,7 +21,6 @@ class UserRepository extends Repository
     public function info()
     {
         if (isset($this->info) and $this->info) {
-            importRepository('UserInfoRepository', 'GroupPermissionRepository');
             $repoInfo = new UserInfoRepository;
             $userInfo = $repoInfo->isUser($this->getPk());
             $this->info['user_id'] = $this->getPk();
@@ -36,7 +35,6 @@ class UserRepository extends Repository
 
     public function permission($permissions)
     {
-        importRepository('UserPermissionRepository');
         $userPerm = new UserPermissionRepository;
 
         // Delete

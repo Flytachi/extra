@@ -8,7 +8,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 5.0
+     * @version 6.0
      */
 
 
@@ -29,14 +29,24 @@ abstract class Controller
     public array $uploadFileFormat;
     public int $uploadFileSize;
 
-    function __call($name, $arguments)
+    final function __construct()
+    {
+        $this->loader();
+        $repoName = str_replace('Controller', 'Repository', get_class($this));
+        if (class_exists($repoName)) $this->repo = new $repoName;
+    }
+
+    final function __call($name, $arguments)
     {
         Route::ErrorPage(404);
     }
 
-    final public function setRepository(string $repositoryName): void
+    private function loader()
     {
-        $this->repo = new $repositoryName;
+        spl_autoload_register(function($class) {
+            $file = dirname(__FILE__, 3) . '/repository/' . $class . '.php';
+			if (file_exists($file)) require $file;
+        });
     }
 
     final protected function csrfTokenChange(): void
@@ -58,7 +68,6 @@ abstract class Controller
 
     final protected function getElement($pk): mixed
     {
-        importModel($this->repo->modelName);
         $object = $this->repo->getById($pk);
         if ($object) return $object;
         else Route::ErrorPage(404);

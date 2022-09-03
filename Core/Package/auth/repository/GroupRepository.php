@@ -15,7 +15,6 @@ class GroupRepository extends Repository
 
     public function permission()
     {
-        importRepository('GroupPermissionRepository');
         $groupPerm = new GroupPermissionRepository();
 
         // Delete
@@ -45,7 +44,6 @@ class GroupRepository extends Repository
         $this->prepare();
         parent::updateBody();
         $this->permission();
-        importRepository('UserInfoRepository', 'UserRepository');
         $infos = (new UserInfoRepository)->Where("group_id = ". $this->getPk());
         $userModel = new UserRepository;
         foreach ($infos->getAll() as $info) {
@@ -56,7 +54,6 @@ class GroupRepository extends Repository
 
     public function deleteBody(): void
     {
-        importRepository('GroupPermissionRepository', 'UserPermissionRepository');
         $userPerm = new UserPermissionRepository;
 
         $object = $this->db->delete($this->table, $this->getPk());

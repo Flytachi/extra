@@ -3,10 +3,7 @@
 function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
-    else {
-        importRepository('UserPermissionRepository');
-        return (new UserPermissionRepository)->getPermission($name); 
-    }
+    else return (new UserPermissionRepository)->getPermission($name); 
 }
 
 ?>

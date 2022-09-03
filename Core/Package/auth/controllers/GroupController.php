@@ -34,7 +34,6 @@ class GroupController extends Controller
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
-        importRepository('PermissionRepository', 'GroupPermissionRepository');
 
         $this->view('auth/group/form', array(
             'model' => $object ?? new $this->repo->modelName,

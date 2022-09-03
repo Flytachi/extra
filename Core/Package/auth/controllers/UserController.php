@@ -54,7 +54,6 @@ class UserController extends Controller
     {
         Route::isAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
-        importRepository('UserInfoRepository', 'GroupRepository');
         $this->repo->as('u');
         $this->repo->Option("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
         $this->repo->JoinLEFT(new UserInfoRepository('ui'), 'u.id=ui.user_id');
@@ -86,7 +85,6 @@ class UserController extends Controller
     public function get($pk = null)
 	{
         Route::isAuth();
-        importRepository('GroupRepository', 'UserInfoRepository');
         if($pk) {
             if (!isPermission('user_update')) Route::ErrorPage(423);
             $object = $this->getElement($pk);
@@ -106,7 +104,6 @@ class UserController extends Controller
 	{
         Route::isAuth();
         if(!(isPermission('user_create') or isPermission('user_update'))) Route::ErrorPage(423);
-        importModel('PermissionModel', 'UserPermissionModel', 'UserInfoModel');
         if($pk) $this->getElement($pk);
         $this->view('user/form', array(
             'model' => $this->model,

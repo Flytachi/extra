@@ -8,7 +8,7 @@ class CDO extends \PDO
      * 
      * CDO
      * 
-     * @version 1.5
+     * @version 2.0
      */
 
 

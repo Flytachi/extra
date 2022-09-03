@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use Warframe;
+
 class Route
 {
 	/**
      * 
      * Route
      * 
-     * @version 5.7
+     * @version 7.0
      */
 
 	
@@ -30,9 +32,26 @@ class Route
 		if (ROUTE_PLUGIN_SYSTEM) Route::routePlugin();
 		else Route::routeApp();	
 	}
+
+	final static function loader()
+	{
+		spl_autoload_register(function($class) {
+            $file = dirname(__FILE__, 3) . '/controllers/' . $class . '.php';
+			if (file_exists($file)) require $file;
+        });
+	}
+
+	/* final static function pluginLoader($pluginName)
+	{
+		spl_autoload_register(function($class) {
+			$file = dirname(__FILE__, 3) . FOLDER_PLUGIN . "/Frame.$pluginName/controllers/" . $class . '.php';
+			if (file_exists($file)) require $file;
+        });
+	} */
 	
 	final static function routeApp(): never
 	{
+		Route::loader();
 		$controllerName = ROUTE_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
 		$params = null;
@@ -47,19 +66,16 @@ class Route
 		$_GET = $data['get'];
 
 		// Prefix
-		$repositoryName = $controllerName . 'Repository';
 		$controllerName = $controllerName . 'Controller';
 		
 		// Imports
-		$funcPath = dirname(__DIR__, 3) . '/functions.php';
+		$funcPath = dirname(__DIR__, 2) . '/functions.php';
 		if ( file_exists($funcPath) ) require $funcPath;
-		importRepository($repositoryName);
-		importController($controllerName);
 		
 		// Imitation
+		if(!class_exists($controllerName)) Route::ErrorPage(404);
 		try {
 			$controller = new $controllerName;
-			if(class_exists($repositoryName)) $controller->setRepository($repositoryName);
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
@@ -83,6 +99,8 @@ class Route
 
 		// Checking
 		if (checkPlugin($pluginName)) {
+			/*
+			Route::pluginLoader($pluginName);
 			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
 			if ( file_exists($path) ) require $path;
 			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
@@ -91,35 +109,32 @@ class Route
 			$_GET = $data['get'];
 			
 			// Prefix
-			$repositoryName = $controllerName . 'Repository';
 			$controllerName = $controllerName . 'Controller';
 		
 			// Imports
 			$funcPath = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/functions.php";
 			if ( file_exists($funcPath) ) require $funcPath;
-			importPluginRepository(PLUGIN_NAME, $repositoryName);
-			importPluginController(PLUGIN_NAME, $controllerName);
+			// importPluginRepository(PLUGIN_NAME, $repositoryName);
+			// importPluginController(PLUGIN_NAME, $controllerName);
+			*/
 		} else {
+			Route::loader();
 			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
 			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
 			$_GET = $data['get'];
 			
 			// Prefix
-			$repositoryName = $controllerName . 'Repository';
 			$controllerName = $controllerName . 'Controller';
 
 			// Imports
-			$funcPath = dirname(__DIR__, 3) . '/functions.php';
+			$funcPath = dirname(__DIR__, 2) . '/functions.php';
 			if ( file_exists($funcPath) ) require $funcPath;
-			importRepository($repositoryName);
-			importController($controllerName);
 		}
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists($repositoryName)) $controller->setRepository($repositoryName);
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
@@ -144,7 +159,7 @@ class Route
 			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
 			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
 		}
-				
+		
 		// Prefix
 		$controllerName = $controllerName . 'Api';
 		
@@ -152,18 +167,19 @@ class Route
 		if (ROUTE_PLUGIN_SYSTEM and $chP) {
 			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
 			if ( file_exists($path) ) require $path;
-			importPluginApi(PLUGIN_NAME, $controllerName);
+			// importPluginApi(PLUGIN_NAME, $controllerName);
 		} else {
+			spl_autoload_register(function($class) {
+				$file = dirname(__FILE__, 3) . '/api/' . $class . '.php';
+				if (file_exists($file)) require $file;
+			});
 			$funcPath = dirname(__DIR__, 3) . '/functions.php';
 			if ( file_exists($funcPath) ) require $funcPath;
-			importApi($controllerName);
 		}
-		importRepository('ApiRepository');
 		
 		// Imitation
 		try {
 			$controller = new $controllerName;
-			if(class_exists('ApiRepository')) $controller->setRepository('ApiRepository');
 			$controller->$actionName($params);
 		} catch (\Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);

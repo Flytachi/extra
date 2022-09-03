@@ -8,7 +8,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 2.3
+     * @version 3.0
      */
 
 
@@ -22,9 +22,9 @@ class Repository
     
     public function __construct($table_As = '')
     {
+        $this->loader();
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
-            if ($this->modelName !== 'stdClass') importModel($this->modelName);
         }else $this->table = $table_As;
         $this->CRD_debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
         $this->setCfg();
@@ -34,6 +34,14 @@ class Repository
     {
         unset($this->CRD_SQL);
         unset($this->db);
+    }
+
+    private function loader()
+    {
+        spl_autoload_register(function($class) {
+            $file = dirname(__FILE__, 3) . '/models/' . $class . '.php';
+			if (file_exists($file)) require $file;
+        });
     }
 
     /*
