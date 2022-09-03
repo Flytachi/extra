@@ -2,8 +2,6 @@
 
 namespace Extra\Src;
 
-use Warframe;
-
 class Route
 {
 	/**
