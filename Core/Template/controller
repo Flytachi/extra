@@ -21,7 +21,7 @@ class _ControllerIndex_ extends Controller
         dd("index");
     }
 
-    public function get($pk = '')
+    public function get(?int $pk)
 	{
 		if ($pk) {
 			header('Content-type: application/json');
