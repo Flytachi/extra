@@ -9,8 +9,6 @@ class FirmwareWebhookApi extends Api
     {
         // $this->authorizationBearer();
         $body = $this->requestJson();
-
-        importRepository('FirmwareWebhookRepository', 'FirmwareLicenseRepository');
         
         $enterprise = (new FirmwareWebhookRepository)->getBy(array('unique_key' => $body->key));
         if(!$enterprise) Route::ApiError(401);

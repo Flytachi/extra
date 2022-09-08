@@ -2,13 +2,16 @@
 
 namespace Extra\Src;
 
+use AuthController;
+use MainController;
+
 class Route
 {
 	/**
      * 
      * Route
      * 
-     * @version 7.0
+     * @version 8.5
      */
 
 	
@@ -39,13 +42,18 @@ class Route
         });
 	}
 
-	/* final static function pluginLoader($pluginName)
+	final static function pluginLoader()
 	{
 		spl_autoload_register(function($class) {
-			$file = dirname(__FILE__, 3) . FOLDER_PLUGIN . "/Frame.$pluginName/controllers/" . $class . '.php';
+			$class = explode("\\", $class);
+			if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/controllers/" . $class[1] . '.php';
+			} else {
+				$file = dirname(__FILE__, 3) . '/controllers/' . $class[0] . '.php';
+			}
 			if (file_exists($file)) require $file;
         });
-	} */
+	}
 	
 	final static function routeApp(): never
 	{
@@ -84,6 +92,7 @@ class Route
 
 	final static function routePlugin(): never
 	{
+		Route::pluginLoader();
 		$pluginName = "";
 		$controllerName = ROUTE_PLUGIN_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
@@ -97,8 +106,6 @@ class Route
 
 		// Checking
 		if (checkPlugin($pluginName)) {
-			/*
-			Route::pluginLoader($pluginName);
 			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
 			if ( file_exists($path) ) require $path;
 			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
@@ -107,16 +114,12 @@ class Route
 			$_GET = $data['get'];
 			
 			// Prefix
-			$controllerName = $controllerName . 'Controller';
+			$controllerName = "$pluginName\\" . $controllerName . 'Controller';
 		
 			// Imports
 			$funcPath = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/functions.php";
 			if ( file_exists($funcPath) ) require $funcPath;
-			// importPluginRepository(PLUGIN_NAME, $repositoryName);
-			// importPluginController(PLUGIN_NAME, $controllerName);
-			*/
 		} else {
-			Route::loader();
 			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
 			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
@@ -158,14 +161,16 @@ class Route
 			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
 		}
 		
-		// Prefix
-		$controllerName = $controllerName . 'Api';
-		
 		// Imports
-		if (ROUTE_PLUGIN_SYSTEM and $chP) {
-			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
-			if ( file_exists($path) ) require $path;
-			// importPluginApi(PLUGIN_NAME, $controllerName);
+		if (ROUTE_PLUGIN_SYSTEM && $chP) {
+			spl_autoload_register(function($class) {
+				$class = explode("\\", $class);
+				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/api/" . $class[1] . '.php';
+				if (file_exists($file)) require $file;
+			});
+			
+			// Prefix
+			$controllerName = "$pluginName\\" . $controllerName . 'Api';
 		} else {
 			spl_autoload_register(function($class) {
 				$file = dirname(__FILE__, 3) . '/api/' . $class . '.php';
@@ -173,6 +178,9 @@ class Route
 			});
 			$funcPath = dirname(__DIR__, 3) . '/functions.php';
 			if ( file_exists($funcPath) ) require $funcPath;
+
+			// Prefix
+			$controllerName = $controllerName . 'Api';
 		}
 		
 		// Imitation

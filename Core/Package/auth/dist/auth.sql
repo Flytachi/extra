@@ -1,5 +1,4 @@
 
-SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -10,6 +9,10 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
+--
+-- База данных: `warframe`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -17,7 +20,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `auth_groups` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` char(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
@@ -30,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `auth_groups` (
 --
 
 CREATE TABLE IF NOT EXISTS `auth_group_permissions` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `group_id` bigint(20) NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) UNSIGNED NOT NULL,
   `permission` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `group_id` (`group_id`),
@@ -57,10 +60,10 @@ CREATE TABLE IF NOT EXISTS `auth_permissions` (
 --
 
 CREATE TABLE IF NOT EXISTS `auth_users` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` char(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` char(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `is_admin` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   `is_delete` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
@@ -73,8 +76,8 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
 --
 
 CREATE TABLE IF NOT EXISTS `auth_user_permissions` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
   `name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
@@ -88,11 +91,11 @@ CREATE TABLE IF NOT EXISTS `auth_user_permissions` (
 --
 
 CREATE TABLE IF NOT EXISTS `user_info` (
-  `user_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
   `name` char(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `group_id` bigint(20) DEFAULT NULL,
+  `group_id` int(11) UNSIGNED DEFAULT NULL,
   KEY `user_id` (`user_id`),
-  KEY `user_info_ibfk_2` (`group_id`)
+  KEY `group_id` (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -118,8 +121,7 @@ ALTER TABLE `auth_user_permissions`
 --
 ALTER TABLE `user_info`
   ADD CONSTRAINT `user_info_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `auth_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `user_info_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `auth_groups` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-SET FOREIGN_KEY_CHECKS=1;
+  ADD CONSTRAINT `user_info_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `auth_groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

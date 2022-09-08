@@ -39,7 +39,12 @@ class Repository
     private function loader()
     {
         spl_autoload_register(function($class) {
-            $file = dirname(__FILE__, 3) . '/models/' . $class . '.php';
+            $class = explode("\\", $class);
+			if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/models/" . $class[1] . '.php';
+			} else {
+				$file = dirname(__FILE__, 3) . '/models/' . $class[0] . '.php';
+			}
 			if (file_exists($file)) require $file;
         });
     }

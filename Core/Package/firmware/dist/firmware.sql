@@ -9,18 +9,24 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
+--
+-- База данных: `warframe`
+--
+
 -- --------------------------------------------------------
 
 --
 -- Структура таблицы `firmware_enterprises`
 --
 
-CREATE TABLE `firmware_enterprises` (
-  `id` bigint(20) NOT NULL,
+CREATE TABLE IF NOT EXISTS `firmware_enterprises` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `contact` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_delete` tinyint(1) NOT NULL DEFAULT 0,
-  `create_date` timestamp NOT NULL DEFAULT current_timestamp()
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -29,13 +35,15 @@ CREATE TABLE `firmware_enterprises` (
 -- Структура таблицы `firmware_licenses`
 --
 
-CREATE TABLE `firmware_licenses` (
-  `id` bigint(20) NOT NULL,
-  `enterprise_id` bigint(20) NOT NULL,
+CREATE TABLE IF NOT EXISTS `firmware_licenses` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `enterprise_id` int(11) UNSIGNED NOT NULL,
   `series` char(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
-  `is_delete` tinyint(1) NOT NULL DEFAULT 0
+  `is_delete` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `enterprise_id` (`enterprise_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -44,59 +52,14 @@ CREATE TABLE `firmware_licenses` (
 -- Структура таблицы `firmware_webhooks`
 --
 
-CREATE TABLE `firmware_webhooks` (
-  `id` bigint(20) NOT NULL,
-  `enterprise_id` bigint(20) NOT NULL,
-  `unique_key` char(50) COLLATE utf8mb4_unicode_ci NOT NULL
+CREATE TABLE IF NOT EXISTS `firmware_webhooks` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `enterprise_id` int(11) UNSIGNED NOT NULL,
+  `unique_key` char(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_key` (`unique_key`),
+  KEY `enterprise_id` (`enterprise_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Индексы сохранённых таблиц
---
-
---
--- Индексы таблицы `firmware_enterprises`
---
-ALTER TABLE `firmware_enterprises`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
-
---
--- Индексы таблицы `firmware_licenses`
---
-ALTER TABLE `firmware_licenses`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `enterprise_id` (`enterprise_id`);
-
---
--- Индексы таблицы `firmware_webhooks`
---
-ALTER TABLE `firmware_webhooks`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_key` (`unique_key`),
-  ADD KEY `enterprise_id` (`enterprise_id`);
-
---
--- AUTO_INCREMENT для сохранённых таблиц
---
-
---
--- AUTO_INCREMENT для таблицы `firmware_enterprises`
---
-ALTER TABLE `firmware_enterprises`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT для таблицы `firmware_licenses`
---
-ALTER TABLE `firmware_licenses`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT для таблицы `firmware_webhooks`
---
-ALTER TABLE `firmware_webhooks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц

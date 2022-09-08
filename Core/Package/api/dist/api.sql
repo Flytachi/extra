@@ -16,7 +16,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `auth_apis` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `token` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `username` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `password` char(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

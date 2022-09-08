@@ -44,8 +44,13 @@ abstract class Controller
     private function loader()
     {
         spl_autoload_register(function($class) {
-            $file = dirname(__FILE__, 3) . '/repository/' . $class . '.php';
-			if (file_exists($file)) require $file;
+            $class = explode("\\", $class);
+            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+                $file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/repository/" . $class[1] . '.php';
+            } else {
+                $file = dirname(__FILE__, 3) . '/repository/' . $class[0] . '.php';
+            }
+            if (file_exists($file)) require $file;
         });
     }
 

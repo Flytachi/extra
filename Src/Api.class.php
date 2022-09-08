@@ -8,7 +8,7 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 3.0
+     * @version 4.0
      */
     
     private string $headers = '';
@@ -16,13 +16,22 @@ abstract class Api
 
     function __construct()
     {
+        $this->loader();
         $this->AuthorizationHeader();
         if (empty($this->getHeaders())) Route::ApiError(400);
     }
 
-    final public function setRepository(string $repositoryName): void
+    private function loader()
     {
-        $this->repo = new $repositoryName;
+        spl_autoload_register(function($class) {
+            $class = explode("\\", $class);
+            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+                $file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/repository/" . $class[1] . '.php';
+            } else {
+                $file = dirname(__FILE__, 3) . '/repository/' . $class[0] . '.php';
+            }
+            if (file_exists($file)) require $file;
+        });
     }
 
     /*
