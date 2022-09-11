@@ -21,10 +21,11 @@ class __Make
     private function resolution()
     {
         try {
-            if($this->argument == "api") $this->mApi();
-            elseif ($this->argument == "controller") $this->mController();
-            elseif($this->argument == "model") $this->mModel();
-            elseif(in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
+            if ($this->argument == "auto")            $this->mAuto();
+            elseif ($this->argument == "api")         $this->mApi();
+            elseif ($this->argument == "controller")  $this->mController();
+            elseif ($this->argument == "model")       $this->mModel();
+            elseif (in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
         } catch (\Error $e) {
             // echo $e->getMessage();
@@ -33,7 +34,25 @@ class __Make
         
     }
 
-    private function mApi(){
+    private function mAuto()
+    {
+        if (strrpos($this->name, 'Api')) {
+            $this->argument = 'api';
+            $this->mApi();
+        } elseif (strrpos($this->name, 'Controller')) {
+            $this->argument = 'controller';
+            $this->mController();
+        } elseif (strrpos($this->name, 'Model')) {
+            $this->argument = 'model';
+            $this->mModel();
+        } elseif (strrpos($this->name, 'Repository')) {
+            $this->argument = 'repository';
+            $this->mRepository();
+        }
+    }
+
+    private function mApi()
+    {
         if (!strrpos($this->name, 'Api')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
             return;
@@ -44,7 +63,8 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
-    private function mController(){
+    private function mController()
+    {
         if (!strrpos($this->name, 'Controller')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
             return;
@@ -55,7 +75,8 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
-    private function mModel(){
+    private function mModel()
+    {
         if (!strrpos($this->name, 'Model')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
             return;
@@ -66,7 +87,8 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
     
-    private function mRepository(){
+    private function mRepository()
+    {
         if (!strrpos($this->name, 'Repository')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
             return;
