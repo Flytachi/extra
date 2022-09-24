@@ -2,16 +2,13 @@
 
 namespace Extra\Src;
 
-use AuthController;
-use MainController;
-
 class Route
 {
 	/**
      * 
      * Route
      * 
-     * @version 8.5
+     * @version 8.9
      */
 
 	
@@ -68,7 +65,10 @@ class Route
 		if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
 		if ( $controllerName === 'Api' ) Route::routeApi($data);
 		if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
-		if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
+		if ( !empty($routes[3]) ) {
+			$params = array_slice($routes, 3);
+			if(count($params) == 1) $params = $routes[3];
+		}
 		$_GET = $data['get'];
 
 		// Prefix
@@ -110,7 +110,10 @@ class Route
 			if ( file_exists($path) ) require $path;
 			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
-			if ( !empty($routes[4]) ) $params = ucfirst($routes[4]);
+			if ( !empty($routes[4]) ) {
+				$params = array_slice($routes, 4);
+				if(count($params) == 1) $params = $routes[4];
+			}
 			$_GET = $data['get'];
 			
 			// Prefix
@@ -154,11 +157,17 @@ class Route
 			$pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
 			$controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
 			$actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
-			$params         = ( !empty($routes[5]) ) ? ucfirst($routes[5]) : null;
+			if ( !empty($routes[5]) ) {
+				$params = array_slice($routes, 5);
+				if(count($params) == 1) $params = $routes[5];
+			} else $params = null;
 		} else {
 			$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
 			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
-			$params         = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
+			if ( !empty($routes[4]) ) {
+				$params = array_slice($routes, 4);
+				if(count($params) == 1) $params = $routes[4];
+			} else $params = null;
 		}
 		
 		// Imports
