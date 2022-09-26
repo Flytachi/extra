@@ -14,7 +14,8 @@ class AuthController extends Controller
 
     public function validate()
     {
-        if ($_POST['username'] and $_POST['password']) {
+        if (empty($_POST)) $this->renderJsonError("Не верный формат запроса!");
+        if (isset($_POST['username']) && $_POST['username'] && isset($_POST['password']) && $_POST['password']) {
 
             $userModel = new UserRepository;
             $login = CDO::clean($_POST['username']);

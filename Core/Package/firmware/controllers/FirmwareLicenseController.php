@@ -18,7 +18,7 @@ class FirmwareLicenseController extends Controller
 	public bool $onRemove = true;
 	public bool $onAuthRemove = true;
 
-    public function prepareAuth():void
+    protected function prepareAuth():void
     {
         Route::isAuthAdmin();
     }
@@ -39,7 +39,7 @@ class FirmwareLicenseController extends Controller
         $this->view('firmware/license/table', Wrapper::paginator($this->repo));
     }
 
-    public function get($pk = null)
+    public function get(?int $pk)
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
@@ -50,7 +50,7 @@ class FirmwareLicenseController extends Controller
         ));
 	}
 
-    public function getFile($pk)
+    public function getFile(int $pk)
     {
         Route::isAuthAdmin(1);
         $object = $this->getElement($pk);

@@ -3,8 +3,8 @@
 class __Seed
 {
     protected String $name;
-    private String $path = "dist/data";
-    private String $path_cdo = "/Src/CDO/__load__.php";
+    private String $path_data_seed = FOLDER_APP . "/dist/data";
+    private String $path_cdo = "/Src/CDO.class.php";
     private String $format = "json"; 
     private Array $json = array();
 
@@ -43,7 +43,7 @@ class __Seed
 
     private function create_file(): bool
     {
-        $file = fopen(FOLDER_APP . "/$this->path/$this->name.$this->format", "w");
+        $file = fopen("$this->path_data_seed/$this->name.$this->format", "w");
         fwrite($file, json_encode($this->json, JSON_PRETTY_PRINT));
         return fclose($file);
     }

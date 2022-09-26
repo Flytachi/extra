@@ -122,7 +122,7 @@ class Repository
             if(array_key_exists('union', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['union']);
             if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
             if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
-            if (array_key_exists('limit', $this->CRD_SQL)) {
+            if(array_key_exists('limit', $this->CRD_SQL)) {
                 $page = (int)(isset($_GET['CRD_page'])) ? (int) $_GET['CRD_page'] : $page = 1;
                 $offset = (int) $this->CRD_SQL['limit'] * ($page - 1);
                 $sql .= ' LIMIT ' . $this->CRD_SQL['limit'] . ' OFFSET ' . $offset;

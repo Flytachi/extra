@@ -18,7 +18,7 @@ class FirmwareEnterpriseController extends Controller
 	public bool $onRemove = true;
 	public bool $onAuthRemove = true;
 
-    public function prepareAuth():void
+    protected function prepareAuth():void
     {
         Route::isAuthAdmin();
     }
@@ -36,7 +36,7 @@ class FirmwareEnterpriseController extends Controller
         $this->view('firmware/enterprise/table', Wrapper::paginator($this->repo));
     }
 
-    public function get($pk = null)
+    public function get(?int $pk)
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
@@ -46,7 +46,7 @@ class FirmwareEnterpriseController extends Controller
         ));
 	}
 
-    public function getWebhook($pk)
+    public function getWebhook(?int $pk)
     {
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);

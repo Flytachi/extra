@@ -12,7 +12,7 @@ class GroupController extends Controller
 	public bool $onRemove = true;
 	public bool $onAuthRemove = true;
 
-    public function prepareAuth():void
+    protected function prepareAuth():void
     {
         Route::isAuthAdmin();
     }
@@ -30,7 +30,7 @@ class GroupController extends Controller
         $this->view('auth/group/table', Wrapper::paginator($this->repo));
     }
 
-    public function get($pk = null)
+    public function get(?int $pk)
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);

@@ -18,27 +18,23 @@ class UserController extends Controller
     public bool $onRemove = true;
 	public bool $onAuthRemove = true;
 
-    public function prepareHookSave($data)
+    protected function prepareHookSave($data)
     {
         if(!isPermission('user_create')) Route::ErrorPage(423);
     }
-
-    public function prepareHookUpdate($pk, $data)
+    protected function prepareHookUpdate($pk, $data)
     {
         if(!isPermission('user_update')) Route::ErrorPage(423);
     }
-
-    public function prepareDelete($pk)
+    protected function prepareDelete($pk)
     {
         if(!isPermission('user_delete')) Route::ErrorPage(423);
     }
-
-    public function prepareRestore($pk)
+    protected function prepareRestore($pk)
     {
         if(!isPermission('user_restore')) Route::ErrorPage(423);
     }
-
-    public function prepareRemove($pk)
+    protected function prepareRemove($pk)
     {
         if(!isPermission('user_remove')) Route::ErrorPage(423);
     }
@@ -62,7 +58,7 @@ class UserController extends Controller
         $this->view('auth/user/table', Wrapper::paginator($this->repo));
     }
 
-    public function changePassword($pk)
+    public function changePassword(int $pk)
     {
         Route::isAuth();
         $object = $this->getElement($pk);
@@ -73,7 +69,7 @@ class UserController extends Controller
         ));
     }
 
-    public function permissionChangePassword($user)
+    private function permissionChangePassword($user)
     {
         if (isAdmin()) return true;
         else {
@@ -82,7 +78,7 @@ class UserController extends Controller
         }
     }
 
-    public function get($pk = null)
+    public function get(?int $pk)
 	{
         Route::isAuth();
         if($pk) {

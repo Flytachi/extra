@@ -248,7 +248,7 @@ abstract class Controller
         PREPARE
     ---------------------------------------------
     */
-    public function prepareAuth(): void
+    protected function prepareAuth(): void
     {
         Route::isAuth();
     }

@@ -45,6 +45,7 @@ class __Component
             if (is_dir("$path/repository")) multiCopy("$path/repository", "$root/app/repository");
             if (is_dir("$path/views")) multiCopy("$path/views", "$root/" . FOLDER_PUBLIC . "/views/$this->name");
             if (is_dir("$path/static")) multiCopy("$path/static", "$root/" . FOLDER_PUBLIC . "/static/$this->name");
+            echo "\033[32m". " Пакет $this->name успешно установлен!\n";
         } else {
             echo "\033[33m". " Пакет $this->name не существует!\n";
         }
