@@ -8,7 +8,7 @@ class CDO extends \PDO
      * 
      * CDO
      * 
-     * @version 2.0
+     * @version 2.1
      */
 
 
@@ -119,7 +119,7 @@ class CDO extends \PDO
     static function cleanForm(array $array): array
     {
         foreach ($array as $key => $value) {
-            $array[$key] = CDO::clean($value);
+            if (!is_null($value)) $array[$key] = CDO::clean($value);
         };
         return $array;
     }
