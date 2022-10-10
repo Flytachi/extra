@@ -5,6 +5,8 @@
 /.idea
 
 ## App ----
-/app/.conf
+/app/*.conf
 /app/.cfg
 /app/.crt
+/ssl
+/public/media/

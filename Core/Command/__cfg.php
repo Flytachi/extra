@@ -10,6 +10,12 @@ class __Cfg
             'SERVER_NAME' => null,
             'SERVER_PORT' => 80,
         ),
+        'SSL' => array(
+            'MODE_ON' => null,
+            'MODE_SERVER' => 'APACHE',
+            'CERTIFICATE_FILE' => null,
+            'CERTIFICATE_KEY_FILE' => null,
+        ),
         'SECURITY' => array(
             'PRODUCT_GUARD' => null,
             'PRODUCT_HOST' => null,
@@ -52,6 +58,7 @@ class __Cfg
         elseif ($this->argument == "edit") $this->edit();
         elseif ($this->argument == "show") $this->show();
         elseif ($this->argument == "apache") $this->apache();
+        elseif ($this->argument == "ssl") $this->ssl();
         else echo "\033[31m"." Не такого аргумента.\n";
     }
 
@@ -64,6 +71,8 @@ class __Cfg
         $root = dirname(__DIR__, 4) . '/';
         $this->default_configurations['APACHE']['SERVER_ALIAS'] = basename($root);
         $this->default_configurations['APACHE']['SERVER_NAME'] = basename($root);
+        $this->default_configurations['SSL']['CERTIFICATE_FILE'] = dirname(__DIR__, 4) . '/ssl/server.crt';
+        $this->default_configurations['SSL']['CERTIFICATE_KEY_FILE'] = dirname(__DIR__, 4) . '/ssl/server.key';
         $fp = fopen(CFG_PATH_OPEN, "x");
         fwrite($fp, $this->arrayToIni($this->default_configurations));
         fclose($fp);
@@ -130,6 +139,40 @@ class __Cfg
             echo "\033[32m". " Apache конфигурация сгенерирована успешно!\n";
         } else echo "Configuration file not found.\n";
     }
+
+    private function ssl()
+    {
+        $file = dirname(__DIR__) . '/Template/Server/apache-ssl';
+        $errors = "";
+        if (!is_dir('ssl')) mkdir('ssl');
+        if (file_exists(CFG_PATH_CLOSE)) {
+            $ini = cfgGet();
+            if ($ini['SSL']['MODE_ON']) {
+                $dir = dirname(__DIR__, 4) . '/';
+                $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
+                $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
+                $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
+                $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
+                $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
+                $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
+                $template = str_replace("__DIR__", $dir, $template);
+                $fp = fopen($dir . FOLDER_APP . '/apache-ssl.conf', "w");
+                fwrite($fp, $template);
+                fclose($fp);
+                echo "\033[32m". " SSL конфигурация сгенерирована успешно!\n";
+            } else {
+                echo "\033[33m"."  SSL модуль выключен.\n";
+            }
+            
+        } else echo "Configuration file not found.\n";
+
+        exec("
+            openssl genrsa -des3 -out ssl/server.key 1024;
+            openssl req -new -key ssl/server.key -out ssl/server.csr;
+            openssl rsa -in ssl/server.key -out ssl/server.key;
+            openssl x509 -req -days 365 -in ssl/server.csr -signkey ssl/server.key -out ssl/server.crt");
+    }
+    
 
     private function help()
     {
