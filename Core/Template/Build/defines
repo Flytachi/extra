@@ -4,6 +4,7 @@
 define('EXTRA_KEY', '__extra_key__');
 
 // Dirs
+define('ROOT', dirname(__DIR__));
 define('FOLDER_APP', 'app');
 define('FOLDER_PLUGIN', 'plugins');
 define('FOLDER_PUBLIC', 'public');
