@@ -21,10 +21,10 @@ class __Make
     private function resolution()
     {
         try {
-            if ($this->argument == "auto")            $this->mAuto();
-            elseif ($this->argument == "api")         $this->mApi();
-            elseif ($this->argument == "controller")  $this->mController();
-            elseif ($this->argument == "model")       $this->mModel();
+            if (in_array($this->argument, ['at', 'auto']))             $this->mAuto();
+            elseif (in_array($this->argument, ['a', 'api']))           $this->mApi();
+            elseif (in_array($this->argument, ['c', 'controller']))    $this->mController();
+            elseif (in_array($this->argument, ['m', 'model']))         $this->mModel();
             elseif (in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
         } catch (\Error $e) {

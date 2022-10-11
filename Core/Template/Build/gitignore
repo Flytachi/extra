@@ -8,5 +8,6 @@
 /app/*.conf
 /app/.cfg
 /app/.crt
+/backup
 /ssl
 /public/media/
