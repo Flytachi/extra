@@ -221,6 +221,10 @@ abstract class Controller
 
     final protected function renderJson(array $data): never
     {
+        $code = 200;
+        $status = Route::$httpStatus[$code];
+		header("HTTP/1.1 $code " . $status);
+		header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( $data );
         die;
@@ -228,6 +232,10 @@ abstract class Controller
 
     final protected function renderJsonSuccess(mixed $message = null): never
     {
+        $code = 200;
+        $status = Route::$httpStatus[$code];
+		header("HTTP/1.1 $code " . $status);
+		header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( array('status' => 'success', 'message' => $message) );
         die;
@@ -235,6 +243,10 @@ abstract class Controller
 
     final protected function renderJsonError(mixed $message): never
     {
+        $code = 200;
+        $status = Route::$httpStatus[$code];
+		header("HTTP/1.1 $code " . $status);
+		header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( array('status' => 'error', 'message' => $message) );
         die;
