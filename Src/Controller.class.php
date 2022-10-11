@@ -2,6 +2,8 @@
 
 namespace Extra\Src;
 
+use METHOD;
+
 abstract class Controller 
 {
     /**
@@ -52,6 +54,14 @@ abstract class Controller
             }
             if (file_exists($file)) require $file;
         });
+    }
+
+    final protected function method(METHOD ...$methods): void
+    {
+        foreach ($methods as $method) {
+            if($method->name === $_SERVER['REQUEST_METHOD']) return;
+        }
+        Route::ErrorPage(405);
     }
 
     final protected function csrfTokenChange(): void
@@ -136,6 +146,7 @@ abstract class Controller
     */
     public function hook(string $pk = null): void
     {
+        $this->method(METHOD::POST);
         if ($this->onAuthHook === true) $this->prepareAuth();
         if ($this->onHook === false) Route::ErrorPage(404);
         if (empty($_POST)) Route::ErrorPage(400);
@@ -155,6 +166,7 @@ abstract class Controller
 
     public function delete(string $pk): void
     {
+        $this->method(METHOD::GET);
         if ($this->onAuthDelete === true) $this->prepareAuth();
         if ($this->onDelete === false) Route::ErrorPage(404);
 
@@ -170,6 +182,7 @@ abstract class Controller
 
     public function restore(string $pk): void
     {
+        $this->method(METHOD::GET);
         if ($this->onAuthRestore === true) $this->prepareAuth();
         if ($this->onRestore === false) Route::ErrorPage(404);
 
@@ -185,6 +198,7 @@ abstract class Controller
 
     public function remove(string $pk): void
     {
+        $this->method(METHOD::GET);
         if ($this->onAuthRemove === true) $this->prepareAuth();
         if ($this->onRemove === false) Route::ErrorPage(404);
 
