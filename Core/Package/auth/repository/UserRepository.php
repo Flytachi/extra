@@ -10,7 +10,7 @@ class UserRepository extends Repository
     public function prepare()
     {
         if ($this->getData('password')) {
-            $this->setDataItem('password', sha1($this->getData('password')));
+            $this->setDataItem('password', password_hash($this->getData('password'), PASSWORD_BCRYPT));
         }
         if ($this->getData('info')) {
             $this->info = $this->getData('info');

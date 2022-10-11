@@ -2,7 +2,7 @@
     {
         "id": 1,
         "username": "admin",
-        "password": "d033e22ae348aeb5660fc2140aec35850c4da997",
+        "password": "$2y$10$D60EUhR/2EUhK6rhcfgTCemsrwuq50RtdHVc0acS44cLKeix4VJxe",
         "is_admin": 1,
         "is_delete": 0
     }

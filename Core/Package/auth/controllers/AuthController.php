@@ -19,9 +19,10 @@ class AuthController extends Controller
 
             $userModel = new UserRepository;
             $login = CDO::clean($_POST['username']);
-            $password = sha1(CDO::clean($_POST['password']));
+            $password = CDO::clean($_POST['password']);
+            $user = $userModel->getBy(array('username' => $login, 'is_delete' => 0));
             
-            if ($user = $userModel->getBy(array('username' => $login, 'password' => $password, 'is_delete' => 0))) {
+            if ($user && password_verify($password, $user->password)) {
                 $_SESSION['id'] = $user->id;
                 $_SESSION['is_admin'] = $user->is_admin;
                 if ($info = (new UserInfoRepository)->isUser($user->id)) {
