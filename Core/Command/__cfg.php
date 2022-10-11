@@ -159,18 +159,17 @@ class __Cfg
                 $fp = fopen($dir . FOLDER_APP . '/apache-ssl.conf', "w");
                 fwrite($fp, $template);
                 fclose($fp);
+
+                exec("openssl genrsa -des3 -out ssl/server.key 1024;
+                    openssl req -new -key ssl/server.key -out ssl/server.csr;
+                    openssl rsa -in ssl/server.key -out ssl/server.key;
+                    openssl x509 -req -days 365 -in ssl/server.csr -signkey ssl/server.key -out ssl/server.crt");
                 echo "\033[32m". " SSL конфигурация сгенерирована успешно!\n";
             } else {
                 echo "\033[33m"."  SSL модуль выключен.\n";
             }
             
         } else echo "Configuration file not found.\n";
-
-        exec("
-            openssl genrsa -des3 -out ssl/server.key 1024;
-            openssl req -new -key ssl/server.key -out ssl/server.csr;
-            openssl rsa -in ssl/server.key -out ssl/server.key;
-            openssl x509 -req -days 365 -in ssl/server.csr -signkey ssl/server.key -out ssl/server.crt");
     }
     
 
