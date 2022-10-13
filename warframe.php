@@ -20,6 +20,9 @@ class Warframe
     public final static function loader()
     {
         require dirname(__DIR__) . '/defines.php';
+        
+        define('SERVER_SCHEME', $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME']);
+
         Warframe::loadFunction();
         Warframe::$cfg = cfgGet();
         Warframe::loadSrc();
