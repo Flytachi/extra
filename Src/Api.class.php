@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use ApiRepository;
+
 abstract class Api 
 {
     /**
      * 
      * Api
      * 
-     * @version 4.0
+     * @version 4.1
      */
     
     private string $headers = '';
@@ -19,6 +21,7 @@ abstract class Api
         $this->loader();
         $this->AuthorizationHeader();
         if (empty($this->getHeaders())) Route::ApiError(400);
+        $this->repo = new ApiRepository;
     }
 
     private function loader()
@@ -64,8 +67,8 @@ abstract class Api
 
     private function AuthorizationHeader(): void
     {
-        if (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
-        elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+        elseif (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
         elseif (function_exists('apache_request_headers')) {
             $requestHeaders = apache_request_headers();
             $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));

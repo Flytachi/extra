@@ -8,7 +8,7 @@ class Route
      * 
      * Route
      * 
-     * @version 8.9
+     * @version 8.91
      */
 
 	
@@ -152,7 +152,7 @@ class Route
 		if (!ROUTE_API_SYSTEM) Route::ApiError(400);
 		$routes = explode('/', $data['url']);
 		$_GET = $data['get'];
-		$chP = checkPlugin(ucfirst($routes[2]));
+		$chP =  (isset($routes[2])) ? checkPlugin(ucfirst($routes[2])) : null;
 		if (ROUTE_PLUGIN_SYSTEM and $chP) {
 			$pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
 			$controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
