@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use Throwable;
+
 class Route
 {
 	/**
      * 
      * Route
      * 
-     * @version 8.91
+     * @version 9.0
      */
 
 	
@@ -31,22 +33,22 @@ class Route
 		else Route::routeApp();	
 	}
 
-	final static function loader()
-	{
+	final static function loader(): void
+    {
 		spl_autoload_register(function($class) {
             $file = dirname(__FILE__, 3) . '/controllers/' . $class . '.php';
 			if (file_exists($file)) require $file;
         });
 	}
 
-	final static function pluginLoader()
-	{
+	final static function pluginLoader(): void
+    {
 		spl_autoload_register(function($class) {
 			$class = explode("\\", $class);
 			if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
-				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/controllers/" . $class[1] . '.php';
+				$file = PATH_PLUGIN . "/Frame." . $class[0] . "/controllers/" . $class[1] . '.php';
 			} else {
-				$file = dirname(__FILE__, 3) . '/controllers/' . $class[0] . '.php';
+				$file = PATH_APP . '/controllers/' . $class[0] . '.php';
 			}
 			if (file_exists($file)) require $file;
         });
@@ -81,9 +83,8 @@ class Route
 		// Imitation
 		if(!class_exists($controllerName)) Route::ErrorPage(404);
 		try {
-			$controller = new $controllerName;
-			$controller->$actionName($params);
-		} catch (\Throwable $e) {
+            self::imitation($controllerName, $actionName, $params);
+		} catch (Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 			else Route::ErrorPage(400);
 		}
@@ -106,7 +107,7 @@ class Route
 
 		// Checking
 		if (checkPlugin($pluginName)) {
-			$path = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/__frame__.php";
+			$path = PATH_PLUGIN . "/Frame.$pluginName/__frame__.php";
 			if ( file_exists($path) ) require $path;
 			if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
@@ -120,9 +121,8 @@ class Route
 			$controllerName = "$pluginName\\" . $controllerName . 'Controller';
 		
 			// Imports
-			$funcPath = dirname(__DIR__, 4) . '/' . FOLDER_PLUGIN . "/Frame.$pluginName/functions.php";
-			if ( file_exists($funcPath) ) require $funcPath;
-		} else {
+			$funcPath = PATH_PLUGIN . "/Frame.$pluginName/functions.php";
+        } else {
 			if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
 			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
@@ -133,14 +133,13 @@ class Route
 
 			// Imports
 			$funcPath = dirname(__DIR__, 2) . '/functions.php';
-			if ( file_exists($funcPath) ) require $funcPath;
-		}
-		
-		// Imitation
+        }
+        if ( file_exists($funcPath) ) require $funcPath;
+
+        // Imitation
 		try {
-			$controller = new $controllerName;
-			$controller->$actionName($params);
-		} catch (\Throwable $e) {
+            self::imitation($controllerName, $actionName, $params);
+        } catch (Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 			else Route::ErrorPage(400);
 		}
@@ -161,47 +160,66 @@ class Route
 				$params = array_slice($routes, 5);
 				if(count($params) == 1) $params = $routes[5];
 			} else $params = null;
-		} else {
-			$controllerName = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
-			$actionName     = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
-			if ( !empty($routes[4]) ) {
-				$params = array_slice($routes, 4);
-				if(count($params) == 1) $params = $routes[4];
-			} else $params = null;
-		}
-		
-		// Imports
-		if (ROUTE_PLUGIN_SYSTEM && $chP) {
-			spl_autoload_register(function($class) {
-				$class = explode("\\", $class);
-				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/api/" . $class[1] . '.php';
-				if (file_exists($file)) require $file;
-			});
-			
-			// Prefix
-			$controllerName = "$pluginName\\" . $controllerName . 'Api';
-		} else {
-			spl_autoload_register(function($class) {
-				$file = dirname(__FILE__, 3) . '/api/' . $class . '.php';
-				if (file_exists($file)) require $file;
-			});
-			$funcPath = dirname(__DIR__, 3) . '/functions.php';
-			if ( file_exists($funcPath) ) require $funcPath;
 
-			// Prefix
-			$controllerName = $controllerName . 'Api';
-		}
+            // Imports
+            spl_autoload_register(function($class) {
+                $class = explode("\\", $class);
+                $file = PATH_PLUGIN . "/Frame." . $class[0] . "/api/" . $class[1] . '.php';
+                if (file_exists($file)) require $file;
+            });
+
+            // Prefix
+            $controllerName = "$pluginName\\" . $controllerName . 'Api';
+		} else {
+            $controllerName = (!empty($routes[2])) ? ucfirst($routes[2]) : null;
+            $actionName = (!empty($routes[3])) ? ucfirst($routes[3]) : null;
+            if (!empty($routes[4])) {
+                $params = array_slice($routes, 4);
+                if (count($params) == 1) $params = $routes[4];
+            } else $params = null;
+
+            // Imports
+            spl_autoload_register(function ($class) {
+                $file = dirname(__FILE__, 3) . '/api/' . $class . '.php';
+                if (file_exists($file)) require $file;
+            });
+            $funcPath = dirname(__DIR__, 3) . '/functions.php';
+            if (file_exists($funcPath)) require $funcPath;
+
+            // Prefix
+            $controllerName = $controllerName . 'Api';
+        }
 		
 		// Imitation
 		try {
-			$controller = new $controllerName;
-			$controller->$actionName($params);
-		} catch (\Throwable $e) {
+            self::imitation($controllerName, $actionName, $params);
+        } catch (Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
 			else Route::ApiError(500);
 		}
 		exit;
 	}
+
+    /**
+     * @param string $controllerName
+     * @param string $actionName
+     * @param array|string|null $params
+     * @return void
+     */
+    private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
+    {
+        spl_autoload_register(function ($class) {
+            $class = explode("\\", $class);
+            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+                $file = PATH_PLUGIN . "/Frame." . $class[0] . "/repository/" . $class[1] . '.php';
+            } else {
+                $file = PATH_APP . '/repository/' . $class[0] . '.php';
+            }
+            if (file_exists($file)) require $file;
+        });
+        $controller = new $controllerName;
+        $controller->$actionName($params);
+    }
 
 	final static function urlToArray(string $url): array
     {
@@ -248,7 +266,7 @@ class Route
 	{
         header("HTTP/1.1 $code " . Route::$httpStatus[$code]);
 		header("Status: $code " . Route::$httpStatus[$code]);
-		if(explode('/', $_SERVER['PHP_SELF'])[1] != 'error') die( include VIEW_FOLDER . "/error/$code.php" );
+		if(explode('/', $_SERVER['PHP_SELF'])[1] != 'error') die( include  PATH_PUBLIC . '/' . VIEW_ERROR . "/$code.php" );
 		die;
 	}
 
@@ -288,5 +306,3 @@ class Route
 		die;
 	}
 }
-
-?>

@@ -4,7 +4,7 @@ use Extra\Src\Route;
 
 function dieConnection($_error = null): never
 {
-    die(include dirname(__DIR__, 3) . "/" . FOLDER_PUBLIC . "/" . VIEW_FOLDER . "/error/system.php"); 
+    die(include PATH_PUBLIC . "/" . VIEW_ERROR . "/system.php");
 }
 
 function cfgGet(): array
@@ -53,73 +53,7 @@ function getDirContent($dir, $filter = '', &$results = array())
 function importLib(string ...$libs): void
 {
     foreach ($libs as $lib) {
-        include dirname(__DIR__, 2) ."/libs/$lib";
-    }
-}
-
-function importPluginController(string $plugin, string ...$controllers): void
-{
-    foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/controllers/$controller.php";
-        if (file_exists($path)) {
-            try {
-                include $path;
-            } catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
-                else dd($th);
-                die;
-            }
-        } else Route::ErrorPage(404);
-    }
-}
-
-function importPluginRepository(string $plugin, string ...$repository): void
-{
-    foreach ($repository as $repo) {
-        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/repository/$repo.php";
-        if (file_exists($path)) {
-            try {
-                if( !class_exists($repo) ) include $path;
-            }
-            catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
-                else dd($th);
-                die;
-            }
-        }
-    }
-}
-
-function importPluginModel(string $plugin, string ...$models): void
-{
-    foreach ($models as $model) {
-        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/models/$model.php";
-        if (file_exists($path)) {
-            try {
-                if( !class_exists($model) ) include $path;
-            }
-            catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ErrorPage(500);
-                else dd($th);
-                die;
-            }
-        }
-    }
-}
-
-function importPluginApi(string $plugin, string ...$controllers): void
-{
-    foreach ($controllers as $controller) {
-        $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/$plugin/api/$controller.php";
-        if (file_exists($path)) {
-            try {
-                include $path;
-            } catch (\Throwable $th) { 
-                if (!cfgGet()['GLOBAL_SETTING']['DEBUG']) Route::ApiError(500, array('error' => 'Ошибка в контроллере!'));
-                else dd($th);
-                die;
-            }
-        } else Route::ApiError(405);
+        include PATH_LIB ."/$lib";
     }
 }
 
@@ -130,17 +64,17 @@ function importPluginApi(string $plugin, string ...$controllers): void
 function checkPlugin(string $plugin): bool
 {
     if(empty($plugin)) return false;
-    $path = dirname(__DIR__, 3) . '/' . FOLDER_PLUGIN . "/Frame.$plugin";
+    $path = PATH_PLUGIN . "/Frame.$plugin";
     return is_dir($path);
 }
 
-function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE)
+function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE): string
 {
     // Format string
     $format = ($format === NULL) ? '%01.2f %s' : (string) $format;
 
     // IEC prefixes (binary)
-    if ($si == FALSE OR strpos($force_unit, 'i') !== FALSE) {
+    if (!$si OR str_contains($force_unit, 'i')) {
         $units = array('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB');
         $mod   = 1024;
     }
@@ -159,4 +93,3 @@ function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE)
     return sprintf($format, $bytes / pow($mod, $power), $units[$power]);
 }
 
-?>

@@ -8,13 +8,13 @@ class Wrapper
      * 
      * Wrapper
      * 
-     * @version 2.0
+     * @version 3.0
      */
 
     static int $totalPages;
     static string $params;
     
-    static function paginator(Repository $repo, string $func = 'getAll')
+    static function paginator(Repository $repo, string $func = 'getAll'): array
     {
         return array(
             'table' => $repo->{$func}(),
@@ -64,7 +64,9 @@ class Wrapper
                 $repo->db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / $repo->getSql('limit')
             );
             if (Wrapper::$totalPages <= 1) return '';
-            $page = (int)(isset($_GET['CRD_page'])) ? $_GET['CRD_page'] : $page = 1;
+            if (isset($_GET['CRD_page'])) {
+                $page = (int) $_GET['CRD_page'];
+            }else $page = 1;
 
             if ($page > Wrapper::$totalPages) $page = Wrapper::$totalPages;
             elseif ($page < 1) $page = 1;
@@ -95,31 +97,11 @@ class Wrapper
 
             if (Wrapper::$totalPages == 5) {
 
-                if ($page == 1) {
-                    $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" . 
-                        Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
-                    $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('"  .
-                        Wrapper::pageAddon(Wrapper::$params, 1) . "')\" class=\"page-link\">".($page+1)."</a></li>";
-                }elseif($page == 2) {
-                    $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('" . 
-                        Wrapper::pageAddon(Wrapper::$params, -1)."')\" class=\"page-link\">".($page-1)."</a></li>";
-                    $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" .
-                        Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
-                }
-                
+                $selfPage = self::getStr($page, $selfPage);
+
             }elseif (Wrapper::$totalPages == 4) {
 
-                if ($page == 1) {
-                    $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" .
-                        Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
-                    $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('" .
-                        Wrapper::pageAddon(Wrapper::$params, 1)."')\" class=\"page-link\">".($page+1)."</a></li>";
-                }elseif($page == 2) {
-                    $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('" .
-                        Wrapper::pageAddon(Wrapper::$params, -1)."')\" class=\"page-link\">".($page-1)."</a></li>";
-                    $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" .
-                        Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
-                }
+                $selfPage = self::getStr($page, $selfPage);
                 
             }else {
                 $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" . 
@@ -220,6 +202,25 @@ class Wrapper
         return $firstBack.$selfPage.$nextLast;
     }
 
-}
+    /**
+     * @param int $page
+     * @param string $selfPage
+     * @return string
+     */
+    public static function getStr(int $page, string $selfPage): string
+    {
+        if ($page == 1) {
+            $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" .
+                Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
+            $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('" .
+                Wrapper::pageAddon(Wrapper::$params, 1) . "')\" class=\"page-link\">" . ($page + 1) . "</a></li>";
+        } elseif ($page == 2) {
+            $selfPage .= "<li class=\"page-item\"><a onclick=\"credoSearch('" .
+                Wrapper::pageAddon(Wrapper::$params, -1) . "')\" class=\"page-link\">" . ($page - 1) . "</a></li>";
+            $selfPage .= "<li class=\"page-item active\"><a onclick=\"credoSearch('" .
+                Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
+        }
+        return $selfPage;
+    }
 
-?>
+}

@@ -7,11 +7,11 @@
     <div class="warframe_card-body">
 
         <div class="warframe_form-group">
-        
+
             <?php if( is_writable(CFG_PATH_CLOSE) ): ?>
                 <a class="warframe_btn" href="/firewall/license">License</a>
                 <?php foreach($confList as $confItem): ?>
-                    <a class="warframe_btn" href="/firewall/<?= mb_strtolower($confItem) ?>"><?= str_replace('_', ' ', $confItem) ?></a>
+                    <a class="warframe_btn" href="/firewall/get/<?= $confItem ?>"><?= str_replace('_', ' ', $confItem) ?></a>
                 <?php endforeach; ?>
             <?php else: ?>
                 <span style="color:red">

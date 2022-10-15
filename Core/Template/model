@@ -4,8 +4,6 @@ use Extra\Src\Model;
 
 class _ModelIndex_ extends Model
 {
-    public $id;
-    public $is_delete;
+    public int $id;
+    public int $is_delete;
 }
-
-?>

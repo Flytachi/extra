@@ -57,5 +57,3 @@ class FirmwareEnterpriseController extends Controller
         ));
     }
 }
-
-?>

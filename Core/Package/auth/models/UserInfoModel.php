@@ -8,5 +8,3 @@ class UserInfoModel extends Model
     public $name;
     public $group_id;
 }
-
-?>

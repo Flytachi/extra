@@ -7,7 +7,7 @@ class GroupPermissionRepository extends Repository
     public string $table = 'auth_group_permissions';
     public string $modelName = 'GroupPermissionModel';
     
-    public function getAllPermission($pk)
+    public function getAllPermission($pk): array
     {
         $permission = [];
         $this->Where(array('group_id' => $pk));
@@ -15,5 +15,3 @@ class GroupPermissionRepository extends Repository
         return $permission;
     }
 }
-
-?>

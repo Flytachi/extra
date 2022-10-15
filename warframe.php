@@ -17,7 +17,7 @@ class Warframe
 {
     public static array $cfg;
 
-    public final static function loader()
+    public final static function loader(): void
     {
         require dirname(__DIR__) . '/defines.php';
         
@@ -29,13 +29,13 @@ class Warframe
         if (!Warframe::softLicenseCorrect()) dieConnection('The software license is incorrect or outdated.');
     }
 
-    public final static function loadFunction()
+    public final static function loadFunction(): void
     {
         foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
         date_default_timezone_set(cfgGet()['GLOBAL_SETTING']['TIME_ZONE']);
     }
 
-    public final static function loadSrc()
+    public final static function loadSrc(): void
     {
         spl_autoload_register(function($class) {
             $file = dirname(__FILE__, 2) .'/'. lcfirst(str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.class.php');
@@ -46,7 +46,7 @@ class Warframe
         });
     }
 
-    public final static function softLicenseCorrect()
+    public final static function softLicenseCorrect(): bool
     {
         if (Warframe::$cfg['SECURITY']['PRODUCT_GUARD']) {
             $license = licenseKey();
@@ -60,5 +60,3 @@ class Warframe
     }
 
 }
-
-?>

@@ -2,8 +2,8 @@
 
 class __Make
 {
-    private $argument;
-    private $name;
+    private mixed $argument;
+    private mixed $name;
 
     function __construct($value = null, $name = null)
     {
@@ -12,13 +12,13 @@ class __Make
         $this->handle();
     }
 
-    private function handle()
+    private function handle(): void
     {
         if (!is_null($this->argument)) $this->resolution();
         else $this->help();
     }
 
-    private function resolution()
+    private function resolution(): void
     {
         try {
             if (in_array($this->argument, ['at', 'auto']))             $this->mAuto();
@@ -27,14 +27,13 @@ class __Make
             elseif (in_array($this->argument, ['m', 'model']))         $this->mModel();
             elseif (in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
-        } catch (\Error $e) {
-            // echo $e->getMessage();
+        } catch (Error) {
            echo "\033[31m"." Ошибка в скрипте.\n";
         }
         
     }
 
-    private function mAuto()
+    private function mAuto(): void
     {
         if (strrpos($this->name, 'Api')) {
             $this->argument = 'api';
@@ -51,11 +50,10 @@ class __Make
         }
     }
 
-    private function mApi()
+    private function mApi(): void
     {
         if (!strrpos($this->name, 'Api')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
-            return;
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/api";
             $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
@@ -63,11 +61,10 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
-    private function mController()
+    private function mController(): void
     {
         if (!strrpos($this->name, 'Controller')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
-            return;
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
@@ -75,11 +72,10 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
-    private function mModel()
+    private function mModel(): void
     {
         if (!strrpos($this->name, 'Model')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
-            return;
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/model";
             $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
@@ -87,11 +83,10 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
     
-    private function mRepository()
+    private function mRepository(): void
     {
         if (!strrpos($this->name, 'Repository')) {
             echo "\033[33m". " Укажите корректное имя шаблона!\n";
-            return;
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/repository";
             $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
@@ -101,7 +96,7 @@ class __Make
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
 
-    private function create_file($fName, $path, $code = "")
+    private function create_file($fName, $path, $code = ""): void
     {
         if (!is_dir($path)) mkdir($path);
         $file_name = "$path/$fName.php";
@@ -113,12 +108,12 @@ class __Make
         }else echo "\033[33m"." Шаблон \"$this->argument\" с наименованием '$fName' уже существует.\n";
     }
 
-    private function UC_word(String $str)
+    private function UC_word(String $str): array|string
     {
         return str_replace(" ", "", ucwords(str_replace("_", " ", $str)));
     }
 
-    private function help()
+    private function help(): void
     {
         echo "\033[33m"." =======> Help <======= \n";
         echo "\033[33m"."  :api          -  Создать Api-контроллер.\n";
@@ -129,5 +124,3 @@ class __Make
     }
 
 }
-
-?>

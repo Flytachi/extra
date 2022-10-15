@@ -4,7 +4,7 @@
     ServerName __NAME__
     ServerAlias __ALIAS__
 
-    <Directory __DIR__>
+    <Directory "__DIR__">
         AllowOverride All
     </Directory>
 

@@ -8,5 +8,3 @@ class GroupPermissionModel extends Model
     public $group_id;
     public $permission;
 }
-
-?>

@@ -4,20 +4,20 @@
 if (PHP_VERSION_ID >= 80000) {
     
     if (is_dir(__DIR__ . '/.git')) {
-        function rrmdir($dir) { 
+        function gitRmDir($dir): void
+        {
             if (is_dir($dir)) { 
                 $objects = scandir($dir); 
                 foreach ($objects as $object) { 
                     if ($object != "." && $object != "..") { 
-                        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object); 
+                        if (filetype($dir."/".$object) == "dir") gitRmDir($dir."/".$object); else unlink($dir."/".$object);
                     } 
                 }
-                reset($objects); 
-                rmdir($dir); 
+                gitRmDir($dir);
             }
         }
-    
-        rrmdir(__DIR__ . '/.git');
+
+//        gitRmDir(__DIR__ . '/.git');
     }
     
     $ROOT = dirname(__DIR__, 2);

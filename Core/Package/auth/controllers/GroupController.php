@@ -7,12 +7,12 @@ use Extra\Src\Wrapper;
 class GroupController extends Controller
 {
     public bool $onHook = true;
-	public bool $onAuthHook = true;
-	
-	public bool $onRemove = true;
-	public bool $onAuthRemove = true;
+    public bool $onAuthHook = true;
 
-    protected function prepareAuth():void
+    public bool $onRemove = true;
+    public bool $onAuthRemove = true;
+
+    protected function prepareAuth(): void
     {
         Route::isAuthAdmin();
     }
@@ -25,14 +25,14 @@ class GroupController extends Controller
 
     public function list()
     {
-        Route::isAuthAdmin();
+        $this->prepareAuth();
         $this->repo->Limit(10);
         $this->view('auth/group/table', Wrapper::paginator($this->repo));
     }
 
     public function get(?int $pk)
-	{
-        Route::isAuthAdmin();
+    {
+        $this->prepareAuth();
         if($pk) $object = $this->getElement($pk);
 
         $this->view('auth/group/form', array(
@@ -41,7 +41,5 @@ class GroupController extends Controller
             'permission' => ($pk) ? (new GroupPermissionRepository)->getAllPermission($pk) : [],
             'inputCsrf' => $this->csrfTokenGen()
         ));
-	}
+    }
 }
-
-?>

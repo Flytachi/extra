@@ -12,5 +12,3 @@ class UserInfoRepository extends Repository
         return $this->getBy(array('user_id'=>$pk));
     }
 }
-
-?>

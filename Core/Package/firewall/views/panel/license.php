@@ -67,19 +67,19 @@
     </div>
     <div class="warframe_flex-col">
         <div class="warframe_card">
-            
+
             <div class="warframe_card-body">
                 <h3>Установить лицензию</h3>
                 <div class="warframe_form-group">
-                    <form action="/firewall/liceseSpell" method="post" enctype="multipart/form-data">
-                        
+                    <form action="/firewall/licenseSpell" method="post" enctype="multipart/form-data">
+
                         <input type="file" name="license" id="inp-license">
                         <button type="submit" class="warframe_btn">Прошить</button>
-                    
+
                     </form>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>

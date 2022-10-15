@@ -5,5 +5,3 @@ session_start();
 
 // include main file
 require_once '../app/bootstrap.php';
-
-?>

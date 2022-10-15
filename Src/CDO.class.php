@@ -2,15 +2,18 @@
 
 namespace Extra\Src;
 
-class CDO extends \PDO
+use PDO;
+use PDOException;
+
+class CDO extends PDO
 {
     /**
      * 
      * CDO
      * 
-     * @version 2.1
+     * @version 3.0
      */
-
+    private mixed $debug;
 
     function __construct(array $params, $debug = false)
     {
@@ -20,16 +23,16 @@ class CDO extends \PDO
         if (is_null($params['PORT'])) dieConnection("Connection: port not found!");
         if (is_null($params['NAME'])) dieConnection("Connection: db name not found!");
         if (is_null($params['USER'])) dieConnection("Connection: username not found!");
-        $this->DNS = $params['DRIVER'] . ":host=".$params['HOST'] . ";port=" . $params['PORT'] . ";dbname=" . $params['NAME'] . ";charset=" . $params['CHARSET'];
-        $this->user = $params['USER'];
-        $this->password = $params['PASS'];
+        $DNS = $params['DRIVER'] . ":host=".$params['HOST'] . ";port=" . $params['PORT'] . ";dbname=" . $params['NAME'] . ";charset=" . $params['CHARSET'];
+        $user = $params['USER'];
+        $password = $params['PASS'];
         $this->debug = $debug;
         try {
-            parent::__construct($this->DNS, $this->user, $this->password);
-            $this->SetAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-            $this->SetAttribute(\PDO::ATTR_EMULATE_PREPARES, False);
-            if ( $this->debug ) $this->SetAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $e) {
+            parent::__construct($DNS, $user, $password);
+            $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
+            if ( $this->debug ) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
             if($debug) dieConnection($e->getMessage());
             else Route::ErrorPage(500);
         }
@@ -43,7 +46,7 @@ class CDO extends \PDO
             $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($post);
             return $this->lastInsertId();
         }
-        catch (\PDOException $ex) {
+        catch (PDOException $ex) {
             return $ex->getMessage();
             return ($this->debug) ? $ex->getMessage() : "Ошибка создания элемента.";
         }
@@ -71,7 +74,7 @@ class CDO extends \PDO
             $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
             $stm->execute([...$pk, ...$post]);
             return $stm->rowCount();
-        } catch (\PDOException $ex) {
+        } catch (PDOException $ex) {
             return ($this->debug) ? $ex->getMessage() : "Ошибка обновления элемента.";
         }
     }
@@ -100,7 +103,7 @@ class CDO extends \PDO
             $stmt = $this->prepare("DELETE FROM $table WHERE " . ltrim($where, " AND "));
             $stmt->execute($pk);
             return $stmt->rowCount();
-        } catch (\PDOException $ex) {
+        } catch (PDOException $ex) {
             return ($this->debug) ? $ex->getMessage() : "Ошибка удаления элемента.";
         }
     }
@@ -120,7 +123,7 @@ class CDO extends \PDO
     {
         foreach ($array as $key => $value) {
             if (!is_null($value)) $array[$key] = CDO::clean($value);
-        };
+        }
         return $array;
     }
 
@@ -133,5 +136,3 @@ class CDO extends \PDO
     }
 
 }
-
-?>

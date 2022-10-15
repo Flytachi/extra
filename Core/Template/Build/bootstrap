@@ -1,6 +1,7 @@
 <?php
 
-// include Extra
+use Extra\Src\Route;
+
 require 'extra/warframe.php';
 
 Warframe::loader();
@@ -12,6 +13,4 @@ if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
 }
 
 // run Route
-\Extra\Src\Route::start();
-
-?>
+Route::start();

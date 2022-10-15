@@ -1,13 +1,17 @@
 <?php
 
 // EXTRA
-define('EXTRA_KEY', '__extra_key__');
+const EXTRA_KEY = '__extra_key__';
 
-// Dirs
-define('ROOT', dirname(__DIR__));
-define('FOLDER_APP', 'app');
-define('FOLDER_PLUGIN', 'plugins');
-define('FOLDER_PUBLIC', 'public');
+// Path
+define('PATH_ROOT', dirname(__DIR__));
+define('PATH_APP', dirname(__DIR__) . '/app');
+define('PATH_PLUGIN', dirname(__DIR__) . '/plugins');
+define('PATH_PUBLIC', dirname(__DIR__) . '/public');
+
+
+const PATH_LIB = PATH_APP . '/libs';
+const PATH_MEDIA = PATH_PUBLIC . '/media/';
 
 // License
 define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
@@ -16,22 +20,19 @@ define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
 define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
 define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
 
-// Path
-define('PATH_MEDIA', dirname(__DIR__) . '/' . FOLDER_PUBLIC . '/media/');
 
 // Template
-define('VIEW_FOLDER', 'views');
-define('VIEW_TEMPLATE', 'template.php');
+const VIEW_FOLDER = 'views';
+const VIEW_ERROR = VIEW_FOLDER . '/error';
+const VIEW_TEMPLATE = 'template.php';
 
 // Route
-define('ROUTE_MAIN_CONTROLLER', 'Main');
-define('ROUTE_MAIN_ACTION', 'index');
-define('ROUTE_PLUGIN_SYSTEM', false);
-define('ROUTE_API_SYSTEM', false);
+const ROUTE_MAIN_CONTROLLER = 'Main';
+const ROUTE_MAIN_ACTION = 'index';
+const ROUTE_PLUGIN_SYSTEM = false;
+const ROUTE_API_SYSTEM = false;
 
 if (ROUTE_PLUGIN_SYSTEM) {
     define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');
     define('ROUTE_PLUGIN_MAIN_ACTION', 'index');
 }
-
-?>

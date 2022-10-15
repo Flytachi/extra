@@ -7,34 +7,34 @@ use Extra\Src\Wrapper;
 class UserController extends Controller
 {
     public bool $onHook = true;
-	public bool $onAuthHook = true;
+    public bool $onAuthHook = true;
 
-	public bool $onDelete = true;
-	public bool $onAuthDelete = true;
+    public bool $onDelete = true;
+    public bool $onAuthDelete = true;
 
     public bool $onRestore = true;
-	public bool $onAuthRestore = true;
+    public bool $onAuthRestore = true;
 
     public bool $onRemove = true;
-	public bool $onAuthRemove = true;
+    public bool $onAuthRemove = true;
 
-    protected function prepareHookSave($data)
+    protected function prepareHookSave(array $data): void
     {
         if(!isPermission('user_create')) Route::ErrorPage(423);
     }
-    protected function prepareHookUpdate($pk, $data)
+    protected function prepareHookUpdate(array $data, string $pk): void
     {
         if(!isPermission('user_update')) Route::ErrorPage(423);
     }
-    protected function prepareDelete($pk)
+    protected function prepareDelete(string $pk): void
     {
         if(!isPermission('user_delete')) Route::ErrorPage(423);
     }
-    protected function prepareRestore($pk)
+    protected function prepareRestore(string $pk): void
     {
         if(!isPermission('user_restore')) Route::ErrorPage(423);
     }
-    protected function prepareRemove($pk)
+    protected function prepareRemove(string $pk): void
     {
         if(!isPermission('user_remove')) Route::ErrorPage(423);
     }
@@ -48,7 +48,7 @@ class UserController extends Controller
 
     public function list()
     {
-        Route::isAuth();
+        $this->prepareAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
         $this->repo->as('u');
         $this->repo->Option("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
@@ -60,7 +60,7 @@ class UserController extends Controller
 
     public function changePassword(int $pk)
     {
-        Route::isAuth();
+        $this->prepareAuth();
         $object = $this->getElement($pk);
         if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
         $this->view('auth/user/passwordChange', array(
@@ -69,7 +69,7 @@ class UserController extends Controller
         ));
     }
 
-    private function permissionChangePassword($user)
+    private function permissionChangePassword($user): bool
     {
         if (isAdmin()) return true;
         else {
@@ -79,8 +79,8 @@ class UserController extends Controller
     }
 
     public function get(?int $pk)
-	{
-        Route::isAuth();
+    {
+        $this->prepareAuth();
         if($pk) {
             if (!isPermission('user_update')) Route::ErrorPage(423);
             $object = $this->getElement($pk);
@@ -93,7 +93,7 @@ class UserController extends Controller
             'groupList' => (new GroupRepository)->getAll(),
             'inputCsrf' => $this->csrfTokenGen()
         ));
-	}
+    }
 
     /*
     public function getPerm($pk = null)
@@ -110,5 +110,3 @@ class UserController extends Controller
 	}
     */
 }
-
-?>

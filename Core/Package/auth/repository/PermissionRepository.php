@@ -19,5 +19,3 @@ class PermissionRepository extends Repository
         if (!is_numeric($object)) $this->error($object);   
     }
 }
-
-?>

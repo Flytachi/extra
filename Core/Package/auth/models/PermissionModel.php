@@ -8,4 +8,3 @@ class PermissionModel extends Model
     public $description;
 }
 
-?>

@@ -2,8 +2,8 @@
 
 class __Install
 {
-    private $argument;
-    private $name;
+    private mixed $argument;
+    private mixed $name;
     private $path = "tools/libs";
 
     function __construct($value = null, $name = null)

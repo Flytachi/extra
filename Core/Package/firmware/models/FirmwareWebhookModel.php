@@ -8,5 +8,3 @@ class FirmwareWebhookModel extends Model
     public $enterprise_id;
     public $unique_key;
 }
-
-?>

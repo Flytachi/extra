@@ -13,7 +13,7 @@ class Repository
 
 
     protected string $table;
-    protected string $modelName = 'stdClass';
+    public string $modelName = 'stdClass';
     private array $CRD_SQL = [];
     private string $pk;
     private array $data;
@@ -36,14 +36,14 @@ class Repository
         unset($this->db);
     }
 
-    private function loader()
+    private function loader(): void
     {
         spl_autoload_register(function($class) {
             $class = explode("\\", $class);
 			if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
-				$file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/models/" . $class[1] . '.php';
+				$file = PATH_PLUGIN . "/Frame." . $class[0] . "/models/" . $class[1] . '.php';
 			} else {
-				$file = dirname(__FILE__, 3) . '/models/' . $class[0] . '.php';
+				$file = PATH_APP . '/models/' . $class[0] . '.php';
 			}
 			if (file_exists($file)) require $file;
         });

@@ -2,9 +2,8 @@
 
 class __Component
 {
-    private $argument;
-    private $name;
-    private $c = "";
+    private mixed $argument;
+    private mixed $name;
 
     function __construct($value = null, $name = null)
     {
@@ -13,25 +12,25 @@ class __Component
         $this->handle();
     }
 
-    private function handle()
+    private function handle(): void
     {
         if (!is_null($this->argument)) $this->resolution();
         else $this->help();
     }
 
-    private function resolution()
+    private function resolution(): void
     {
         if ($this->argument == "init") $this->init();
         elseif ($this->argument == "install") $this->install();
         else echo "\033[31m"." Не такого аргумента.\n";
     }
     
-    private function init()
+    private function init(): void
     {
         $this->init_components();        
     }
 
-    private function install()
+    private function install(): void
     {
         require dirname(__DIR__, 2) . '/Function/Console.php';
         $root = dirname(__DIR__, 4);
@@ -43,20 +42,20 @@ class __Component
             if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
             if (is_dir("$path/models")) multiCopy("$path/models", "$root/app/models");
             if (is_dir("$path/repository")) multiCopy("$path/repository", "$root/app/repository");
-            if (is_dir("$path/views")) multiCopy("$path/views", "$root/" . FOLDER_PUBLIC . "/views/$this->name");
-            if (is_dir("$path/static")) multiCopy("$path/static", "$root/" . FOLDER_PUBLIC . "/static/$this->name");
+            if (is_dir("$path/views")) multiCopy("$path/views", PATH_PUBLIC . "/views/$this->name");
+            if (is_dir("$path/static")) multiCopy("$path/static", PATH_PUBLIC . "/static/$this->name");
             echo "\033[32m". " Пакет $this->name успешно установлен!\n";
         } else {
             echo "\033[33m". " Пакет $this->name не существует!\n";
         }
     }
 
-    private function init_components()
+    private function init_components(): void
     {
         $this->change_dir(dirname(__DIR__)."/$this->path");
     }
 
-    private function change_dir(String $path, String $c_path = null)
+    private function change_dir(String $path, String $c_path = null): void
     {
         foreach (glob("$path/*") as $item) {
             if (is_dir($item)) {
@@ -76,13 +75,12 @@ class __Component
         }
     }
 
-    private function create_dir(String $path)
+    private function create_dir(String $path): void
     {
-
         if (!file_exists($path)) mkdir($path);
     }
 
-    private function create_file(String $path, String $code, String $sufix = "w")
+    private function create_file(String $path, String $code, String $sufix = "w"): void
     {
         if (!file_exists($path)) {
             $fp = fopen($path, $sufix);
@@ -91,7 +89,7 @@ class __Component
         }
     }
 
-    private function help()
+    private function help(): void
     {
         echo "\033[33m"." =======> Help <======= \n";
         echo "\033[33m"."  :init    -  Инициализация фреймфорка.\n";
@@ -100,5 +98,3 @@ class __Component
     }
 
 }
-
-?>

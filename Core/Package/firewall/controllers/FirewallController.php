@@ -5,59 +5,38 @@ use Extra\Src\Route;
 
 class FirewallController extends Controller
 {
+    public function prepareAuth(): void
+    {
+        Route::isAuthAdmin(1);
+    }
+
     public function index()
     {
-        Route::isAuthAdmin(1);
-        $this->render('firewall/main', array('confList' => array_keys(cfgGet())));
-    }
-
-    public function apache()
-    {
-        Route::isAuthAdmin(1);
-        $this->render('firewall/panel/form', array(
-            'settName' => 'APACHE',
-            'confList' => cfgGet()['APACHE']
+        $this->prepareAuth();
+        $this->render('firewall/main', array(
+            'confList' => array_keys(Warframe::$cfg)
         ));
     }
 
-    public function security()
+    public function get(string $confName)
     {
-        Route::isAuthAdmin(1);
+        $this->prepareAuth();
         $this->render('firewall/panel/form', array(
-            'settName' => 'SECURITY',
-            'confList' => cfgGet()['SECURITY']
-        ));
-    }
-
-    public function global_setting()
-    {
-        Route::isAuthAdmin(1);
-        $this->render('firewall/panel/form', array(
-            'settName' => 'GLOBAL_SETTING',
-            'confList' => cfgGet()['GLOBAL_SETTING']
-        ));
-    }
-
-    public function database()
-    {
-        Route::isAuthAdmin(1);
-        $this->render('firewall/panel/form', array(
-            'settName' => 'DATABASE',
-            'confList' => cfgGet()['DATABASE']
+            'settName' => $confName,
+            'confList' => Warframe::$cfg[$confName]
         ));
     }
 
     public function license()
     {
-        Route::isAuthAdmin(1);
-        $cfg = cfgGet();
+        $this->prepareAuth();
         $license = licenseKey();
         $this->render('firewall/panel/license', array(
             'device' => array(
-                'guard' => $cfg['SECURITY']['PRODUCT_GUARD'],
-                'host' => $cfg['SECURITY']['PRODUCT_HOST'],
-                'api' => $cfg['SECURITY']['PRODUCT_KEY'],
-                'firmware' => $cfg['SECURITY']['PRODUCT_FIRMWARE'],
+                'guard' => Warframe::$cfg['SECURITY']['PRODUCT_GUARD'],
+                'host' => Warframe::$cfg['SECURITY']['PRODUCT_HOST'],
+                'api' => Warframe::$cfg['SECURITY']['PRODUCT_KEY'],
+                'firmware' => Warframe::$cfg['SECURITY']['PRODUCT_FIRMWARE'],
                 'series' => motherboardSeries()
             ),
             'license' => ($license) ? array(
@@ -65,19 +44,20 @@ class FirewallController extends Controller
                 'licenseDateTo' => $license->licenseDateTo,
                 'motherboardSeries' => $license->motherboardSeries
             ) : null
-            
+
         ));
     }
 
-    public function liceseSpell()
+    public function licenseSpell()
     {
-        Route::isAuthAdmin(1);
+        $this->prepareAuth();
         if ($_FILES['license'] and $_FILES['license']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['license']['tmp_name'];
             $fileName = $_FILES['license']['name'];
             $fileSize = $_FILES['license']['size'];
 
-            $fileExtension = strtolower(end(explode(".", $fileName)));
+            $array = explode(".", $fileName);
+            $fileExtension = strtolower(end($array));
             if ($fileExtension === 'crt' and $fileSize <= 5000) {
                 if (move_uploaded_file($fileTmpPath, LICENSE_PATH_KEY)) {
                     Route::redirect();
@@ -88,8 +68,8 @@ class FirewallController extends Controller
 
     public function spell()
     {
-        Route::isAuthAdmin(1);
-        $cfgNew = cfgGet();
+        $this->prepareAuth();
+        $cfgNew = Warframe::$cfg;
         foreach ($_POST as $key => $value) {
             if (isset($cfgNew[$key])) $cfgNew[$key] = $value;
         }
@@ -105,25 +85,24 @@ class FirewallController extends Controller
 
     public function upgrade()
     {
-        $cfg = cfgGet();
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => $cfg['SECURITY']['PRODUCT_HOST'] . '/api/firmwareWebhook/giveLicense',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_POSTFIELDS =>'{
-            "key": "' . $cfg['SECURITY']['PRODUCT_KEY'] . '"
+            CURLOPT_URL => Warframe::$cfg['SECURITY']['PRODUCT_HOST'] . '/api/firmwareWebhook/giveLicense',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_POSTFIELDS =>'{
+            "key": "' . Warframe::$cfg['SECURITY']['PRODUCT_KEY'] . '"
         }',
-        CURLOPT_HTTPHEADER => array(
-            'Authorization: Bearer 5449jeo',
-            'Content-Type: application/json'
-        ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Bearer 5449jeo',
+                'Content-Type: application/json'
+            ),
         ));
 
         $response = json_decode(curl_exec($curl));
@@ -144,5 +123,3 @@ class FirewallController extends Controller
         } else $this->renderJsonError($response);
     }
 }
-
-?>

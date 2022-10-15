@@ -65,5 +65,3 @@ class FirmwareLicenseController extends Controller
         echo bin2hex(zlib_encode(json_encode($license), ZLIB_ENCODING_DEFLATE));
     }
 }
-
-?>

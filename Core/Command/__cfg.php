@@ -45,13 +45,13 @@ class __Cfg
         $this->handle();
     }
 
-    public function handle()
+    public function handle(): void
     {
         if (!is_null($this->argument)) $this->resolution();
         else $this->help();
     }
 
-    private function resolution()
+    private function resolution(): void
     {
         if ($this->argument == "init") $this->init();
         elseif ($this->argument == "gen") $this->generate();
@@ -62,11 +62,11 @@ class __Cfg
         else echo "\033[31m"." Не такого аргумента.\n";
     }
 
-    private function init()
+    private function init(): void
     {
         if(file_exists(CFG_PATH_OPEN)) {
             echo "\033[33m". " " . basename(CFG_PATH_OPEN) . " уже существует!\n";
-            return 0;
+            return;
         }
         $root = dirname(__DIR__, 4) . '/';
         $this->default_configurations['APACHE']['SERVER_ALIAS'] = basename($root);
@@ -76,10 +76,11 @@ class __Cfg
         $fp = fopen(CFG_PATH_OPEN, "x");
         fwrite($fp, $this->arrayToIni($this->default_configurations));
         fclose($fp);
+        chmod(CFG_PATH_OPEN, 0777);
         echo "\033[32m". " " . basename(CFG_PATH_OPEN) . " сгенерирован успешно!\n";
     }
 
-    private function generate()
+    private function generate(): void
     {
         if (file_exists(CFG_PATH_OPEN)) {
             $sett = parse_ini_file(CFG_PATH_OPEN, true);
@@ -97,7 +98,7 @@ class __Cfg
         }
     }
 
-    private function edit()
+    private function edit(): void
     {
         if (file_exists(CFG_PATH_CLOSE)) {
             $cfg = $this->arrayToIni(cfgGet());
@@ -111,7 +112,7 @@ class __Cfg
         }
     }
 
-    private function show()
+    private function show(): void
     {
         if (file_exists(CFG_PATH_CLOSE)) {
             print_r($this->arrayToIni(cfgGet()));
@@ -120,43 +121,40 @@ class __Cfg
         }
     }
 
-    private function apache()
+    private function apache(): void
     {
         $file = dirname(__DIR__) . '/Template/Server/apache';
         $errors = "";
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
-            $dir = dirname(__DIR__, 4) . '/';
             $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
             $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
             $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
             $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
-            $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
-            $template = str_replace("__DIR__", $dir, $template);
-            $fp = fopen($dir . FOLDER_APP . '/apache.conf', "w");
+            $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
+            $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
+            $fp = fopen(PATH_APP . '/apache.conf', "w");
             fwrite($fp, $template);
             fclose($fp);
             echo "\033[32m". " Apache конфигурация сгенерирована успешно!\n";
         } else echo "Configuration file not found.\n";
     }
 
-    private function ssl()
+    private function ssl(): void
     {
         $file = dirname(__DIR__) . '/Template/Server/apache-ssl';
-        $errors = "";
         if (!is_dir('ssl')) mkdir('ssl');
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
             if ($ini['SSL']['MODE_ON']) {
-                $dir = dirname(__DIR__, 4) . '/';
                 $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
                 $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
                 $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
                 $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
-                $template = str_replace("__ROOT__", $dir . FOLDER_PUBLIC . '/', $template);
-                $template = str_replace("__DIR__", $dir, $template);
-                $fp = fopen($dir . FOLDER_APP . '/apache-ssl.conf', "w");
+                $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
+                $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
+                $fp = fopen(PATH_APP . '/apache-ssl.conf', "w");
                 fwrite($fp, $template);
                 fclose($fp);
 
@@ -173,7 +171,7 @@ class __Cfg
     }
     
 
-    private function help()
+    private function help(): void
     {
         echo "\033[33m"." =======> Help <======= \n";
         echo "\033[33m"."  :init     -  Создать файл настроек.\n";
@@ -186,7 +184,7 @@ class __Cfg
         echo "\033[33m"." =======> Help <======= \n";
     }
 
-    private function arrayToIni(Array $a, Array $parent = array()): String
+    private function arrayToIni(Array $a, Array $parent = array()): string
     {
         $out = '';
         foreach ($a as $k => $v)
@@ -209,5 +207,3 @@ class __Cfg
     }
 
 }
-
-?>

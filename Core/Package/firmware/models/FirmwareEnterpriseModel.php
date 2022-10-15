@@ -10,5 +10,3 @@ class FirmwareEnterpriseModel extends Model
     public $is_delete;
     public $create_date;
 }
-
-?>

@@ -1,6 +1,6 @@
 <?php
 
-function multiCopy($source, $dest, $over=false)
+function multiCopy($source, $dest, $over=false): void
 {
     if(!is_dir($dest)) mkdir($dest);
     if($handle = opendir($source))
@@ -45,5 +45,3 @@ function licenseKey(): object|null
         return json_decode(zlib_decode(hex2bin($data)));
     } else return null;
 }
-
-?>

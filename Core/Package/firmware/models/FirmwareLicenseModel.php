@@ -11,5 +11,3 @@ class FirmwareLicenseModel extends Model
     public $date_to;
     public $is_delete;
 }
-
-?>

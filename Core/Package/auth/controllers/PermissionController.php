@@ -7,10 +7,10 @@ use Extra\Src\Wrapper;
 class PermissionController extends Controller
 {
     public bool $onHook = true;
-	public bool $onAuthHook = true;
+    public bool $onAuthHook = true;
 
-	public bool $onRemove = true;
-	public bool $onAuthRemove = true;
+    public bool $onRemove = true;
+    public bool $onAuthRemove = true;
 
     protected function prepareAuth(): void
     {
@@ -25,16 +25,16 @@ class PermissionController extends Controller
 
     public function list()
     {
-        Route::isAuthAdmin();
+        $this->prepareAuth();
         $this->repo->Limit(10);
         $this->view('auth/permission/table', Wrapper::paginator($this->repo));
     }
 
     public function get(?string $pk)
-	{
-        Route::isAuthAdmin();
+    {
+        $this->prepareAuth();
         if($pk) {
-            $object = $this->repo->getBy(array('name'=> $pk));   
+            $object = $this->repo->getBy(array('name'=> $pk));
             if ($object) $this->repo->setData($object);
             else Route::ErrorPage(404);
         }
@@ -43,7 +43,7 @@ class PermissionController extends Controller
             'model' => $object ?? new $this->repo->modelName,
             'inputCsrf' => $this->csrfTokenGen()
         ));
-	}
+    }
 
     public function remove(string $pk): void
     {
@@ -56,9 +56,7 @@ class PermissionController extends Controller
 
             $this->repo->delete($pk);
             $this->renderJsonSuccess($pk);
-            
+
         } else Route::ErrorPage(404);
     }
 }
-
-?>

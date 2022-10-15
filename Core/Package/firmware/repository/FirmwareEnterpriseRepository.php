@@ -7,5 +7,3 @@ class FirmwareEnterpriseRepository extends Repository
     public string $table = 'firmware_enterprises';
     public string $modelName = 'FirmwareEnterpriseModel';
 }
-
-?>

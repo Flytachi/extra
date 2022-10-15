@@ -2,6 +2,7 @@
 
 namespace Extra\Src;
 
+use Exception;
 use METHOD;
 
 abstract class Controller 
@@ -10,12 +11,12 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 6.1
+     * @version 7.0
      */
 
 
     public Repository $repo;
-    public $template = VIEW_TEMPLATE;
+    public string $template = VIEW_TEMPLATE;
     protected bool $onHook = false;
     protected bool $onAuthHook = false;
 
@@ -33,7 +34,6 @@ abstract class Controller
 
     final function __construct()
     {
-        $this->loader();
         $repoName = str_replace('Controller', 'Repository', get_class($this));
         if (class_exists($repoName)) $this->repo = new $repoName;
     }
@@ -41,19 +41,6 @@ abstract class Controller
     final function __call($name, $arguments)
     {
         Route::ErrorPage(404);
-    }
-
-    private function loader()
-    {
-        spl_autoload_register(function($class) {
-            $class = explode("\\", $class);
-            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
-                $file = dirname(__FILE__, 4) . '/' . FOLDER_PLUGIN . "/Frame." . $class[0] . "/repository/" . $class[1] . '.php';
-            } else {
-                $file = dirname(__FILE__, 3) . '/repository/' . $class[0] . '.php';
-            }
-            if (file_exists($file)) require $file;
-        });
     }
 
     final protected function method(METHOD ...$methods): void
@@ -66,9 +53,9 @@ abstract class Controller
 
     final protected function csrfTokenChange(): void
     {
-        if ((isset($_SESSION['CSRFTOKEN']) and isset($_POST['csrf_token']) and hash_equals($_SESSION['CSRFTOKEN'], $_POST['csrf_token']))) {
+        if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
 
-            unset($_SESSION['CSRFTOKEN']);
+            unset($_SESSION['CSRF_TOKEN']);
             unset($_POST['csrf_token']);
     
         } else Route::ErrorPage(419);
@@ -76,9 +63,13 @@ abstract class Controller
 
     final protected function csrfTokenGen(): string
     {
-        $token = bin2hex(random_bytes(24));
-        $_SESSION['CSRFTOKEN'] =  $token;
-        return "<input type=\"hidden\" name=\"csrf_token\" value=\"$token\">";
+        try {
+            $token = bin2hex(random_bytes(24));
+            $_SESSION['CSRF_TOKEN'] =  $token;
+            return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . $token . "\">";
+        } catch (Exception) {
+        }
+
     }
 
     final protected function getElement($pk): mixed
@@ -92,20 +83,20 @@ abstract class Controller
     {
         $uploadFolder = str_replace('Controller', '', get_class($this));
         // $uploadDir = PATH_MEDIA . $uploadFolder;
-        if( !is_dir(PATH_MEDIA . $uploadFolder) ) mkdir(PATH_MEDIA . $uploadFolder, 0777);
+        if( !is_dir(PATH_MEDIA . $uploadFolder) ) mkdir(PATH_MEDIA . $uploadFolder);
 
         if ( $file['name'] ) {
             // Upload File
             if ($file['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $file['tmp_name'];
                 $fileSize = $file['size'];
-                $fileNameCmps = explode(".", $file['name']);
-                $fileExtension = strtolower(end($fileNameCmps));
+                $fileNameCms = explode(".", $file['name']);
+                $fileExtension = strtolower(end($fileNameCms));
                 $newFileName = sha1(time() . $file['name']) . '.' . $fileExtension;
                 // $fileType = $file['type'];
 
                 // File size
-                if (!$this->uploadFileSize or ($this->uploadFileSize and $this->uploadFileSize < $fileSize) ) {
+                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize) {
                     Route::ErrorResponseJson(array(
                         'status' => 'error',
                         'message' => 'Error file is too big!'
@@ -113,7 +104,7 @@ abstract class Controller
                 }
         
                 // File format
-                if (empty($this->uploadFileFormat) or ($this->uploadFileFormat and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
+                if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
                     else{
@@ -279,15 +270,13 @@ abstract class Controller
         Route::isAuth();
     }
 
-    protected function prepareHook(array $data, string $pk = null) {}
-    protected function prepareHookUpdate(array $data, string $pk) {}
-    protected function prepareHookSave(array $data) {}
-    protected function prepareDelete(string $pk) {}
-    protected function prepareRestore(string $pk) {}
-    protected function prepareRemove(string $pk) {}
+    protected function prepareHook(array $data, string $pk = null): void {}
+    protected function prepareHookUpdate(array $data, string $pk): void {}
+    protected function prepareHookSave(array $data): void {}
+    protected function prepareDelete(string $pk): void {}
+    protected function prepareRestore(string $pk): void {}
+    protected function prepareRemove(string $pk): void {}
     /*
     ---------------------------------------------
     */
 }
-
-?>

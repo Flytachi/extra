@@ -22,5 +22,3 @@ class UserPermissionRepository extends Repository
         else return false;
     }
 }
-
-?>

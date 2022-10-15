@@ -7,5 +7,3 @@ class FirmwareLicenseRepository extends Repository
     public string $table = 'firmware_licenses';
     public string $modelName = 'FirmwareLicenseModel';
 }
-
-?>

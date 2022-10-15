@@ -7,6 +7,7 @@ class __Base
     private String $db_charset = "utf8";
     private String $db_user = "root";
     private String $db_password = "root";
+    private string $db_login;
 
     function __construct(string $db_login = null, string $db_password = null)
     {
@@ -17,14 +18,14 @@ class __Base
         }else $this->handle();
     }
 
-    private function handle()
+    private function handle(): void
     {
         echo "\033[33m"." Требуется 2 аргумента \"base:1 2\"\n";
         echo "\033[33m"." 1 => Логин пользователя от базы данных.\n";
         echo "\033[33m"." 2 => Пароль пользователя от базы данных.\n";
     }
 
-    private function create()
+    private function create(): void
     {
         $ini = cfgGet();
 
@@ -46,11 +47,9 @@ class __Base
             $rootDB->exec("FLUSH PRIVILEGES;");
             echo "\033[32m"." Пользователь и база данных успешно созданы.\n";
 
-        } catch (\PDOException $e) {
+        } catch (PDOException) {
             echo "\033[31m"." Ошибка в скрипте.\n";       
             // die($e);
         }
     }
 }
-
-?>

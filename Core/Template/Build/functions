@@ -5,5 +5,3 @@ function isPermission(string $name): bool
     if (isAdmin()) return true;
     else return (new UserPermissionRepository)->getPermission($name); 
 }
-
-?>

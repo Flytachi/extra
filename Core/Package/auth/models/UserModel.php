@@ -10,5 +10,3 @@ class UserModel extends Model
     public $is_admin;
     public $is_delete;
 }
-
-?>

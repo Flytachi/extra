@@ -35,5 +35,3 @@ class _ControllerIndex_ extends Controller
         */
 	}
 }
-
-?>

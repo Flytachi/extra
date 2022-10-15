@@ -13,5 +13,3 @@ class FirmwareWebhookController extends Controller
         Route::isAuthAdmin();
     }
 }
-
-?>

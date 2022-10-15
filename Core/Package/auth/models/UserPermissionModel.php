@@ -8,5 +8,3 @@ class UserPermissionModel extends Model
     public $user_id;
     public $name;
 }
-
-?>

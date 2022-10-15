@@ -1,9 +1,11 @@
 <?php
 
+use Extra\Src\CDO;
+
 class __Seed
 {
     protected String $name;
-    private String $path_data_seed = FOLDER_APP . "/dist/data";
+    private String $path_data_seed = PATH_APP . "/dist/data";
     private String $path_cdo = "/Src/CDO.class.php";
     private String $format = "json"; 
     private Array $json = array();
@@ -28,7 +30,7 @@ class __Seed
     {
         require dirname(__DIR__, 2) . $this->path_cdo;
         $ini = cfgGet();
-        $db = new \Extra\Src\CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
 
         if ($db->query("SHOW TABLES LIKE '$this->name';")->rowCount()) {
             foreach ($db->query("SELECT * FROM $this->name") as $value) {
@@ -48,5 +50,3 @@ class __Seed
         return fclose($file);
     }
 }
-
-?>

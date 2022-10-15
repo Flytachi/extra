@@ -66,5 +66,3 @@ class UserRepository extends Repository
         $this->info();
     }
 }
-
-?>

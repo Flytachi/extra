@@ -9,5 +9,3 @@ class ApiModel extends Model
     public $username;
     public $password;
 }
-
-?>
