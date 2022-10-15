@@ -1,9 +1,11 @@
 <?php
 
 use Extra\Src\Model;
+use Extra\Src\ModelIterator;
 
 class _ModelIndex_ extends Model
 {
-    public int $id;
-    public int $is_delete;
+    use ModelIterator;
+    private int|null $id = null;
+    private int $is_delete = 0;
 }
