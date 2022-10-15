@@ -72,7 +72,7 @@ abstract class Controller
 
     }
 
-    final protected function getElement($pk): mixed
+    final protected function getElement($pk): Model
     {
         $object = $this->repo->getById($pk);
         if ($object) return $object;
@@ -141,16 +141,14 @@ abstract class Controller
         if ($this->onAuthHook === true) $this->prepareAuth();
         if ($this->onHook === false) Route::ErrorPage(404);
         if (empty($_POST)) Route::ErrorPage(400);
-        $this->csrfTokenChange();
-
-        $this->prepareHook($_POST, $pk);
-
+        // $this->csrfTokenChange();
+        
         if ( $pk ) {
-            $this->prepareHookUpdate($_POST, $pk);
-            $result = $this->repo->update($pk, $_POST);
+            $object = $this->prepareHookUpdate($_POST, $pk);
+            $result = $this->repo->update($pk, $object);
         } else {
-            $this->prepareHookSave($_POST);
-            $result = $this->repo->save($_POST);
+            $object = $this->prepareHookSave($_POST);
+            $result = $this->repo->save($object);
         }
         $this->renderJsonSuccess($result);
     }
@@ -164,10 +162,10 @@ abstract class Controller
         $this->prepareDelete($pk);
 
         if ($this->repo->getById($pk)) {
-
-            $this->repo->update($pk, array('is_delete' => true));
-            $this->renderJsonSuccess($pk);
-            
+            $object = $this->repo->getById($pk);
+            $object->setNewObject(array('is_delete' => 1));
+            $result = $this->repo->update($pk, $object);
+            $this->renderJsonSuccess($result);
         } else Route::ErrorPage(404);
     }
 
@@ -180,10 +178,10 @@ abstract class Controller
         $this->prepareRestore($pk);
 
         if ($this->repo->getById($pk)) {
-
-            $this->repo->update($pk, array('is_delete' => false));
-            $this->renderJsonSuccess($pk);
-            
+            $object = $this->repo->getById($pk);
+            $object->setNewObject(array('is_delete' => 0));
+            $result = $this->repo->update($pk, $object);
+            $this->renderJsonSuccess($result);
         } else Route::ErrorPage(404);
     }
 
@@ -270,9 +268,16 @@ abstract class Controller
         Route::isAuth();
     }
 
-    protected function prepareHook(array $data, string $pk = null): void {}
-    protected function prepareHookUpdate(array $data, string $pk): void {}
-    protected function prepareHookSave(array $data): void {}
+    protected function prepareHookUpdate(array $data, string $pk): Model
+    {
+        $object = $this->getElement($pk);
+        $object->setNewObject($data);
+        return $object;
+    }
+    protected function prepareHookSave(array $data): Model
+    {
+        return new $this->repo->modelName($data);
+    }
     protected function prepareDelete(string $pk): void {}
     protected function prepareRestore(string $pk): void {}
     protected function prepareRemove(string $pk): void {}

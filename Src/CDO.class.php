@@ -4,6 +4,7 @@ namespace Extra\Src;
 
 use PDO;
 use PDOException;
+use ReflectionClass;
 
 class CDO extends PDO
 {
@@ -38,12 +39,13 @@ class CDO extends PDO
         }
     }
 
-    final public function insert(string $table, array $post): string|false
+    final public function insert(string $table, Model $model): string|false
     {
-        $col = implode(",", array_keys($post));
-        $val = ":".implode(", :", array_keys($post));
+        $array = objectToArray($model);
+        $col = implode(",", array_keys($array));
+        $val = ":".implode(", :", array_keys($array));
         try{
-            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($post);
+            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
             return $this->lastInsertId();
         }
         catch (PDOException $ex) {
@@ -52,12 +54,12 @@ class CDO extends PDO
         }
     }
 
-    final public function update(string $table, array $post, int|string|array $pk): int|string
+    final public function update(string $table, Model $model, int|string|array $pk): int|string
     {
-        // Set
+        $array = objectToArray($model);
         $set = "";
-        foreach ($post as $key => $value) {
-            $post["S_$key"] = $value; unset($post[$key]);
+        foreach ($array as $key => $value) {
+            $array["S_$key"] = $value; unset($array[$key]);
             $set .= ", `$key`=:S_$key";
         }
 
@@ -68,11 +70,10 @@ class CDO extends PDO
             $pk["W_$key"] = $value; unset($pk[$key]);
             $where .= " AND `$key`=:W_$key";
         }
-
         // Send
         try {
             $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
-            $stm->execute([...$pk, ...$post]);
+            $stm->execute([...$pk, ...$array]);
             return $stm->rowCount();
         } catch (PDOException $ex) {
             return ($this->debug) ? $ex->getMessage() : "Ошибка обновления элемента.";
@@ -118,21 +119,5 @@ class CDO extends PDO
         }
         return $value;
     }
-
-    static function cleanForm(array $array): array
-    {
-        foreach ($array as $key => $value) {
-            if (!is_null($value)) $array[$key] = CDO::clean($value);
-        }
-        return $array;
-    }
-
-    static function toNull(array $array): array
-    {
-        foreach ($array as $key => $value) {
-            if(!$value) $array[$key] = null;
-        }
-        return $array;
-    }
-
+    
 }

@@ -17,6 +17,7 @@ class Repository
     private array $CRD_SQL = [];
     private string $pk;
     private array $data;
+    private Model $model;
     public CDO $db;
     private bool $CRD_debug;
     
@@ -73,9 +74,19 @@ class Repository
         return $this->pk;
     }
 
-    final public function setData(array|object $data): void
+    public function setData(array|object $data): void
     {
         $this->data = (array) $data;
+    }
+
+    public function setModel(Model $model): void
+    {
+        $this->model = $model;
+    }
+
+    public function getModel(): Model
+    {
+        return $this->model;
     }
 
     final public function getData(string $item = ''): mixed
@@ -348,9 +359,9 @@ class Repository
     ---------------------------------------------
     */
 
-    final public function save(array|object $data): string
+    final public function save(Model $model): string
     {
-        $this->setData($data);
+        $this->setModel($model);
         $this->saveBefore();
         $this->saveBody();
         $this->saveAfter();
@@ -360,12 +371,11 @@ class Repository
     public function saveBefore(): void
     {
         $this->db->beginTransaction();
-        $this->setData(CDO::cleanForm($this->getData()));
     }
 
     public function saveBody(): void
     {
-        $object = $this->db->insert($this->table, $this->getData());
+        $object = $this->db->insert($this->table, $this->getModel());
         if (!is_numeric($object)) $this->error($object);
         $this->setPk($object);
     }
@@ -375,10 +385,10 @@ class Repository
         $this->db->commit();
     }
 
-    final public function update(string $pk, array|object $data): string
+    final public function update(string $pk, Model $model): string
     {
         $this->setPk($pk);
-        $this->setData($data);
+        $this->setModel($model);
         $this->updateBefore();
         $this->updateBody();
         $this->updateAfter();
@@ -388,12 +398,11 @@ class Repository
     public function updateBefore(): void
     {
         $this->db->beginTransaction();
-        $this->setData(CDO::cleanForm($this->getData()));
     }
 
     public function updateBody(): void
     {
-        $object = $this->db->update($this->table, $this->getData(), $this->getPk());
+        $object = $this->db->update($this->table, $this->getModel(), $this->getPk());
         if (!is_numeric($object)) $this->error($object);
     }
 
