@@ -10,8 +10,8 @@ class UserPermissionRepository extends Repository
     public function getAllPermission($pk = null) : array
     {
         $permission = [];
-        $this->Where(array('user_id' => $pk ?? $_SESSION['id']));
-        foreach ($this->getAll() as $value) $permission[] = $value->name;
+        $this->Where(['user_id' => $pk ?? $_SESSION['id']]);
+        foreach ($this->getAll() as $value) $permission[] = $value->getName();
         return $permission;
     }
 

@@ -2,6 +2,7 @@
 
 use Extra\Src\Controller;
 use Extra\Src\Route;
+use Extra\Src\Model;
 use Extra\Src\Wrapper;
 
 class GroupController extends Controller
@@ -15,6 +16,16 @@ class GroupController extends Controller
     protected function prepareAuth(): void
     {
         Route::isAuthAdmin();
+    }
+    protected function prepareHookSaveBefore(array $post): Model
+    {
+        if(isset($post['permission'])) unset($post['permission']);
+        return parent::prepareHookSaveBefore($post);
+    }
+    protected function prepareHookUpdateBefore(array $post, string $pk): Model
+    {
+        if(isset($post['permission'])) unset($post['permission']);
+        return parent::prepareHookUpdateBefore($post, $pk);
     }
 
     public function index()
@@ -34,12 +45,13 @@ class GroupController extends Controller
     {
         $this->prepareAuth();
         if($pk) $object = $this->getElement($pk);
+        else $object = new $this->repo->modelName;
 
         $this->view('auth/group/form', array(
-            'model' => $object ?? new $this->repo->modelName,
+            'model' => formObject($object),
             'permissionList' => (new PermissionRepository)->getAll(),
             'permission' => ($pk) ? (new GroupPermissionRepository)->getAllPermission($pk) : [],
-            'inputCsrf' => $this->csrfTokenGen()
+            'inputCsrf' => $this->csrfTokenInput()
         ));
     }
 }

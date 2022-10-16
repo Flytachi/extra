@@ -9,13 +9,13 @@
     <tbody>
         <?php foreach($table as $row): ?>
             <tr>
-                <td><?= $row->name ?></td>
-                <td><?= $row->description ?></td>
+                <td><?= $row->getName() ?></td>
+                <td><?= $row->getDescription() ?></td>
                 <td>
-                    <button onclick="checkModal('/permission/get/<?= $row->name ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/permission/get/<?= $row->getName() ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <button onclick="AjaxQuery('/permission/remove/<?= $row->name ?>')" type="button" class="warframe_btn" title="Удалить">
+                    <button onclick="AjaxQuery('/permission/remove/<?= $row->getName() ?>')" type="button" class="warframe_btn" title="Удалить">
                         Remove
                     </button>
                 </td>

@@ -2,6 +2,8 @@
 
 namespace Extra\Src;
 
+use TypeError;
+
 trait ModelIterator
 {
     public function __construct(array $data = null)

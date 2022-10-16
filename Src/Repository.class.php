@@ -74,11 +74,6 @@ class Repository
         return $this->pk;
     }
 
-    public function setData(array|object $data): void
-    {
-        $this->data = (array) $data;
-    }
-
     public function setModel(Model $model): void
     {
         $this->model = $model;
@@ -87,21 +82,6 @@ class Repository
     public function getModel(): Model
     {
         return $this->model;
-    }
-
-    final public function getData(string $item = ''): mixed
-    {
-        return ($item) ? ($this->data[$item] ?? '') : $this->data;
-    }
-
-    final public function setDataItem(string $item, $value = null): void
-    {
-        $this->data[$item] = $value;
-    }
-
-    final public function deleteDataItem(string $item): void
-    {
-        unset($this->data[$item]);
     }
     
     /*

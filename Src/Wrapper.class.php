@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use TypeError;
+
 class Wrapper
 {
     /**
      * 
      * Wrapper
      * 
-     * @version 3.0
+     * @version 3.1
      */
 
     static int $totalPages;
@@ -16,6 +18,7 @@ class Wrapper
     
     static function paginator(Repository $repo, string $func = 'getAll'): array
     {
+        if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         return array(
             'table' => $repo->{$func}(),
             'panel' => Wrapper::panel($repo)

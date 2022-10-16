@@ -1,6 +1,7 @@
 <?php
 
 use Extra\Src\Controller;
+use Extra\Src\Model;
 use Extra\Src\Route;
 use Extra\Src\Wrapper;
 
@@ -18,25 +19,38 @@ class UserController extends Controller
     public bool $onRemove = true;
     public bool $onAuthRemove = true;
 
-    protected function prepareHookSave(array $data): void
+    protected function prepareHookSaveBefore(array $post): Model
     {
         if(!isPermission('user_create')) Route::ErrorPage(423);
+        if(isset($post['info'])) unset($post['info']);
+        if(isset($post['password'])) {
+            $post['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
+        }
+        return parent::prepareHookSaveBefore($post);
     }
-    protected function prepareHookUpdate(array $data, string $pk): void
+    protected function prepareHookUpdateBefore(array $post, string $pk): Model
     {
         if(!isPermission('user_update')) Route::ErrorPage(423);
+        if(isset($post['info'])) unset($post['info']);
+        if(isset($post['password'])) {
+            $post['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
+        }
+        return parent::prepareHookUpdateBefore($post, $pk);
     }
-    protected function prepareDelete(string $pk): void
+    protected function prepareDeleteBefore(string $pk): Model
     {
         if(!isPermission('user_delete')) Route::ErrorPage(423);
+        return parent::prepareDeleteBefore($pk);
     }
-    protected function prepareRestore(string $pk): void
+    protected function prepareRestoreBefore(string $pk): Model
     {
         if(!isPermission('user_restore')) Route::ErrorPage(423);
+        return parent::prepareRestoreBefore($pk);
     }
-    protected function prepareRemove(string $pk): void
+    protected function prepareRemoveBefore(string $pk): void
     {
         if(!isPermission('user_remove')) Route::ErrorPage(423);
+        parent::prepareRemoveBefore($pk);
     }
 
     public function index()
@@ -64,8 +78,8 @@ class UserController extends Controller
         $object = $this->getElement($pk);
         if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
         $this->view('auth/user/passwordChange', array(
-            'model'=> $object,
-            'inputCsrf' => $this->csrfTokenGen()
+            'model'=> formObject($object),
+            'inputCsrf' => $this->csrfTokenInput()
         ));
     }
 
@@ -73,8 +87,7 @@ class UserController extends Controller
     {
         if (isAdmin()) return true;
         else {
-            if($user->id == $_SESSION['id']) return true;
-            else return false;
+            return $user->getId() == $_SESSION['id'] ? true : false;
         }
     }
 
@@ -84,29 +97,19 @@ class UserController extends Controller
         if($pk) {
             if (!isPermission('user_update')) Route::ErrorPage(423);
             $object = $this->getElement($pk);
+            $info = (new UserInfoRepository)->isUser($pk);
+            if(!$info) $info = new UserInfoModel;
         } else {
             if (!isPermission('user_create')) Route::ErrorPage(423);
+            $object = new $this->repo->modelName;
+            $info = new UserInfoModel;
         }
         $this->view('auth/user/form', array(
-            'model' => $object ?? new $this->repo->modelName,
-            'userInfo' => (new UserInfoRepository)->isUser($pk),
+            'model' => formObject($object),
+            'userInfo' => formObject($info),
             'groupList' => (new GroupRepository)->getAll(),
-            'inputCsrf' => $this->csrfTokenGen()
+            'inputCsrf' => $this->csrfTokeninput()
         ));
     }
 
-    /*
-    public function getPerm($pk = null)
-	{
-        Route::isAuth();
-        if(!(isPermission('user_create') or isPermission('user_update'))) Route::ErrorPage(423);
-        if($pk) $this->getElement($pk);
-        $this->view('user/form', array(
-            'model' => $this->model,
-            'userInfo' => (new UserInfoModel)->isUser($pk),
-            'permissionList' => (new PermissionModel)->list(),
-            'permission' => ($pk) ? (new UserPermissionModel)->getAllPermission($pk) : [],
-        ));
-	}
-    */
 }

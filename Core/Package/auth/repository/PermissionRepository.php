@@ -9,7 +9,7 @@ class PermissionRepository extends Repository
  
     public function updateBody(): void
     {
-        $object = $this->db->update($this->table, $this->getData(), array('name' => $this->getPk()));
+        $object = $this->db->update($this->table, $this->getModel(), array('name' => $this->getPk()));
         if (!is_numeric($object)) $this->error($object);
     }
 

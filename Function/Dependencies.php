@@ -54,15 +54,31 @@ function objectToArray(object $object): array
         $property->setAccessible(true);
         if (strpos((string) $property->getType(), '?') !== false) {
             $value = ($property->getValue($object)) ? $property->getValue($object) : null;
-        }else {
-            $value = $property->getValue($object);
-        }
+        }else $value = $property->getValue($object);
         $array[$property->getName()] = $value;
         $property->setAccessible(false);
     }
     return $array;
 }
 
+function formObject(object $object): object
+{
+    $reflectionClass = new ReflectionClass(get_class($object));
+    $array = array();
+    foreach ($reflectionClass->getProperties() as $property) {
+        $property->setAccessible(true);
+        try {
+            if (strpos((string) $property->getType(), '?') !== false) {
+                $value = ($property->getValue($object)) ? $property->getValue($object) : null;
+            }else $value = $property->getValue($object);
+        } catch (Error) {
+            $value = null;
+        }
+        $array[$property->getName()] = $value;
+        $property->setAccessible(false);
+    }
+    return (object) $array;
+}
 // *******************
 // * Imports
 // *******************

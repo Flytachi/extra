@@ -10,8 +10,8 @@ class GroupPermissionRepository extends Repository
     public function getAllPermission($pk): array
     {
         $permission = [];
-        $this->Where(array('group_id' => $pk));
-        foreach ($this->getAll() as $value) $permission[] = $value->permission;
+        $this->Where(['group_id' => $pk]);
+        foreach ($this->getAll() as $value) $permission[] = $value->getPermission();
         return $permission;
     }
 }

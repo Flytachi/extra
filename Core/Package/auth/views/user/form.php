@@ -8,20 +8,20 @@
         <input type="text" id="inp-name" name="info[name]" value="<?= $userInfo->name ?? null ?>" placeholder="Введите имя пользователя" required>
 
         <label for="inp-username">Логин</label>
-        <input type="text" id="inp-username" name="username" value="<?= $model->username ?>" placeholder="Введите логин" required>
+        <input type="text" id="inp-username" name="username" value="<?= $model->username?? null ?>" placeholder="Введите логин" required>
 
-        <?php if(!$model->id): ?>
+        <?php if(is_null($model->id)): ?>
             <label for="inp-password">Пароль</label>
             <input type="password" id="inp-password" name="password" placeholder="Введите пароль" required>
         <?php endif; ?>
 
-        <?php if(isAdmin() and !$model->is_admin): ?>
+        <?php if(isAdmin() and $model->is_admin == 0): ?>
 
             <label for="inp-group_id">Группа</label>
             <select id="inp-group_id" name="info[group_id]" placeholder="Выберите группу" required>
                 <option></option>
                 <?php foreach($groupList as $row): ?>
-                    <option value="<?= $row->id ?>" <?php if($row->id == ($userInfo->group_id ?? 0)) echo 'selected' ?>><?= $row->name ?></option>
+                    <option value="<?= $row->getId() ?>" <?php if($row->getId() == ($userInfo->group_id ?? 0)) echo 'selected' ?>><?= $row->getName() ?></option>
                 <?php endforeach; ?>
             </select>
 

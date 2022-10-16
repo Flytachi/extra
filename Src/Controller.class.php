@@ -11,12 +11,14 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 7.0
+     * @version 7.5
      */
 
 
     public Repository $repo;
     public string $template = VIEW_TEMPLATE;
+    protected array $storage = [];
+
     protected bool $onHook = false;
     protected bool $onAuthHook = false;
 
@@ -43,9 +45,9 @@ abstract class Controller
         Route::ErrorPage(404);
     }
 
-    final protected function method(METHOD ...$methods): void
+    final protected function method(METHOD ...$allowMethods): void
     {
-        foreach ($methods as $method) {
+        foreach ($allowMethods as $method) {
             if($method->name === $_SERVER['REQUEST_METHOD']) return;
         }
         Route::ErrorPage(405);
@@ -53,23 +55,24 @@ abstract class Controller
 
     final protected function csrfTokenChange(): void
     {
-        if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
-
+        if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and
+                hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
             unset($_SESSION['CSRF_TOKEN']);
             unset($_POST['csrf_token']);
-    
         } else Route::ErrorPage(419);
     }
 
     final protected function csrfTokenGen(): string
     {
-        try {
-            $token = bin2hex(random_bytes(24));
-            $_SESSION['CSRF_TOKEN'] =  $token;
-            return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . $token . "\">";
-        } catch (Exception) {
-        }
+        $token = bin2hex(random_bytes(24));
+        $_SESSION['CSRF_TOKEN'] = $token;
+        return $token;
+    }
 
+    final protected function csrfTokenInput(): string
+    {
+        $token = $this->csrfTokenGen();
+        return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . $token . "\">";
     }
 
     final protected function getElement($pk): Model
@@ -137,54 +140,54 @@ abstract class Controller
     */
     public function hook(string $pk = null): void
     {
-        $this->method(METHOD::POST);
-        if ($this->onAuthHook === true) $this->prepareAuth();
         if ($this->onHook === false) Route::ErrorPage(404);
+        if ($this->onAuthHook === true) $this->prepareAuth();
+
+        $this->method(METHOD::POST);
         if (empty($_POST)) Route::ErrorPage(400);
 
-        $this->csrfTokenChange();
-        
         if ( $pk ) {
-            $object = $this->prepareHookUpdate($_POST, $pk);
+            $object = $this->prepareHookUpdateBefore($_POST, $pk);
             $result = $this->repo->update($pk, $object);
+            $this->prepareHookUpdateAfter($object, $result);
         } else {
-            $object = $this->prepareHookSave($_POST);
+            $object = $this->prepareHookSaveBefore($_POST);
             $result = $this->repo->save($object);
+            $this->prepareHookSaveAfter($object, $result);
         }
-        $this->renderJsonSuccess($result);
     }
 
     public function delete(string $pk): void
     {
-        $this->method(METHOD::GET);
-        if ($this->onAuthDelete === true) $this->prepareAuth();
         if ($this->onDelete === false) Route::ErrorPage(404);
+        if ($this->onAuthDelete === true) $this->prepareAuth();
+        $this->method(METHOD::GET);
 
-        $object = $this->prepareDelete($pk);
+        $object = $this->prepareDeleteBefore($pk);
         $result = $this->repo->update($pk, $object);
-        $this->renderJsonSuccess($result);
+        $this->prepareDeleteAfter($object, $result);
     }
 
     public function restore(string $pk): void
     {
-        $this->method(METHOD::GET);
-        if ($this->onAuthRestore === true) $this->prepareAuth();
         if ($this->onRestore === false) Route::ErrorPage(404);
+        if ($this->onAuthRestore === true) $this->prepareAuth();
+        $this->method(METHOD::GET);
 
-        $object = $this->prepareRestore($pk);
+        $object = $this->prepareRestoreBefore($pk);
         $result = $this->repo->update($pk, $object);
-        $this->renderJsonSuccess($result);
+        $this->prepareRestoreAfter($object, $result);
     }
 
     public function remove(string $pk): void
     {
-        $this->method(METHOD::GET);
-        if ($this->onAuthRemove === true) $this->prepareAuth();
         if ($this->onRemove === false) Route::ErrorPage(404);
+        if ($this->onAuthRemove === true) $this->prepareAuth();
+        $this->method(METHOD::GET);
 
-        $this->prepareRemove($pk);
+        $this->prepareRemoveBefore($pk);
         $this->repo->delete($pk);
-        $this->renderJsonSuccess($pk);
+        $this->prepareRemoveAfter($pk);
     }
     /*
     ---------------------------------------------
@@ -254,31 +257,59 @@ abstract class Controller
         Route::isAuth();
     }
 
-    protected function prepareHookUpdate(array $data, string $pk): Model
+    protected function prepareHookSaveBefore(array $post): Model
     {
+        $this->csrfTokenChange();
+        if(isset($post['csrf_token'])) unset($post['csrf_token']);
+        return new $this->repo->modelName($post);
+    }
+    protected function prepareHookSaveAfter(Model $model, string $result): void
+    {
+        $this->renderJsonSuccess($result);
+    }
+
+    protected function prepareHookUpdateBefore(array $post, string $pk): Model
+    {
+        $this->csrfTokenChange();
+        if(isset($post['csrf_token'])) unset($post['csrf_token']);
         $object = $this->getElement($pk);
-        $object->setNewObject($data);
+        $object->setNewObject($post);
         return $object;
     }
-    protected function prepareHookSave(array $data): Model
+    protected function prepareHookUpdateAfter(Model $model, string $result): void
     {
-        return new $this->repo->modelName($data);
+        $this->renderJsonSuccess($result);
     }
-    protected function prepareDelete(string $pk): Model
+
+    protected function prepareDeleteBefore(string $pk): Model
     {
         $object = $this->getElement($pk);
         $object->setNewObject(array('is_delete' => 1));
         return $object;
     }
-    protected function prepareRestore(string $pk): Model
+    protected function prepareDeleteAfter(Model $model, string $result): void
+    {
+        $this->renderJsonSuccess($result);
+    }
+
+    protected function prepareRestoreBefore(string $pk): Model
     {
         $object = $this->getElement($pk);
         $object->setNewObject(array('is_delete' => 0));
         return $object;
     }
-    protected function prepareRemove(string $pk): void
+    protected function prepareRestoreAfter(Model $model, string $result): void
+    {
+        $this->renderJsonSuccess($result);
+    }
+
+    protected function prepareRemoveBefore(string $pk): void
     {
         $this->getElement($pk);
+    }
+    protected function prepareRemoveAfter(string $pk): void
+    {
+        $this->renderJsonSuccess($pk);
     }
     /*
     ---------------------------------------------

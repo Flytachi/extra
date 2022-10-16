@@ -32,9 +32,9 @@ class __Db
             elseif($this->argument == "delete") $this->delete();
             elseif($this->argument == "seed") $this->seed();
             else echo "\033[31m"." Нет такого аргумента.\n";
-        } catch (\Error) {
-//             echo $e->getMessage();
-            echo "\033[31m"." Ошибка в скрипте.\n";
+        } catch (\Error $e) {
+            echo $e->getMessage();
+//            echo "\033[31m"." Ошибка в скрипте.\n";
         }
     }
 
@@ -85,7 +85,9 @@ class __Db
             }
 
             $data = json_decode(file_get_contents("$this->path_data_seed/$this->name.$this->seed_format"), true);
-            foreach ($data as $row) $db->insert($this->name, $row);
+            foreach ($data as $row) {
+                $db->insert($this->name, $row);
+            }
 
         }else{
 
@@ -95,7 +97,7 @@ class __Db
                 $i = 0;
                 foreach ($data as $row) {
                     $i++;
-                    $db->insert($table, $row);
+                    $db->insert($table, (object) $row);
                 }
                 echo "\033[32m"." Таблица $table ($i).\n";
             }
