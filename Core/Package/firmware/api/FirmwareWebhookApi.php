@@ -14,10 +14,13 @@ class FirmwareWebhookApi extends Api
         if(!$enterprise) Route::ApiError(401);
 
         $licenseRepo = (new FirmwareLicenseRepository);
+        $licenseRepo->modelName = "stdClass";
         $licenseRepo->Option("series, date_from, date_to");
         $licenseRepo->Order("id DESC");
-        $license = $licenseRepo->getBy(array('is_delete' => 0, 'enterprise_id' => $enterprise->enterprise_id));
-        if ($license) $license->firmware = EXTRA_KEY;
-        Route::ApiSuccess( $license );
+        $license = $licenseRepo->getBy(array('is_delete' => 0, 'enterprise_id' => $enterprise->getEnterpriseId()));
+        if ($license) {
+            $license->firmware = EXTRA_KEY;
+            Route::ApiSuccess( $license );
+        }
     }
 }

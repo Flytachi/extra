@@ -40,9 +40,10 @@ class FirmwareEnterpriseController extends Controller
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
+        else $object = new $this->repo->modelName;
         $this->view('firmware/enterprise/form', array(
-            'model' => $object ?? new $this->repo->modelName,
-            'inputCsrf' => $this->csrfTokenGen()
+            'model' => formObject($object),
+            'inputCsrf' => $this->csrfTokenInput()
         ));
 	}
 
@@ -50,10 +51,11 @@ class FirmwareEnterpriseController extends Controller
     {
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
+        $webHook = (new FirmwareWebhookRepository)->getBy(['enterprise_id' => $pk]);
         $this->view('firmware/enterprise/formWebhook', array(
-            'model' => $object ?? new $this->repo->modelName,
-            'webHook' => (new FirmwareWebhookRepository)->getBy(array('enterprise_id' => $pk)),
-            'inputCsrf' => $this->csrfTokenGen()
+            'model' => formObject($object ?? new $this->repo->modelName),
+            'webHook' => $webHook ? formObject($webHook) : null,
+            'inputCsrf' => $this->csrfTokenInput()
         ));
     }
 }

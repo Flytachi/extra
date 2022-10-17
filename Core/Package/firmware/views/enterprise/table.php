@@ -8,25 +8,25 @@
     </thead>
     <tbody>
         <?php foreach($table as $row): ?>
-            <tr <?php if($row->is_delete) echo 'style="background-color:red; color:white;"' ?>>
-                <td><?= $row->name ?></td>
-                <td><?= $row->contact ?></td>
+            <tr <?php if($row->getIsDelete()) echo 'style="background-color:red; color:white;"' ?>>
+                <td><?= $row->getName() ?></td>
+                <td><?= $row->getContact() ?></td>
                 <td>
-                    <button onclick="checkModal('/firmwareEnterprise/getWebhook/<?= $row->id ?>')" type="button" class="warframe_btn" title="Api Ключ">
+                    <button onclick="checkModal('/firmwareEnterprise/getWebhook/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Api Ключ">
                         Api
                     </button>
-                    <button onclick="checkModal('/firmwareEnterprise/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/firmwareEnterprise/get/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <?php if($row->is_delete): ?>
-                        <button onclick="AjaxQuery('/firmwareEnterprise/restore/<?= $row->id ?>')" type="button" class="warframe_btn" title="Восстановить">
+                    <?php if($row->getIsDelete()): ?>
+                        <button onclick="AjaxQuery('/firmwareEnterprise/restore/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Восстановить">
                             Restore
                         </button>
-                        <button onclick="AjaxQuery('/firmwareEnterprise/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/firmwareEnterprise/remove/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
                             Remove
                         </button>
                     <?php else: ?>
-                        <button onclick="AjaxQuery('/firmwareEnterprise/delete/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/firmwareEnterprise/delete/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
                             Delete
                         </button>
                     <?php endif; ?>

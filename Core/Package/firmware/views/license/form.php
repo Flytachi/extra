@@ -9,7 +9,7 @@
         <select id="inp-enterprise_id" name="enterprise_id" style="width: 100%;" data-placeholder="Выберите предприятие" required>
             <option></option>
             <?php foreach($enterpriseList as $row): ?>
-                <option value="<?= $row->id ?>" <?php if($row->id == $model->enterprise_id) echo 'selected' ?>><?= $row->name ?></option>
+                <option value="<?= $row->getId() ?>" <?php if($row->getId() == $model->enterprise_id) echo 'selected' ?>><?= $row->getName() ?></option>
             <?php endforeach; ?>
         </select>
 

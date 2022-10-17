@@ -43,10 +43,11 @@ class FirmwareLicenseController extends Controller
 	{
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
+        else $object = new $this->repo->modelName;
         $this->view('firmware/license/form', array(
-            'model' => $object ?? new $this->repo->modelName,
+            'model' => formObject($object),
             'enterpriseList' => (new FirmwareEnterpriseRepository)->getAllNotDelete(),
-            'inputCsrf' => $this->csrfTokenGen()
+            'inputCsrf' => $this->csrfTokenInput()
         ));
 	}
 
@@ -56,9 +57,9 @@ class FirmwareLicenseController extends Controller
         $object = $this->getElement($pk);
         $license = array(
             'licenseFirmware' => EXTRA_KEY,
-            'licenseDateFrom' => strtotime($object->date_from),
-            'licenseDateTo' => strtotime($object->date_to),
-            'motherboardSeries' => $object->series, // motherboardSeries()
+            'licenseDateFrom' => strtotime($object->getDateFrom()),
+            'licenseDateTo' => strtotime($object->getDateTo()),
+            'motherboardSeries' => $object->getSeries(), // motherboardSeries()
         );
         header("Content-type: text/plain");
         header("Content-Disposition: attachment; filename=license.crt");
