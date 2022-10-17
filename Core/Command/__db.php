@@ -85,9 +85,7 @@ class __Db
             }
 
             $data = json_decode(file_get_contents("$this->path_data_seed/$this->name.$this->seed_format"), true);
-            foreach ($data as $row) {
-                $db->insert($this->name, $row);
-            }
+            foreach ($data as $row) $db->insertToArray($this->name, $row);
 
         }else{
 
@@ -97,7 +95,7 @@ class __Db
                 $i = 0;
                 foreach ($data as $row) {
                     $i++;
-                    $db->insert($table, (object) $row);
+                    $db->insertToArray($table, $row);
                 }
                 echo "\033[32m"." Таблица $table ($i).\n";
             }

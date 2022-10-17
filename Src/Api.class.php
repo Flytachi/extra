@@ -3,6 +3,7 @@
 namespace Extra\Src;
 
 use ApiRepository;
+use METHOD;
 
 abstract class Api 
 {
@@ -10,7 +11,7 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 5.0
+     * @version 5.2
      */
     
     private string $headers = '';
@@ -21,6 +22,14 @@ abstract class Api
         $this->AuthorizationHeader();
         if (empty($this->getHeaders())) Route::ApiError(400);
         $this->repo = new ApiRepository;
+    }
+
+    final protected function method(METHOD ...$allowMethods): void
+    {
+        foreach ($allowMethods as $method) {
+            if($method->name === $_SERVER['REQUEST_METHOD']) return;
+        }
+        Route::ApiError(405);
     }
 
     /*

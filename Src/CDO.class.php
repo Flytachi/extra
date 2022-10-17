@@ -12,7 +12,7 @@ class CDO extends PDO
      * 
      * CDO
      * 
-     * @version 3.0
+     * @version 3.1
      */
     private mixed $debug;
 
@@ -54,7 +54,21 @@ class CDO extends PDO
         }
     }
 
-    final public function update(string $table, Model $model, int|string|array $pk): int|string
+    final public function insertToArray(string $table, array $array): string|false
+    {
+        $col = implode(",", array_keys($array));
+        $val = ":".implode(", :", array_keys($array));
+        try{
+            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
+            return $this->lastInsertId();
+        }
+        catch (PDOException $ex) {
+            return $ex->getMessage();
+            return ($this->debug) ? $ex->getMessage() : "Ошибка создания элемента.";
+        }
+    }
+
+    final public function update(string $table, object $model, int|string|array $pk): int|string
     {
         $array = objectToArray($model);
         $set = "";
