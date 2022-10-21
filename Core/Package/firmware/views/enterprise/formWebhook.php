@@ -23,7 +23,7 @@
         window.crypto.getRandomValues(a);
         var uniq = (performance.now().toString(36)+Array.from(a).map(A => A.toString(36)).join("")).replace(/\./g,"");
         $("#inp-unique_key").val(uniq);
-    };
+    }
 
     function submitForm() {
         event.preventDefault();

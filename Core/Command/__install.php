@@ -24,10 +24,10 @@ class __Install
         try {
             if ($this->argument == "npm") echo exec("npm install");
             elseif($this->argument == "git") {
-                require_once dirname(__DIR__, 3) . '/tools/variables.php';
-                foreach ($git_links as $link => $folder) echo exec("git clone $link $this->path/$folder");
+//                require_once dirname(__DIR__, 3) . '/tools/variables.php';
+//                foreach ($git_links as $link => $folder) echo exec("git clone $link $this->path/$folder");
             }
-        } catch (\Error $e) {
+        } catch (Error $e) {
             echo "\033[31m"." Ошибка в скрипте.\n";
         }
     }

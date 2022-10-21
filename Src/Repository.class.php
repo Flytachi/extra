@@ -2,13 +2,16 @@
 
 namespace Extra\Src;
 
+use PDO;
+use Throwable;
+
 class Repository
 {
     /**
      * 
      * Repository
      * 
-     * @version 3.0
+     * @version 3.5
      */
 
 
@@ -16,7 +19,6 @@ class Repository
     public string $modelName = 'stdClass';
     private array $CRD_SQL = [];
     private string $pk;
-    private array $data;
     private Model $model;
     public CDO $db;
     private bool $CRD_debug;
@@ -91,10 +93,10 @@ class Repository
 
     /*  
     ---------------------------------------------
-        PARAMETRS SQL
+        PARAMETERS SQL
     ---------------------------------------------
     */
-    final public function getSearch()
+    final public function getSearch(): array|string
     {
         $this->CRD_SQL['search'] = (isset($_GET['search']) and $_GET['search']) ? 'search=' . $_GET['search'] : "";
         $search = str_replace('search=', '', $this->CRD_SQL['search']);
@@ -114,14 +116,14 @@ class Repository
             if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
             if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
             if(array_key_exists('limit', $this->CRD_SQL)) {
-                $page = (int)(isset($_GET['CRD_page'])) ? (int) $_GET['CRD_page'] : $page = 1;
+                $page = (int)(isset($_GET['CRD_page'])) ? (int) $_GET['CRD_page'] : 1;
                 $offset = (int) $this->CRD_SQL['limit'] * ($page - 1);
                 $sql .= ' LIMIT ' . $this->CRD_SQL['limit'] . ' OFFSET ' . $offset;
             }
 
             return $sql;
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"SQL"</strong>';
         }
         
@@ -232,11 +234,11 @@ class Repository
 
             if ($data = implode(',', $items)) $this->Option($data);
             $get = $this->db->query($this->buildSql());
-            $get->setFetchMode(\PDO::FETCH_CLASS, $this->modelName);
+            $get->setFetchMode(PDO::FETCH_CLASS, $this->modelName);
             return $get->fetch();
 
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"GET"</strong>';
         }
     }
@@ -244,11 +246,9 @@ class Repository
     final public function getAll(): array
     {
         try {
-            $list = $this->db->query($this->buildSql())->fetchAll(\PDO::FETCH_CLASS, $this->modelName);
-            return $list;
-
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+            return $this->db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->modelName);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"LIST"</strong>';
         }
     }
@@ -294,8 +294,8 @@ class Repository
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
 
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"BY"</strong>';
         }
     }
@@ -308,8 +308,8 @@ class Repository
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
 
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"BY ID"</strong>';
         }
     }
@@ -319,11 +319,10 @@ class Repository
         try {
 
             $this->Option("id");
-            $get = $this->db->query($this->buildSql())->fetchColumn();
-            return $get;
+            return $this->db->query($this->buildSql())->fetchColumn();
 
-        } catch (\Throwable $th) {
-            if ($this->CRD_debug) $this->errorX($th);
+        } catch (Throwable $th) {
+            if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"GET ID"</strong>';
         }
     }
@@ -431,7 +430,7 @@ class Repository
         return $value;
     }
 
-    private function errorX(\Throwable $error): never
+    private function throwable(Throwable $error): never
     {
         $message = "\t" . $error->getMessage();
         foreach ($error->getTrace() as $key => $value) {
@@ -444,7 +443,8 @@ class Repository
                 if (isset($value['function'])) $message .= $value['function'];
             }
         }
-        die (parad('CREDO', $message));
+        parad('CREDO', $message);
+        die();
     }
 
     public function error($message): void
@@ -457,5 +457,3 @@ class Repository
     }
 
 }
-
-?>

@@ -2,7 +2,13 @@
 
 namespace Extra\Src;
 
+use DateTime;
+use DateTimeZone;
+use Error;
+use Exception;
+use ReflectionClass;
 use TypeError;
+use Warframe;
 
 class Wrapper
 {
@@ -10,7 +16,7 @@ class Wrapper
      * 
      * Wrapper
      * 
-     * @version 3.1
+     * @version 3.7
      */
 
     static int $totalPages;
@@ -224,6 +230,78 @@ class Wrapper
                 Wrapper::$params . "')\" class=\"page-link\">$page</a></li>";
         }
         return $selfPage;
+    }
+
+    public static function arrayObjectsToArray(array $arrayList): array
+    {
+        $newArrayList = [];
+        foreach ($arrayList as $key => $object) {
+            $reflectionClass = new ReflectionClass(get_class($object));
+            $array = array();
+            foreach ($reflectionClass->getProperties() as $property) {
+                if (str_contains((string)$property->getType(), '?')) {
+                    $value = !$property->getValue($object) ? null : $property->getValue($object);
+                }else $value = $property->getValue($object);
+                $array[$property->getName()] = $value;
+            }
+            $newArrayList[$key] = $array;
+        }
+        return $newArrayList;
+    }
+
+    public static function objectToArray(object $object): array
+    {
+        $reflectionClass = new ReflectionClass(get_class($object));
+        $array = array();
+        foreach ($reflectionClass->getProperties() as $property) {
+            if (str_contains((string)$property->getType(), '?')) {
+                $value = !$property->getValue($object) ? null : $property->getValue($object);
+            }else $value = $property->getValue($object);
+            $array[$property->getName()] = $value;
+        }
+        return $array;
+    }
+
+    public static function formObject(object $object): object
+    {
+        $reflectionClass = new ReflectionClass(get_class($object));
+        $array = array();
+        foreach ($reflectionClass->getProperties() as $property) {
+            try {
+                if (str_contains((string)$property->getType(), '?')) {
+                    $value = !$property->getValue($object) ? null : $property->getValue($object);
+                }else $value = $property->getValue($object);
+            } catch (Error) {
+                $value = null;
+            }
+            $array[$property->getName()] = $value;
+        }
+        return (object) $array;
+    }
+
+
+    public static function dateConvertTo(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
+    {
+        try {
+            $date = new DateTime($dataTime, new DateTimeZone(Warframe::$cfg['GLOBAL_SETTING']['TIME_ZONE']));
+            $date->setTimezone(new DateTimeZone($timeZone));
+            return $date->format($format);
+        } catch (Exception $e) {
+            if ((Warframe::$cfg['GLOBAL_SETTING']['DEBUG'])) dd($e);
+            else return '';
+        }
+    }
+
+    public static function dateConvertToUTC(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
+    {
+        try {
+            $date = new DateTime($dataTime, new DateTimeZone($timeZone));
+            $date->setTimezone(new DateTimeZone(Warframe::$cfg['GLOBAL_SETTING']['TIME_ZONE']));
+            return $date->format($format);
+        } catch (Exception $e) {
+            if ((Warframe::$cfg['GLOBAL_SETTING']['DEBUG'])) dd($e);
+            else return '';
+        }
     }
 
 }
