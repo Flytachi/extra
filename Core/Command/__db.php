@@ -32,9 +32,9 @@ class __Db
             elseif($this->argument == "delete") $this->delete();
             elseif($this->argument == "seed") $this->seed();
             else echo "\033[31m"." Нет такого аргумента.\n";
-        } catch (\Error $e) {
-            echo $e->getMessage();
-//            echo "\033[31m"." Ошибка в скрипте.\n";
+        } catch (Error $e) {
+            // echo $e->getMessage();
+            echo "\033[31m"." Ошибка в скрипте.\n";
         }
     }
 
@@ -51,7 +51,7 @@ class __Db
                     $db->exec(file_get_contents($file));
                     echo "\033[32m" . " Миграция прошла успешно.\n";
                 } else echo "\033[31m"." Файл не найден.\n";
-            } catch (\Exception) {
+            } catch (Exception) {
                 echo "\033[31m" . " Во время миграции произошла ошибка.\n";
             }
         } else {

@@ -4,7 +4,6 @@ namespace Extra\Src;
 
 use PDO;
 use PDOException;
-use ReflectionClass;
 
 class CDO extends PDO
 {
@@ -12,7 +11,7 @@ class CDO extends PDO
      * 
      * CDO
      * 
-     * @version 3.1
+     * @version 3.5
      */
     private mixed $debug;
 
@@ -41,7 +40,7 @@ class CDO extends PDO
 
     final public function insert(string $table, Model $model): string|false
     {
-        $array = objectToArray($model);
+        $array = Wrapper::objectToArray($model);
         $col = implode(",", array_keys($array));
         $val = ":".implode(", :", array_keys($array));
         try{
@@ -70,7 +69,7 @@ class CDO extends PDO
 
     final public function update(string $table, object $model, int|string|array $pk): int|string
     {
-        $array = objectToArray($model);
+        $array = Wrapper::objectToArray($model);
         $set = "";
         foreach ($array as $key => $value) {
             $array["S_$key"] = $value; unset($array[$key]);
@@ -123,15 +122,11 @@ class CDO extends PDO
         }
     }
 
-    static function clean(array|string|int $value = ""): array|string|int
+    static function clean(string $data): string
     {
-        if (!is_array($value)) {
-            $value = trim($value);
-            $value = stripslashes($value);
-            $value = strip_tags($value);
-            $value = htmlspecialchars($value);
-        }
-        return $value;
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = strip_tags($data);
+        return htmlspecialchars($data);
     }
-    
 }

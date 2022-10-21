@@ -3,32 +3,32 @@
 class __Cfg
 {
     private $argument;
-    private Array $default_configurations = array(
-        'APACHE' => array(
+    private Array $default_configurations = [
+        'APACHE' => [
             'SERVER_ADMIN' => 'webmaster@dummy-host.example.loc',
             'SERVER_ALIAS' => null,
             'SERVER_NAME' => null,
             'SERVER_PORT' => 80,
-        ),
-        'SSL' => array(
+        ],
+        'SSL' => [
             'MODE_ON' => null,
             'MODE_SERVER' => 'APACHE',
             'CERTIFICATE_FILE' => null,
             'CERTIFICATE_KEY_FILE' => null,
-        ),
-        'SECURITY' => array(
+        ],
+        'SECURITY' => [
             'PRODUCT_GUARD' => null,
             'PRODUCT_HOST' => null,
             'PRODUCT_KEY' => null,
             'PRODUCT_FIRMWARE' => null
-        ),
-        'GLOBAL_SETTING' => array(
-            'TIME_ZONE' => 'Asia/Samarkand',
+        ],
+        'GLOBAL_SETTING' => [
+            'TIME_ZONE' => 'UTC',
             'SESSION_TIMEOUT' => null,
             'SESSION_LIFE' => null,
             'DEBUG' => true,
-        ),
-        'DATABASE' => array(
+        ],
+        'DATABASE' => [
             'DRIVER' => 'mysql',
             'CHARSET' => 'utf8',
             'HOST' => 'localhost',
@@ -36,8 +36,8 @@ class __Cfg
             'NAME' => null,
             'USER' => null,
             'PASS' => null,
-        )
-    );
+        ]
+    ];
 
     function __construct($value = null)
     {

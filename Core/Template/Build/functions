@@ -1,7 +1,19 @@
 <?php
 
+use Extra\Src\Wrapper;
+
 function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
     else return (new UserPermissionRepository)->getPermission($name); 
+}
+
+function dateConvert(string $dataTime): string
+{
+    return Wrapper::dateConvertTo($dataTime, $_SESSION['TZ']);
+}
+
+function dateUTC(string $dataTime): string
+{
+    return Wrapper::dateConvertToUTC($dataTime, $_SESSION['TZ']);
 }

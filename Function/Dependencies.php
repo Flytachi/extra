@@ -1,6 +1,7 @@
 <?php
 
 use Extra\Src\Route;
+use Extra\Src\Wrapper;
 
 function dieConnection($_error = null): never
 {
@@ -46,57 +47,9 @@ function getDirContent($dir, $filter = '', &$results = array())
     return $results;
 }
 
-function arrayObjectsToArray(array $arrayList): array
-{
-    $newArrayList = [];
-    foreach ($arrayList as $key => $object) {
-        $reflectionClass = new ReflectionClass(get_class($object));
-        $array = array();
-        foreach ($reflectionClass->getProperties() as $property) {
-            $property->setAccessible(true);
-            if (strpos((string) $property->getType(), '?') !== false) {
-                $value = ($property->getValue($object)) ? $property->getValue($object) : null;
-            }else $value = $property->getValue($object);
-            $array[$property->getName()] = $value;
-            $property->setAccessible(false);
-        }
-        $newArrayList[$key] = $array;
-    }
-    return $newArrayList;
-}
-
-function objectToArray(object $object): array
-{
-    $reflectionClass = new ReflectionClass(get_class($object));
-    $array = array();
-    foreach ($reflectionClass->getProperties() as $property) {
-        $property->setAccessible(true);
-        if (strpos((string) $property->getType(), '?') !== false) {
-            $value = ($property->getValue($object)) ? $property->getValue($object) : null;
-        }else $value = $property->getValue($object);
-        $array[$property->getName()] = $value;
-        $property->setAccessible(false);
-    }
-    return $array;
-}
-
 function formObject(object $object): object
 {
-    $reflectionClass = new ReflectionClass(get_class($object));
-    $array = array();
-    foreach ($reflectionClass->getProperties() as $property) {
-        $property->setAccessible(true);
-        try {
-            if (strpos((string) $property->getType(), '?') !== false) {
-                $value = ($property->getValue($object)) ? $property->getValue($object) : null;
-            }else $value = $property->getValue($object);
-        } catch (Error) {
-            $value = null;
-        }
-        $array[$property->getName()] = $value;
-        $property->setAccessible(false);
-    }
-    return (object) $array;
+    return Wrapper::formObject($object);
 }
 // *******************
 // * Imports
