@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO;
 use Extra\Src\Controller;
 use Extra\Src\Model;
 use Extra\Src\Route;
@@ -17,8 +18,16 @@ class PermissionController extends Controller
     {
         Route::isAuthAdmin();
     }
+    protected function prepareHookSaveBefore(array $post): Model
+    {
+        if (empty($post['name']) or empty($post['description'])) Route::ErrorPage(400);
+        $post['name'] = CDO::clean($post['name']);
+        $post['description'] = CDO::clean($post['description']);
+        return parent::prepareHookSaveBefore($post);
+    }
     protected function prepareHookUpdateBefore(array $post, string $pk): Model
     {
+        if (empty($post['name']) or empty($post['description'])) Route::ErrorPage(400);
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
         $object = $this->repo->getBy(['name' => $pk]);
