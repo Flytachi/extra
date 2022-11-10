@@ -33,7 +33,7 @@ class __Bot
     private function register(): void
     {
         if ($this->name) {
-            dd($this->name);
+            dd("https://api.telegram.org/bot<TOKEN>/setWebhook?url=<url>");
             // $get = [
             //     'url'  => $this->name,
             // ];
