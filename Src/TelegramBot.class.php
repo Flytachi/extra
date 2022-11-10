@@ -9,6 +9,45 @@ abstract class TelegramBot extends Controller
      * TelegramBot
      * 
      * @version 1.0
+     * 
+     * 
+     * 
+     *  @codeExample
+     * 
+     *  use Extra\Src\TelegramBot;
+
+        class BotController extends TelegramBot
+        {
+            public static string $token = "---BOT TOKEN---";
+            protected bool $debug = true;
+
+            protected function cluster(array $data): void
+            {
+                if (mb_stripos($data['message']['text'], 1) !== false) {
+                    $this->questStart('handle', $data);
+                } else {
+                    $this->sendMessage($data['message']['chat']['id'], 'Хай уёбок!');
+                }
+            }
+
+            public static function handle(array $data)
+            {
+                $class = BotController::questHandle();
+                $class->quest($data, 'name', 'What is your name?', function ($value)
+                {
+                    return is_string($value);
+                });
+                $class->quest($data, 'age', 'How old are you?', function ($value)
+                {
+                    return is_numeric($value);
+                });
+                $result = $class->getSession($data);
+                $class->sendMessage($data['message']['chat']['id'], 'Name:' . $result['name'] . ' Age: ' . $result['age']);
+                $class->questStop($data);
+            }
+
+        }
+     * 
      */
 
     public static string $token = '';
@@ -119,7 +158,6 @@ abstract class TelegramBot extends Controller
         $this->uploadFolder = PATH_MEDIA . $folder;
         $data = file_get_contents('php://input');
         return json_decode($data, true);
-        // return $this->getMessageToJson('message');
     }
 
     private function receiverDownloads(array $mediaData): void
