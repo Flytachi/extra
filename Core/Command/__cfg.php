@@ -4,6 +4,7 @@ class __Cfg
 {
     private $argument;
     private Array $default_configurations = [
+        'HOSTS' => [null],
         'APACHE' => [
             'SERVER_ADMIN' => 'webmaster@dummy-host.example.loc',
             'SERVER_ALIAS' => null,
@@ -127,7 +128,9 @@ class __Cfg
         $errors = "";
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
-            $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
+            $hosts = '';
+            foreach ($ini['HOSTS'] as $host) $hosts .= $host . ':' . $ini['APACHE']['SERVER_PORT']. ' ';
+            $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
             $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
             $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
             $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
@@ -146,8 +149,10 @@ class __Cfg
         if (!is_dir('ssl')) mkdir('ssl');
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
+            $hosts = '';
             if ($ini['SSL']['MODE_ON']) {
-                $template = str_replace("__PORT__", $ini['APACHE']['SERVER_PORT'], file_get_contents($file));
+                foreach ($ini['HOSTS'] as $host) $hosts .= $host . ':443 ';
+                $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
                 $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
                 $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);

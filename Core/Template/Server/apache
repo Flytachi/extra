@@ -1,4 +1,4 @@
-<VirtualHost *:__PORT__>
+<VirtualHost __HOSTS__>
     ServerAdmin __ADMIN__
     DocumentRoot "__ROOT__"
     ServerName __NAME__

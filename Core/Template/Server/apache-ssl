@@ -1,4 +1,4 @@
-<VirtualHost *:443>
+<VirtualHost __HOSTS__>
     #   General setup for the virtual host
     DocumentRoot "__ROOT__"
     ServerAdmin __ADMIN__
