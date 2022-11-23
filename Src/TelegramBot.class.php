@@ -8,7 +8,7 @@ abstract class TelegramBot extends Controller
      * 
      * TelegramBot
      * 
-     * @version 1.0
+     * @version 2.0
      * 
      * 
      * 
@@ -64,7 +64,7 @@ abstract class TelegramBot extends Controller
     {
         $data = $this->receiverConstruct();
         if ($this->debug) $this->saveMessageToJson('message', $data);
-        $this->receiverDownloads($data['message']);
+        if(array_key_exists('message', $data)) $this->receiverDownloads($data['message']);
         $this->questCluster($data);
     }
 
@@ -82,7 +82,7 @@ abstract class TelegramBot extends Controller
 
     protected function quest(array $data, string $responseName, string $questionContent, callable $funcValidation): void
     {
-        $chatId = $data['message']['chat']['id'];
+        $chatId = $this->getChatId($data);
         $dataJson = $this->getMessageToJson($this->folderQuestion . '/' . $chatId);
         if (array_key_exists($responseName , $dataJson)) {
             if (is_null($dataJson[$responseName])) {
@@ -107,33 +107,42 @@ abstract class TelegramBot extends Controller
         return $this->getMessageToJson($this->folderQuestion . '/' . $data['message']['chat']['id']);
     }
 
-    protected function questStart(string $funcName, array $data): void
+    protected function questStart(string $funcName, array $data, ?array $args = []): void
     {
         $uploadFolder = $this->uploadFolder . '/' . $this->folderQuestion;
         if( !is_dir($uploadFolder) ) mkdir($uploadFolder);
-        $this->saveMessageToJson($this->folderQuestion . '/' .  $data['message']['chat']['id'], ['session' => $funcName ]);
-        call_user_func(static::class . '::' . $funcName, $data);
+        $sessionData = ['session' => $funcName, 'args' => $args];
+        $this->saveMessageToJson($this->folderQuestion . '/' . $this->getChatId($data), $sessionData);
+        call_user_func(static::class . '::' . $funcName, $data, $args);
     }
 
     protected function questStop(array $data): void
     {
-        $userFile = $this->uploadFolder . '/' . $this->folderQuestion . '/' .  $data['message']['chat']['id'] . '.json';
+        $userFile = $this->uploadFolder . '/' . $this->folderQuestion . '/' . $this->getChatId($data) . '.json';
         if(file_exists($userFile)) unlink($userFile);
     }
     
-    protected final function sendMessage(int $chatId, string $message): void
+    protected final function sendMessage(int $chatId, string $message, ?array $messageAddition = []): void
     {
         $class = get_class($this);
         $request = curl_init($class::$api . $class::$token . '/sendMessage');  
         curl_setopt($request, CURLOPT_POST, 1);  
         curl_setopt($request, CURLOPT_POSTFIELDS, [
             'chat_id' => $chatId,
-            'text' => $message
+            'text' => $message,
+            ...$messageAddition
         ]);
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($request, CURLOPT_HEADER, false);
         curl_exec($request);
         curl_close($request);
+    }
+
+    public final function getChatId(array $data): int
+    {
+        if(array_key_exists('message', $data)) return $data['message']['chat']['id'];
+        elseif (array_key_exists('callback_query', $data)) return $data['callback_query']['message']['chat']['id'];
+        else return 0;
     }
 
     /*
@@ -144,10 +153,13 @@ abstract class TelegramBot extends Controller
 
     private function questCluster(array $data): void
     {
-        $userSession = $this->uploadFolder . '/' . $this->folderQuestion . '/' .  $data['message']['chat']['id'];
+        $chatId = $this->getChatId($data);
+        $userSession = $this->uploadFolder . '/' . $this->folderQuestion . '/' . $chatId;
         if (file_exists($userSession . '.json')) {
-            $session = $this->getMessageToJson($this->folderQuestion . '/' .  $data['message']['chat']['id']);
-            call_user_func(static::class . '::' . $session['session'], $data);
+            $session = $this->getMessageToJson($this->folderQuestion . '/' . $chatId);
+            if (array_key_exists('args', $session)) {
+                call_user_func(static::class . '::' . $session['session'], $data, $session['args']);
+            } else call_user_func(static::class . '::' . $session['session'], $data);
         } else $this->cluster($data);
     }
     
