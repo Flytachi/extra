@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use METHOD;
+
 abstract class TelegramBot extends Controller
 {
     /**
      * 
      * TelegramBot
      * 
-     * @version 2.0
+     * @version 2.1
      * 
      * 
      * 
@@ -62,6 +64,7 @@ abstract class TelegramBot extends Controller
 
     public function receiver(): void
     {
+        $this->method(METHOD::POST);
         $data = $this->receiverConstruct();
         if ($this->debug) $this->saveMessageToJson('message', $data);
         if(array_key_exists('message', $data)) $this->receiverDownloads($data['message']);
