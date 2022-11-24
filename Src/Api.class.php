@@ -20,16 +20,13 @@ abstract class Api
     function __construct()
     {
         $this->AuthorizationHeader();
-        if (empty($this->getHeaders())) Route::ApiError(400);
+        // if (empty($this->getHeaders())) Route::ApiError(400);
         $this->repo = new ApiRepository;
     }
 
-    final protected function method(METHOD ...$allowMethods): void
+    final function __call($name, $arguments)
     {
-        foreach ($allowMethods as $method) {
-            if($method->name === $_SERVER['REQUEST_METHOD']) return;
-        }
-        Route::ApiError(405);
+        $this->responseError(404);
     }
 
     /*
@@ -37,12 +34,12 @@ abstract class Api
         AUTHORIZATION
     ---------------------------------------------
     */
-    final public function getHeaders(): string
+    final protected function getHeaders(): string
     {
         return $this->headers;
     }
 
-    final public function getBearerToken(): string|null
+    final protected function getBearerToken(): string|null
     {
         if (!empty($this->headers)) {
             if (preg_match('/Bearer\s(\S+)/', $this->headers, $matches)) return $matches[1];
@@ -50,7 +47,7 @@ abstract class Api
         return null;
     }
 
-    final public function getBasicToken(): string|null
+    final protected function getBasicToken(): string|null
     {
         if (!empty($this->headers)) {
             if (preg_match('/Basic\s(\S+)/', $this->headers, $matches)) return $matches[1];
@@ -71,7 +68,7 @@ abstract class Api
         }
     }
 
-    final public function authorizationBearer(): void
+    final protected function authorizationBearer(): void
     {
         $token = $this->getBearerToken();
         if (empty($token)) Route::ApiError(400);
@@ -86,9 +83,35 @@ abstract class Api
         REQUEST
     ---------------------------------------------
     */
-    final public function requestJson(): mixed
+    final protected function method(METHOD ...$allowMethods): void
+    {
+        foreach ($allowMethods as $method) {
+            if($method->name === $_SERVER['REQUEST_METHOD']) return;
+        }
+        $this->responseError(405);
+    }
+
+    final protected function requestJson(): mixed
     {
         return json_decode(file_get_contents('php://input'));
+    }
+    /*
+    ---------------------------------------------
+    */
+
+    /*
+    ---------------------------------------------
+        RESPONSE
+    ---------------------------------------------
+    */
+    protected function responseSuccess(mixed $data = null): void
+    {
+        Route::ApiSuccess($data);
+    }
+
+    protected function responseError(int $code, mixed $data = null): void
+    {
+        Route::ApiError($code, $data);
     }
     /*
     ---------------------------------------------

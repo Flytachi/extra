@@ -10,12 +10,12 @@ class Route
      * 
      * Route
      * 
-     * @version 9.0
+     * @version 9.2
      */
 
 	
 	static array $httpStatus = array(
-		200 => 'Success',
+		200 => 'OK',
 		400 => 'Bad Request',
 		401 => 'Unauthorized',
 		403 => 'Forbidden',
@@ -195,7 +195,7 @@ class Route
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
 			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else Route::ApiError(500);
+			else Route::ApiError(400);
 		}
 		exit;
 	}
@@ -281,6 +281,10 @@ class Route
 	{
 		$code = 200;
 		$status = Route::$httpStatus['200'];
+		header_remove("X-Powered-By");
+		header("Access-Control-Allow-Orgin: *"); 
+		header("Access-Control-Allow-Methods: *");
+		header("Content-Type: application/json");
 		header("HTTP/1.1 $code " . $status);
 		header("Status: $code " . $status);
 		header('Content-type: application/json');
@@ -292,9 +296,13 @@ class Route
 		die;
 	}
 
-	final static function ApiError(int $code, array $data = []): never
+	final static function ApiError(int $code, mixed $data = null): never
 	{
 		$status = Route::$httpStatus[$code];
+		header_remove("X-Powered-By");
+		header("Access-Control-Allow-Orgin: *"); 
+		header("Access-Control-Allow-Methods: *"); 
+		header("Content-Type: application/json");
 		header("HTTP/1.1 $code " . $status);
 		header("Status: $code " . $status);
 		header('Content-type: application/json');
