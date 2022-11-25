@@ -21,11 +21,12 @@ class __Make
     private function resolution(): void
     {
         try {
-            if (in_array($this->argument, ['at', 'auto']))             $this->mAuto();
-            elseif (in_array($this->argument, ['a', 'api']))           $this->mApi();
-            elseif (in_array($this->argument, ['c', 'controller']))    $this->mController();
-            elseif (in_array($this->argument, ['m', 'model']))         $this->mModel();
-            elseif (in_array($this->argument, ['repo', 'repository'])) $this->mRepository();
+            if (in_array($this->argument, ['auto']))                    $this->mAuto();
+            elseif (in_array($this->argument, ['api']))                 $this->mApi();
+            elseif (in_array($this->argument, ['controller']))          $this->mController();
+            elseif (in_array($this->argument, ['model']))               $this->mModel();
+            elseif (in_array($this->argument, ['socket']))              $this->mSocket();
+            elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
             else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
         } catch (Error) {
            echo "\033[31m"." Ошибка в скрипте.\n";
@@ -44,6 +45,9 @@ class __Make
         } elseif (strrpos($this->name, 'Model')) {
             $this->argument = 'model';
             $this->mModel();
+        } elseif (strrpos($this->name, 'Socket')) {
+            $this->argument = 'socket';
+            $this->mSocket();
         } elseif (strrpos($this->name, 'Repository')) {
             $this->argument = 'repository';
             $this->mRepository();
@@ -80,6 +84,17 @@ class __Make
             $file = dirname(__DIR__) . "/Template/model";
             $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
+        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+    }
+
+    private function mSocket(): void
+    {
+        if (!strrpos($this->name, 'Socket')) {
+            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/socket";
+            $template = str_replace("_SocketIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/sockets', $template);
         } else echo "\033[33m". " Укажите имя для шаблона!\n";
     }
     

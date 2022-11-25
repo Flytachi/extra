@@ -8,6 +8,7 @@
 /app/*.conf
 /app/.cfg
 /app/.crt
+/app/pid.json
 /backup/
 /ssl/
 /public/media/
