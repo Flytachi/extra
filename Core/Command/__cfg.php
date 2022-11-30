@@ -18,6 +18,7 @@ class __Cfg
         ],
         'SSL' => [
             'MODE_ON' => null,
+            'REDIRECT_BODY_DATA' => false,
             'CERTIFICATE_FILE' => null,
             'CERTIFICATE_KEY_FILE' => null,
         ],
@@ -153,6 +154,7 @@ class __Cfg
             if ($ini['SSL']['MODE_ON'] == 1) {
                 foreach ($ini['HOSTS'] as $host) $hostsSSL .= $host . ':443 ';
                 $template = str_replace("__HOSTS_SSL__", trim($hostsSSL), $template);
+                $template = str_replace("__REDIRECT_TYPE__", ($ini['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
                 $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
             }
@@ -182,6 +184,7 @@ class __Cfg
             $template = str_replace("__ACCESS_METHOD__", str_replace(',', '|', $ini['NGINX']['ACCESS_METHOD']), $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
             if ($ini['SSL']['MODE_ON'] == 1) {
+                $template = str_replace("__REDIRECT_TYPE__", ($ini['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
                 $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
             }

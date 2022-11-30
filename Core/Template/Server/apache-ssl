@@ -1,8 +1,8 @@
 <VirtualHost __HOSTS__>
     ServerName __NAME__
-    RewriteEngine On
+    RewriteEngine On 
     RewriteCond %{HTTPS} off
-    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=__REDIRECT_TYPE__,L] 
 </VirtualHost>
 
 <VirtualHost __HOSTS_SSL__>
