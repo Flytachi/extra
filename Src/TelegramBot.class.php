@@ -3,6 +3,7 @@
 namespace Extra\Src;
 
 use METHOD;
+use Warframe;
 
 abstract class TelegramBot extends Controller
 {
@@ -10,7 +11,7 @@ abstract class TelegramBot extends Controller
      * 
      * TelegramBot
      * 
-     * @version 2.1
+     * @version 2.3
      * 
      * 
      * 
@@ -20,7 +21,6 @@ abstract class TelegramBot extends Controller
 
         class BotController extends TelegramBot
         {
-            public static string $token = "---BOT TOKEN---";
             protected bool $debug = true;
 
             protected function cluster(array $data): void
@@ -52,10 +52,11 @@ abstract class TelegramBot extends Controller
      * 
      */
 
-    public static string $token = '';
+    private static string $token;
     public static string $api = 'https://api.telegram.org/bot';
     public static string $apiSrc = 'https://api.telegram.org/file/bot';
     protected bool $debug = false;
+    protected string $serverScheme = SERVER_SCHEME;
     private string $uploadFolder = PATH_MEDIA;
     private string $folderQuestion = 'question';
     private string $folderPhoto = 'photos';
@@ -65,10 +66,35 @@ abstract class TelegramBot extends Controller
     public function receiver(): void
     {
         $this->method(METHOD::POST);
+        self::$token = Warframe::$cfg['TELEGRAM']['TOKEN'];
         $data = $this->receiverConstruct();
         if ($this->debug) $this->saveMessageToJson('message', $data);
         if(array_key_exists('message', $data)) $this->receiverDownloads($data['message']);
         $this->questCluster($data);
+    }
+
+    public final function connection()
+    {
+        $this->method(METHOD::GET);
+        Route::isAuthAdmin();
+        $token = Warframe::$cfg['TELEGRAM']['TOKEN'];
+        if (!$token) Route::ApiError(503);
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => self::$api . $token . '/setWebhook?url=' . $this->serverScheme . '/bot/receiver',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $this->renderJson(json_decode($response));
     }
 
     /*

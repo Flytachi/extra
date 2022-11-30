@@ -1,4 +1,11 @@
 <VirtualHost __HOSTS__>
+    ServerName __NAME__
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+
+<VirtualHost __HOSTS_SSL__>
     #   General setup for the virtual host
     DocumentRoot "__ROOT__"
     ServerAdmin __ADMIN__

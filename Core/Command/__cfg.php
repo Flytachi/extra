@@ -11,9 +11,13 @@ class __Cfg
             'SERVER_NAME' => null,
             'SERVER_PORT' => 80,
         ],
+        'NGINX' => [
+            'PHP_FPM_SOCK' => '/run/php-fpm/php-fpm.sock',
+            'SERVER_PORT' => 80,
+            'ACCESS_METHOD' => 'GET,HEAD,POST',
+        ],
         'SSL' => [
             'MODE_ON' => null,
-            'MODE_SERVER' => 'APACHE',
             'CERTIFICATE_FILE' => null,
             'CERTIFICATE_KEY_FILE' => null,
         ],
@@ -37,6 +41,9 @@ class __Cfg
             'NAME' => null,
             'USER' => null,
             'PASS' => null,
+        ],
+        'TELEGRAM' => [
+            'TOKEN' => null
         ]
     ];
 
@@ -59,6 +66,7 @@ class __Cfg
         elseif ($this->argument == "edit") $this->edit();
         elseif ($this->argument == "show") $this->show();
         elseif ($this->argument == "apache") $this->apache();
+        elseif ($this->argument == "nginx") $this->nginx();
         elseif ($this->argument == "ssl") $this->ssl();
         else echo "\033[31m"." Не такого аргумента.\n";
     }
@@ -124,11 +132,16 @@ class __Cfg
 
     private function apache(): void
     {
-        $file = dirname(__DIR__) . '/Template/Server/apache';
-        $errors = "";
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
             $hosts = '';
+            $hostsSSL = '';
+
+            if ($ini['SSL']['MODE_ON'] == 1) {
+                $file = dirname(__DIR__) . '/Template/Server/apache-ssl';
+            } else {
+                $file = dirname(__DIR__) . '/Template/Server/apache';
+            }
             foreach ($ini['HOSTS'] as $host) $hosts .= $host . ':' . $ini['APACHE']['SERVER_PORT']. ' ';
             $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
             $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
@@ -136,6 +149,14 @@ class __Cfg
             $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
             $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
+
+            if ($ini['SSL']['MODE_ON'] == 1) {
+                foreach ($ini['HOSTS'] as $host) $hostsSSL .= $host . ':443 ';
+                $template = str_replace("__HOSTS_SSL__", trim($hostsSSL), $template);
+                $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
+                $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
+            }
+            
             $fp = fopen(PATH_APP . '/apache.conf', "w");
             fwrite($fp, $template);
             fclose($fp);
@@ -143,26 +164,41 @@ class __Cfg
         } else echo "Configuration file not found.\n";
     }
 
-    private function ssl(): void
+    private function nginx(): void
     {
-        $file = dirname(__DIR__) . '/Template/Server/apache-ssl';
-        if (!is_dir('ssl')) mkdir('ssl');
         if (file_exists(CFG_PATH_CLOSE)) {
             $ini = cfgGet();
-            $hosts = '';
-            if ($ini['SSL']['MODE_ON']) {
-                foreach ($ini['HOSTS'] as $host) $hosts .= $host . ':443 ';
-                $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
-                $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
-                $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
+
+            if ($ini['SSL']['MODE_ON'] == 1) {
+                $file = dirname(__DIR__) . '/Template/Server/nginx-ssl';
+            } else {
+                $file = dirname(__DIR__) . '/Template/Server/nginx';
+            }
+
+            $hosts = implode(' ', $ini['HOSTS']);
+            $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
+            $template = str_replace("__PHP_FPM__", $ini['NGINX']['PHP_FPM_SOCK'], $template);
+            $template = str_replace("__PORT__", $ini['NGINX']['SERVER_PORT'], $template);
+            $template = str_replace("__ACCESS_METHOD__", str_replace(',', '|', $ini['NGINX']['ACCESS_METHOD']), $template);
+            $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
+            if ($ini['SSL']['MODE_ON'] == 1) {
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
                 $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
-                $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
-                $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
-                $fp = fopen(PATH_APP . '/apache-ssl.conf', "w");
-                fwrite($fp, $template);
-                fclose($fp);
+            }
+            $fp = fopen(PATH_APP . '/nginx.conf', "w");
+            fwrite($fp, $template);
+            fclose($fp);
 
+            echo "\033[32m". " Nginx конфигурация сгенерирована успешно!\n";
+        } else echo "Configuration file not found.\n";
+    }
+
+    private function ssl(): void
+    {
+        if (file_exists(CFG_PATH_CLOSE)) {
+            $ini = cfgGet();
+            if ($ini['SSL']['MODE_ON']) {
+                if (!is_dir('ssl')) mkdir('ssl');
                 exec("openssl genrsa -des3 -out ssl/server.key 1024;
                     openssl req -new -key ssl/server.key -out ssl/server.csr;
                     openssl rsa -in ssl/server.key -out ssl/server.key;
