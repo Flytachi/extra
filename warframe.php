@@ -19,6 +19,8 @@ class Warframe
 
     public final static function loader(): void
     {
+        if (PHP_SAPI === "cli-server") $_SERVER['REQUEST_SCHEME'] = "http";
+        
         require dirname(__DIR__) . '/defines.php';
         
         define('SERVER_SCHEME', $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['SERVER_NAME']);
