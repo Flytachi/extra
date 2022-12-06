@@ -2,25 +2,24 @@
 
 namespace Extra\Src;
 
-class WebSocketServer {
-
+class WebSocketServer 
+{
     /**
      * 
      * WebSocketServer
      * 
-     * @version 1.5
+     * @version 2.0
      */
 
     protected string $IP;
     protected int $PORT;
+    protected $timeWorkLimit = 0;
+    protected $verbose = false;
+    protected $logging = false;
 
     private $connection;
     private $connects;
-    private $timeWorkLimit = 0;
     private $startTime;
-    private $verbose = false;
-    private $logging = false;
-    private $logFile = 'ws-log.txt';
     private $resource;
 
 
@@ -43,11 +42,20 @@ class WebSocketServer {
     {
         set_time_limit(0);
         ob_implicit_flush();
+
+        spl_autoload_register(function ($class) {
+            $class = explode("\\", $class);
+            $file = PATH_APP . '/repository/' . $class[0] . '.php';
+            if (file_exists($file)) require $file;
+        });
     }
 
     public final function start(): void
     {
-        $this->settings(0, true);
+        if ($this->logging) {
+            if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
+            $this->resource = fopen(PATH_LOG . '/webSocket-' . get_class($this) . '.txt', 'a');
+        }
         $this->startServer();
     }
 
@@ -83,7 +91,11 @@ class WebSocketServer {
             if (in_array($this->connection, $read)) {
                 if (($connect = stream_socket_accept($this->connection, -1)) && $this->handshake($connect)) {
                     $this->connects[] = $connect;
-                    $this->handlerConnect($connect);
+                    try {
+                        $this->handlerConnect($connect);
+                    } catch (\Throwable $th) {
+                        $this->serverLog("WebSocketServer error 'handlerConnect':\n" . $th);
+                    }
                 }
                 unset($read[array_search($this->connection, $read)]);
             }
@@ -93,14 +105,22 @@ class WebSocketServer {
                 $decoded = self::decode($data);
                 
                 if (false === $decoded || 'close' === $decoded['type']) {
-                    $this->handlerDisconnect($connect);
+                    try {
+                        $this->handlerDisconnect($connect);
+                    } catch (\Throwable $th) {
+                        $this->serverLog("WebSocketServer error 'handlerDisconnect':\n" . $th);
+                    }
                     fwrite($connect, self::encode('  Closed on client demand', 'close'));
                     fclose($connect);
                     unset($this->connects[ array_search($connect, $this->connects) ]);
                     continue;
                 }
 
-                $this->handler($connect, $decoded['payload']);
+                try {
+                    $this->handler($connect, $decoded['payload']);
+                } catch (\Throwable $th) {
+                    $this->serverLog("WebSocketServer error 'handler':\n" . $th);
+                }
             }
 
             if ($this->timeWorkLimit && time() - $this->startTime > $this->timeWorkLimit) {
@@ -122,15 +142,6 @@ class WebSocketServer {
                 }
             }
         }
-    }
-
-    public final function settings($timeWorkLimit = 0, $verbose = false, $logging = false, $logFile = 'ws-log.txt'): void
-    {
-        $this->timeWorkLimit = $timeWorkLimit;
-        $this->verbose = $verbose;
-        $this->logging = $logging;
-        $this->logFile = $logFile;
-        if ($this->logging) $this->resource = fopen($this->logFile, 'a');
     }
 
     public final function serverLog($message): void

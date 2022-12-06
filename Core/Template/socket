@@ -6,6 +6,9 @@ class _SocketIndex_ extends WebSocketServer
 {
     protected string $IP = '127.0.0.1';
     protected int $PORT = 7777;
+    protected $timeWorkLimit = 0;
+    protected $verbose = false;
+    protected $logging = false;
 
     protected function handler($connect, $data)
     {

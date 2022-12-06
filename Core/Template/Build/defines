@@ -10,8 +10,9 @@ define('PATH_PLUGIN', dirname(__DIR__) . '/plugins');
 define('PATH_PUBLIC', dirname(__DIR__) . '/public');
 
 
+const PATH_LOG = PATH_APP . '/logs';
 const PATH_LIB = PATH_APP . '/libs';
-const PATH_MEDIA = PATH_PUBLIC . '/media/';
+const PATH_MEDIA = PATH_PUBLIC . '/media';
 
 // License
 define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');

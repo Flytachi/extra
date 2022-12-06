@@ -28,7 +28,8 @@ class __Socket
             elseif ($this->argument == "status") $this->status();
             else echo "\033[33m". " Команды '$this->argument' не существует!\n";
         } catch (Error $e) {
-            echo "\033[31m"." Ошибка в скрипте.\n";
+            dd($e);
+            // echo "\033[31m"." Ошибка в скрипте.\n";
         }
     }
 

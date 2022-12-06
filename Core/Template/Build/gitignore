@@ -3,8 +3,10 @@
 *.project
 /.settings
 /.idea
+/.vscode
 
 ## App ----
+/app/logs/
 /app/*.conf
 /app/.cfg
 /app/.crt

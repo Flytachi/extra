@@ -195,8 +195,8 @@ abstract class TelegramBot extends Controller
     private function receiverConstruct(): array
     {
         $folder = str_replace('Controller', '', get_class($this));
-        if( !is_dir(PATH_MEDIA . $folder) ) mkdir(PATH_MEDIA . $folder);
-        $this->uploadFolder = PATH_MEDIA . $folder;
+        if( !is_dir(PATH_MEDIA . '/' . $folder) ) mkdir(PATH_MEDIA . '/' . $folder);
+        $this->uploadFolder = PATH_MEDIA . '/' . $folder;
         $data = file_get_contents('php://input');
         return json_decode($data, true);
     }
@@ -291,8 +291,8 @@ abstract class TelegramBot extends Controller
         $className = static::class;
         $class = new $className;
         $folder = str_replace('Controller', '', $className);
-        if( !is_dir(PATH_MEDIA . $folder) ) mkdir(PATH_MEDIA . $folder);
-        $class->uploadFolder = PATH_MEDIA . $folder;
+        if( !is_dir(PATH_MEDIA . '/' . $folder) ) mkdir(PATH_MEDIA . '/' . $folder);
+        $class->uploadFolder = PATH_MEDIA . '/' . $folder;
         return $class;
     }
 

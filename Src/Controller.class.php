@@ -86,7 +86,7 @@ abstract class Controller
     {
         $uploadFolder = str_replace('Controller', '', get_class($this));
         // $uploadDir = PATH_MEDIA . $uploadFolder;
-        if( !is_dir(PATH_MEDIA . $uploadFolder) ) mkdir(PATH_MEDIA . $uploadFolder);
+        if( !is_dir(PATH_MEDIA . '/' . $uploadFolder) ) mkdir(PATH_MEDIA . '/' . $uploadFolder);
 
         if ( $file['name'] ) {
             // Upload File
@@ -109,7 +109,7 @@ abstract class Controller
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
-                    if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
+                    if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
                     else{
                         Route::ErrorResponseJson(array(
                             'status' => 'error',
