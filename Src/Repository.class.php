@@ -30,7 +30,12 @@ class Repository
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
         }else $this->table = $table_As;
-        $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
+
+        try {
+            $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
+        } catch (\Error) {
+            $this->CRD_debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
+        }
         $this->setCfg();
     }
 
@@ -63,7 +68,11 @@ class Repository
         if ($cfgDatabase) {
             $this->db = new CDO($cfgDatabase, $this->CRD_debug);
         } else {
-            $this->db = new CDO(Warframe::$cfg['DATABASE'], $this->CRD_debug);
+            try {
+                $this->db = new CDO(Warframe::$cfg['DATABASE'], $this->CRD_debug);
+            } catch (\Error) {
+                $this->db = new CDO(cfgGet()['DATABASE'], $this->CRD_debug);
+            }
         }
     }
 
@@ -137,19 +146,24 @@ class Repository
         } else return $this->buildSql();
     }
 
-    final public function Option(string $option): Repository
+    final public function test(): self
+    {
+        return $this;
+    }
+
+    final public function Option(string $option): self
     {
         $this->CRD_SQL['option'] = $option;
         return $this;
     }
 
-    final public function As(string $table_as): Repository
+    final public function As(string $table_as): self
     {
         $this->CRD_SQL['as'] = $table_as;
         return $this;
     }
 
-    final public function Join(Repository $repository, string $on): Repository
+    final public function Join(self $repository, string $on): self
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         $this->CRD_SQL['join'] .= ' JOIN ' . $context;
@@ -159,7 +173,7 @@ class Repository
         return $this;
     }
 
-    final public function JoinLEFT(Repository $repository, string $on): Repository
+    final public function JoinLEFT(self $repository, string $on): self
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
@@ -168,7 +182,7 @@ class Repository
         return $this;
     }
 
-    final public function JoinRIGHT(Repository $repository, string $on): Repository
+    final public function JoinRIGHT(self $repository, string $on): self
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
@@ -177,7 +191,7 @@ class Repository
         return $this;
     }
 
-    final public function Where(string|array $context): Repository
+    final public function Where(string|array $context): self
     {
         $this->CRD_SQL['where'] = 'WHERE ';
         if (is_array($context)) {
@@ -192,7 +206,7 @@ class Repository
         return $this;
     }
 
-    final public function Union(Repository $repository): Repository
+    final public function Union(self $repository): self
     {
         if (array_key_exists('union', $this->CRD_SQL)) {
             $this->CRD_SQL['union'] .= ' UNION ' . $repository->getSql();
@@ -200,19 +214,19 @@ class Repository
         return $this;
     }
 
-    final public function Group(string $context): Repository
+    final public function Group(string $context): self
     {
         $this->CRD_SQL['group'] = 'GROUP BY ' . $context;
         return $this;
     }
 
-    final public function Order(string $context): Repository
+    final public function Order(string $context): self
     {
         $this->CRD_SQL['order'] = 'ORDER BY ' . $context;
         return $this;
     }
 
-    final public function Limit(int $limit): Repository
+    final public function Limit(int $limit): self
     {
         $this->CRD_SQL['limit'] = $limit;
         return $this;   

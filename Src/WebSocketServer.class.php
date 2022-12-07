@@ -2,13 +2,15 @@
 
 namespace Extra\Src;
 
+use Warframe;
+
 class WebSocketServer 
 {
     /**
      * 
      * WebSocketServer
      * 
-     * @version 2.0
+     * @version 2.1
      */
 
     protected string $IP;
@@ -62,7 +64,7 @@ class WebSocketServer
     public final function __destruct() 
     {
         if (is_resource($this->connection)) $this->stopServer();
-        if ($this->logging) fclose($this->resource);
+        if ($this->logging && $this->resource) fclose($this->resource);
     }
 
     public final function startServer(): void
