@@ -28,14 +28,29 @@ class __Db
     private function resolution(): void
     {
         try {
-            if($this->argument == "migrate") $this->migrate();
+            if($this->argument == "skeleton") $this->skeleton();
+            elseif($this->argument == "migrate") $this->migrate();
             elseif($this->argument == "delete") $this->delete();
             elseif($this->argument == "seed") $this->seed();
             else echo "\033[31m"." Нет такого аргумента.\n";
         } catch (\Error $e) {
-            echo $e->getMessage();
-//            echo "\033[31m"." Ошибка в скрипте.\n";
+            echo "\033[31m"." Ошибка в скрипте.\n";
         }
+    }
+
+    private function skeleton(): void
+    {
+        if (!is_dir($this->path_database)) mkdir($this->path_database);
+        if ($this->name) {
+            $ini = cfgGet();
+            $user = $ini['DATABASE']['USER'];
+            $pass = $ini['DATABASE']['PASS'];
+            $host = $ini['DATABASE']['HOST'];
+            $port = $ini['DATABASE']['PORT'];
+            $name = $ini['DATABASE']['NAME'];
+            exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' --skip-opt --single-transaction --tz-utc --no-data --create-options --triggers $name | sed 's/^CREATE TABLE /CREATE TABLE IF NOT EXISTS /' > {$this->path_database}/{$this->name}.sql");
+            echo "\033[32m" . " Скелет базы успешно создан.\n";
+        }else echo "\033[33m"." Введите название скелета базы.\n";
     }
 
     private function migrate(): void
@@ -105,16 +120,10 @@ class __Db
         echo "\033[32m"." Данные успешно внесены.\n";
     }
 
-    private function create_file($code): void
-    {
-        $file_name = date("Y-m-d_h-i-s");
-        $file = fopen("$this->path_base/$file_name.$this->format", "w");
-        fwrite($file, $code);
-    }
-
     private function help(): void
     {
         echo "\033[33m"." =======> Help <======= \n";
+        echo "\033[33m"."  :skeleton -  Создать образ базы данных.\n";
         echo "\033[33m"."  :migrate  -  Миграция образа базы данных.\n";
         echo "\033[33m"."  :delete   -  Удалить все таблице в базе данных.\n";
         echo "\033[33m"."  :seed     -  Внести данные в базу данных. (можно указать таблицу)\n";

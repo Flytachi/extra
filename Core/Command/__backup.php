@@ -80,7 +80,12 @@ class __Backup
         if ($this->is_dir()) {
             $ini = cfgGet();
             $file_name = $this->name ?? date("Y-m-d_H-i-s");
-            exec("mysqldump -u " . $ini['DATABASE']['USER'] . " -p" . $ini['DATABASE']['PASS'] . " " . $ini['DATABASE']['NAME'] . " > $this->path/$file_name.$this->file_format");
+            $user = $ini['DATABASE']['USER'];
+            $pass = $ini['DATABASE']['PASS'];
+            $host = $ini['DATABASE']['HOST'];
+            $port = $ini['DATABASE']['PORT'];
+            $name = $ini['DATABASE']['NAME'];
+            exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' $name > $this->path/$file_name.$this->file_format");
             echo "\033[32m"." Дамп успешно создан.\n";
         }else echo "\033[33m"." Директория для резервного копирования не существует.\n";
     }
