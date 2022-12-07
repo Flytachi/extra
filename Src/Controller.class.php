@@ -2,7 +2,6 @@
 
 namespace Extra\Src;
 
-use Exception;
 use METHOD;
 
 abstract class Controller 

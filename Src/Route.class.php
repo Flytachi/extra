@@ -2,7 +2,9 @@
 
 namespace Extra\Src;
 
+use Exception;
 use Throwable;
+use Warframe;
 
 class Route
 {
@@ -10,7 +12,7 @@ class Route
      * 
      * Route
      * 
-     * @version 9.7
+     * @version 9.9
      */
 
 	
@@ -70,8 +72,13 @@ class Route
 
 	final static function start(): void
 	{
-		if (ROUTE_PLUGIN_SYSTEM) Route::routePlugin();
-		else Route::routeApp();	
+		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0){
+			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) 
+				dd(new Exception('PHP discarded POST data because of request exceeding post_max_size.'));
+			else self::ErrorPage(413);
+        }
+		if (ROUTE_PLUGIN_SYSTEM) self::routePlugin();
+		else self::routeApp();	
 	}
 
 	final static function loader(): void
@@ -97,16 +104,16 @@ class Route
 	
 	final static function routeApp(): never
 	{
-		Route::loader();
+		self::loader();
 		$controllerName = ROUTE_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
 		$params = null;
 		
-		$data = Route::urlToArray($_SERVER['REQUEST_URI']);
+		$data = self::urlToArray($_SERVER['REQUEST_URI']);
 		$routes = explode('/', $data['url']);
 
 		if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
-		if ( $controllerName === 'Api' ) Route::routeApi($data);
+		if ( $controllerName === 'Api' ) self::routeApi($data);
 		if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 		if ( !empty($routes[3]) ) {
 			$params = array_slice($routes, 3);
@@ -122,29 +129,29 @@ class Route
 		if ( file_exists($funcPath) ) require $funcPath;
 		
 		// Imitation
-		if(!class_exists($controllerName)) Route::ErrorPage(404);
+		if(!class_exists($controllerName)) self::ErrorPage(404);
 		try {
             self::imitation($controllerName, $actionName, $params);
 		} catch (Throwable $e) {
-			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else Route::ErrorPage(400);
+			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else self::ErrorPage(400);
 		}
 		exit;
 	}
 
 	final static function routePlugin(): never
 	{
-		Route::pluginLoader();
+		self::pluginLoader();
 		$pluginName = "";
 		$controllerName = ROUTE_PLUGIN_MAIN_CONTROLLER;
 		$actionName = ROUTE_MAIN_ACTION;
 		$params = null;
 
-		$data = Route::urlToArray($_SERVER['REQUEST_URI']);
+		$data = self::urlToArray($_SERVER['REQUEST_URI']);
 		$routes = explode('/', $data['url']);
 
 		if ( !empty($routes[1]) ) $pluginName = ucfirst($routes[1]);
-		if ( $pluginName === 'Api' ) Route::routeApi($data);
+		if ( $pluginName === 'Api' ) self::routeApi($data);
 
 		// Checking
 		if (checkPlugin($pluginName)) {
@@ -181,15 +188,15 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
-			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else Route::ErrorPage(400);
+			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else self::ErrorPage(400);
 		}
 		exit;
 	}
 
 	final static function routeApi(array $data): never
 	{
-		if (!ROUTE_API_SYSTEM) Route::ApiError(400);
+		if (!ROUTE_API_SYSTEM) self::ApiError(400);
 		$routes = explode('/', $data['url']);
 		$_GET = $data['get'];
 		$chP =  (isset($routes[2])) ? checkPlugin(ucfirst($routes[2])) : null;
@@ -235,8 +242,8 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
-			if (cfgGet()['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else Route::ApiError(400);
+			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
+			else self::ApiError(400);
 		}
 		exit;
 	}
@@ -280,20 +287,20 @@ class Route
 	static function isAuth(bool|int $redirect = false):void
 	{
 		if ($redirect) {
-			if (empty($_SESSION['id'])) Route::redirect('auth/login');
+			if (empty($_SESSION['id'])) self::redirect('auth/login');
 		} else {
-			if (empty($_SESSION['id'])) Route::ErrorPage(423);
+			if (empty($_SESSION['id'])) self::ErrorPage(423);
 		}
 	}
 
 	static function isAuthAdmin(bool|int $redirect = false):void
 	{
 		if ($redirect) {
-			if (empty($_SESSION['id'])) Route::redirect('auth/login');
+			if (empty($_SESSION['id'])) self::redirect('auth/login');
 		} else {
-			if (empty($_SESSION['id'])) Route::ErrorPage(423);
+			if (empty($_SESSION['id'])) self::ErrorPage(423);
 		}
-		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) Route::ErrorPage(423);
+		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) self::ErrorPage(423);
 	}
 	
 	final static function redirect(string $url = null, array $param = null): never
@@ -305,12 +312,12 @@ class Route
 	
 	final static function ErrorPage(int $code): never
 	{
-        header("HTTP/1.1 $code " . Route::$httpStatus[$code]);
-		header("Status: $code " . Route::$httpStatus[$code]);
+        header("HTTP/1.1 $code " . self::$httpStatus[$code]);
+		header("Status: $code " . self::$httpStatus[$code]);
 		$page = PATH_PUBLIC . '/' . VIEW_ERROR . "/$code.php";
 		if (file_exists($page)) die( include $page );
 		else {
-			$_error = $code . ' ' . Route::$httpStatus[$code];
+			$_error = $code . ' ' . self::$httpStatus[$code];
 			die( include PATH_PUBLIC . '/' . VIEW_ERROR . "/system.php" );
 		}
 		die;
@@ -326,7 +333,7 @@ class Route
 	final static function ApiSuccess(mixed $data = null): never
 	{
 		$code = 200;
-		$status = Route::$httpStatus['200'];
+		$status = self::$httpStatus['200'];
 		header_remove("X-Powered-By");
 		header("Access-Control-Allow-Orgin: *"); 
 		header("Access-Control-Allow-Methods: *");
@@ -344,7 +351,7 @@ class Route
 
 	final static function ApiError(int $code, mixed $data = null): never
 	{
-		$status = Route::$httpStatus[$code];
+		$status = self::$httpStatus[$code];
 		header_remove("X-Powered-By");
 		header("Access-Control-Allow-Orgin: *"); 
 		header("Access-Control-Allow-Methods: *"); 

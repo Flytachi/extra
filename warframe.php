@@ -28,13 +28,14 @@ class Warframe
         Warframe::loadFunction();
         Warframe::$cfg = cfgGet();
         Warframe::loadSrc();
+
+        date_default_timezone_set(self::$cfg['GLOBAL_SETTING']['TIME_ZONE']);
         if (!Warframe::softLicenseCorrect()) dieConnection('The software license is incorrect or outdated.');
     }
 
     public final static function loadFunction(): void
     {
-        foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
-        date_default_timezone_set(cfgGet()['GLOBAL_SETTING']['TIME_ZONE']);
+        foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;   
     }
 
     public final static function loadSrc(): void

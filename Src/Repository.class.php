@@ -4,6 +4,7 @@ namespace Extra\Src;
 
 use PDO;
 use Throwable;
+use Warframe;
 
 class Repository
 {
@@ -11,7 +12,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 3.5
+     * @version 3.7
      */
 
 
@@ -29,7 +30,7 @@ class Repository
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
         }else $this->table = $table_As;
-        $this->CRD_debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
+        $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
         $this->setCfg();
     }
 
@@ -62,7 +63,7 @@ class Repository
         if ($cfgDatabase) {
             $this->db = new CDO($cfgDatabase, $this->CRD_debug);
         } else {
-            $this->db = new CDO(cfgGet()['DATABASE'], $this->CRD_debug);
+            $this->db = new CDO(Warframe::$cfg['DATABASE'], $this->CRD_debug);
         }
     }
 
