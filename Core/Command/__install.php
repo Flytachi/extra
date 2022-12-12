@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Install
 {
     private mixed $argument;
@@ -28,16 +30,16 @@ class __Install
 //                foreach ($git_links as $link => $folder) echo exec("git clone $link $this->path/$folder");
             }
         } catch (Error $e) {
-            echo "\033[31m"." Ошибка в скрипте.\n";
+            Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
 
     public function help()
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :git      -  установить компоненты \"git\".\n";
-        echo "\033[33m"."  :npm      -  установить компоненты \"npm\".\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":git          -  Установить компоненты \"git\".");
+        Core::logText(":npm          -  Установить компоненты \"npm\".");
+        Core::logLabel("End");
     }
 
 }

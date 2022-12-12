@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Run
 {
     function __construct($value = null, $name = null)
@@ -9,13 +11,11 @@ class __Run
         $connection = @fsockopen($host, $port);
 
         if (is_resource($connection)) {
-            echo "\033[33m". " Порт '$port' уже занят!\n";
+            Core::logMessage("Порт '$port' уже занят!");
             fclose($connection);
         } else {
-            echo "\033[32m"." Запуск сервера 'http://" . $host . ':' . $port . "'!\n";
-            echo "\033[0m";
+            Core::logMessage("Запуск сервера 'http://" . $host . ':' . $port . "'!", 32);
             exec('php -S ' . $host . ':' . $port . ' -t public/');
         }
-        
     }
 }

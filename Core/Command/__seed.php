@@ -1,5 +1,6 @@
 <?php
 
+use Console\Core;
 use Extra\Src\CDO;
 
 class __Seed
@@ -14,16 +15,9 @@ class __Seed
     {
         if ($name) {
             $this->name = $name;
-            if ($this->generate()) {
-                echo "\033[32m". " Генерация прошла успешно.\n";
-            }else {
-                echo "\033[31m"." Ошибка при генерации.\n";
-            }
-        } else {
-            echo "\033[33m"." Введите аргумент! (название таблицы)\n";
-            return 0;
-        }
-        
+            if ($this->generate()) Core::logMessage("Генерация прошла успешно.", 32);
+            else Core::logMessage("Ошибка при генерации.", 31);
+        } else Core::logMessage("Введите аргумент! (название таблицы).");
     }
 
     private function generate(): bool
@@ -33,14 +27,12 @@ class __Seed
         $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
 
         if ($db->query("SHOW TABLES LIKE '$this->name';")->rowCount()) {
-            foreach ($db->query("SELECT * FROM $this->name") as $value) {
+            foreach ($db->query("SELECT * FROM $this->name") as $value)
                 $this->json[] = $value;
-            }
             return $this->create_file();
-        } else {
-            echo "\033[31m"." Таблица $this->name не найдена.\n";
-            return false;
-        }
+        } 
+        else Core::logMessage("Таблица {$this->name} не найдена.");
+        return false;
     }
 
     private function create_file(): bool

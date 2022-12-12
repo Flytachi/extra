@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Socket
 {
     private mixed $argument;
@@ -26,10 +28,9 @@ class __Socket
             elseif ($this->argument == "start") $this->start();
             elseif ($this->argument == "stop") $this->stop();
             elseif ($this->argument == "status") $this->status();
-            else echo "\033[33m". " Команды '$this->argument' не существует!\n";
+            else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (Error $e) {
-            dd($e);
-            // echo "\033[31m"." Ошибка в скрипте.\n";
+            Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
 
@@ -42,7 +43,8 @@ class __Socket
 
                 $selfPID = $this->jsonPIDdata($this->name);
                 if ($selfPID) {
-                    echo "\033[33m". " Сокет уже запущен! \n PID: $selfPID\n";
+                    Core::logMessage("Сокет уже запущен!");
+                    Core::logMessage("PID: " . $selfPID);
                 } else {
                     $processId = shell_exec(sprintf(
                         '%s > %s 2>&1 & echo $!',
@@ -50,11 +52,12 @@ class __Socket
                         "/dev/null"
                     ));
                     $this->jsonAddPID($processId, $this->name);
-                    echo "\033[32m" . " Сокет $this->name запущен!\n PID: " . $processId;
+                    Core::logMessage("Сокет {$this->name} запущен!", 32);
+                    Core::logMessage("PID: " . $processId, 32);
                 }
 
-            } else echo "\033[33m". " Сокет не найден!\n";
-        } else echo "\033[33m". " Укажите имя сокета!\n";
+            } else Core::logMessage("Сокет не найден!");
+        } else Core::logMessage("Укажите имя сокета!");
     }
 
     private function stop(): void
@@ -68,12 +71,12 @@ class __Socket
                 if ($selfPID != false) {
                     if (posix_kill($selfPID, SIGKILL)) {
                         $this->jsonDeletePID($selfPID);
-                        echo "\033[32m" . " Сокет $this->name остановлен.\n";
+                        Core::logMessage("Сокет {$this->name} остановлен.", 32);
                     }
-                } else echo "\033[33m". " Не найден сокет процесс!\n";
+                } else Core::logMessage("Не найден сокет процесс!");
 
-            } else echo "\033[33m". " Сокет не найден!\n";
-        } else echo "\033[33m". " Укажите имя сокета!\n";
+            } else Core::logMessage("Сокет не найден!");
+        } else Core::logMessage("Укажите имя сокета!");
     }
 
     private function run(): void
@@ -86,12 +89,11 @@ class __Socket
                 Warframe::loadSrc();
                 include $socketFile;
                 $socket = new $this->name;
-                if ($socket->statusConnection()) {
-                    echo "\033[33m". " Сокет уже запущен!\n";
-                } else $socket->start();
+                if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
+                else $socket->start();
 
-            } else echo "\033[33m". " Сокет не найден!\n";
-        } else echo "\033[33m". " Укажите имя сокета!\n";
+            } else Core::logMessage("Сокет не найден!");
+        } else Core::logMessage("Укажите имя сокета!");
     }
 
     private function status(): void
@@ -107,7 +109,7 @@ class __Socket
                 (new $class)->connection();
             }
             
-        } else echo "\033[33m". " Папка сокетов не найдена!\n";
+        } else Core::logMessage("Папка сокетов не найдена!");
     }
 
     private function jsonAddPID(int $pid, string $pidName)
@@ -120,9 +122,7 @@ class __Socket
             file_put_contents($filePath, $jsonData);
         } else {
             $file = fopen($filePath, "x");
-            $data = [
-                'sockets' => [$pid=>$pidName]
-            ];
+            $data = ['sockets' => [$pid=>$pidName]];
             fwrite($file, json_encode($data, JSON_PRETTY_PRINT));
         }
     }
@@ -149,12 +149,12 @@ class __Socket
 
     private function help(): void
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :run          -  Запустить сокет сервер.\n";
-        echo "\033[33m"."  :start        -  Запустить сокет сервер в фоновом процессе.\n";
-        echo "\033[33m"."  :stop         -  Остановить сокет сервер.\n";
-        echo "\033[33m"."  :status       -  Статус сокетов.\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":run          -  Запустить сокет сервер.");
+        Core::logText(":start        -  Запустить сокет сервер в фоновом процессе.");
+        Core::logText(":stop         -  Остановить сокет сервер.");
+        Core::logText(":status       -  Статус сокетов.");
+        Core::logLabel("End");
     }
 
 }

@@ -19,10 +19,10 @@ class WebSocketServer
     protected $verbose = false;
     protected $logging = false;
 
-    private $connection;
-    private $connects;
-    private $startTime;
-    private $resource;
+    protected $connection;
+    protected $connects;
+    protected $startTime;
+    protected $resource;
 
 
     protected function handler($connect, $data)

@@ -38,13 +38,17 @@ class Core
                 $Class_construct = "\__".$Class;
                 $Arg = str_replace(":", "", stristr($this->arguments[1], ":"));
             }else {
+                $Class = $this->arguments[1];
                 $Class_construct = "\__".ucfirst($this->arguments[1]);
                 $Arg = null;
             }
+
             $Arg2 = $this->arguments[2] ?? null;
+            $this->logStart($Class . (($Arg) ? ' -> ' . $Arg : ''));
             new $Class_construct($Arg, $Arg2);
-        } catch (Error) {
-            echo "\033[31m"." Нет такой команды.\n";
+
+        } catch (Error $e) {
+            Core::logMessage("Нет такой команды.", 31);
         }
         echo "\033[0m";
 
@@ -52,10 +56,48 @@ class Core
 
     private function help(): void
     {
-        echo "\033[33m"." ===========> Welcome to Warframe <=========== \n";
-        echo "\033[33m"." Доступные команды: \n";
-        foreach (glob(__DIR__."/$this->command_dir/*") as $command) echo "\033[33m"."  " . mb_strtolower(substr(strstr(basename($command), '_'), 2, -4)) . "\n";
-        echo "\033[33m"." ============================================= \n";
+        self::logTitle("Welcome to Warframe", 32);
+        self::loglabel("Доступные команды:", 32);
+        foreach (glob(__DIR__."/$this->command_dir/*") as $command) self::logText(mb_strtolower(substr(strstr(basename($command), '_'), 2, -4)), 32);
+        self::logTitle("===================", 32);
+    }
+
+    public static function logStart(string $arg): void
+    {
+        echo "\033[32m"." |===> {$arg}\n";
+        echo "\033[0m";
+    }
+
+    public static function logTitle(string $message, int $cl = 33): void
+    {
+        echo "\033[" . $cl . "m"." | [================ $message ================]\n";
+        echo "\033[0m";
+    }
+
+    public static function logLabel(string $message, int $cl = 33): void
+    {
+        echo "\033[" . $cl . "m"." | [ $message ]\n";
+        echo "\033[0m";
+    }
+
+    public static function logText(string $message, int $cl = 33): void
+    {
+        echo "\033[" . $cl . "m"." |\t $message \n";
+        echo "\033[0m";
+    }
+
+    public static function logTextSplit(string $message = '', int $cl = 33): void
+    {
+        if ($message) {
+            foreach (explode(PHP_EOL, $message) as $str)
+                echo "\033[" . $cl . "m"." |\t $str \n";
+        } else echo "\033[" . $cl . "m"." |\t Нет данных \n";
+        echo "\033[0m";
+    }
+
+    public static function logMessage(string $message, int $cl = 33): void
+    {
+        echo "\033[" . $cl . "m"." |==> $message \n";
         echo "\033[0m";
     }
 

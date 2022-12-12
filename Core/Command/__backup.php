@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Backup
 {
     private mixed $argument;
@@ -30,24 +32,24 @@ class __Backup
             elseif ($this->argument == "create") $this->create();
             elseif ($this->argument == "delete") $this->delete();
             elseif ($this->argument == "migrate") $this->migrate();
-            else echo "\033[31m"." Нет такого аргумента.\n";
+            else Core::logMessage("Нет такого аргумента.", 31);
         } catch (Error) {
-            echo "\033[31m"." Ошибка в скрипте.\n";
+            Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
 
     private function init(): void
     {
         if (!is_dir($this->path)) {
-            if (mkdir($this->path, 0764, true)) echo "\033[32m"." Директория для резервного копирования создана.\n";
-        }else echo "\033[32m"." Директория для резервного копирования уже существует.\n";
+            if (mkdir($this->path, 0764, true)) Core::logMessage("Директория для резервного копирования создана.", 32);
+        }else Core::logMessage("Директория для резервного копирования уже существует.");
     }
 
     private function remove(): void
     {
         if (is_dir($this->path)) {
-            if ($this->delTree($this->path)) echo "\033[32m"." Директория для резервного удаленна.\n";
-        }else echo "\033[32m"." Директория для резервного копирования не существует.\n";
+            if ($this->delTree($this->path)) Core::logMessage("Директория для резервного удаленна.", 32);
+        }else Core::logMessage("Директория для резервного копирования не существует.");
     }
 
     private function delTree($dir): bool
@@ -69,10 +71,12 @@ class __Backup
     {
         if ($this->is_dir()) {
             $scanned_files = array_diff(scandir($this->path), array('..', '.'));
+            Core::logLabel("Дампы");
             foreach ($scanned_files as $file) {
-                print_r(pathinfo($file, PATHINFO_FILENAME)."\n");
+                Core::logText(pathinfo($file, PATHINFO_FILENAME));
             }
-        }else echo "\033[33m"." Директория для резервного копирования не существует.\n";
+            Core::logLabel("Дампы");
+        }else Core::logMessage("Директория для резервного копирования не существует.");
     }
 
     private function create(): void
@@ -85,42 +89,52 @@ class __Backup
             $host = $ini['DATABASE']['HOST'];
             $port = $ini['DATABASE']['PORT'];
             $name = $ini['DATABASE']['NAME'];
-            exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' $name > $this->path/$file_name.$this->file_format");
-            echo "\033[32m"." Дамп успешно создан.\n";
-        }else echo "\033[33m"." Директория для резервного копирования не существует.\n";
+            $fileName = $this->path . '/' . $file_name . '.' . $this->file_format;
+            exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' $name > $fileName");
+            Core::logMessage("Дамп успешно создан.", 32);
+            Core::logMessage("* backup: '" . basename($fileName, '.sql') . "'", 32);
+        }else Core::logMessage("Директория для резервного копирования не существует.");
     }
 
     private function delete(): void
     {
         if ($this->is_dir()) {
             if ($this->name) {
-                unlink("$this->path/$this->name.$this->file_format");
-                echo "\033[32m"." Дамп успешно удалён.\n";
-            }else echo "\033[33m"." Введите название удаляемого дампа.\n";
-        }else echo "\033[33m"." Директория для резервного копирования не существует.\n";
+                $fileName = "$this->path/$this->name.$this->file_format";
+                if (file_exists($fileName)) {
+                    unlink($fileName);
+                    Core::logMessage("Дамп успешно удалён.", 32);
+                } else Core::logMessage("Дамп не найден.");
+            } else Core::logMessage("Введите название удаляемого дампа.");
+        } else Core::logMessage("Директория для резервного копирования не существует.");
     }
 
     private function migrate(): void
     {
         if ($this->is_dir()) {
             if ($this->name) {
-                $ini = cfgGet();
-                exec("mysql -u " . $ini['DATABASE']['USER'] . " -p" . $ini['DATABASE']['PASS'] . " " . $ini['DATABASE']['NAME'] . " < $this->path/$this->name.$this->file_format");
-                echo "\033[32m"." Миграция дампа прошла успешно.\n";
-            }else echo "\033[33m"." Введите название файла дампа.\n";
-        }else echo "\033[33m"." Директория для резервного копирования не существует.\n";
+                $fileName = "$this->path/$this->name.$this->file_format";
+                if (file_exists($fileName)) {
+                    
+                    $ini = cfgGet();
+                    exec("mysql -u " . $ini['DATABASE']['USER'] . " -p" . $ini['DATABASE']['PASS'] . " " . $ini['DATABASE']['NAME'] . " < $fileName");
+                    Core::logMessage("Миграция дампа прошла успешно.", 32);
+
+                } else Core::logMessage("Дамп не найден.");
+            }else Core::logMessage("Введите название файла дампа.");
+        }else Core::logMessage("Директория для резервного копирования не существует.");
     }
 
     private function help(): void
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :init     -  Создать директорию резервного копирования.\n";
-        echo "\033[33m"."  :remove   -  Удалить директорию резервного копирования.\n";
-        echo "\033[33m"."  :show     -  Просмотр резервных копий.\n";
-        echo "\033[33m"."  :create   -  Создать резервную копию.\n";
-        echo "\033[33m"."  :delete   -  Удалить резервную копию (указать резервную копию).\n";
-        echo "\033[33m"."  :migrate  -  Востановить резервную копию (указать резервную копию).\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":init         -  Создать директорию резервного копирования.");
+        Core::logText(":create       -  Создать резервную копию (можно указать имя копии).");
+        Core::logText(":show         -  Просмотр резервных копий.");
+        Core::logText(":migrate      -  Востановить резервную копию (нужно указать резервную копию).");
+        Core::logText(":delete       -  Удалить резервную копию (нужно указать резервную копию).");
+        Core::logText(":remove       -  Удалить директорию резервного копирования.");
+        Core::logLabel("End");
     }
 
 }

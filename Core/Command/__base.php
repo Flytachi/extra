@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Base
 {
     private String $db_driver = "mysql";
@@ -20,15 +22,16 @@ class __Base
 
     private function handle(): void
     {
-        echo "\033[33m"." Требуется 2 аргумента \"base:1 2\"\n";
-        echo "\033[33m"." 1 => Логин пользователя от базы данных.\n";
-        echo "\033[33m"." 2 => Пароль пользователя от базы данных.\n";
+        Core::logLabel("Help");
+        Core::logText("Требуется 2 аргумента \"base:!1 !2\"");
+        Core::logText("!1 => Логин пользователя от базы данных.");
+        Core::logText("!2 => Пароль пользователя от базы данных.");
+        Core::logLabel("End");
     }
 
     private function create(): void
     {
         $ini = cfgGet();
-
         $create_db_name = $ini['DATABASE']['NAME'];
         $create_db_user = $ini['DATABASE']['USER'];
         $create_db_port = $ini['DATABASE']['PORT'];
@@ -45,10 +48,9 @@ class __Base
             $rootDB->exec("GRANT USAGE ON *.* TO '$create_db_user'@'%' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;");
             $rootDB->exec("CREATE DATABASE IF NOT EXISTS `$create_db_name`;GRANT ALL PRIVILEGES ON `$create_db_name`.* TO '$create_db_user'@'%';");
             $rootDB->exec("FLUSH PRIVILEGES;");
-            echo "\033[32m"." Пользователь и база данных успешно созданы.\n";
-
+            Core::logMessage("Пользователь и база данных успешно созданы.", 32);
         } catch (PDOException) {
-            echo "\033[31m"." Ошибка в скрипте.\n";       
+            Core::logMessage("Ошибка в скрипте.", 31);
             // die($e);
         }
     }

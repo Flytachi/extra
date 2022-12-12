@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Component
 {
     private mixed $argument;
@@ -91,10 +93,10 @@ class __Component
 
     private function help(): void
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :init    -  Инициализация фреймфорка.\n";
-        echo "\033[33m"."  :install -  Инициализация пакета из репозитория.\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":init         -  Инициализация фреймфорка.");
+        Core::logText(":install      -  Инициализация пакета из репозитория.");
+        Core::logLabel("End");
     }
 
 }

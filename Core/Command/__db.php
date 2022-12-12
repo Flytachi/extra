@@ -1,5 +1,6 @@
 <?php
 
+use Console\Core;
 use Extra\Src\CDO;
 
 class __Db
@@ -10,7 +11,6 @@ class __Db
     private String $path_data_seed = PATH_APP . "/dist/data";
     private String $path_cdo = "/Src/CDO.class.php";
     private String $seed_format = "json";
-
 
     function __construct($value = null, $name = null)
     {
@@ -30,27 +30,13 @@ class __Db
         try {
             if($this->argument == "skeleton") $this->skeleton();
             elseif($this->argument == "migrate") $this->migrate();
+            elseif($this->argument == "compare") $this->compare();
             elseif($this->argument == "delete") $this->delete();
             elseif($this->argument == "seed") $this->seed();
-            else echo "\033[31m"." Нет такого аргумента.\n";
+            else Core::logMessage("Нет такого аргумента.", 31);
         } catch (\Error $e) {
-            echo "\033[31m"." Ошибка в скрипте.\n";
+            Core::logMessage("Ошибка в скрипте.", 31);
         }
-    }
-
-    private function skeleton(): void
-    {
-        if (!is_dir($this->path_database)) mkdir($this->path_database);
-        if ($this->name) {
-            $ini = cfgGet();
-            $user = $ini['DATABASE']['USER'];
-            $pass = $ini['DATABASE']['PASS'];
-            $host = $ini['DATABASE']['HOST'];
-            $port = $ini['DATABASE']['PORT'];
-            $name = $ini['DATABASE']['NAME'];
-            exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' --skip-opt --single-transaction --tz-utc --no-data --create-options --triggers $name | sed 's/^CREATE TABLE /CREATE TABLE IF NOT EXISTS /' > {$this->path_database}/{$this->name}.sql");
-            echo "\033[32m" . " Скелет базы успешно создан.\n";
-        }else echo "\033[33m"." Введите название скелета базы.\n";
     }
 
     private function migrate(): void
@@ -59,31 +45,114 @@ class __Db
         $ini = cfgGet();
         $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
         
+        // prepare
         if ($this->name) {
-            try {
-                $file = $this->path_database . $this->name . '.sql';
-                if (file_exists($file)) {
-                    $db->exec(file_get_contents($file));
-                    echo "\033[32m" . " Миграция прошла успешно.\n";
-                } else echo "\033[31m"." Файл не найден.\n";
-            } catch (\Exception) {
-                echo "\033[31m" . " Во время миграции произошла ошибка.\n";
+            $file = $this->path_database . $this->name . '.sql';
+            if (!file_exists($file)) {
+                Core::logMessage("Образ '{$this->name}' не найден.");
+                return;
             }
         } else {
-            echo "\033[31m"." Не выбран файл.\n";
+            $bases = glob($this->path_database . "sn#*.sql");
+            if (count($bases) == 0) {
+                Core::logMessage("Образы не найдены.");
+                return;
+            }
+            $file = end($bases);
+        }
+        
+        try {
+            $db->exec(file_get_contents($file));
+            Core::logMessage("Миграция прошла успешно.", 32);
+            Core::logMessage("* skeleton: " . basename($file, '.sql'), 32);
+        } catch (\Exception) {
+            Core::logMessage("Во время миграции произошла ошибка.");
         }
     }
 
-    private function delete(): void
+    private function skeleton(): void
     {
-        require dirname(__DIR__, 2) . $this->path_cdo;
+        if (!is_dir($this->path_database)) mkdir($this->path_database);
+        $fileName = $this->path_database . ($this->name ?? ('sn#' . date("Y-m-d_H-i-s"))) . '.sql';
         $ini = cfgGet();
-        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
-        $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE ";
-        foreach ($db->query("SHOW TABlES") as $table) $sql .= "`". $table['Tables_in_'.$ini['DATABASE']['NAME']] . "`,";
-        $sql = rtrim($sql, ',') . ";\nSET FOREIGN_KEY_CHECKS = 1;";
-        $db->exec($sql);
-        echo "\033[32m"." База данных успешно удалена.\n";
+        $user = $ini['DATABASE']['USER'];
+        $pass = $ini['DATABASE']['PASS'];
+        $host = $ini['DATABASE']['HOST'];
+        $port = $ini['DATABASE']['PORT'];
+        $name = $ini['DATABASE']['NAME'];
+        $this->mysqldump($user, $pass, $host, $port, $name, $fileName);
+        Core::logMessage("Скелет базы успешно создан.", 32);
+        Core::logMessage("* skeleton: '" . basename($fileName, '.sql') . "'", 32);
+    }
+
+    private function compare(): void
+    {
+        // prepare
+        if ($this->name) {
+            $file = $this->path_database . $this->name . '.sql';
+            if (!file_exists($file)) {
+                Core::logMessage("Образ '{$this->name}' не найден.");
+                return;
+            }
+        } else {
+            $bases = glob($this->path_database . "sn#*.sql");
+            if (count($bases) == 0) {
+                Core::logMessage("Образы не найдены.");
+                return;
+            }
+            $file = end($bases);
+        }
+        $status = true;
+        $currendData = $skeletonData = [];
+        $ini = cfgGet();
+        $user = $ini['DATABASE']['USER'];
+        $pass = $ini['DATABASE']['PASS'];
+        $host = $ini['DATABASE']['HOST'];
+        $port = $ini['DATABASE']['PORT'];
+        $name = $ini['DATABASE']['NAME'];
+
+        // Skeleton/Current data
+        $skeletonData = $this->sqlDataToArray(file_get_contents($file));
+        $currendData = $this->sqlDataToArray($this->mysqldump($user, $pass, $host, $port, $name));
+
+        $diffData = [
+            ...array_diff_key($skeletonData, $currendData),
+            ...array_diff_key($currendData, $skeletonData)
+        ];
+        if (count($diffData) > 0) {
+            $status = false;
+            foreach (array_keys($diffData) as $table) {
+                Core::logTitle("============== ВНИМАНИЕ! ==============", 31);
+                Core::logTitle("Найдена несанкционированная база данных", 31);
+                Core::logLabel("Skeleton '$table'", 32);
+                Core::logTextSplit((array_key_exists($table, $skeletonData)) ? $skeletonData[$table] : '');
+                Core::logLabel("Current '$table'", 32);
+                Core::logTextSplit((array_key_exists($table, $currendData)) ? $currendData[$table] : '');
+                Core::logTitle("=======================================", 31);
+            }
+        }
+        
+        foreach ($skeletonData as $table => $slnSql) {
+            if (array_key_exists($table, $currendData)) {
+                $curSql = $currendData[$table];
+                $static = strcmp($slnSql, $curSql);
+                if ($static !== 0) {
+                    $status = false;
+                    Core::logTitle("============== ВНИМАНИЕ! ==============", 31);
+                    Core::logTitle("========= Найдено расхождение =========", 31);
+                    Core::logLabel("Skeleton '$table'", 32);
+                    Core::logTextSplit((array_key_exists($table, $skeletonData)) ? $skeletonData[$table] : '');
+                    Core::logLabel("Current '$table'", 32);
+                    Core::logTextSplit((array_key_exists($table, $currendData)) ? $currendData[$table] : '');
+                    Core::logTitle("=======================================", 31);
+                }
+            }
+        }
+
+        if ($status === true) {
+            Core::logMessage("Текущая база данных актуальна.", 32);
+            Core::logMessage("* сравнение с (skeleton): '" . basename($file, '.sql') . "'", 32);
+        }
     }
 
     private function seed(): void
@@ -92,10 +161,10 @@ class __Db
         $ini = cfgGet();
         $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
 
-        if (isset($this->name)) {
+        if ($this->name) {
 
-            if(!file_exists("$this->path_data_seed/$this->name.$this->seed_format")){
-                echo "\033[31m"." Ошибка не найдены данные.\n";
+            if(!file_exists("$this->path_data_seed/$this->name.$this->seed_format")) {
+                Core::logMessage("Ошибка не найдены данные.", 31);
                 return;
             }
 
@@ -112,22 +181,73 @@ class __Db
                     $i++;
                     $db->insertToArray($table, $row);
                 }
-                echo "\033[32m"." Таблица $table ($i).\n";
+                Core::logMessage("Таблица $table ($i).", 32);
             }
 
         }
 
-        echo "\033[32m"." Данные успешно внесены.\n";
+        Core::logMessage("Данные успешно внесены.", 32);
+    }
+
+    private function delete(): void
+    {
+        require dirname(__DIR__, 2) . $this->path_cdo;
+        $ini = cfgGet();
+        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+
+        if ($this->name) {
+            if ($db->query("SHOW TABLES LIKE '{$this->name}';")->rowCount()) {
+                $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE `{$this->name}`;SET FOREIGN_KEY_CHECKS = 1;";
+                if ($db->exec($sql) != false)
+                    Core::logMessage("Таблица '{$this->name}' успешно удалена.", 32);
+                else Core::logMessage("Не удалось удалить таблицу '{$this->name}'.");
+            } 
+            else Core::logMessage("Таблица {$this->name} не найдена.");
+        } else {
+            $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE ";
+            foreach ($db->query("SHOW TABlES") as $table) $sql .= "`". $table['Tables_in_'.$ini['DATABASE']['NAME']] . "`,";
+            $sql = rtrim($sql, ',') . ";\nSET FOREIGN_KEY_CHECKS = 1;";
+            if ($db->exec($sql) != false)
+                Core::logMessage("База данных успешно удалена.", 32);
+            else Core::logMessage("Не удалось удалить базу данных.");
+            
+        }
+    }
+
+    private function sqlDataToArray(string $data): array
+    {
+        $resultData = [];
+        foreach (explode("-- Table structure for table", $data) as $item) {
+            $item = explode("CREATE ", $item);
+            if (array_key_exists(1, $item)) {
+                $name = explode('`', explode('TABLE IF NOT EXISTS `', $item[1])[1])[0];
+                $item = explode(";", $item[1])[0];
+                $resultData[$name] = 'CREATE ' . $item . ';';
+            }
+        }
+        return $resultData;
+    }
+
+    private function mysqldump(string $user, string $pass, string $host, string $port, string $name, string $fileName = null): string|false|null
+    {
+        return shell_exec(
+            "mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' " .
+            "--skip-opt --single-transaction --tz-utc --no-data --create-options --triggers $name " .
+            "| sed 's/^CREATE TABLE /CREATE TABLE IF NOT EXISTS /' " .
+            ((is_null($fileName)) ? "| cat" : "> {$fileName}")
+        );
+         
     }
 
     private function help(): void
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :skeleton -  Создать образ базы данных.\n";
-        echo "\033[33m"."  :migrate  -  Миграция образа базы данных.\n";
-        echo "\033[33m"."  :delete   -  Удалить все таблице в базе данных.\n";
-        echo "\033[33m"."  :seed     -  Внести данные в базу данных. (можно указать таблицу)\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":migrate      -  Миграция образа базы данных (можно указать имя образа).");
+        Core::logText(":skeleton     -  Создать образ базы данных (можно указать имя образа).");
+        Core::logText(":compare      -  Сравнение образа и текущей базы данных (можно указать имя образа).");
+        Core::logText(":seed         -  Внести данные в базу данных (можно указать таблицу).");
+        Core::logText(":delete       -  Удалить все таблице в базе данных (можно указать таблицу).");
+        Core::logLabel("End");
     }
 
 }

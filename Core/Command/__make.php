@@ -1,5 +1,7 @@
 <?php
 
+use Console\Core;
+
 class __Make
 {
     private mixed $argument;
@@ -27,9 +29,9 @@ class __Make
             elseif (in_array($this->argument, ['model']))               $this->mModel();
             elseif (in_array($this->argument, ['socket']))              $this->mSocket();
             elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
-            else echo "\033[33m". " Шаблона '$this->argument' не существует!\n";
+            else Core::logMessage("Шаблона '{$this->argument}' не существует!");
         } catch (Error) {
-           echo "\033[31m"." Ошибка в скрипте.\n";
+           Core::logMessage("Ошибка в скрипте.", 31);
         }
         
     }
@@ -57,58 +59,58 @@ class __Make
     private function mApi(): void
     {
         if (!strrpos($this->name, 'Api')) {
-            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/api";
             $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/api', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+        } else Core::logMessage("Укажите имя для шаблона.");
     }
 
     private function mController(): void
     {
         if (!strrpos($this->name, 'Controller')) {
-            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/controllers', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+        } else Core::logMessage("Укажите имя для шаблона.");
     }
 
     private function mModel(): void
     {
         if (!strrpos($this->name, 'Model')) {
-            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/model";
             $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+        } else Core::logMessage("Укажите имя для шаблона.");
     }
 
     private function mSocket(): void
     {
         if (!strrpos($this->name, 'Socket')) {
-            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/socket";
             $template = str_replace("_SocketIndex_", $this->UC_word($this->name), file_get_contents($file));
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/sockets', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+        } else Core::logMessage("Укажите имя для шаблона.");
     }
     
     private function mRepository(): void
     {
         if (!strrpos($this->name, 'Repository')) {
-            echo "\033[33m". " Укажите корректное имя шаблона!\n";
+            Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/repository";
             $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
             $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
             $template = str_replace("_RepositoryModel_", $this->UC_word(str_replace('Repository', 'Model', $this->name)), $template);
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/repository', $template);
-        } else echo "\033[33m". " Укажите имя для шаблона!\n";
+        } else Core::logMessage("Укажите имя для шаблона.");
     }
 
     private function create_file($fName, $path, $code = ""): void
@@ -119,8 +121,8 @@ class __Make
             $fp = fopen($file_name, "x");
             fwrite($fp, $code);
             fclose($fp);
-            echo "\033[32m"." Шаблон '$this->argument' успешно создан.\n";
-        }else echo "\033[33m"." Шаблон \"$this->argument\" с наименованием '$fName' уже существует.\n";
+            Core::logMessage("Шаблон '{$this->argument}' успешно создан.", 32);
+        }else Core::logMessage("Шаблон \"{$this->argument}\" с наименованием '$fName' уже существует.");
     }
 
     private function UC_word(String $str): array|string
@@ -130,13 +132,13 @@ class __Make
 
     private function help(): void
     {
-        echo "\033[33m"." =======> Help <======= \n";
-        echo "\033[33m"."  :api          -  Создать Api-контроллер.\n";
-        echo "\033[33m"."  :controller   -  Создать контроллер для обработки запросов.\n";
-        echo "\033[33m"."  :model        -  Создать Model (слепок таблицы, базы данных).\n";
-        echo "\033[33m"."  :repository   -  Создать Repository для соединения с базой данных.\n";
-        echo "\033[33m"."  :socket       -  Создать Socket контроллер.\n";
-        echo "\033[33m"." =======> Help <======= \n";
+        Core::logLabel("Help");
+        Core::logText(":api          -  Создать Api-контроллер.");
+        Core::logText(":controller   -  Создать контроллер для обработки запросов.");
+        Core::logText(":model        -  Создать Model (слепок таблицы, базы данных).");
+        Core::logText(":repository   -  Создать Repository для соединения с базой данных.");
+        Core::logText(":socket       -  Создать Socket контроллер.");
+        Core::logLabel("End");
     }
 
 }
