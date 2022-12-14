@@ -2,11 +2,7 @@
 
 use Extra\Src\Wrapper;
 
-function isPermission(string $name): bool
-{
-    if (isAdmin()) return true;
-    else return (new UserPermissionRepository)->getPermission($name); 
-}
+/*
 
 function dateConvert(string $dataTime): string
 {
@@ -17,3 +13,11 @@ function dateUTC(string $dataTime): string
 {
     return Wrapper::dateConvertToUTC($dataTime, $_SESSION['TZ']);
 }
+
+function isPermission(string $name): bool
+{
+    if (isAdmin()) return true;
+    else return (new UserPermissionRepository)->getPermission($name); 
+}
+
+*/

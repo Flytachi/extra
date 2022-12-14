@@ -90,7 +90,10 @@ class __Socket
                 include $socketFile;
                 $socket = new $this->name;
                 if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
-                else $socket->start();
+                else {
+                    Core::logMessage("Сокет {$this->name} запущен!", 32);
+                    $socket->start();
+                }
 
             } else Core::logMessage("Сокет не найден!");
         } else Core::logMessage("Укажите имя сокета!");
@@ -106,7 +109,13 @@ class __Socket
             foreach (glob($socketFolder. '/*.php') as $socketFile) {
                 include $socketFile;
                 $class = basename($socketFile, '.php');
-                (new $class)->connection();
+                $socket = new $class;
+                $status = ($socket->statusConnection() ? "\033[34mACTIVE" : "\033[30mPASSIVE");
+                Core::logMessage(
+                    $class . "\t "
+                    . $socket->getIp() . ':' . $socket->getPort()
+                    . "\t\t " . $status
+                );
             }
             
         } else Core::logMessage("Папка сокетов не найдена!");

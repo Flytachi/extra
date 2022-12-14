@@ -10,7 +10,7 @@ class WebSocketServer
      * 
      * WebSocketServer
      * 
-     * @version 2.1
+     * @version 2.2
      */
 
     protected string $IP;
@@ -350,11 +350,20 @@ class WebSocketServer
         }
     }
 
-    public final function connection(): void 
+    /**
+     * @return string
+     */
+    public final function getIp(): string
     {
-        echo get_class($this) . "\t{$this->IP}:{$this->PORT}\t==>";
-        echo ($this->statusConnection()) ? "\tACTIVE" : "\tPASSIVE";
-        echo "\n";
+        return $this->IP;
+    }
+
+    /**
+     * @return int
+     */
+    public final function getPort(): int
+    {
+        return $this->PORT;
     }
 
     public final function statusConnection(): bool 

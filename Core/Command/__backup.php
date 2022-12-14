@@ -32,7 +32,7 @@ class __Backup
             elseif ($this->argument == "create") $this->create();
             elseif ($this->argument == "delete") $this->delete();
             elseif ($this->argument == "migrate") $this->migrate();
-            else Core::logMessage("Нет такого аргумента.", 31);
+            else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (Error) {
             Core::logMessage("Ошибка в скрипте.", 31);
         }

@@ -58,7 +58,7 @@ class __Make
 
     private function mApi(): void
     {
-        if (!strrpos($this->name, 'Api')) {
+        if ($this->name && !strrpos($this->name, 'Api')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/api";
@@ -69,7 +69,7 @@ class __Make
 
     private function mController(): void
     {
-        if (!strrpos($this->name, 'Controller')) {
+        if ($this->name && !strrpos($this->name, 'Controller')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
@@ -80,7 +80,7 @@ class __Make
 
     private function mModel(): void
     {
-        if (!strrpos($this->name, 'Model')) {
+        if ($this->name && !strrpos($this->name, 'Model')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/model";
@@ -91,7 +91,7 @@ class __Make
 
     private function mSocket(): void
     {
-        if (!strrpos($this->name, 'Socket')) {
+        if ($this->name && !strrpos($this->name, 'Socket')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/socket";
@@ -102,7 +102,7 @@ class __Make
     
     private function mRepository(): void
     {
-        if (!strrpos($this->name, 'Repository')) {
+        if ($this->name && !strrpos($this->name, 'Repository')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/repository";

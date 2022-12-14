@@ -6,7 +6,8 @@
 /.vscode
 
 ## App ----
-/app/logs/
+/app/libs/*
+/app/logs/*
 /app/*.conf
 /app/.cfg
 /app/.crt

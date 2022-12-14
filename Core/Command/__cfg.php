@@ -71,7 +71,7 @@ class __Cfg
         elseif ($this->argument == "apache") $this->apache();
         elseif ($this->argument == "nginx") $this->nginx();
         elseif ($this->argument == "ssl") $this->ssl();
-        else Core::logMessage("Не такого аргумента.", 31);
+        else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
     }
 
     private function init(): void

@@ -24,7 +24,7 @@ class __Component
     {
         if ($this->argument == "init") $this->init();
         elseif ($this->argument == "install") $this->install();
-        else echo "\033[31m"." Не такого аргумента.\n";
+        else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
     }
     
     private function init(): void
@@ -39,6 +39,7 @@ class __Component
         $path = dirname(__DIR__) . "/Package/$this->name";
 
         if (is_dir($path)) {
+
             if (is_dir("$path/api")) multiCopy("$path/api", "$root/app/api");
             if (is_dir("$path/controllers")) multiCopy("$path/controllers", "$root/app/controllers");
             if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
@@ -46,10 +47,9 @@ class __Component
             if (is_dir("$path/repository")) multiCopy("$path/repository", "$root/app/repository");
             if (is_dir("$path/views")) multiCopy("$path/views", PATH_PUBLIC . "/views/$this->name");
             if (is_dir("$path/static")) multiCopy("$path/static", PATH_PUBLIC . "/static/$this->name");
-            echo "\033[32m". " Пакет $this->name успешно установлен!\n";
-        } else {
-            echo "\033[33m". " Пакет $this->name не существует!\n";
-        }
+            Core::logMessage("Пакет {$this->name} успешно установлен!", 32);
+
+        } else Core::logMessage("Пакет {$this->name} не существует!");
     }
 
     private function init_components(): void
@@ -79,6 +79,7 @@ class __Component
 
     private function create_dir(String $path): void
     {
+        Core::logMessage("Создание директории $path.", 32);
         if (!file_exists($path)) mkdir($path);
     }
 

@@ -33,7 +33,7 @@ class __Db
             elseif($this->argument == "compare") $this->compare();
             elseif($this->argument == "delete") $this->delete();
             elseif($this->argument == "seed") $this->seed();
-            else Core::logMessage("Нет такого аргумента.", 31);
+            else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (\Error $e) {
             Core::logMessage("Ошибка в скрипте.", 31);
         }
@@ -169,7 +169,12 @@ class __Db
             }
 
             $data = json_decode(file_get_contents("$this->path_data_seed/$this->name.$this->seed_format"), true);
-            foreach ($data as $row) $db->insertToArray($this->name, $row);
+            $i = 0;
+            foreach ($data as $row) {
+                $db->insertToArray($this->name, $row);
+                $i++;
+            }
+            Core::logMessage("Таблица $table ($i).", 32);
 
         }else{
 
@@ -178,8 +183,8 @@ class __Db
                 $data = json_decode(file_get_contents($file_name), true);
                 $i = 0;
                 foreach ($data as $row) {
-                    $i++;
                     $db->insertToArray($table, $row);
+                    $i++;
                 }
                 Core::logMessage("Таблица $table ($i).", 32);
             }

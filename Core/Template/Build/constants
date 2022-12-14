@@ -1,0 +1,8 @@
+<?php
+
+/**
+ *  Git Array
+ *  @key => git link
+ *  @value => folder name
+ **/
+const GIT_LIBS = [];
