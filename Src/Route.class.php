@@ -12,7 +12,7 @@ class Route
      * 
      * Route
      * 
-     * @version 9.9
+     * @version 10.0
      */
 
 	
@@ -72,11 +72,6 @@ class Route
 
 	final static function start(): void
 	{
-		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0){
-			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) 
-				dd(new Exception('PHP discarded POST data because of request exceeding post_max_size.'));
-			else self::ErrorPage(413);
-        }
 		if (ROUTE_PLUGIN_SYSTEM) self::routePlugin();
 		else self::routeApp();	
 	}
@@ -102,6 +97,15 @@ class Route
         });
 	}
 	
+	final static function changePostSize()
+	{
+		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0){
+			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) 
+				dd(new Exception('PHP discarded POST data because of request exceeding post_max_size.'));
+			else self::ErrorPage(413);
+        }
+	}
+	
 	final static function routeApp(): never
 	{
 		self::loader();
@@ -120,6 +124,7 @@ class Route
 			if(count($params) == 1) $params = $routes[3];
 		}
 		$_GET = $data['get'];
+		self::changePostSize();
 
 		// Prefix
 		$controllerName = $controllerName . 'Controller';
@@ -164,6 +169,7 @@ class Route
 				if(count($params) == 1) $params = $routes[4];
 			}
 			$_GET = $data['get'];
+			self::changePostSize();
 			
 			// Prefix
 			$controllerName = "$pluginName\\" . $controllerName . 'Controller';
@@ -175,6 +181,7 @@ class Route
 			if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
 			if ( !empty($routes[3]) ) $params = ucfirst($routes[3]);
 			$_GET = $data['get'];
+			self::changePostSize();
 			
 			// Prefix
 			$controllerName = $controllerName . 'Controller';
