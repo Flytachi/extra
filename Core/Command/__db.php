@@ -115,10 +115,14 @@ class __Db
         $skeletonData = $this->sqlDataToArray(file_get_contents($file));
         $currendData = $this->sqlDataToArray($this->mysqldump($user, $pass, $host, $port, $name));
 
+        
         $diffData = [
             ...array_diff_key($skeletonData, $currendData),
             ...array_diff_key($currendData, $skeletonData)
         ];
+        
+        Core::logMessage("* сравнение с (skeleton): '" . basename($file, '.sql') . "'", 32);
+
         if (count($diffData) > 0) {
             $status = false;
             foreach (array_keys($diffData) as $table) {
@@ -149,10 +153,7 @@ class __Db
             }
         }
 
-        if ($status === true) {
-            Core::logMessage("Текущая база данных актуальна.", 32);
-            Core::logMessage("* сравнение с (skeleton): '" . basename($file, '.sql') . "'", 32);
-        }
+        if ($status === true) Core::logMessage("Текущая база данных актуальна.", 32);
     }
 
     private function seed(): void
@@ -239,6 +240,7 @@ class __Db
             "mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' " .
             "--skip-opt --single-transaction --tz-utc --no-data --create-options --triggers $name " .
             "| sed 's/^CREATE TABLE /CREATE TABLE IF NOT EXISTS /' " .
+            "| sed 's/ AUTO_INCREMENT=[0-9]*\b//' " .
             ((is_null($fileName)) ? "| cat" : "> {$fileName}")
         );
          

@@ -12,7 +12,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 3.7
+     * @version 3.8
      */
 
 
@@ -166,7 +166,6 @@ class Repository
     final public function Join(self $repository, string $on): self
     {
         $context = $repository->table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
-        $this->CRD_SQL['join'] .= ' JOIN ' . $context;
         if (array_key_exists('join', $this->CRD_SQL)) {
             $this->CRD_SQL['join'] .= ' JOIN ' . $context;
         } else $this->CRD_SQL['join'] = 'JOIN ' . $context;
