@@ -11,11 +11,14 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 5.2
+     * @version 5.4 betta
      */
     
     private string $headers = '';
     public Repository $repo;
+
+    public array $uploadFileFormat;
+    public int $uploadFileSize;
 
     function __construct()
     {
@@ -27,6 +30,39 @@ abstract class Api
     final function __call($name, $arguments)
     {
         $this->responseError(404);
+    }
+
+    final protected function uploadFile(array $file): string
+    {
+        $uploadFolder = str_replace('Api', '', get_class($this));
+        // $uploadDir = PATH_MEDIA . $uploadFolder;
+        if( !is_dir(PATH_MEDIA . '/' . $uploadFolder) ) mkdir(PATH_MEDIA . '/' . $uploadFolder);
+
+        if ( $file['name'] ) {
+            // Upload File
+            if ($file['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath = $file['tmp_name'];
+                $fileSize = $file['size'];
+                $fileNameCms = explode(".", $file['name']);
+                $fileExtension = strtolower(end($fileNameCms));
+                $newFileName = sha1(time() . $file['name']) . '.' . $fileExtension;
+                // $fileType = $file['type'];
+
+                // File size
+                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize) 
+                    $this->responseError(400, 'Error file is too big!');
+        
+                // File format
+                if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
+
+                    if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
+                    else $this->responseError(400, 'Error writing to database!');
+        
+                } else $this->responseError(400, 'Error unsupported file format!');
+
+            } else $this->responseError(400, 'Error loading to temporary folder!'); 
+        
+        }
     }
 
     /*
