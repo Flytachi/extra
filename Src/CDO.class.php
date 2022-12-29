@@ -33,7 +33,7 @@ class CDO extends PDO
      * 
      * @return void
      * 
-     * @throws PDOException
+     * @throws PDOException if debugging is enabled, it will return an error message
      */
     function __construct(array $params, $debug = false)
     {
