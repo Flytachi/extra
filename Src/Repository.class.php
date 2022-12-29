@@ -20,7 +20,7 @@ class Repository
     public string $modelName = 'stdClass';
     private array $CRD_SQL = [];
     private string $pk;
-    private Model $model;
+    private ModelInterface $model;
     public CDO $db;
     private bool $CRD_debug;
     
@@ -86,12 +86,12 @@ class Repository
         return $this->pk;
     }
 
-    public function setModel(Model $model): void
+    public function setModel(ModelInterface $model): void
     {
         $this->model = $model;
     }
 
-    public function getModel(): Model
+    public function getModel(): ModelInterface
     {
         return $this->model;
     }
@@ -352,7 +352,7 @@ class Repository
     ---------------------------------------------
     */
 
-    final public function save(Model $model): string
+    final public function save(ModelInterface $model): string
     {
         $this->setModel($model);
         $this->saveBefore();
@@ -378,7 +378,7 @@ class Repository
         $this->db->commit();
     }
 
-    final public function update(string $pk, Model $model): string
+    final public function update(string $pk, ModelInterface $model): string
     {
         $this->setPk($pk);
         $this->setModel($model);
@@ -464,7 +464,7 @@ class Repository
     public function error($message): void
     {
         if($this->db->inTransaction()) $this->db->rollBack();
-        Route::ErrorResponseJson(array(
+        Route::responseJson(array(
             'status' => 'error', 
             'message' => $message,
         ));

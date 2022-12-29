@@ -6,16 +6,17 @@ use Exception;
 use Throwable;
 use Warframe;
 
+/**
+ *  Warframe collection
+ * 
+ *  Route - routing system
+ * 
+ * @version 12.0
+ * @author itachi
+ */
 class Route
 {
-	/**
-     * 
-     * Route
-     * 
-     * @version 10.0
-     */
-
-	
+	/** @var $httpStatus HTTP array codes */
 	static array $httpStatus = [
 		100 => 'Continue',
 		101 => 'Switching Protocols',
@@ -70,12 +71,22 @@ class Route
 		510 => 'Not Extended'
 	];
 
+	/**
+	 * Start routing system
+	 * 
+	 * @return void
+	 */
 	final static function start(): void
 	{
 		if (ROUTE_PLUGIN_SYSTEM) self::routePlugin();
 		else self::routeApp();	
 	}
 
+	/**
+	 * Controller AutoLoader
+	 * 
+	 * @return void
+	 */
 	final static function loader(): void
     {
 		spl_autoload_register(function($class) {
@@ -84,6 +95,11 @@ class Route
         });
 	}
 
+	/**
+	 * Plugin Controller AutoLoader
+	 * 
+	 * @return void
+	 */
 	final static function pluginLoader(): void
     {
 		spl_autoload_register(function($class) {
@@ -97,7 +113,14 @@ class Route
         });
 	}
 	
-	final static function changePostSize()
+	/**
+	 * Checking the post request
+	 * 
+	 * @return void
+	 * 
+	 * @throws Exception PHP discarded POST data because of request exceeding post_max_size.
+	 */
+	final static function changePostSize(): void
 	{
 		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0){
 			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) 
@@ -106,6 +129,13 @@ class Route
         }
 	}
 	
+	/**
+	 * Standard routing
+	 * 
+     * @return never
+	 * 
+	 * @throws Throwable if debugging is enabled, it will return an error message
+     */
 	final static function routeApp(): never
 	{
 		self::loader();
@@ -144,6 +174,13 @@ class Route
 		exit;
 	}
 
+	/**
+	 * Routing for plugins
+	 * 
+     * @return never
+	 * 
+	 * @throws Throwable if debugging is enabled, it will return an error message
+     */
 	final static function routePlugin(): never
 	{
 		self::pluginLoader();
@@ -201,6 +238,17 @@ class Route
 		exit;
 	}
 
+	/**
+	 * Routing for api requests
+	 * 
+     * @param array $data 
+	 *  * @return array[url] URL string
+     *  * @return array[get] GET params array
+	 * 
+     * @return never
+	 * 
+	 * @throws Throwable if debugging is enabled, it will return an error message
+     */
 	final static function routeApi(array $data): never
 	{
 		if (!ROUTE_API_SYSTEM) self::ApiError(400);
@@ -256,9 +304,12 @@ class Route
 	}
 
     /**
-     * @param string $controllerName
-     * @param string $actionName
-     * @param array|string|null $params
+	 * Start imitation controller
+	 *  
+     * @param string $controllerName controller name
+     * @param string $actionName controller public method
+     * @param array|string|null $params method params
+	 * 
      * @return void
      */
     private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
@@ -276,6 +327,15 @@ class Route
         $controller->$actionName($params);
     }
 
+	/**
+	 * URL to array 
+	 *  
+     * @param string $url url address and params
+	 * 
+     * @return array 
+	 *  * @return array[url] URL string
+     *  * @return array[get] GET params array
+     */
 	final static function urlToArray(string $url): array
     {
         $code = explode('?', $url);
@@ -288,10 +348,17 @@ class Route
 				}
 			}
 		}
-        return array('url' => $code[0], 'get' => $result);
+        return ['url' => $code[0], 'get' => $result];
     }
 
-	static function isAuth(bool|int $redirect = false):void
+	/**
+	 * Change Session key 'id'
+	 * 
+     * @param bool|int $redirect status action redirect 
+	 * 
+	 * @return void
+	 */
+	static function isAuth(bool|int $redirect = false): void
 	{
 		if ($redirect) {
 			if (empty($_SESSION['id'])) self::redirect('auth/login');
@@ -300,23 +367,41 @@ class Route
 		}
 	}
 
-	static function isAuthAdmin(bool|int $redirect = false):void
+	/**
+	 * Change Session key 'is_admin'
+	 * 
+     * @param bool|int $redirect status action redirect 
+	 * 
+	 * @return void
+	 */
+	static function isAuthAdmin(bool|int $redirect = false): void
 	{
-		if ($redirect) {
-			if (empty($_SESSION['id'])) self::redirect('auth/login');
-		} else {
-			if (empty($_SESSION['id'])) self::ErrorPage(423);
-		}
+		self::isAuth($redirect);
 		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) self::ErrorPage(423);
 	}
 	
-	final static function redirect(string $url = null, array $param = null): never
+	/**
+	 * Redirect
+	 * 
+     * @param ?string $url /url address
+     * @param ?array $param get parametrs
+	 * 
+	 * @return never
+	 */
+	final static function redirect(?string $url = null, ?array $param = null): never
 	{
 		if ($url) header('location: /' . $url . arrayToRequest($param));
 		else header('location:' . $_SERVER['HTTP_REFERER']);
 		exit();
 	}
 	
+	/**
+	 * Render error page
+	 * 
+     * @param int $code index http error code
+	 * 
+	 * @return never
+	 */
 	final static function ErrorPage(int $code): never
 	{
         header("HTTP/1.1 $code " . self::$httpStatus[$code]);
@@ -330,13 +415,29 @@ class Route
 		die;
 	}
 
-	final static function ErrorResponseJson(array $data): never
+	/**
+	 * Response format to json
+	 * 
+	 * @param array $data json data
+	 * 
+	 * @return never
+	 */
+	final static function responseJson(array $data): never
 	{
         header('Content-type: application/json');
 		echo json_encode($data);
 		die;
 	}
 
+	/**
+	 * Api Success Response
+	 * 
+	 * HTTP code - 200
+	 * 
+	 * @param mixed $data message
+	 * 
+	 * @return never
+	 */
 	final static function ApiSuccess(mixed $data = null): never
 	{
 		$code = 200;
@@ -356,6 +457,14 @@ class Route
 		die;
 	}
 
+	/**
+	 * Api Error Response
+	 * 
+	 * @param int $code index http error code
+	 * @param mixed $data message
+	 * 
+	 * @return never
+	 */
 	final static function ApiError(int $code, mixed $data = null): never
 	{
 		$status = self::$httpStatus[$code];

@@ -19,6 +19,7 @@ abstract class Controller
     protected array $storage = [];
 
     protected bool $onHook = false;
+    protected bool $onCsrfHook = false;
     protected bool $onAuthHook = false;
 
     protected bool $onDelete = false;
@@ -54,11 +55,13 @@ abstract class Controller
 
     final protected function csrfTokenChange(): void
     {
-        if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and
-                hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
-            unset($_SESSION['CSRF_TOKEN']);
-            unset($_POST['csrf_token']);
-        } else Route::ErrorPage(419);
+        if($this->onCsrfHook === true) {
+            if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and
+                    hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
+                unset($_SESSION['CSRF_TOKEN']);
+                unset($_POST['csrf_token']);
+            } else Route::ErrorPage(419);
+        }
     }
 
     final protected function csrfTokenGen(): string
@@ -74,7 +77,7 @@ abstract class Controller
         return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . $token . "\">";
     }
 
-    final protected function getElement($pk): Model
+    final protected function getElement($pk): ModelInterface
     {
         $object = $this->repo->getById($pk);
         if ($object) return $object;
@@ -256,48 +259,48 @@ abstract class Controller
         Route::isAuth();
     }
 
-    protected function prepareHookSaveBefore(array $post): Model
+    protected function prepareHookSaveBefore(array $post): ModelInterface
     {
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
         return new $this->repo->modelName($post);
     }
-    protected function prepareHookSaveAfter(Model $model, string $result): void
+    protected function prepareHookSaveAfter(ModelInterface $model, string $result): void
     {
         $this->renderJsonSuccess($result);
     }
 
-    protected function prepareHookUpdateBefore(array $post, string $pk): Model
+    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
     {
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
         $object = $this->getElement($pk);
-        $object->setNewObject($post);
+        $object->reConstruct($post);
         return $object;
     }
-    protected function prepareHookUpdateAfter(Model $model, string $result): void
+    protected function prepareHookUpdateAfter(ModelInterface $model, string $result): void
     {
         $this->renderJsonSuccess($result);
     }
 
-    protected function prepareDeleteBefore(string $pk): Model
+    protected function prepareDeleteBefore(string $pk): ModelInterface
     {
         $object = $this->getElement($pk);
-        $object->setNewObject(array('is_delete' => 1));
+        $object->reConstruct(array('is_delete' => 1));
         return $object;
     }
-    protected function prepareDeleteAfter(Model $model, string $result): void
+    protected function prepareDeleteAfter(ModelInterface $model, string $result): void
     {
         $this->renderJsonSuccess($result);
     }
 
-    protected function prepareRestoreBefore(string $pk): Model
+    protected function prepareRestoreBefore(string $pk): ModelInterface
     {
         $object = $this->getElement($pk);
-        $object->setNewObject(array('is_delete' => 0));
+        $object->reConstruct(array('is_delete' => 0));
         return $object;
     }
-    protected function prepareRestoreAfter(Model $model, string $result): void
+    protected function prepareRestoreAfter(ModelInterface $model, string $result): void
     {
         $this->renderJsonSuccess($result);
     }

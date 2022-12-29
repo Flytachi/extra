@@ -5,16 +5,36 @@ namespace Extra\Src;
 use PDO;
 use PDOException;
 
+/**
+ *  Warframe collection
+ * 
+ *  CDO - update version to PDO
+ * 
+ *  @version 4.0
+ *  @author itachi
+ */
 class CDO extends PDO
 {
-    /**
-     * 
-     * CDO
-     * 
-     * @version 3.5
-     */
+    /** @var $debug debugging mode */
     private mixed $debug;
 
+    /**
+     * Constructor
+     *  
+     * @param array $params
+     *  * @param DRIVER
+     *  * @param CHARSET
+     *  * @param HOST
+     *  * @param PORT
+     *  * @param NAME
+     *  * @param USER
+     * 
+     * @param array $debug debug mode
+     * 
+     * @return void
+     * 
+     * @throws PDOException
+     */
     function __construct(array $params, $debug = false)
     {
         if (is_null($params['DRIVER'])) dieConnection("Connection: driver not found!");
@@ -38,36 +58,45 @@ class CDO extends PDO
         }
     }
 
-    final public function insert(string $table, Model $model): string|false
+    /**
+     * Create an entry in the database
+     * 
+     * @param string $table table name in database
+     * @param ModelInterface model data
+     * 
+     * @return string|false
+     * 
+     * @throws PDOException if debugging is enabled, it will return an error message
+     */
+    final public function insert(string $table, ModelInterface $model): string|false
     {
         $array = Wrapper::objectToArray($model);
         $col = implode(",", array_keys($array));
         $val = ":".implode(", :", array_keys($array));
-        try{
+        try {
             $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
             return $this->lastInsertId();
-        }
-        catch (PDOException $ex) {
-            return $ex->getMessage();
-            return ($this->debug) ? $ex->getMessage() : "Ошибка создания элемента.";
+        } catch (PDOException $ex) {
+            if ($this->debug) return $ex->getMessage();
+            else Route::ErrorPage(500);
         }
     }
 
-    final public function insertToArray(string $table, array $array): string|false
-    {
-        $col = implode(",", array_keys($array));
-        $val = ":".implode(", :", array_keys($array));
-        try{
-            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
-            return $this->lastInsertId();
-        }
-        catch (PDOException $ex) {
-            return $ex->getMessage();
-            return ($this->debug) ? $ex->getMessage() : "Ошибка создания элемента.";
-        }
-    }
-
-    final public function update(string $table, object $model, int|string|array $pk): int|string
+    /**
+     * Update an entry in the database
+     * 
+     * @param string $table table name in database
+     * @param ModelInterface model data
+     * @param int|string|array $pk field 'id' to database
+     *  * param int field 'id' to database
+     *  * param string field 'id' to database
+     *  * param array group(field => value, ...) to database
+     * 
+     * @return int|string
+     * 
+     * @throws PDOException if debugging is enabled, it will return an error message
+     */
+    final public function update(string $table, ModelInterface $model, int|string|array $pk): int|string
     {
         $array = Wrapper::objectToArray($model);
         $set = "";
@@ -89,10 +118,24 @@ class CDO extends PDO
             $stm->execute([...$pk, ...$array]);
             return $stm->rowCount();
         } catch (PDOException $ex) {
-            return ($this->debug) ? $ex->getMessage() : "Ошибка обновления элемента.";
+            if ($this->debug) return $ex->getMessage();
+            else Route::ErrorPage(500);
         }
     }
 
+    /**
+     * Delete an entry in the database
+     * 
+     * @param string $table table name in database
+     * @param int|string|array $pk field 'id' to database
+     *  * param int field 'id' to database
+     *  * param string field 'id' to database
+     *  * param array group(field => value, ...) to database
+     * 
+     * @return int|string
+     * 
+     * @throws PDOException if debugging is enabled, it will return an error message
+     */
     final public function delete(string $table, int|string|array $pk): int|string
     {
         $where = '';
@@ -118,10 +161,17 @@ class CDO extends PDO
             $stmt->execute($pk);
             return $stmt->rowCount();
         } catch (PDOException $ex) {
-            return ($this->debug) ? $ex->getMessage() : "Ошибка удаления элемента.";
+            if ($this->debug) return $ex->getMessage();
+            else Route::ErrorPage(500);
         }
     }
 
+    /**
+     * Clean request data
+     * 
+     * @param string $data request data
+     * @return string cleaned request data
+     */
     static function clean(string $data): string
     {
         $data = trim($data);

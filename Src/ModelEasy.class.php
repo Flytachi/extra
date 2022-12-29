@@ -7,14 +7,14 @@ use TypeError;
 /**
  *  Warframe collection
  * 
- *  Model - private mode
+ *  ModelEasy - public mode
  *  
- *  All property is private, required getters and setters
+ *  All property is public
  * 
  * @version 13.0
  * @author itachi
  */
-abstract class Model
+abstract class ModelEasy
 {
     function __toString(): string
     {
@@ -38,16 +38,14 @@ abstract class Model
      * 
      * @return void
      * 
-     * @throws TypeError error data property or property setter
+     * @throws TypeError error data property
      */
     public function reConstruct(?array $data = null): void
     {
         if ($data) {
             foreach ($data as $key => $value) {
-                $func = 'set' . str_replace(" ", "", ucwords(str_replace("_", " ", $key)));
                 if (!property_exists($this, $key)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
-                if (!method_exists($this, $func)) throw new TypeError("Not method '" . $func . "' in " . get_class($this));
-                else $this->{$func}($value);
+                else $this->{$key} = $value;
             }
         }
     }
