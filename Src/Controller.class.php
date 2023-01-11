@@ -10,7 +10,7 @@ abstract class Controller
      * 
      * Controller
      * 
-     * @version 7.5
+     * @version 7.9
      */
 
 
@@ -42,7 +42,7 @@ abstract class Controller
 
     final function __call($name, $arguments)
     {
-        Route::ErrorPage(404);
+        Route::Throwable(404, 'The "' . $name . '" function was not found or is not a public method');
     }
 
     final protected function method(METHOD ...$allowMethods): void
@@ -50,7 +50,7 @@ abstract class Controller
         foreach ($allowMethods as $method) {
             if($method->name === $_SERVER['REQUEST_METHOD']) return;
         }
-        Route::ErrorPage(405);
+        Route::Throwable(405, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
     }
 
     final protected function csrfTokenChange(): void
@@ -60,7 +60,7 @@ abstract class Controller
                     hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
                 unset($_SESSION['CSRF_TOKEN']);
                 unset($_POST['csrf_token']);
-            } else Route::ErrorPage(419);
+            } else Route::Throwable(419, 'CSRF token auntification failed');
         }
     }
 
@@ -81,7 +81,7 @@ abstract class Controller
     {
         $object = $this->repo->getById($pk);
         if ($object) return $object;
-        else Route::ErrorPage(404);
+        else Route::Throwable(404, 'Object not found');
     }
 
     final protected function uploadFile(array $file): string
@@ -101,37 +101,18 @@ abstract class Controller
                 // $fileType = $file['type'];
 
                 // File size
-                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize) {
-                    Route::ErrorResponseJson(array(
-                        'status' => 'error',
-                        'message' => 'Error file is too big!'
-                    ));
-                }
+                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize)
+                    Route::Throwable(507, 'UploadFile: Error file is too big.');
         
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
-                    else{
-                        Route::ErrorResponseJson(array(
-                            'status' => 'error',
-                            'message' => 'Error writing to database!'
-                        ));
-                    }
+                    else Route::Throwable(507, 'UploadFile: Error writing to storage.');
         
-                }else {
-                    Route::ErrorResponseJson(array(
-                        'status' => 'error',
-                        'message' => 'Error unsupported file format!'
-                    ));
-                }
+                } else Route::Throwable(507, 'UploadFile: Error unsupported file format.');
 
-            }else {
-                Route::ErrorResponseJson(array(
-                    'status' => 'error',
-                    'message' => 'Error loading to temporary folder!'
-                ));
-            }   
+            } else Route::Throwable(507, 'UploadFile: Error loading to temporary folder.');
         }
     }
 
@@ -142,11 +123,11 @@ abstract class Controller
     */
     public function hook(string $pk = null): void
     {
-        if ($this->onHook === false) Route::ErrorPage(404);
+        if ($this->onHook === false) Route::Throwable(404, 'Hook locked');
         if ($this->onAuthHook === true) $this->prepareAuth();
 
         $this->method(METHOD::POST);
-        if (empty($_POST)) Route::ErrorPage(400);
+        if (empty($_POST)) Route::Throwable(400, 'Empty post request');
 
         if ( $pk ) {
             $object = $this->prepareHookUpdateBefore($_POST, $pk);
@@ -161,7 +142,7 @@ abstract class Controller
 
     public function delete(string $pk): void
     {
-        if ($this->onDelete === false) Route::ErrorPage(404);
+        if ($this->onDelete === false) Route::Throwable(404, 'Delete locked');
         if ($this->onAuthDelete === true) $this->prepareAuth();
         $this->method(METHOD::GET);
 
@@ -172,7 +153,7 @@ abstract class Controller
 
     public function restore(string $pk): void
     {
-        if ($this->onRestore === false) Route::ErrorPage(404);
+        if ($this->onRestore === false) Route::Throwable(404, 'Restore locked');
         if ($this->onAuthRestore === true) $this->prepareAuth();
         $this->method(METHOD::GET);
 
@@ -183,7 +164,7 @@ abstract class Controller
 
     public function remove(string $pk): void
     {
-        if ($this->onRemove === false) Route::ErrorPage(404);
+        if ($this->onRemove === false) Route::Throwable(404, 'Remove locked');
         if ($this->onAuthRemove === true) $this->prepareAuth();
         $this->method(METHOD::GET);
 

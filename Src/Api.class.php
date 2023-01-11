@@ -11,7 +11,7 @@ abstract class Api
      * 
      * Api
      * 
-     * @version 5.4 betta
+     * @version 5.7 betta
      */
     
     private string $headers = '';
@@ -23,7 +23,7 @@ abstract class Api
     function __construct()
     {
         $this->AuthorizationHeader();
-        // if (empty($this->getHeaders())) Route::ApiError(400);
+        if (empty($this->getHeaders())) $this->responseError(400);
         $this->repo = new ApiRepository;
     }
 
@@ -107,8 +107,8 @@ abstract class Api
     final protected function authorizationBearer(): void
     {
         $token = $this->getBearerToken();
-        if (empty($token)) Route::ApiError(400);
-        if (empty($this->repo->getBy(array('token' => $token)))) Route::ApiError(401);
+        if (empty($token)) $this->responseError(400);
+        if (empty($this->repo->getBy(array('token' => $token)))) $this->responseError(401);
     }
     /*
     ---------------------------------------------

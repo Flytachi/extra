@@ -77,8 +77,7 @@ class CDO extends PDO
             $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
             return $this->lastInsertId();
         } catch (PDOException $ex) {
-            if ($this->debug) return $ex->getMessage();
-            else Route::ErrorPage(500);
+            Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
         }
     }
 
@@ -118,8 +117,7 @@ class CDO extends PDO
             $stm->execute([...$pk, ...$array]);
             return $stm->rowCount();
         } catch (PDOException $ex) {
-            if ($this->debug) return $ex->getMessage();
-            else Route::ErrorPage(500);
+            Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $ex->getMessage() . ')');
         }
     }
 
@@ -161,8 +159,7 @@ class CDO extends PDO
             $stmt->execute($pk);
             return $stmt->rowCount();
         } catch (PDOException $ex) {
-            if ($this->debug) return $ex->getMessage();
-            else Route::ErrorPage(500);
+            Route::Throwable(500, 'CDO: Error deleting a record in the database (' . $ex->getMessage() . ')');
         }
     }
 

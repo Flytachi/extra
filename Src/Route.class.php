@@ -11,7 +11,7 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * @version 12.0
+ * @version 12.5
  * @author itachi
  */
 class Route
@@ -122,10 +122,8 @@ class Route
 	 */
 	final static function changePostSize(): void
 	{
-		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0){
-			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) 
-				dd(new Exception('PHP discarded POST data because of request exceeding post_max_size.'));
-			else self::ErrorPage(413);
+		if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0) {
+			self::Throwable(413, 'PHP discarded POST data because of request exceeding post_max_size.');
         }
 	}
 	
@@ -164,12 +162,11 @@ class Route
 		if ( file_exists($funcPath) ) require $funcPath;
 		
 		// Imitation
-		if(!class_exists($controllerName)) self::ErrorPage(404);
+		if(!class_exists($controllerName)) self::Throwable(404, 'The "' . $controllerName .'" controller was not found');
 		try {
             self::imitation($controllerName, $actionName, $params);
 		} catch (Throwable $e) {
-			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else self::ErrorPage(400);
+			self::Throwable(400, $e->getMessage());
 		}
 		exit;
 	}
@@ -232,8 +229,7 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
-			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else self::ErrorPage(400);
+			self::Throwable(400, $e->getMessage());
 		}
 		exit;
 	}
@@ -363,7 +359,7 @@ class Route
 		if ($redirect) {
 			if (empty($_SESSION['id'])) self::redirect('auth/login');
 		} else {
-			if (empty($_SESSION['id'])) self::ErrorPage(423);
+			if (empty($_SESSION['id'])) self::Throwable(423, 'You are not authorized');
 		}
 	}
 
@@ -377,7 +373,7 @@ class Route
 	static function isAuthAdmin(bool|int $redirect = false): void
 	{
 		self::isAuth($redirect);
-		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) self::ErrorPage(423);
+		if (empty($_SESSION['is_admin']) or $_SESSION['is_admin'] !== 1) self::Throwable(423, 'You are not logged in as an administrator');
 	}
 	
 	/**
@@ -459,7 +455,7 @@ class Route
 
 	/**
 	 * Api Error Response
-	 * 
+	 *  
 	 * @param int $code index http error code
 	 * @param mixed $data message
 	 * 
@@ -482,4 +478,50 @@ class Route
 		));
 		die;
 	}
+
+	/**
+	 * Throwable Warframe function
+	 * 
+	 * If debugging is enabled, then it will show in detail where the error is located, 
+	 * as well as output its own description of the error. 
+	 * 
+	 * If debugging is disabled it will return an error page with the specified code
+	 * 
+     * @param int $code index http error code
+     * @param string $title error description
+	 * 
+	 * @return never
+	 */
+	final static function Throwable(int $code, string $title): never
+    {
+        if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
+			header("HTTP/1.1 $code " . self::$httpStatus[$code]);
+			header("Status: $code " . self::$httpStatus[$code]);
+			switch ((int) ($code / 100)) {
+				case 1:  $tColor="00ffff";break;
+				case 2:  $tColor="00ff00";break;
+				case 3:  $tColor="ff00e0";break;
+				case 4:  $tColor="ffff00";break;
+				case 5:  $tColor="ff0000";break;
+				default: $tColor="dddddd";break;
+			}
+            $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
+            foreach (debug_backtrace() as $key => $value) {
+				if ($key != 0) {
+					$message .= "\n\t\t#" . $key . ' ';  
+					if (isset($value['file']))     $message .= $value['file'];
+					if (isset($value['line']))     $message .= ' (' . $value['line'] . '): ';
+					if (isset($value['class']))    $message .= "\t" . $value['class'];
+					if (isset($value['type']))     $message .= $value['type'];
+					if (isset($value['function'])) $message .= $value['function'];
+				}
+            }
+			echo '<pre style="background-color: black; color: #'.$tColor.'; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
+			echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
+			print_r($message);
+			echo '<hr></pre>';
+            die();
+        }
+        else self::ErrorPage($code);
+    }
 }
