@@ -11,8 +11,9 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * @version 12.5
- * @author itachi
+ * 	@version 12.7
+ * 	@author itachi
+ * 	@package Extra\Src
  */
 class Route
 {
@@ -166,7 +167,7 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
 		} catch (Throwable $e) {
-			self::Throwable(400, $e->getMessage());
+			self::Throwable(500, $e->getMessage());
 		}
 		exit;
 	}
@@ -229,7 +230,7 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
-			self::Throwable(400, $e->getMessage());
+			self::Throwable(500, $e->getMessage());
 		}
 		exit;
 	}
@@ -293,8 +294,7 @@ class Route
 		try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
-			if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) dd($e);
-			else self::ApiError(400);
+			self::ThrowableApi(500, $e->getMessage());
 		}
 		exit;
 	}
@@ -523,5 +523,51 @@ class Route
             die();
         }
         else self::ErrorPage($code);
+    }
+
+	/**
+	 * Throwable Api Warframe function
+	 * 
+	 * If debugging is enabled, then it will show in detail where the error is located, 
+	 * as well as output its own description of the error. 
+	 * 
+	 * If debugging is disabled it will return an api error with the specified code
+	 * 
+     * @param int $code index http error code
+     * @param string $title error description
+	 * 
+	 * @return never
+	 */
+	final static function ThrowableApi(int $code, string $title): never
+    {
+        if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
+			header("HTTP/1.1 $code " . self::$httpStatus[$code]);
+			header("Status: $code " . self::$httpStatus[$code]);
+			switch ((int) ($code / 100)) {
+				case 1:  $tColor="00ffff";break;
+				case 2:  $tColor="00ff00";break;
+				case 3:  $tColor="ff00e0";break;
+				case 4:  $tColor="ffff00";break;
+				case 5:  $tColor="ff0000";break;
+				default: $tColor="dddddd";break;
+			}
+            $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
+            foreach (debug_backtrace() as $key => $value) {
+				if ($key != 0) {
+					$message .= "\n\t\t#" . $key . ' ';  
+					if (isset($value['file']))     $message .= $value['file'];
+					if (isset($value['line']))     $message .= ' (' . $value['line'] . '): ';
+					if (isset($value['class']))    $message .= "\t" . $value['class'];
+					if (isset($value['type']))     $message .= $value['type'];
+					if (isset($value['function'])) $message .= $value['function'];
+				}
+            }
+			echo '<pre style="background-color: black; color: #'.$tColor.'; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
+			echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";
+			print_r($message);
+			echo '<hr></pre>';
+            die();
+        }
+        else self::ApiError($code, $title);
     }
 }

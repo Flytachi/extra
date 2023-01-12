@@ -5,10 +5,11 @@ namespace Extra\Src;
 use GdImage;
 
 /**
- *  Warframe collection
- * 
+ *  Warframe collection 
+ *  
  *  Image - to work with images
  * 
+ *  @package Extra\Src
  *  @version 2.0
  *  @author itachi
  */

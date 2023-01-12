@@ -11,8 +11,9 @@ use TypeError;
  *  
  *  All property is public
  * 
- * @version 13.0
- * @author itachi
+ *  @version 13.0
+ *  @author itachi
+ *  @package Extra\Src
  */
 abstract class ModelEasy
 {

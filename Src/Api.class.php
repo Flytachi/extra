@@ -5,33 +5,56 @@ namespace Extra\Src;
 use ApiRepository;
 use METHOD;
 
+/**
+ *  Warframe collection
+ * 
+ *  Api - api controller
+ * 
+ *  @version 6.0
+ *  @author itachi
+ *  @package Extra\Src
+ */
 abstract class Api 
-{
-    /**
-     * 
-     * Api
-     * 
-     * @version 5.7 betta
-     */
-    
-    private string $headers = '';
+{   
+    /** @var bool $isSecure check request header data */
+    protected bool $isSecure = false;
+    /** @var Repository $repo ApiRepository */
     public Repository $repo;
+    /** @var string $repo request header data */
+    private string $headers = '';
 
+    /** @var array $uploadFileFormat upload file format */
     public array $uploadFileFormat;
+    /** @var int $uploadFileFormat upload file size (byte) */
     public int $uploadFileSize;
 
+    /**
+     * Constructor
+     * 
+     * @return void
+     */
     function __construct()
     {
         $this->AuthorizationHeader();
-        if (empty($this->getHeaders())) $this->responseError(400);
-        $this->repo = new ApiRepository;
     }
 
+    /**
+     * Call
+     */
     final function __call($name, $arguments)
     {
-        $this->responseError(404);
+        Route::ThrowableApi(404, 'The "' . $name . '" function was not found or is not a public method');
     }
 
+    /**
+     * Upload File
+     * 
+     * Saves the file in the folder PATH_MEDIA/'the name of the controller'.
+     * 
+     * @param array $file variable from from array $_FILES[?]
+     * 
+     * @return string the path to the saved file
+     */
     final protected function uploadFile(array $file): string
     {
         $uploadFolder = str_replace('Api', '', get_class($this));
@@ -49,32 +72,37 @@ abstract class Api
                 // $fileType = $file['type'];
 
                 // File size
-                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize) 
-                    $this->responseError(400, 'Error file is too big!');
+                if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize)
+                    Route::ThrowableApi(507, 'UploadFile: Error file is too big.');
         
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
-                    else $this->responseError(400, 'Error writing to database!');
+                    else Route::ThrowableApi(507, 'UploadFile: Error writing to storage.');
         
-                } else $this->responseError(400, 'Error unsupported file format!');
+                } else Route::ThrowableApi(507, 'UploadFile: Error unsupported file format.');
 
-            } else $this->responseError(400, 'Error loading to temporary folder!'); 
+            } else Route::ThrowableApi(507, 'UploadFile: Error loading to temporary folder.');
         
         }
     }
 
-    /*
-    ---------------------------------------------
-        AUTHORIZATION
-    ---------------------------------------------
-    */
+    /**
+	 * Headers
+	 * 
+	 * @return string
+	 */
     final protected function getHeaders(): string
     {
         return $this->headers;
     }
 
+    /**
+	 * Bearer Token
+	 * 
+	 * @return string|null
+	 */
     final protected function getBearerToken(): string|null
     {
         if (!empty($this->headers)) {
@@ -83,6 +111,11 @@ abstract class Api
         return null;
     }
 
+    /**
+	 * Basic Token
+	 * 
+	 * @return string|null
+	 */
     final protected function getBasicToken(): string|null
     {
         if (!empty($this->headers)) {
@@ -91,8 +124,11 @@ abstract class Api
         return null;
     }
 
-    /* --------------------------------------------- */
-
+    /**
+	 * Authorization Header
+	 * 
+	 * @return void
+	 */
     private function AuthorizationHeader(): void
     {
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
@@ -102,54 +138,74 @@ abstract class Api
             $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
             if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
         }
+
+        if($this->isSecure && empty($this->getHeaders())) Route::ThrowableApi(400, 'The request is missing header data.');
     }
 
+    /**
+	 * Authorization Bearer
+     * 
+     * Bearer token authentication method
+	 * 
+	 * @return void
+	 */
     final protected function authorizationBearer(): void
     {
+        $this->repo = new ApiRepository;
         $token = $this->getBearerToken();
-        if (empty($token)) $this->responseError(400);
-        if (empty($this->repo->getBy(array('token' => $token)))) $this->responseError(401);
+        if (empty($token)) Route::ThrowableApi(400, 'Authorization token not found.');
+        if (empty($this->repo->getBy(array('token' => $token)))) Route::ThrowableApi(401, 'Authorization failed.');
     }
-    /*
-    ---------------------------------------------
-    */
 
-    /*  
-    ---------------------------------------------
-        REQUEST
-    ---------------------------------------------
-    */
+    /**
+	 * Allow method
+     * 
+     * @param METHOD ...$allowMethods allowed methods
+	 * 
+	 * @return void
+	 */
     final protected function method(METHOD ...$allowMethods): void
     {
         foreach ($allowMethods as $method) {
             if($method->name === $_SERVER['REQUEST_METHOD']) return;
         }
-        $this->responseError(405);
+        Route::ThrowableApi(405, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
     }
 
+    /**
+	 * Request raw data to json
+	 * 
+	 * @return mixed
+	 */
     final protected function requestJson(): mixed
     {
         return json_decode(file_get_contents('php://input'));
     }
-    /*
-    ---------------------------------------------
-    */
 
-    /*
-    ---------------------------------------------
-        RESPONSE
-    ---------------------------------------------
-    */
-    protected function responseSuccess(mixed $data = null): void
+    /**
+	 * Api Ok Response
+	 * 
+	 * HTTP code - 200
+	 * 
+	 * @param mixed $data message
+	 * 
+	 * @return void
+	 */
+    protected function responseOk(mixed $data = null): void
     {
         Route::ApiSuccess($data);
     }
 
+    /**
+	 * Api Error Response
+	 * 
+	 * @param int $code HTTP code
+	 * @param mixed $data message
+	 * 
+	 * @return void
+	 */
     protected function responseError(int $code, mixed $data = null): void
     {
         Route::ApiError($code, $data);
     }
-    /*
-    ---------------------------------------------
-    */
 }

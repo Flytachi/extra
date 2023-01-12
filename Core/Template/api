@@ -4,5 +4,11 @@ use Extra\Src\Api;
 
 class _ApiIndex_ extends Api
 {
+    public bool $isSecure = false;
+
+    public function get()
+    {
+        $this->responseOk('Api ok');
+    }
 
 }

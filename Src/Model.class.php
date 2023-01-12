@@ -11,8 +11,9 @@ use TypeError;
  *  
  *  All property is private, required getters and setters
  * 
- * @version 13.0
- * @author itachi
+ *  @version 13.0
+ *  @author itachi
+ *  @package Extra\Src
  */
 abstract class Model
 {

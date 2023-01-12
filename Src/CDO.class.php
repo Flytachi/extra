@@ -12,6 +12,7 @@ use PDOException;
  * 
  *  @version 4.0
  *  @author itachi
+ *  @package Extra\Src
  */
 class CDO extends PDO
 {

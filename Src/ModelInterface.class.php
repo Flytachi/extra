@@ -9,8 +9,9 @@ namespace Extra\Src;
  *  * Model Class - private mode
  *  * ModelEasy Class - public mode
  * 
- * @version 1.0
- * @author itachi
+ *  @version 1.0
+ *  @author itachi
+ *  @package Extra\Src
  */
 interface ModelInterface
 {
