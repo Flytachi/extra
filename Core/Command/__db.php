@@ -35,6 +35,7 @@ class __Db
             elseif($this->argument == "seed") $this->seed();
             else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (\Error $e) {
+            dd($e);
             Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
@@ -172,7 +173,7 @@ class __Db
             $data = json_decode(file_get_contents("$this->path_data_seed/$this->name.$this->seed_format"), true);
             $i = 0;
             foreach ($data as $row) {
-                $db->insertToArray($this->name, $row);
+                $db->insert($this->name, $row);
                 $i++;
             }
             Core::logMessage("Таблица $table ($i).", 32);
@@ -184,7 +185,7 @@ class __Db
                 $data = json_decode(file_get_contents($file_name), true);
                 $i = 0;
                 foreach ($data as $row) {
-                    $db->insertToArray($table, $row);
+                    $db->insert($table, $row);
                     $i++;
                 }
                 Core::logMessage("Таблица $table ($i).", 32);

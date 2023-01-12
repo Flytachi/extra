@@ -63,15 +63,16 @@ class CDO extends PDO
      * Create an entry in the database
      * 
      * @param string $table table name in database
-     * @param ModelInterface model data
+     * @param ModelInterface|array model or array data
      * 
      * @return string|false
      * 
      * @throws PDOException if debugging is enabled, it will return an error message
      */
-    final public function insert(string $table, ModelInterface $model): string|false
+    final public function insert(string $table, ModelInterface|array $model): string|false
     {
-        $array = Wrapper::objectToArray($model);
+        if (is_array($model)) $array = $model;
+        else $array = Wrapper::objectToArray($model);
         $col = implode(",", array_keys($array));
         $val = ":".implode(", :", array_keys($array));
         try {

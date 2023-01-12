@@ -4,6 +4,8 @@ use Extra\Src\Controller;
 
 class _ControllerIndex_ extends Controller
 {
+    public _RepositoryIndex_ $repo;
+
     public bool $onHook = false;
     public bool $onCsrfHook = false;
 	public bool $onAuthHook = false;

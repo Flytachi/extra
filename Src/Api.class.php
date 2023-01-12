@@ -49,7 +49,7 @@ abstract class Api
     /**
      * Upload File
      * 
-     * Saves the file in the folder PATH_MEDIA/'the name of the controller'.
+     * Saves the file in the folder PATH_MEDIA/'the name of the api controller'.
      * 
      * @param array $file variable from from array $_FILES[?]
      * 

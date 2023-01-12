@@ -1,13 +1,14 @@
 <?php
 
 use Extra\Src\Controller;
-use Extra\Src\Model;
+use Extra\Src\ModelInterface;
 use Extra\Src\Route;
 use Extra\Src\Wrapper;
 
 class UserController extends Controller
 {
     public bool $onHook = true;
+    public bool $onCsrfHook = true;
     public bool $onAuthHook = true;
 
     public bool $onDelete = true;
@@ -19,7 +20,7 @@ class UserController extends Controller
     public bool $onRemove = true;
     public bool $onAuthRemove = true;
 
-    protected function prepareHookSaveBefore(array $post): Model
+    protected function prepareHookSaveBefore(array $post): ModelInterface
     {
         if(!isPermission('user_create')) Route::ErrorPage(423);
         if(isset($post['info'])) unset($post['info']);
@@ -28,7 +29,7 @@ class UserController extends Controller
         }
         return parent::prepareHookSaveBefore($post);
     }
-    protected function prepareHookUpdateBefore(array $post, string $pk): Model
+    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
     {
         if(!isPermission('user_update')) Route::ErrorPage(423);
         if(isset($post['info'])) unset($post['info']);
@@ -37,12 +38,12 @@ class UserController extends Controller
         }
         return parent::prepareHookUpdateBefore($post, $pk);
     }
-    protected function prepareDeleteBefore(string $pk): Model
+    protected function prepareDeleteBefore(string $pk): ModelInterface
     {
         if(!isPermission('user_delete')) Route::ErrorPage(423);
         return parent::prepareDeleteBefore($pk);
     }
-    protected function prepareRestoreBefore(string $pk): Model
+    protected function prepareRestoreBefore(string $pk): ModelInterface
     {
         if(!isPermission('user_restore')) Route::ErrorPage(423);
         return parent::prepareRestoreBefore($pk);
@@ -55,6 +56,7 @@ class UserController extends Controller
 
     public function index()
     {
+        $this->method(METHOD::GET);
         Route::isAuth(1);
         if(!isPermission('user_view')) Route::ErrorPage(423);
         $this->render('auth/user/main');
@@ -62,6 +64,7 @@ class UserController extends Controller
 
     public function list()
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
         $this->repo->as('u');
@@ -74,6 +77,7 @@ class UserController extends Controller
 
     public function changePassword(int $pk)
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         $object = $this->getElement($pk);
         if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
@@ -93,6 +97,7 @@ class UserController extends Controller
 
     public function get(?int $pk)
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         if($pk) {
             if (!isPermission('user_update')) Route::ErrorPage(423);

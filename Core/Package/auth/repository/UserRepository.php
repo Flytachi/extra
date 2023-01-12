@@ -15,7 +15,7 @@ class UserRepository extends Repository
 
             $data = array_merge($_POST['info'], ['user_id' => $this->getPk()]);
             if ( $userInfo ) {
-                $userInfo->setNewObject($data);
+                $userInfo->reConstruct($data);
                 $this->db->update($repoInfo->table, $userInfo, array('user_id' => $this->getPk()));
             } else {
                 $userInfo = new $repoInfo->modelName($data);

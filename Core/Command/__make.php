@@ -74,6 +74,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_RepositoryIndex_", str_replace('Controller', 'Repository', $this->UC_word($this->name)), $template);
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/controllers', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
