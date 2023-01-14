@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class FirmwareEnterpriseModel extends Model
+class FirmwareEnterpriseModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private int|null $id = null;
     private string $name;
     private string|null $contact = null;

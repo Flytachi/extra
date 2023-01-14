@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.0
+ *  @version 6.3
  *  @author itachi
  *  @package Extra\Src
  */
@@ -119,7 +119,7 @@ abstract class Api
     final protected function getBasicToken(): string|null
     {
         if (!empty($this->headers)) {
-            if (preg_match('/Basic\s(\S+)/', $this->headers, $matches)) return $matches[1];
+            if (preg_match('/Basic\s(\S+)/', $this->headers, $matches)) return base64_decode($matches[1]);
         }
         return null;
     }
@@ -153,8 +153,24 @@ abstract class Api
     {
         $this->repo = new ApiRepository;
         $token = $this->getBearerToken();
-        if (empty($token)) Route::ThrowableApi(400, 'Authorization token not found.');
-        if (empty($this->repo->getBy(array('token' => $token)))) Route::ThrowableApi(401, 'Authorization failed.');
+        if (empty($token)) Route::ThrowableApi(400, 'Authorization data not found.');
+        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ThrowableApi(401, 'Authorization failed.');
+    }
+
+    /**
+	 * Authorization Basic
+     * 
+     * Basic authentication method
+	 * 
+	 * @return void
+	 */
+    final protected function authorizationBasic(): void
+    {
+        $this->repo = new ApiRepository;
+        $token = $this->getBasicToken();
+        if (empty($token)) Route::ThrowableApi(400, 'Authorization data not found.');
+        $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
+        if (empty($this->repo->get())) Route::ThrowableApi(401, 'Authorization failed.');
     }
 
     /**

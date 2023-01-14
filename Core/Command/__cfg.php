@@ -16,7 +16,7 @@ class __Cfg
         'NGINX' => [
             'PHP_FPM_SOCK' => '/run/php-fpm/php-fpm.sock',
             'SERVER_PORT' => 80,
-            'ACCESS_METHOD' => 'GET,HEAD,POST',
+            'ACCESS_METHOD' => 'HEAD,OPTIONS,GET,POST,PUT,DELETE',
         ],
         'SSL' => [
             'MODE_ON' => null,

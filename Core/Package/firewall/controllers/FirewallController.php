@@ -12,6 +12,7 @@ class FirewallController extends Controller
 
     public function index()
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         $this->render('firewall/main', array(
             'confList' => array_keys(Warframe::$cfg)
@@ -20,6 +21,7 @@ class FirewallController extends Controller
 
     public function get(string $confName)
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         $this->render('firewall/panel/form', array(
             'settName' => $confName,
@@ -29,6 +31,7 @@ class FirewallController extends Controller
 
     public function license()
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         $license = licenseKey();
         $this->render('firewall/panel/license', array(
@@ -50,6 +53,7 @@ class FirewallController extends Controller
 
     public function licenseSpell()
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         if ($_FILES['license'] and $_FILES['license']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['license']['tmp_name'];
@@ -68,6 +72,7 @@ class FirewallController extends Controller
 
     public function spell()
     {
+        $this->method(METHOD::GET);
         $this->prepareAuth();
         $cfgNew = Warframe::$cfg;
         foreach ($_POST as $key => $value) {
@@ -85,6 +90,7 @@ class FirewallController extends Controller
 
     public function upgrade()
     {
+        $this->method(METHOD::GET);
         $curl = curl_init();
 
         curl_setopt_array($curl, array(

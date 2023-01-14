@@ -7,6 +7,8 @@ use Extra\Src\Wrapper;
 
 class GroupController extends Controller
 {
+    public GroupRepository $repo;
+
     public bool $onHook = true;
     public bool $onCsrfHook = true;
     public bool $onAuthHook = true;

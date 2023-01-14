@@ -8,6 +8,8 @@ use Extra\Src\Wrapper;
 
 class PermissionController extends Controller
 {
+    public PermissionRepository $repo;
+
     public bool $onHook = true;
     public bool $onCsrfHook = true;
     public bool $onAuthHook = true;

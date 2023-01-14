@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class PermissionModel extends Model
+class PermissionModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private string $name;
     private string $description;
 

@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class GroupPermissionModel extends Model
+class GroupPermissionModel extends Model implements ModelInterface
 {
-    use Modeliterator;
     private int $group_id;
     private string $permission;
 

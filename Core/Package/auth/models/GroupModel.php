@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class GroupModel extends Model
+class GroupModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private int|null $id = null;
     private string $name;
 

@@ -60,6 +60,7 @@
                             Нет данных.
                         </p>
                     <?php endif; ?>
+                    <a href="/firewall/upgrade" class="warframe_btn">Синхронизация</a>
                 </div>
             </div>
 
@@ -73,6 +74,7 @@
                 <div class="warframe_form-group">
                     <form action="/firewall/licenseSpell" method="post" enctype="multipart/form-data">
 
+                        <input type="hidden" name="is_license" value="on">
                         <input type="file" name="license" id="inp-license">
                         <button type="submit" class="warframe_btn">Прошить</button>
 

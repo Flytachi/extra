@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class UserModel extends Model
+class UserModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private int|null $id = null;
     private string $username;
     private string $password;

@@ -1,11 +1,10 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class FirmwareWebhookModel extends Model
+class FirmwareWebhookModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private int|null $id = null;
     private int $enterprise_id;
     private string $unique_key;

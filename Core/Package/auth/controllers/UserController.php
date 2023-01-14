@@ -7,6 +7,8 @@ use Extra\Src\Wrapper;
 
 class UserController extends Controller
 {
+    public UserRepository $repo;
+
     public bool $onHook = true;
     public bool $onCsrfHook = true;
     public bool $onAuthHook = true;

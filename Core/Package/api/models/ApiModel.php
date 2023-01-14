@@ -1,15 +1,16 @@
 <?php
 
 use Extra\Src\Model;
-use Extra\Src\ModelIterator;
+use Extra\Src\ModelInterface;
 
-class ApiModel extends Model
+class ApiModel extends Model implements ModelInterface
 {
-    use ModelIterator;
     private int|null $id = null;
+    private string $type;
     private string|null $token = null;
     private string|null $username = null;
     private string|null $password = null;
+    private int $is_delete = 0;
 
     /**
      * @return int|null
@@ -25,6 +26,22 @@ class ApiModel extends Model
     public function setId(?int $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 
     /**
@@ -73,6 +90,22 @@ class ApiModel extends Model
     public function setPassword(?string $password): void
     {
         $this->password = $password;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIsDelete(): int
+    {
+        return $this->is_delete;
+    }
+
+    /**
+     * @param int $is_delete
+     */
+    public function setIsDelete(int $is_delete): void
+    {
+        $this->is_delete = $is_delete;
     }
 
 }

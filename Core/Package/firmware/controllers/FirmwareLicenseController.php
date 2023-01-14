@@ -6,7 +6,10 @@ use Extra\Src\Wrapper;
 
 class FirmwareLicenseController extends Controller
 {
+    public FirmwareLicenseRepository $repo;
+
     public bool $onHook = true;
+    public bool $onCsrfHook = true;
 	public bool $onAuthHook = true;
 
 	public bool $onDelete = true;
