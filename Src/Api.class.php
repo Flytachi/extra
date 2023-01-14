@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.5
+ *  @version 6.4
  *  @author itachi
  *  @package Extra\Src
  */
@@ -29,12 +29,21 @@ abstract class Api
     public int $uploadFileSize;
 
     /**
+     * Constructor
+     * 
+     * @return void
+     */
+    function __construct()
+    {
+        $this->AuthorizationHeader();
+    }
+
+    /**
      * Call
      */
     final function __call($name, $arguments)
     {
         Route::ThrowableApi(404, 'The "' . $name . '" function was not found or is not a public method');
-        $this->AuthorizationHeader();
     }
 
     /**
