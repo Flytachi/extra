@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.3
+ *  @version 6.5
  *  @author itachi
  *  @package Extra\Src
  */
@@ -29,21 +29,12 @@ abstract class Api
     public int $uploadFileSize;
 
     /**
-     * Constructor
-     * 
-     * @return void
-     */
-    function __construct()
-    {
-        $this->AuthorizationHeader();
-    }
-
-    /**
      * Call
      */
     final function __call($name, $arguments)
     {
         Route::ThrowableApi(404, 'The "' . $name . '" function was not found or is not a public method');
+        $this->AuthorizationHeader();
     }
 
     /**
@@ -139,7 +130,7 @@ abstract class Api
             if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
         }
 
-        if($this->isSecure && empty($this->getHeaders())) Route::ThrowableApi(400, 'The request is missing header data.');
+        if($this->isSecure && empty($this->getHeaders())) Route::ApiError(400, 'The request is missing header data.');
     }
 
     /**
@@ -153,8 +144,8 @@ abstract class Api
     {
         $this->repo = new ApiRepository;
         $token = $this->getBearerToken();
-        if (empty($token)) Route::ThrowableApi(400, 'Authorization data not found.');
-        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ThrowableApi(401, 'Authorization failed.');
+        if (empty($token)) Route::ApiError(400, 'Authorization data not found.');
+        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ApiError(401, 'Authorization failed.');
     }
 
     /**
@@ -168,9 +159,9 @@ abstract class Api
     {
         $this->repo = new ApiRepository;
         $token = $this->getBasicToken();
-        if (empty($token)) Route::ThrowableApi(400, 'Authorization data not found.');
+        if (empty($token)) Route::ApiError(400, 'Authorization data not found.');
         $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
-        if (empty($this->repo->get())) Route::ThrowableApi(401, 'Authorization failed.');
+        if (empty($this->repo->get())) Route::ApiError(401, 'Authorization failed.');
     }
 
     /**

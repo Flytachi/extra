@@ -11,7 +11,7 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * 	@version 12.8
+ * 	@version 12.9
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -568,6 +568,6 @@ class Route
 			echo '<hr></pre>';
             die();
         }
-        else self::ApiError($code, $title);
+        else self::ApiError($code);
     }
 }
