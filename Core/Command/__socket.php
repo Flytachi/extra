@@ -10,6 +10,7 @@ class __Socket
 
     function __construct($value = null, $name = null)
     {
+        Warframe::coreLoader();
         $this->argument = $value;
         $this->name = $name;
         $this->handle();

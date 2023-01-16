@@ -52,6 +52,8 @@ class __Cfg
 
     function __construct($value = null)
     {
+        require dirname(__DIR__, 3) . '/defines.php';
+        require dirname(__DIR__, 2) . '/Function/Dependencies.php';
         $this->argument = $value;
         $this->handle();
     }
@@ -117,7 +119,7 @@ class __Cfg
     {
         if (file_exists(CFG_PATH_CLOSE)) {
 
-            $cfg = $this->arrayToIni(Warframe::$cfg);
+            $cfg = $this->arrayToIni(cfgGet());
             rename(CFG_PATH_CLOSE, CFG_PATH_OPEN);
             $fp = fopen(CFG_PATH_OPEN, "w+");
             fwrite($fp, $cfg);
@@ -132,7 +134,7 @@ class __Cfg
         if (file_exists(CFG_PATH_CLOSE)) {
 
             Core::logTitle("Конфигурации");
-            foreach (Warframe::$cfg as $label => $conf) {
+            foreach (cfgGet() as $label => $conf) {
                 Core::logLabel($label);
                 foreach ($conf as $key => $value) Core::logText($key . ' = ' . $value);
             }
@@ -145,26 +147,27 @@ class __Cfg
     {
         if (file_exists(CFG_PATH_CLOSE)) {
 
+            $ini = cfgGet();
             $hosts = $hostsSSL = '';
-            if (Warframe::$cfg['SSL']['MODE_ON'] == 1)
+            if ($ini['SSL']['MODE_ON'] == 1)
                 $file = dirname(__DIR__) . '/Template/Server/apache-ssl';
             else 
                 $file = dirname(__DIR__) . '/Template/Server/apache';
 
-            foreach (Warframe::$cfg['HOSTS'] as $host) $hosts .= $host . ':' . Warframe::$cfg['APACHE']['SERVER_PORT']. ' ';
+            foreach ($ini['HOSTS'] as $host) $hosts .= $host . ':' . $ini['APACHE']['SERVER_PORT']. ' ';
             $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
-            $template = str_replace("__ADMIN__", Warframe::$cfg['APACHE']['SERVER_ADMIN'], $template);
-            $template = str_replace("__ALIAS__", Warframe::$cfg['APACHE']['SERVER_ALIAS'], $template);
-            $template = str_replace("__NAME__", Warframe::$cfg['APACHE']['SERVER_NAME'], $template);
+            $template = str_replace("__ADMIN__", $ini['APACHE']['SERVER_ADMIN'], $template);
+            $template = str_replace("__ALIAS__", $ini['APACHE']['SERVER_ALIAS'], $template);
+            $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
             $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
 
-            if (Warframe::$cfg['SSL']['MODE_ON'] == 1) {
-                foreach (Warframe::$cfg['HOSTS'] as $host) $hostsSSL .= $host . ':443 ';
+            if ($ini['SSL']['MODE_ON'] == 1) {
+                foreach ($ini['HOSTS'] as $host) $hostsSSL .= $host . ':443 ';
                 $template = str_replace("__HOSTS_SSL__", trim($hostsSSL), $template);
-                $template = str_replace("__REDIRECT_TYPE__", (Warframe::$cfg['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
-                $template = str_replace("__CERTIFICATE_FILE__", Warframe::$cfg['SSL']['CERTIFICATE_FILE'], $template);
-                $template = str_replace("__CERTIFICATE_KEY_FILE__", Warframe::$cfg['SSL']['CERTIFICATE_KEY_FILE'], $template);
+                $template = str_replace("__REDIRECT_TYPE__", ($ini['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
+                $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
+                $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
             }
             
             $fp = fopen(PATH_APP . '/apache.conf', "w");
@@ -179,21 +182,22 @@ class __Cfg
     {
         if (file_exists(CFG_PATH_CLOSE)) {
 
-            if (Warframe::$cfg['SSL']['MODE_ON'] == 1)
+            $ini = cfgGet();
+            if ($ini['SSL']['MODE_ON'] == 1)
                 $file = dirname(__DIR__) . '/Template/Server/nginx-ssl';
             else
                 $file = dirname(__DIR__) . '/Template/Server/nginx';
 
-            $hosts = implode(' ', Warframe::$cfg['HOSTS']);
+            $hosts = implode(' ', $ini['HOSTS']);
             $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
-            $template = str_replace("__PHP_FPM__", Warframe::$cfg['NGINX']['PHP_FPM_SOCK'], $template);
-            $template = str_replace("__PORT__", Warframe::$cfg['NGINX']['SERVER_PORT'], $template);
-            $template = str_replace("__ACCESS_METHOD__", str_replace(',', '|', Warframe::$cfg['NGINX']['ACCESS_METHOD']), $template);
+            $template = str_replace("__PHP_FPM__", $ini['NGINX']['PHP_FPM_SOCK'], $template);
+            $template = str_replace("__PORT__", $ini['NGINX']['SERVER_PORT'], $template);
+            $template = str_replace("__ACCESS_METHOD__", str_replace(',', '|', $ini['NGINX']['ACCESS_METHOD']), $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
-            if (Warframe::$cfg['SSL']['MODE_ON'] == 1) {
-                $template = str_replace("__REDIRECT_TYPE__", (Warframe::$cfg['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
-                $template = str_replace("__CERTIFICATE_FILE__", Warframe::$cfg['SSL']['CERTIFICATE_FILE'], $template);
-                $template = str_replace("__CERTIFICATE_KEY_FILE__", Warframe::$cfg['SSL']['CERTIFICATE_KEY_FILE'], $template);
+            if ($ini['SSL']['MODE_ON'] == 1) {
+                $template = str_replace("__REDIRECT_TYPE__", ($ini['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
+                $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
+                $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
             }
             $fp = fopen(PATH_APP . '/nginx.conf', "w");
             fwrite($fp, $template);
@@ -207,7 +211,8 @@ class __Cfg
     {
         if (file_exists(CFG_PATH_CLOSE)) {
 
-            if (Warframe::$cfg['SSL']['MODE_ON']) {
+            $ini = cfgGet();
+            if ($ini['SSL']['MODE_ON']) {
 
                 if (!is_dir('ssl')) mkdir('ssl');
                 exec("openssl genrsa -des3 -out ssl/server.key 1024;

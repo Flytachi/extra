@@ -11,6 +11,7 @@ class __Backup
 
     function __construct($value = null, $name = null)
     {
+        Warframe::coreLoader();
         $this->path = dirname(__DIR__, 4)."/backup";
         $this->argument = $value;
         $this->name = $name;

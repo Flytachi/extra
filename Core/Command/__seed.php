@@ -13,6 +13,7 @@ class __Seed
 
     function __construct(string $name = null)
     {
+        Warframe::coreLoader();
         if ($name) {
             $this->name = $name;
             if ($this->generate()) Core::logMessage("Генерация прошла успешно.", 32);

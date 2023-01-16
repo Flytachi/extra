@@ -13,6 +13,7 @@ class __Base
 
     function __construct(string $db_login = null, string $db_password = null)
     {
+        Warframe::coreLoader();
         if ( isset($db_login) and isset($db_password) ) {
             $this->db_login = $db_login;
             $this->db_password = $db_password;

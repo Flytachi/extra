@@ -30,7 +30,6 @@ class Core
     private function resolution(): void
     {
         require dirname(__DIR__) . '/warframe.php';
-        Warframe::coreLoader();
         
         foreach (glob(__DIR__."/$this->command_dir/*") as $filename) require_once $filename;
 
@@ -103,4 +102,3 @@ class Core
     }
 
 }
-
