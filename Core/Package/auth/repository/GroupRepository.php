@@ -12,15 +12,15 @@ class GroupRepository extends Repository
         $groupPerm = new GroupPermissionRepository();
 
         // Delete
-        $obj = $this->db->delete($groupPerm->table, array('group_id'=>$this->getPk()));
+        $obj = Warframe::$db->delete($groupPerm->table, array('group_id'=>$this->getPk()));
         if (!is_numeric($obj)) $this->error($obj);
 
         // Create
         if (isset($_POST['permission']) && is_array($_POST['permission'])) {
             foreach ($_POST['permission'] as $permission) {
-                if (!$this->db->query("SELECT permission FROM " . $groupPerm->table . " WHERE group_id=" . $this->getPk() . " AND permission LIKE '$permission'")->fetchColumn()) {
+                if (!Warframe::$db->query("SELECT permission FROM " . $groupPerm->table . " WHERE group_id=" . $this->getPk() . " AND permission LIKE '$permission'")->fetchColumn()) {
                     $model = new $groupPerm->modelName(['group_id' => $this->getPk(), 'permission' => $permission]);
-                    $obj = $this->db->insert($groupPerm->table, $model);
+                    $obj = Warframe::$db->insert($groupPerm->table, $model);
                     if (!is_numeric($obj)) $this->error($obj);
                 }
             }
@@ -49,12 +49,12 @@ class GroupRepository extends Repository
     {
         $userPerm = new UserPermissionRepository;
 
-        $object = $this->db->delete($this->table, $this->getPk());
+        $object = Warframe::$db->delete($this->table, $this->getPk());
         if (!is_numeric($object)) $this->error($object);
 
         $perm = (new GroupPermissionRepository)->getAllPermission($this->getPk());
         if ($perm) {
-            $obj = $this->db->delete($userPerm->table, ['name' => $perm]);
+            $obj = Warframe::$db->delete($userPerm->table, ['name' => $perm]);
             if (!is_numeric($obj)) $this->error($obj);
         }
     }

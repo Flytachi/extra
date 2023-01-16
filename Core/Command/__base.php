@@ -31,11 +31,10 @@ class __Base
 
     private function create(): void
     {
-        $ini = cfgGet();
-        $create_db_name = $ini['DATABASE']['NAME'];
-        $create_db_user = $ini['DATABASE']['USER'];
-        $create_db_port = $ini['DATABASE']['PORT'];
-        $create_db_password = $ini['DATABASE']['PASS'];
+        $create_db_name = Warframe::$cfg['DATABASE']['NAME'];
+        $create_db_user = Warframe::$cfg['DATABASE']['USER'];
+        $create_db_port = Warframe::$cfg['DATABASE']['PORT'];
+        $create_db_password = Warframe::$cfg['DATABASE']['PASS'];
         $DNS = "$this->db_driver:host=$this->db_host;port=$create_db_port;charset=$this->db_charset";
         
         // Site Constants

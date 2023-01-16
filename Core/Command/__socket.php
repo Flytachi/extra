@@ -37,7 +37,6 @@ class __Socket
     private function start(): void
     {
         if ($this->name) {
-            require dirname(__DIR__, 2) . '/warframe.php';
             $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
             if (file_exists($socketFile)) {
 
@@ -63,7 +62,6 @@ class __Socket
     private function stop(): void
     {
         if ($this->name) {
-            require dirname(__DIR__, 2) . '/warframe.php';
             $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
             if (file_exists($socketFile)) {
                 
@@ -82,11 +80,10 @@ class __Socket
     private function run(): void
     {
         if ($this->name) {
-            require dirname(__DIR__, 2) . '/warframe.php';
+            
             $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
             if (file_exists($socketFile)) {
                 
-                Warframe::loadSrc();
                 include $socketFile;
                 $socket = new $this->name;
                 if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
@@ -103,8 +100,6 @@ class __Socket
     {
         $socketFolder = PATH_APP . '/sockets/';
         if (file_exists($socketFolder)) {
-            require dirname(__DIR__, 2) . '/warframe.php';
-            Warframe::loadSrc();
 
             foreach (glob($socketFolder. '/*.php') as $socketFile) {
                 include $socketFile;

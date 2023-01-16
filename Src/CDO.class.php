@@ -10,15 +10,12 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 4.0
+ *  @version 4.1
  *  @author itachi
  *  @package Extra\Src
  */
 class CDO extends PDO
 {
-    /** @var $debug debugging mode */
-    private mixed $debug;
-
     /**
      * Constructor
      *  
@@ -38,24 +35,22 @@ class CDO extends PDO
      */
     function __construct(array $params, $debug = false)
     {
-        if (is_null($params['DRIVER'])) dieConnection("Connection: driver not found!");
-        if (is_null($params['CHARSET'])) dieConnection("Connection: charset not found!");
-        if (is_null($params['HOST'])) dieConnection("Connection: host not found!");
-        if (is_null($params['PORT'])) dieConnection("Connection: port not found!");
-        if (is_null($params['NAME'])) dieConnection("Connection: db name not found!");
-        if (is_null($params['USER'])) dieConnection("Connection: username not found!");
+        if (is_null($params['DRIVER'])) Route::Throwable(500, 'CDO: Connection - driver not found!');
+        if (is_null($params['CHARSET'])) Route::Throwable(500, 'CDO: Connection - charset not found!');
+        if (is_null($params['HOST'])) Route::Throwable(500, 'CDO: Connection - host not found!');
+        if (is_null($params['PORT'])) Route::Throwable(500, 'CDO: Connection - port not found!');
+        if (is_null($params['NAME'])) Route::Throwable(500, 'CDO: Connection - db name not found!');
+        if (is_null($params['USER'])) Route::Throwable(500, 'CDO: Connection - username not found!');
         $DNS = $params['DRIVER'] . ":host=".$params['HOST'] . ";port=" . $params['PORT'] . ";dbname=" . $params['NAME'] . ";charset=" . $params['CHARSET'];
         $user = $params['USER'];
         $password = $params['PASS'];
-        $this->debug = $debug;
         try {
             parent::__construct($DNS, $user, $password);
             $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
-            if ( $this->debug ) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            if ($debug) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            if($debug) dieConnection($e->getMessage());
-            else Route::ErrorPage(500);
+            Route::Throwable(500, 'CDO: ' . $e->getMessage());
         }
     }
 

@@ -11,7 +11,7 @@ abstract class TelegramBot extends Controller
      * 
      * TelegramBot
      * 
-     * @version 2.3
+     * @version 2.3 betta
      * 
      * 
      * 

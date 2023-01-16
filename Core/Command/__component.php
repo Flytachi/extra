@@ -22,16 +22,10 @@ class __Component
 
     private function resolution(): void
     {
-        if ($this->argument == "init") $this->init();
-        elseif ($this->argument == "install") $this->install();
+        if ($this->argument == "install") $this->install();
         else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
     }
     
-    private function init(): void
-    {
-        $this->init_components();        
-    }
-
     private function install(): void
     {
         require dirname(__DIR__, 2) . '/Function/Console.php';
@@ -52,50 +46,9 @@ class __Component
         } else Core::logMessage("Пакет {$this->name} не существует!");
     }
 
-    private function init_components(): void
-    {
-        $this->change_dir(dirname(__DIR__)."/$this->path");
-    }
-
-    private function change_dir(String $path, String $c_path = null): void
-    {
-        foreach (glob("$path/*") as $item) {
-            if (is_dir($item)) {
-                $this->c .= ($c_path and $c_path . "/" != $this->c) ? basename($c_path)."/" : "";
-                $create_folder = dirname(__DIR__, 4)."/$this->c".mb_strtolower(substr(basename($item), 10, -2));
-                $this->create_dir($create_folder);
-                $this->change_dir($item, $create_folder);
-            }else {
-                $ext = ( $temp = mb_strtolower(strstr(basename($item), '_', true)) ) ? ".$temp" : "";
-                $name = mb_strtolower(substr(strstr(basename($item), '_'), 2, -2));
-                $Cd = explode("-", $name); 
-                $newName = $Cd[0];
-                for ($i=1; $i < count($Cd); $i++) $newName .= ucfirst($Cd[$i]);
-                if ($c_path) $this->create_file("$c_path/$newName$ext", file_get_contents($item));
-                else $this->create_file(dirname(__DIR__, 4)."/$newName$ext", file_get_contents($item));
-            }
-        }
-    }
-
-    private function create_dir(String $path): void
-    {
-        Core::logMessage("Создание директории $path.", 32);
-        if (!file_exists($path)) mkdir($path);
-    }
-
-    private function create_file(String $path, String $code, String $sufix = "w"): void
-    {
-        if (!file_exists($path)) {
-            $fp = fopen($path, $sufix);
-            fwrite($fp, $code);
-            fclose($fp);
-        }
-    }
-
     private function help(): void
     {
         Core::logLabel("Help");
-        Core::logText(":init         -  Инициализация фреймфорка.");
         Core::logText(":install      -  Инициализация пакета из репозитория.");
         Core::logLabel("End");
     }

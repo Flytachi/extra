@@ -12,7 +12,7 @@ class Repository
      * 
      * Repository
      * 
-     * @version 3.8
+     * @version 3.9 betta
      */
 
 
@@ -21,7 +21,6 @@ class Repository
     private array $CRD_SQL = [];
     private string $pk;
     private ModelInterface $model;
-    public CDO $db;
     private bool $CRD_debug;
     
     public function __construct($table_As = '')
@@ -30,19 +29,8 @@ class Repository
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
         }else $this->table = $table_As;
-
-        try {
-            $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
-        } catch (\Error) {
-            $this->CRD_debug = cfgGet()['GLOBAL_SETTING']['DEBUG'];
-        }
-        $this->setCfg();
-    }
-
-    function __destruct()
-    {
-        unset($this->CRD_SQL);
-        unset($this->db);
+        $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
+        $this->cluster();
     }
 
     private function loader(): void
@@ -58,23 +46,18 @@ class Repository
         });
     }
 
+    private function cluster(): void
+    {
+        if (is_null(Warframe::$db)) 
+            Warframe::$db = new CDO(Warframe::$cfg['DATABASE'], Warframe::$cfg['GLOBAL_SETTING']['DEBUG']);
+    }
+
     /*
     ---------------------------------------------
         SETS AND GETS DATATABLE
     ---------------------------------------------
     */
-    public function setCfg(array $cfgDatabase = []): void
-    {
-        if ($cfgDatabase) {
-            $this->db = new CDO($cfgDatabase, $this->CRD_debug);
-        } else {
-            try {
-                $this->db = new CDO(Warframe::$cfg['DATABASE'], $this->CRD_debug);
-            } catch (\Error) {
-                $this->db = new CDO(cfgGet()['DATABASE'], $this->CRD_debug);
-            }
-        }
-    }
+    
 
     final public function setPk(string $pk): void
     {
@@ -247,7 +230,7 @@ class Repository
         try {
 
             if ($data = implode(',', $items)) $this->Option($data);
-            $get = $this->db->query($this->buildSql());
+            $get = Warframe::$db->query($this->buildSql());
             $get->setFetchMode(PDO::FETCH_CLASS, $this->modelName);
             return $get->fetch();
 
@@ -260,7 +243,7 @@ class Repository
     final public function getAll(): array
     {
         try {
-            return $this->db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->modelName);
+            return Warframe::$db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->modelName);
         } catch (Throwable $th) {
             if ($this->CRD_debug) $this->throwable($th);
             else echo 'Ошибка в генерации скрипта <strong>"LIST"</strong>';
@@ -333,7 +316,7 @@ class Repository
         try {
 
             $this->Option("id");
-            return $this->db->query($this->buildSql())->fetchColumn();
+            return Warframe::$db->query($this->buildSql())->fetchColumn();
 
         } catch (Throwable $th) {
             if ($this->CRD_debug) $this->throwable($th);
@@ -363,19 +346,19 @@ class Repository
 
     public function saveBefore(): void
     {
-        $this->db->beginTransaction();
+        Warframe::$db->beginTransaction();
     }
 
     public function saveBody(): void
     {
-        $object = $this->db->insert($this->table, $this->getModel());
+        $object = Warframe::$db->insert($this->table, $this->getModel());
         if (!is_numeric($object)) $this->error($object);
         $this->setPk($object);
     }
 
     public function saveAfter(): void
     {
-        $this->db->commit();
+        Warframe::$db->commit();
     }
 
     final public function update(string $pk, ModelInterface $model): string
@@ -390,18 +373,18 @@ class Repository
 
     public function updateBefore(): void
     {
-        $this->db->beginTransaction();
+        Warframe::$db->beginTransaction();
     }
 
     public function updateBody(): void
     {
-        $object = $this->db->update($this->table, $this->getModel(), $this->getPk());
+        $object = Warframe::$db->update($this->table, $this->getModel(), $this->getPk());
         if (!is_numeric($object)) $this->error($object);
     }
 
     public function updateAfter(): void
     {
-        $this->db->commit();
+        Warframe::$db->commit();
     }
 
     final public function delete(string $pk): string
@@ -415,18 +398,18 @@ class Repository
 
     public function deleteBefore(): void
     {
-        $this->db->beginTransaction();
+        Warframe::$db->beginTransaction();
     }
 
     public function deleteBody(): void
     {
-        $object = $this->db->delete($this->table, $this->getPk());
+        $object = Warframe::$db->delete($this->table, $this->getPk());
         if (!is_numeric($object)) $this->error($object);
     }
 
     public function deleteAfter(): void
     {
-        $this->db->commit();
+        Warframe::$db->commit();
     }
 
     /*
@@ -463,7 +446,7 @@ class Repository
 
     public function error($message): void
     {
-        if($this->db->inTransaction()) $this->db->rollBack();
+        if(Warframe::$db->inTransaction()) Warframe::$db->rollBack();
         Route::responseJson(array(
             'status' => 'error', 
             'message' => $message,

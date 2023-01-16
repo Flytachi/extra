@@ -1,5 +1,8 @@
 <?php
 
+use Extra\Src\CDO;
+use Extra\Src\Route;
+
 enum METHOD
 {
     case GET;
@@ -16,6 +19,7 @@ enum METHOD
 class Warframe
 {
     public static array $cfg;
+    public static CDO|null $db = null;
 
     public final static function loader(): void
     {
@@ -30,7 +34,17 @@ class Warframe
         Warframe::loadSrc();
 
         date_default_timezone_set(self::$cfg['GLOBAL_SETTING']['TIME_ZONE']);
-        if (!Warframe::softLicenseCorrect()) dieConnection('The software license is incorrect or outdated.');
+        if (!Warframe::softLicenseCorrect()) Route::Throwable(510, 'The software license is incorrect or outdated.');
+    }
+    
+    public final static function coreLoader(): void
+    {
+        if (PHP_SAPI === "cli-server") $_SERVER['REQUEST_SCHEME'] = "http";
+        require dirname(__DIR__) . '/defines.php';
+        Warframe::loadFunction();
+        Warframe::$cfg = cfgGet();
+        Warframe::loadSrc();
+        date_default_timezone_set(self::$cfg['GLOBAL_SETTING']['TIME_ZONE']);
     }
 
     public final static function loadFunction(): void

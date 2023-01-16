@@ -82,13 +82,12 @@ class __Backup
     private function create(): void
     {
         if ($this->is_dir()) {
-            $ini = cfgGet();
             $file_name = $this->name ?? date("Y-m-d_H-i-s");
-            $user = $ini['DATABASE']['USER'];
-            $pass = $ini['DATABASE']['PASS'];
-            $host = $ini['DATABASE']['HOST'];
-            $port = $ini['DATABASE']['PORT'];
-            $name = $ini['DATABASE']['NAME'];
+            $user = Warframe::$cfg['DATABASE']['USER'];
+            $pass = Warframe::$cfg['DATABASE']['PASS'];
+            $host = Warframe::$cfg['DATABASE']['HOST'];
+            $port = Warframe::$cfg['DATABASE']['PORT'];
+            $name = Warframe::$cfg['DATABASE']['NAME'];
             $fileName = $this->path . '/' . $file_name . '.' . $this->file_format;
             exec("mysqldump -u'$user' -p'$pass' -h'$host' --protocol=TCP -P'$port' $name > $fileName");
             Core::logMessage("Дамп успешно создан.", 32);
@@ -116,8 +115,7 @@ class __Backup
                 $fileName = "$this->path/$this->name.$this->file_format";
                 if (file_exists($fileName)) {
                     
-                    $ini = cfgGet();
-                    exec("mysql -u " . $ini['DATABASE']['USER'] . " -p" . $ini['DATABASE']['PASS'] . " " . $ini['DATABASE']['NAME'] . " < $fileName");
+                    exec("mysql -u " . Warframe::$cfg['DATABASE']['USER'] . " -p" . Warframe::$cfg['DATABASE']['PASS'] . " " . Warframe::$cfg['DATABASE']['NAME'] . " < $fileName");
                     Core::logMessage("Миграция дампа прошла успешно.", 32);
 
                 } else Core::logMessage("Дамп не найден.");

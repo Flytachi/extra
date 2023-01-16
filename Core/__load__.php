@@ -2,6 +2,7 @@
 namespace Console;
 
 use Error;
+use Warframe;
 
 /**
  *  Ядро консоли
@@ -28,8 +29,8 @@ class Core
 
     private function resolution(): void
     {
-        require dirname(__DIR__, 2) . '/defines.php';
-        require dirname(__DIR__) . '/Function/Dependencies.php';
+        require dirname(__DIR__) . '/warframe.php';
+        Warframe::coreLoader();
         
         foreach (glob(__DIR__."/$this->command_dir/*") as $filename) require_once $filename;
 

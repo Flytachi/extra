@@ -43,8 +43,7 @@ class __Db
     private function migrate(): void
     {
         require dirname(__DIR__, 2) . $this->path_cdo;
-        $ini = cfgGet();
-        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new CDO(Warframe::$cfg['DATABASE'], Warframe::$cfg['GLOBAL_SETTING']['DEBUG']);
         
         // prepare
         if ($this->name) {
@@ -75,12 +74,11 @@ class __Db
     {
         if (!is_dir($this->path_database)) mkdir($this->path_database);
         $fileName = $this->path_database . ($this->name ?? ('sn#' . date("Y-m-d_H-i-s"))) . '.sql';
-        $ini = cfgGet();
-        $user = $ini['DATABASE']['USER'];
-        $pass = $ini['DATABASE']['PASS'];
-        $host = $ini['DATABASE']['HOST'];
-        $port = $ini['DATABASE']['PORT'];
-        $name = $ini['DATABASE']['NAME'];
+        $user = Warframe::$cfg['DATABASE']['USER'];
+        $pass = Warframe::$cfg['DATABASE']['PASS'];
+        $host = Warframe::$cfg['DATABASE']['HOST'];
+        $port = Warframe::$cfg['DATABASE']['PORT'];
+        $name = Warframe::$cfg['DATABASE']['NAME'];
         $this->mysqldump($user, $pass, $host, $port, $name, $fileName);
         Core::logMessage("Скелет базы успешно создан.", 32);
         Core::logMessage("* skeleton: '" . basename($fileName, '.sql') . "'", 32);
@@ -105,12 +103,11 @@ class __Db
         }
         $status = true;
         $currendData = $skeletonData = [];
-        $ini = cfgGet();
-        $user = $ini['DATABASE']['USER'];
-        $pass = $ini['DATABASE']['PASS'];
-        $host = $ini['DATABASE']['HOST'];
-        $port = $ini['DATABASE']['PORT'];
-        $name = $ini['DATABASE']['NAME'];
+        $user = Warframe::$cfg['DATABASE']['USER'];
+        $pass = Warframe::$cfg['DATABASE']['PASS'];
+        $host = Warframe::$cfg['DATABASE']['HOST'];
+        $port = Warframe::$cfg['DATABASE']['PORT'];
+        $name = Warframe::$cfg['DATABASE']['NAME'];
 
         // Skeleton/Current data
         $skeletonData = $this->sqlDataToArray(file_get_contents($file));
@@ -160,8 +157,7 @@ class __Db
     private function seed(): void
     {
         require dirname(__DIR__, 2) . $this->path_cdo;
-        $ini = cfgGet();
-        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new CDO(Warframe::$cfg['DATABASE'], Warframe::$cfg['GLOBAL_SETTING']['DEBUG']);
 
         if ($this->name) {
 
@@ -199,8 +195,7 @@ class __Db
     private function delete(): void
     {
         require dirname(__DIR__, 2) . $this->path_cdo;
-        $ini = cfgGet();
-        $db = new CDO($ini['DATABASE'], $ini['GLOBAL_SETTING']['DEBUG']);
+        $db = new CDO(Warframe::$cfg['DATABASE'], Warframe::$cfg['GLOBAL_SETTING']['DEBUG']);
 
         if ($this->name) {
             if ($db->query("SHOW TABLES LIKE '{$this->name}';")->rowCount()) {
@@ -212,7 +207,7 @@ class __Db
             else Core::logMessage("Таблица {$this->name} не найдена.");
         } else {
             $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE ";
-            foreach ($db->query("SHOW TABlES") as $table) $sql .= "`". $table['Tables_in_'.$ini['DATABASE']['NAME']] . "`,";
+            foreach ($db->query("SHOW TABlES") as $table) $sql .= "`". $table['Tables_in_'.Warframe::$cfg['DATABASE']['NAME']] . "`,";
             $sql = rtrim($sql, ',') . ";\nSET FOREIGN_KEY_CHECKS = 1;";
             if ($db->exec($sql) != false)
                 Core::logMessage("База данных успешно удалена.", 32);

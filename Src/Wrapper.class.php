@@ -16,7 +16,7 @@ class Wrapper
      * 
      * Wrapper
      * 
-     * @version 3.7
+     * @version 3.8
      */
 
     static int $totalPages;
@@ -70,7 +70,7 @@ class Wrapper
         if ($repo->getSql('limit') > 0) {
             $sql = $repo->buildSql();
             Wrapper::$totalPages = ceil(
-                $repo->db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / $repo->getSql('limit')
+                Warframe::$db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / $repo->getSql('limit')
             );
             if (Wrapper::$totalPages <= 1) return '';
             if (isset($_GET['CRD_page'])) {
