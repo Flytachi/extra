@@ -36,7 +36,6 @@ class __Db
             elseif($this->argument == "seed") $this->seed();
             else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (\Error $e) {
-            dd($e);
             Core::logMessage("Ошибка в скрипте.", 31);
         }
     }

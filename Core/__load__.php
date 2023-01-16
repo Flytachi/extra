@@ -30,6 +30,7 @@ class Core
     private function resolution(): void
     {
         require dirname(__DIR__) . '/warframe.php';
+        require dirname(__DIR__, 2) . '/defines.php';
         
         foreach (glob(__DIR__."/$this->command_dir/*") as $filename) require_once $filename;
 

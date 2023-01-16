@@ -40,7 +40,6 @@ class Warframe
     public final static function coreLoader(): void
     {
         if (PHP_SAPI === "cli-server") $_SERVER['REQUEST_SCHEME'] = "http";
-        require dirname(__DIR__) . '/defines.php';
         Warframe::loadFunction();
         Warframe::$cfg = cfgGet();
         Warframe::loadSrc();
