@@ -47,7 +47,11 @@ class WebSocketServer
 
         spl_autoload_register(function ($class) {
             $class = explode("\\", $class);
-            $file = PATH_APP . '/repository/' . $class[0] . '.php';
+            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+                $file = PATH_PLUGIN . "/Frame." . $class[0] . "/repository/" . $class[1] . '.php';
+            } else {
+                $file = PATH_APP . '/repository/' . $class[0] . '.php';
+            }
             if (file_exists($file)) require $file;
         });
     }
@@ -83,8 +87,7 @@ class WebSocketServer
         $this->startTime = time();
 
         while (true) {
-            $this->serverLog('Wait...');
-
+            // $this->serverLog('Wait...');
             $read = $this->connects;
             $read[] = $this->connection;
             $write = $except = null;

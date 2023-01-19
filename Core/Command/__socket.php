@@ -31,6 +31,7 @@ class __Socket
             elseif ($this->argument == "status") $this->status();
             else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (Error $e) {
+            dd($e);
             Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
@@ -38,7 +39,12 @@ class __Socket
     private function start(): void
     {
         if ($this->name) {
-            $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+
+            $names = explode('\\', $this->name);
+            if (ROUTE_PLUGIN_SYSTEM &&  count($names) != 1) 
+                $socketFile = PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php';
+            else $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+
             if (file_exists($socketFile)) {
 
                 $selfPID = $this->jsonPIDdata($this->name);
@@ -48,7 +54,7 @@ class __Socket
                 } else {
                     $processId = shell_exec(sprintf(
                         '%s > %s 2>&1 & echo $!',
-                        "php -q box socket:run {$this->name}",
+                        "php -q box socket:run " . str_replace('\\', '\\\\', $this->name),
                         "/dev/null"
                     ));
                     $this->jsonAddPID($processId, $this->name);
@@ -57,13 +63,19 @@ class __Socket
                 }
 
             } else Core::logMessage("Сокет не найден!");
+
         } else Core::logMessage("Укажите имя сокета!");
     }
 
     private function stop(): void
     {
         if ($this->name) {
-            $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+
+            $names = explode('\\', $this->name);
+            if (ROUTE_PLUGIN_SYSTEM &&  count($names) != 1) 
+                $socketFile = PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php';
+            else $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+            
             if (file_exists($socketFile)) {
                 
                 $selfPID = $this->jsonPIDdata($this->name);
@@ -81,40 +93,72 @@ class __Socket
     private function run(): void
     {
         if ($this->name) {
-            
-            $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
-            if (file_exists($socketFile)) {
-                
-                include $socketFile;
-                $socket = new $this->name;
-                if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
-                else {
-                    Core::logMessage("Сокет {$this->name} запущен!", 32);
-                    $socket->start();
-                }
 
-            } else Core::logMessage("Сокет не найден!");
+            if (ROUTE_PLUGIN_SYSTEM) {
+                $names = explode('\\', $this->name); 
+                if (count($names) == 1) $this->runSocket($names[0], PATH_APP . '/sockets/' . $this->name . '.php');
+                else $this->runSocket($this->name, PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php');
+            } else $this->runSocket($this->name, PATH_APP . '/sockets/' . $this->name . '.php');
+            
         } else Core::logMessage("Укажите имя сокета!");
     }
 
     private function status(): void
     {
-        $socketFolder = PATH_APP . '/sockets/';
-        if (file_exists($socketFolder)) {
+        $appSockets = glob(PATH_APP . '/sockets/*.php');
 
-            foreach (glob($socketFolder. '/*.php') as $socketFile) {
+        if (ROUTE_PLUGIN_SYSTEM) {
+            $pluginSockets = glob(PATH_PLUGIN . '/Frame.*/sockets/*.php');
+            if((count($appSockets) + count($pluginSockets)) == 0) {
+                Core::logMessage("Не найдено ни одного сокета!");
+                return;
+            }
+
+            foreach ($pluginSockets as $socketFile) {
                 include $socketFile;
+                $plugin = str_replace('Frame.','', basename(dirname($socketFile, 2)));
                 $class = basename($socketFile, '.php');
-                $socket = new $class;
+                $socket = new ($plugin . '\\' . $class);
                 $status = ($socket->statusConnection() ? "\033[34mACTIVE" : "\033[30mPASSIVE");
                 Core::logMessage(
-                    $class . "\t "
+                    $plugin . '\\' . $class . "\t "
                     . $socket->getIp() . ':' . $socket->getPort()
                     . "\t\t " . $status
                 );
             }
+        } else {
+            if(count($appSockets) == 0) {
+                Core::logMessage("Не найдено ни одного сокета!");
+                return;
+            }
+        }
+
+        foreach ($appSockets as $socketFile) {
+            include $socketFile;
+            $class = basename($socketFile, '.php');
+            $socket = new $class;
+            $status = ($socket->statusConnection() ? "\033[34mACTIVE" : "\033[30mPASSIVE");
+            Core::logMessage(
+                $class . "\t "
+                . $socket->getIp() . ':' . $socket->getPort()
+                . "\t\t " . $status
+            );
+        }
+    }
+
+    private function runSocket(string $name, string $path)
+    {
+        if (file_exists($path)) {
             
-        } else Core::logMessage("Папка сокетов не найдена!");
+            include $path;
+            $socket = new $name;
+            if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
+            else {
+                Core::logMessage("Сокет {$name} запущен!", 32);
+                $socket->start();
+            }
+
+        } else Core::logMessage("Сокет не найден!");
     }
 
     private function jsonAddPID(int $pid, string $pidName)
