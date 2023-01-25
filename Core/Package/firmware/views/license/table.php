@@ -9,28 +9,28 @@
     </thead>
     <tbody>
         <?php foreach($table as $row): ?>
-            <tr <?php if($row->getIsDelete()) echo 'style="background-color:red; color:white;"' ?>>
+            <tr <?php if($row->is_delete) echo 'style="background-color:red; color:white;"' ?>>
                 <td><?= $row->enterprise ?></td>
-                <td><?= $row->getSeries() ?></td>
-                <td><?= $row->getDateFrom() ?> => <?= $row->getDateTo() ?></td>
+                <td><?= $row->series ?></td>
+                <td><?= $row->date_from ?> => <?= $row->date_to ?></td>
                 <td>
-                    <?php if(!$row->getIsDelete()): ?>
-                        <a href="/firmwareLicense/getFile/<?= $row->getId() ?>" type="button" class="warframe_btn" title="Скачать файл">
+                    <?php if(!$row->is_delete): ?>
+                        <a href="/firmwareLicense/getFile/<?= $row->id ?>" type="button" class="warframe_btn" title="Скачать файл">
                             Load
                         </a>
                     <?php endif; ?>
-                    <button onclick="checkModal('/firmwareLicense/get/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/firmwareLicense/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <?php if($row->getIsDelete()): ?>
-                        <button onclick="AjaxQuery('/firmwareLicense/restore/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Восстановить">
+                    <?php if($row->is_delete): ?>
+                        <button onclick="AjaxQuery('/firmwareLicense/restore/<?= $row->id ?>')" type="button" class="warframe_btn" title="Восстановить">
                             Restore
                         </button>
-                        <button onclick="AjaxQuery('/firmwareLicense/remove/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/firmwareLicense/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                             Remove
                         </button>
                     <?php else: ?>
-                        <button onclick="AjaxQuery('/firmwareLicense/delete/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/firmwareLicense/delete/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                             Delete
                         </button>
                     <?php endif; ?>
