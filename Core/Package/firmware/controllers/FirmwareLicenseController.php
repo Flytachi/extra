@@ -36,6 +36,7 @@ class FirmwareLicenseController extends Controller
     {
         Route::isAuthAdmin();
         $this->repo->as('l');
+        $this->repo->modelName = 'stdClass';
         $this->repo->Option("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
         $this->repo->JoinLEFT(new FirmwareEnterpriseRepository('e'), 'e.id=l.enterprise_id');
         $this->repo->Limit(10);

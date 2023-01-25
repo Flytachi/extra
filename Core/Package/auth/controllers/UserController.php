@@ -70,6 +70,7 @@ class UserController extends Controller
         $this->prepareAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
         $this->repo->as('u');
+        $this->repo->modelName = "stdClass";
         $this->repo->Option("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
         $this->repo->JoinLEFT(new UserInfoRepository('ui'), 'u.id=ui.user_id');
         $this->repo->JoinLEFT(new GroupRepository('g'), 'g.id=ui.group_id');

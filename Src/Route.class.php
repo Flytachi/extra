@@ -11,13 +11,13 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * 	@version 12.9
+ * 	@version 13
  * 	@author itachi
  * 	@package Extra\Src
  */
 class Route
 {
-	/** @var $httpStatus HTTP array codes */
+	/** @var $httpStatus array HTTP array codes */
 	static array $httpStatus = [
 		100 => 'Continue',
 		101 => 'Switching Protocols',
@@ -334,7 +334,7 @@ class Route
      */
 	final static function urlToArray(string $url): array
     {
-        $code = explode('?', $url);
+        $code = explode('?', urldecode($url));
         $result = [];
 		if (isset($code[1])) {
 			foreach (explode('&', $code[1]) as $param) {

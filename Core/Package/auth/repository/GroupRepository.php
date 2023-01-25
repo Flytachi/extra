@@ -41,7 +41,7 @@ class GroupRepository extends Repository
         $userModel = new UserRepository;
         foreach ($infos->getAll() as $info) {
             $userModel->setPk($info->getUserId());
-            $userModel->permission($_POST['permission']);
+            $userModel->permission($_POST['permission'] ?? []);
         }
     }
 
