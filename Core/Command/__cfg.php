@@ -52,7 +52,6 @@ class __Cfg
 
     function __construct($value = null)
     {
-        require dirname(__DIR__, 3) . '/defines.php';
         require dirname(__DIR__, 2) . '/Function/Dependencies.php';
         $this->argument = $value;
         $this->handle();

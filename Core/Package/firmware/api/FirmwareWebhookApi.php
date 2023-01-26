@@ -11,7 +11,7 @@ class FirmwareWebhookApi extends Api
         $body = $this->requestJson();
 
         $enterprise = (new FirmwareWebhookRepository)->getBy(array('unique_key' => $body->key));
-        if(!$enterprise) Route::ApiError(401);
+        if(!$enterprise) $this->responseError(401);
 
         $licenseRepo = (new FirmwareLicenseRepository);
         $licenseRepo->modelName = "stdClass";
@@ -20,7 +20,7 @@ class FirmwareWebhookApi extends Api
         $license = $licenseRepo->getBy(array('is_delete' => 0, 'enterprise_id' => $enterprise->getEnterpriseId()));
         if ($license) {
             $license->firmware = EXTRA_KEY;
-            Route::ApiSuccess( $license );
+            $this->responseOk( $license );
         }
     }
 }

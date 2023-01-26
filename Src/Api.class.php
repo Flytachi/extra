@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.4
+ *  @version 6.5
  *  @author itachi
  *  @package Extra\Src
  */
@@ -139,7 +139,7 @@ abstract class Api
             if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
         }
 
-        if($this->isSecure && empty($this->getHeaders())) Route::ApiError(400, 'The request is missing header data.');
+        if($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
     }
 
     /**
@@ -153,8 +153,8 @@ abstract class Api
     {
         $this->repo = new ApiRepository;
         $token = $this->getBearerToken();
-        if (empty($token)) Route::ApiError(400, 'Authorization data not found.');
-        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ApiError(401, 'Authorization failed.');
+        if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
+        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ApiResponseError(401, 'Authorization failed.');
     }
 
     /**
@@ -168,9 +168,9 @@ abstract class Api
     {
         $this->repo = new ApiRepository;
         $token = $this->getBasicToken();
-        if (empty($token)) Route::ApiError(400, 'Authorization data not found.');
+        if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
         $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
-        if (empty($this->repo->get())) Route::ApiError(401, 'Authorization failed.');
+        if (empty($this->repo->get())) Route::ApiResponseError(401, 'Authorization failed.');
     }
 
     /**
@@ -209,7 +209,7 @@ abstract class Api
 	 */
     protected function responseOk(mixed $data = null): void
     {
-        Route::ApiSuccess($data);
+        Route::ApiResponseOk($data);
     }
 
     /**
@@ -222,6 +222,6 @@ abstract class Api
 	 */
     protected function responseError(int $code, mixed $data = null): void
     {
-        Route::ApiError($code, $data);
+        Route::ApiResponseError($code, $data);
     }
 }

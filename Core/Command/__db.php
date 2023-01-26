@@ -172,9 +172,9 @@ class __Db
                 $db->insert($this->name, $row);
                 $i++;
             }
-            Core::logMessage("Таблица $table ($i).", 32);
+            Core::logMessage("Таблица {$this->name} ($i).", 32);
 
-        }else{
+        } else{
 
             foreach (glob("$this->path_data_seed/*.$this->seed_format") as $file_name) {
                 $table = pathinfo($file_name)['filename'];
@@ -200,19 +200,20 @@ class __Db
         if ($this->name) {
             if ($db->query("SHOW TABLES LIKE '{$this->name}';")->rowCount()) {
                 $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE `{$this->name}`;SET FOREIGN_KEY_CHECKS = 1;";
-                if ($db->exec($sql) != false)
-                    Core::logMessage("Таблица '{$this->name}' успешно удалена.", 32);
+                if (is_numeric($db->exec($sql))) Core::logMessage("Таблица '{$this->name}' успешно удалена.", 32);
                 else Core::logMessage("Не удалось удалить таблицу '{$this->name}'.");
-            } 
+            }
             else Core::logMessage("Таблица {$this->name} не найдена.");
         } else {
             $sql = "SET FOREIGN_KEY_CHECKS = 0;\nDROP TABLE ";
-            foreach ($db->query("SHOW TABlES") as $table) $sql .= "`". $table['Tables_in_'.Warframe::$cfg['DATABASE']['NAME']] . "`,";
-            $sql = rtrim($sql, ',') . ";\nSET FOREIGN_KEY_CHECKS = 1;";
-            if ($db->exec($sql) != false)
-                Core::logMessage("База данных успешно удалена.", 32);
-            else Core::logMessage("Не удалось удалить базу данных.");
-            
+            $tables = '';
+            foreach ($db->query("SHOW TABlES") as $table) $tables .= "`". $table['Tables_in_'.Warframe::$cfg['DATABASE']['NAME']] . "`,";
+
+            if ($tables != '') {
+                $sql = $sql . rtrim($tables, ',') . ";\nSET FOREIGN_KEY_CHECKS = 1;";
+                if (is_numeric($db->exec($sql))) Core::logMessage("База данных успешно удалена.", 32);
+                else Core::logMessage("Не удалось удалить базу данных.");
+            } else Core::logMessage("В базе данных не найдено ни одной таблицы.");
         }
     }
 

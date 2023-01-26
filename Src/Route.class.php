@@ -11,7 +11,7 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * 	@version 13
+ * 	@version 13.1
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -248,7 +248,7 @@ class Route
      */
 	final static function routeApi(array $data): never
 	{
-		if (!ROUTE_API_SYSTEM) self::ApiError(400);
+		if (!ROUTE_API_SYSTEM) self::ApiResponseError(400);
 		$routes = explode('/', $data['url']);
 		$_GET = $data['get'];
 		$chP =  (isset($routes[2])) ? checkPlugin(ucfirst($routes[2])) : null;
@@ -434,7 +434,7 @@ class Route
 	 * 
 	 * @return never
 	 */
-	final static function ApiSuccess(mixed $data = null): never
+	final static function ApiResponseOk(mixed $data = null): never
 	{
 		$code = 200;
 		$status = self::$httpStatus['200'];
@@ -448,7 +448,7 @@ class Route
 		echo json_encode(array(
 			'statusCode' => $code,
 			'statusDescription' => $status,
-			'result' => $data
+			'data' => $data
 		));
 		die;
 	}
@@ -461,7 +461,7 @@ class Route
 	 * 
 	 * @return never
 	 */
-	final static function ApiError(int $code, mixed $data = null): never
+	final static function ApiResponseError(int $code, mixed $data = null): never
 	{
 		$status = self::$httpStatus[$code];
 		header_remove("X-Powered-By");
@@ -474,7 +474,7 @@ class Route
 		echo json_encode(array(
 			'statusCode' => $code,
 			'statusDescription' => $status,
-			'result' => $data
+			'data' => $data
 		));
 		die;
 	}
@@ -495,29 +495,8 @@ class Route
 	final static function Throwable(int $code, string $title): never
     {
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
-			header("HTTP/1.1 $code " . self::$httpStatus[$code]);
-			header("Status: $code " . self::$httpStatus[$code]);
-			switch ((int) ($code / 100)) {
-				case 1:  $tColor="00ffff";break;
-				case 2:  $tColor="00ff00";break;
-				case 3:  $tColor="ff00e0";break;
-				case 4:  $tColor="ffff00";break;
-				case 5:  $tColor="ff0000";break;
-				default: $tColor="dddddd";break;
-			}
-            $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
-            foreach (debug_backtrace() as $key => $value) {
-				if ($key != 0) {
-					$message .= "\n\t\t#" . $key . ' ';  
-					if (isset($value['file']))     $message .= $value['file'];
-					if (isset($value['line']))     $message .= ' (' . $value['line'] . '): ';
-					if (isset($value['class']))    $message .= "\t" . $value['class'];
-					if (isset($value['type']))     $message .= $value['type'];
-					if (isset($value['function'])) $message .= $value['function'];
-				}
-            }
-			echo '<pre style="background-color: black; color: #'.$tColor.'; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
-			echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
+            $message = self::getThrowableMessage($code, $title);
+            echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
 			print_r($message);
 			echo '<hr></pre>';
             die();
@@ -541,33 +520,47 @@ class Route
 	final static function ThrowableApi(int $code, string $title): never
     {
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
-			header("HTTP/1.1 $code " . self::$httpStatus[$code]);
-			header("Status: $code " . self::$httpStatus[$code]);
-			switch ((int) ($code / 100)) {
-				case 1:  $tColor="00ffff";break;
-				case 2:  $tColor="00ff00";break;
-				case 3:  $tColor="ff00e0";break;
-				case 4:  $tColor="ffff00";break;
-				case 5:  $tColor="ff0000";break;
-				default: $tColor="dddddd";break;
-			}
-            $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
-            foreach (debug_backtrace() as $key => $value) {
-				if ($key != 0) {
-					$message .= "\n\t\t#" . $key . ' ';  
-					if (isset($value['file']))     $message .= $value['file'];
-					if (isset($value['line']))     $message .= ' (' . $value['line'] . '): ';
-					if (isset($value['class']))    $message .= "\t" . $value['class'];
-					if (isset($value['type']))     $message .= $value['type'];
-					if (isset($value['function'])) $message .= $value['function'];
-				}
-            }
-			echo '<pre style="background-color: black; color: #'.$tColor.'; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
-			echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";
+            $message = self::getThrowableMessage($code, $title);
+            echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";
 			print_r($message);
 			echo '<hr></pre>';
             die();
         }
-        else self::ApiError($code);
+        else self::ApiResponseError($code);
+    }
+
+    /**
+     * Throwable Message Warframe function
+     *
+     * @param int $code
+     * @param string $title
+     *
+     * @return string error message
+     */
+    private static function getThrowableMessage(int $code, string $title): string
+    {
+        header("HTTP/1.1 $code " . self::$httpStatus[$code]);
+        header("Status: $code " . self::$httpStatus[$code]);
+        $tColor = match ((int)($code / 100)) {
+            1 => "00ffff",
+            2 => "00ff00",
+            3 => "ff00e0",
+            4 => "ffff00",
+            5 => "ff0000",
+            default => "dddddd",
+        };
+        $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
+        foreach (debug_backtrace() as $key => $value) {
+            if ($key != 0) {
+                $message .= "\n\t\t#" . $key . ' ';
+                if (isset($value['file'])) $message .= $value['file'];
+                if (isset($value['line'])) $message .= ' (' . $value['line'] . '): ';
+                if (isset($value['class'])) $message .= "\t" . $value['class'];
+                if (isset($value['type'])) $message .= $value['type'];
+                if (isset($value['function'])) $message .= $value['function'];
+            }
+        }
+        echo '<pre style="background-color: black; color: #' . $tColor . '; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
+        return $message;
     }
 }

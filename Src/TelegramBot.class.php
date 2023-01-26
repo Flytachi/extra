@@ -11,7 +11,7 @@ abstract class TelegramBot extends Controller
      * 
      * TelegramBot
      * 
-     * @version 2.3 betta
+     * @version 2.4 betta
      * 
      * 
      * 
@@ -78,7 +78,7 @@ abstract class TelegramBot extends Controller
         $this->method(METHOD::GET);
         Route::isAuthAdmin();
         $token = Warframe::$cfg['TELEGRAM']['TOKEN'];
-        if (!$token) Route::ApiError(503);
+        if (!$token) Route::ApiResponseError(503);
 
         $curl = curl_init();
         curl_setopt_array($curl, array(

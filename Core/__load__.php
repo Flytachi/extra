@@ -30,7 +30,7 @@ class Core
     private function resolution(): void
     {
         require dirname(__DIR__) . '/warframe.php';
-        // require dirname(__DIR__, 2) . '/defines.php';
+        require dirname(__DIR__, 2) . '/defines.php';
         
         foreach (glob(__DIR__."/$this->command_dir/*") as $filename) require_once $filename;
 
@@ -49,6 +49,7 @@ class Core
             new $Class_construct($Arg, $Arg2);
 
         } catch (Error $e) {
+            print_r($e);
             Core::logMessage("Нет такой команды.", 31);
         }
         echo "\033[0m";
