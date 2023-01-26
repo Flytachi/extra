@@ -27,6 +27,7 @@ class AuthController extends Controller
             if ($user && password_verify($password, $user->getPassword())) {
                 $_SESSION['id'] = $user->getId();
                 $_SESSION['is_admin'] = $user->getIsAdmin();
+                $_SESSION['TZ'] = $_POST['TZ'] ?? null;
                 if ($info = (new UserInfoRepository)->isUser($user->getId())) {
                     $_SESSION['name'] = $info->getName();
                 }

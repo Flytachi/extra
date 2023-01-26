@@ -33,10 +33,16 @@
 
             $("#loginForm").on('submit', () => {
                 event.preventDefault();
+                var data = $(event.target).serializeArray();
+                data.push({
+                    name: 'TZ',
+                    value: Intl.DateTimeFormat().resolvedOptions().timeZone
+                });
+
                 $.ajax({
                     type: $(event.target).attr("method"),
                     url: $(event.target).attr("action"),
-                    data: $(event.target).serializeArray(),
+                    data: data,
                     success: function (response) {
                         if (response.status == "success") {
                             $("#messageArea").css('color', 'green');
