@@ -128,7 +128,7 @@ body {
 }
 
 /* Forms */
-input[type=text], select, input[type=password], input[type=file] {
+input[type=text], textarea, select, input[type=password], input[type=file] {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
