@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.5
+ *  @version 6.6
  *  @author itachi
  *  @package Extra\Src
  */
@@ -22,6 +22,8 @@ abstract class Api
     public Repository $repo;
     /** @var string $repo request header data */
     private string $headers = '';
+    /** @var int $pk token id */
+    private int $pk;
 
     /** @var array $uploadFileFormat upload file format */
     public array $uploadFileFormat;
@@ -44,6 +46,26 @@ abstract class Api
     final function __call($name, $arguments)
     {
         Route::ThrowableApi(404, 'The "' . $name . '" function was not found or is not a public method');
+    }
+
+    /**
+     * Get Token id
+     *
+     * @return int
+     */
+    public function getPk(): int
+    {
+        return $this->pk;
+    }
+
+    /**
+     * Set Token id
+     *
+     * @param int $pk
+     */
+    public function setPk(int $pk): void
+    {
+        $this->pk = $pk;
     }
 
     /**
@@ -154,7 +176,10 @@ abstract class Api
         $this->repo = new ApiRepository;
         $token = $this->getBearerToken();
         if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
-        if (empty($this->repo->getBy(['type' => 'Bearer', 'token' => $token]))) Route::ApiResponseError(401, 'Authorization failed.');
+
+        $object = $this->repo->getBy(['type' => 'Bearer', 'token' => $token]);
+        if ($object) $this->pk = $object->getId();
+        else Route::ApiResponseError(401, 'Authorization failed.');
     }
 
     /**
@@ -170,7 +195,10 @@ abstract class Api
         $token = $this->getBasicToken();
         if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
         $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
-        if (empty($this->repo->get())) Route::ApiResponseError(401, 'Authorization failed.');
+
+        $object = $this->repo->get();
+        if ($object) $this->pk = $object->getId();
+        else Route::ApiResponseError(401, 'Authorization failed.');
     }
 
     /**
