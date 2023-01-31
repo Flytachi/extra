@@ -11,7 +11,7 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * 	@version 13.1
+ * 	@version 13.2
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -440,11 +440,11 @@ class Route
 		$status = self::$httpStatus['200'];
 		header_remove("X-Powered-By");
 		header('Access-Control-Allow-Origin: *');
-		header("Access-Control-Allow-Methods: *");
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Methods: *");
 		header("Content-Type: application/json");
 		header("HTTP/1.1 $code " . $status);
 		header("Status: $code " . $status);
-		header('Content-type: application/json');
 		echo json_encode(array(
 			'statusCode' => $code,
 			'statusDescription' => $status,
@@ -466,11 +466,11 @@ class Route
 		$status = self::$httpStatus[$code];
 		header_remove("X-Powered-By");
 		header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: *");
 		header("Access-Control-Allow-Methods: *"); 
 		header("Content-Type: application/json");
 		header("HTTP/1.1 $code " . $status);
 		header("Status: $code " . $status);
-		header('Content-type: application/json');
 		echo json_encode(array(
 			'statusCode' => $code,
 			'statusDescription' => $status,
