@@ -5,6 +5,7 @@ namespace Extra\Src;
 use METHOD;
 use ReflectionClass;
 use ReflectionProperty;
+use Warframe;
 
 /**
  *  Warframe collection
@@ -14,7 +15,7 @@ use ReflectionProperty;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo; 
  * 
- *  @version 8.0
+ *  @version 8.2
  *  @author itachi
  *  @package Extra\Src
  */
@@ -293,6 +294,102 @@ abstract class Controller
         if(is_array($data)) extract($data);
         $content = VIEW_FOLDER . "/$content.php";
         include VIEW_FOLDER . '/' . $this->template;
+        if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) $this->debugBar($content, $data);
+    }
+
+    private function debugBar(string $content, mixed $data = null): void
+    {
+        ?>
+        <link rel="stylesheet" type="text/css" href="/static/warframe/css/debug.css"/>
+        <script type="text/javascript" src="/static/warframe/js/debug.js"></script>
+        <button id="warframe_debug-btn" onclick="WarframeDebugBar()"><em>Debug</em></button>
+
+        <div id="warframe_debug-bar">
+            <div id="warframe_debug-bar_body-indicator">
+                <?php $delta = round(microtime(true)-$_SERVER['REQUEST_TIME'], 3) ?>
+                <b>Memory:</b> <?= bytes(memory_get_usage(), 'MiB')  ?> /
+                <b>Time:</b> <?= ($delta < 0.001) ? 0.001 : $delta; ?> sec
+            </div>
+
+            <div id="warframe_debug-bar_body-accordion-container">
+
+                <input type="checkbox" id="debug-item_general">
+                <label for="debug-item_general">GENERAL</label>
+                <div class="warframe_debug-accordion-body">
+                    <pre><?php print_r([
+                            'controller' => get_class($this),
+                            'mainTemplate' => VIEW_FOLDER . '/' . $this->template,
+                            'template' => $content,
+                            'data' => $data
+                        ]) ?></pre>
+                </div>
+
+                <input type="checkbox" id="debug-item_server">
+                <label for="debug-item_server">SERVER</label>
+                <div class="warframe_debug-accordion-body">
+                    <pre><?php print_r($_SERVER) ?></pre>
+                </div>
+
+                <?php if($_SESSION): ?>
+                    <input type="checkbox" id="debug-item_session">
+                    <label for="debug-item_session">SESSION</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($_SESSION) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($data): ?>
+                    <input type="checkbox" id="debug-item_data">
+                    <label for="debug-item_data">DATA</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($data) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($_REQUEST): ?>
+                    <input type="checkbox" id="debug-item_request">
+                    <label for="debug-item_request">REQUEST</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($_REQUEST) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($_FILES): ?>
+                    <input type="checkbox" id="debug-item_files">
+                    <label for="debug-item_files">FILES</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($_FILES) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($_COOKIE): ?>
+                    <input type="checkbox" id="debug-item_cookie">
+                    <label for="debug-item_cookie">COOKIE</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($_COOKIE) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($_ENV): ?>
+                    <input type="checkbox" id="debug-item_env">
+                    <label for="debug-item_env">ENV</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($_ENV) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($GLOBALS): ?>
+                    <input type="checkbox" id="debug-item_globals">
+                    <label for="debug-item_globals">GLOBALS</label>
+                    <div class="warframe_debug-accordion-body">
+                        <pre><?php print_r($GLOBALS) ?></pre>
+                    </div>
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+        <?php
     }
 
     final protected function view(string $content, mixed $data = null): void

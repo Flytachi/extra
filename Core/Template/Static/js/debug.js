@@ -1,18 +1,19 @@
 function WarframeDebugBar() {
-    if (document.getElementById("warframe_debug-bar")) {
-        if (document.getElementById("warframe_debug-bar").dataset.status == '1') {
-            document.getElementById("warframe_debug-bar").style.width = "0";
-            document.getElementById("warframe_debug-btn_div").style.marginLeft= "0";
-            document.getElementById("warframe_debug-bar").dataset.status = '0';
-            document.getElementById("warframe_debug-btn").style.color = 'white';
+    let bar = document.getElementById("warframe_debug-bar");
+    let btn = document.getElementById("warframe_debug-btn");
+    if (bar) {
+        if (bar.style.display !== "block") {
+            console.log('open debug panel');
+            bar.style.display = "block";
+            btn.style.bottom = "49%";
+            btn.style.color = "white";
+            btn.style.backgroundColor = "red";
         } else {
-            document.getElementById("warframe_debug-bar").style.width = "47%";
-            document.getElementById("warframe_debug-btn_div").style.marginLeft = "47%";
-            document.getElementById("warframe_debug-bar").dataset.status = '1';
-            document.getElementById("warframe_debug-btn").style.color = 'red';
+            console.log('close debug panel');
+            bar.style.display = "none";
+            btn.style.bottom = "5px";
+            btn.style.color = "red";
+            btn.style.backgroundColor = "#111";
         }
-    }else{
-        alert("Создайте debug блок в удобном вам месте !\n<div id=\"warframe_debug-bar\">...</div>");
-    }
-    
+    } else alert("Debug блок не найден");
 }

@@ -16,7 +16,10 @@ function cfgGet(): array
 
 function dd(mixed ...$value): never
 {
-    echo '<pre style="background-color: black; color: #00ff00; border-style: solid; border-color: #ff0000; border-width: medium;">';
+    echo '<pre style="background-color: black; color: #00ff00; border-style: solid;',
+        'border-color: #ff0000; border-width: medium;',
+        'white-space: pre-wrap; white-space: -moz-pre-wrap;',
+        'white-space: -o-pre-wrap;word-wrap: break-word;">';
     print_r($value);
     echo '</pre>';
     die();
@@ -24,7 +27,10 @@ function dd(mixed ...$value): never
 
 function parad(string $title, mixed $value = null): void
 {
-    echo '<pre style="background-color: black; color: #00ff00; border-style: solid; border-color: #ff0000; border-width: medium;">';
+    echo '<pre style="background-color: black; color: #00ff00; border-style: solid;',
+        'border-color: #ff0000; border-width: medium;',
+        'white-space: pre-wrap; white-space: -moz-pre-wrap;',
+        'white-space: -o-pre-wrap;word-wrap: break-word;">';
     echo "<strong style=\"color: #ffffff;\">$title</strong><br>";
     print_r($value);
     echo '</pre>';
