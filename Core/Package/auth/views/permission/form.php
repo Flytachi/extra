@@ -1,4 +1,4 @@
-<form action="/permission/hook/<?= $model->name ?>" method="post" onsubmit="submitForm()">
+<form action="/permission/createOrUpdate/<?= $model->name ?>" method="post" onsubmit="submitForm()">
     <h3><?= ($model->name) ? 'Изменить' : 'Создать' ?> Привелегию</h3>
     <div class="warframe_form-group">
 

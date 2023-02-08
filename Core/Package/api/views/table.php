@@ -8,29 +8,29 @@
     </thead>
     <tbody>
         <?php foreach($table as $row): ?>
-            <tr <?php if($row->getIsDelete()) echo 'style="background-color:red; color:white;"' ?>>
-                <td><?= $row->getType() ?></td>
+            <tr <?php if($row->is_delete) echo 'style="background-color:red; color:white;"' ?>>
+                <td><?= $row->type ?></td>
                 <td>
-                    <?php if($row->getType() == 'Bearer'): ?>
-                        <b>Token:</b> <?= $row->getToken() ?>
-                    <?php elseif($row->getType() == 'Basic'): ?>
-                        <b>Username:</b> <?= $row->getUsername() ?>
-                        <b>Password:</b> <?= $row->getPassword() ?>
+                    <?php if($row->type == 'Bearer'): ?>
+                        <b>Token:</b> <?= $row->token ?>
+                    <?php elseif($row->type == 'Basic'): ?>
+                        <b>Username:</b> <?= $row->username ?>
+                        <b>Password:</b> <?= $row->password ?>
                     <?php endif; ?>
                 </td>
                 <td>
-                    <button onclick="checkModal('/cPanelApi/get/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/cPanelApi/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <?php if($row->getIsDelete()): ?>
-                        <button onclick="AjaxQuery('/cPanelApi/restore/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Восстановить">
+                    <?php if($row->is_delete): ?>
+                        <button onclick="AjaxQuery('/cPanelApi/restore/<?= $row->id ?>')" type="button" class="warframe_btn" title="Восстановить">
                             Restore
                         </button>
-                        <button onclick="AjaxQuery('/cPanelApi/remove/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/cPanelApi/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                             Remove
                         </button>
                     <?php else: ?>
-                        <button onclick="AjaxQuery('/cPanelApi/delete/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
+                        <button onclick="AjaxQuery('/cPanelApi/delete/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                             Delete
                         </button>
                     <?php endif; ?>

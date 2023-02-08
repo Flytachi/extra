@@ -5,10 +5,9 @@ use Extra\Src\Repository;
 class UserInfoRepository extends Repository
 {
     public string $table = 'user_info';
-    public string $modelName = 'UserInfoModel';
     
-    public function isUser($pk)
+    public function isUser($pk): mixed
     {
-        return $this->getBy(array('user_id'=>$pk));
+        return $this->getBy(['user_id' => $pk]);
     }
 }

@@ -6,22 +6,26 @@ use PDO;
 use Throwable;
 use Warframe;
 
+/**
+ *  Warframe collection
+ *
+ *  Repository - a class for working with tables in a database
+ *
+ *  @version 5.0
+ *  @author itachi
+ *  @package Extra\Src
+ */
 class Repository
 {
-    /**
-     * 
-     * Repository
-     * 
-     * @version 3.9 betta
-     */
-
-
+    /** @var string $table name of the table in the database */
     protected string $table;
-    public string $modelName = 'stdClass';
-    private array $CRD_SQL = [];
+
+    /** @var string $pk element id */
     private string $pk;
+    /** @var array $CRD_SQL sql parameters */
+    private array $CRD_SQL = [];
+    /** @var ModelInterface $model element object */
     private ModelInterface $model;
-    private bool $CRD_debug;
     
     public function __construct($table_As = '')
     {
@@ -29,7 +33,6 @@ class Repository
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
         }else $this->table = $table_As;
-        $this->CRD_debug = Warframe::$cfg['GLOBAL_SETTING']['DEBUG'];
         $this->cluster();
     }
 
@@ -78,7 +81,23 @@ class Repository
     {
         return $this->model;
     }
-    
+
+    private function getFetchMode(): string
+    {
+        $model = str_replace('Repository', 'Model', $this::class);
+        if (class_exists($model)) {
+            if (count($this->CRD_SQL) == 0) return $model;
+            else {
+                if (
+                    array_key_exists('option', $this->CRD_SQL) ||
+                    array_key_exists('join', $this->CRD_SQL) ||
+                    array_key_exists('union', $this->CRD_SQL)
+                )    return 'stdClass';
+                else return $model;
+            }
+        } else return 'stdClass';
+    }
+
     /*
     ---------------------------------------------
     */
@@ -89,13 +108,6 @@ class Repository
         PARAMETERS SQL
     ---------------------------------------------
     */
-    final public function getSearch(): array|string
-    {
-        $this->CRD_SQL['search'] = (isset($_GET['search']) and $_GET['search']) ? 'search=' . $_GET['search'] : "";
-        $search = str_replace('search=', '', $this->CRD_SQL['search']);
-        return $this->clsDta($search);
-    }
-
     final public function buildSql(): string
     {
         try {
@@ -109,15 +121,12 @@ class Repository
             if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
             if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
             if(array_key_exists('limit', $this->CRD_SQL)) {
-                $page = (int)(isset($_GET['CRD_page'])) ? (int) $_GET['CRD_page'] : 1;
-                $offset = (int) $this->CRD_SQL['limit'] * ($page - 1);
+                $offset = (int) $this->CRD_SQL['limit'] * ($this->CRD_SQL['page'] - 1);
                 $sql .= ' LIMIT ' . $this->CRD_SQL['limit'] . ' OFFSET ' . $offset;
             }
-
             return $sql;
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"SQL"</strong>';
+            $this->Throwable($th);
         }
         
     }
@@ -127,11 +136,6 @@ class Repository
         if ($param) {
             return (array_key_exists($param, $this->CRD_SQL)) ? $this->CRD_SQL[$param] : null;
         } else return $this->buildSql();
-    }
-
-    final public function test(): self
-    {
-        return $this;
     }
 
     final public function Option(string $option): self
@@ -208,10 +212,11 @@ class Repository
         return $this;
     }
 
-    final public function Limit(int $limit): self
+    final public function Limit(int $limit, int $page = 1): self
     {
         $this->CRD_SQL['limit'] = $limit;
-        return $this;   
+        $this->CRD_SQL['page'] = $page;
+        return $this;
     }
 
     /*
@@ -228,25 +233,21 @@ class Repository
     final public function get(string ...$items): mixed
     {
         try {
-
             if ($data = implode(',', $items)) $this->Option($data);
             $get = Warframe::$db->query($this->buildSql());
-            $get->setFetchMode(PDO::FETCH_CLASS, $this->modelName);
+            $get->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
             return $get->fetch();
-
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"GET"</strong>';
+            $this->Throwable($th);
         }
     }
 
     final public function getAll(): array
     {
         try {
-            return Warframe::$db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->modelName);
+            return Warframe::$db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->getFetchMode());
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"LIST"</strong>';
+            $this->Throwable($th);
         }
     }
 
@@ -254,22 +255,18 @@ class Repository
     final public function getAllDelete(): array
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
-        if (array_key_exists('where', $this->CRD_SQL)) {
+        if (array_key_exists('where', $this->CRD_SQL))
             $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 1 AND ', $this->CRD_SQL['where']);
-        } else {
-            $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 1';
-        }
+        else $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 1';
         return $this->getAll();
     }
     
     final public function getAllNotDelete(): array
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
-        if (array_key_exists('where', $this->CRD_SQL)) {
+        if (array_key_exists('where', $this->CRD_SQL))
             $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 0 AND ', $this->CRD_SQL['where']);
-        } else {
-            $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 0';
-        }
+        else $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 0';
         return $this->getAll();
     }
     // END column is_delete
@@ -279,48 +276,37 @@ class Repository
         try {
             $where = '';
             foreach ($params as $key => $value) {
-
-                if(is_array($value)) {
+                if(is_array($value))
                     $where .= ($where == '') ? "$key IN (" . implode(',', $value) . ") " : "AND $key IN (" . implode(',', $value) . ") ";
-                } else {
-                    $where .= ($where == '') ? "$key = '$value' " : "AND $key = '$value' ";
-                }
-
+                else $where .= ($where == '') ? "$key = '$value' " : "AND $key = '$value' ";
             }
             $this->Where($where);
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
-
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"BY"</strong>';
+            $this->Throwable($th);
         }
     }
 
-    final public function getById(string $id, string|array $item = ''): mixed
+    final public function getById(int $id, string|array $item = ''): mixed
     {
         try {
             $prefix = (array_key_exists('as', $this->CRD_SQL)) ? $this->CRD_SQL['as'].'.' : '';
             $this->Where($prefix . "id = $id");
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
-
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"BY ID"</strong>';
+            $this->Throwable($th);
         }
     }
 
     final public function getId(): mixed
     {
         try {
-
             $this->Option("id");
             return Warframe::$db->query($this->buildSql())->fetchColumn();
-
         } catch (Throwable $th) {
-            if ($this->CRD_debug) $this->throwable($th);
-            else echo 'Ошибка в генерации скрипта <strong>"GET ID"</strong>';
+            $this->Throwable($th);
         }
     }
 
@@ -352,7 +338,6 @@ class Repository
     public function saveBody(): void
     {
         $object = Warframe::$db->insert($this->table, $this->getModel());
-        if (!is_numeric($object)) $this->error($object);
         $this->setPk($object);
     }
 
@@ -378,8 +363,7 @@ class Repository
 
     public function updateBody(): void
     {
-        $object = Warframe::$db->update($this->table, $this->getModel(), $this->getPk());
-        if (!is_numeric($object)) $this->error($object);
+        Warframe::$db->update($this->table, $this->getModel(), $this->getPk());
     }
 
     public function updateAfter(): void
@@ -403,8 +387,7 @@ class Repository
 
     public function deleteBody(): void
     {
-        $object = Warframe::$db->delete($this->table, $this->getPk());
-        if (!is_numeric($object)) $this->error($object);
+        Warframe::$db->delete($this->table, $this->getPk());
     }
 
     public function deleteAfter(): void
@@ -427,30 +410,15 @@ class Repository
         return $value;
     }
 
-    private function throwable(Throwable $error): never
+    private function Throwable(Throwable $error): never
     {
-        $message = "\t" . $error->getMessage();
-        foreach ($error->getTrace() as $key => $value) {
-            if ($key != 0) {
-                $message .= "\n\t\t#" . $key . ' ';  
-                if (isset($value['file']))     $message .= $value['file'];
-                if (isset($value['line']))     $message .= '(' . $value['line'] . '): ';
-                if (isset($value['class']))    $message .= $value['class'];
-                if (isset($value['type']))     $message .= $value['type'];
-                if (isset($value['function'])) $message .= $value['function'];
-            }
-        }
-        parad('CREDO', $message);
-        die();
+        Route::Throwable(500,  'Repository: ' . $error->getMessage());
     }
 
     public function error($message): void
     {
         if(Warframe::$db->inTransaction()) Warframe::$db->rollBack();
-        Route::responseJson(array(
-            'status' => 'error', 
-            'message' => $message,
-        ));
+        Route::Throwable(500,  'Repository: ' . $message);
     }
 
 }

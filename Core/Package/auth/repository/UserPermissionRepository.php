@@ -5,13 +5,12 @@ use Extra\Src\Repository;
 class UserPermissionRepository extends Repository
 {
     public string $table = 'auth_user_permissions';
-    public string $modelName = 'UserPermissionModel';
     
     public function getAllPermission($pk = null) : array
     {
         $permission = [];
         $this->Where(['user_id' => $pk ?? $_SESSION['id']]);
-        foreach ($this->getAll() as $value) $permission[] = $value->getName();
+        foreach ($this->getAll() as $value) $permission[] = $value->name;
         return $permission;
     }
 

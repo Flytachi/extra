@@ -9,6 +9,7 @@
     position: fixed;
     bottom: 5px;
     right: 5px;
+    z-index: 9999999;
 }
 #warframe_debug-btn:hover {
     background-color: red;
@@ -29,6 +30,7 @@
     border-color: #c3fc04;
     border-width: medium;
     overflow-x: hidden;
+    z-index: 9999999;
 }
 #warframe_debug-bar_body-indicator {
     padding-top: 5px;

@@ -8,12 +8,12 @@
     <tbody>
         <?php foreach($table as $row): ?>
             <tr>
-                <td><?= $row->getName() ?></td>
+                <td><?= $row->name ?></td>
                 <td>
-                    <button onclick="checkModal('/group/get/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Редактировать">
+                    <button onclick="checkModal('/group/get/<?= $row->id ?>')" type="button" class="warframe_btn" title="Редактировать">
                         Edit
                     </button>
-                    <button onclick="AjaxQuery('/group/remove/<?= $row->getId() ?>')" type="button" class="warframe_btn" title="Удалить">
+                    <button onclick="AjaxQuery('/group/remove/<?= $row->id ?>')" type="button" class="warframe_btn" title="Удалить">
                         Remove
                     </button>
                 </td>

@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeZone;
 use Error;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use ReflectionClass;
 use TypeError;
 use Warframe;
@@ -16,13 +17,27 @@ class Wrapper
      * 
      * Wrapper
      * 
-     * @version 3.8
+     * @version 3.9
      */
 
     static int $totalPages;
+    static int $currentPage;
+    static int $limitPage;
     static string $params;
-    
+
     static function paginator(Repository $repo, string $func = 'getAll'): array
+    {
+        if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        self::init($repo);
+        return [
+            'pageTotal' => self::$totalPages,
+            'pageCurrent' => self::$currentPage,
+            'pageElement' => self::$limitPage,
+            'list' => $repo->{$func}(),
+        ];
+    }
+
+    static function paginatorDecoration(Repository $repo, string $func = 'getAll'): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         return array(
@@ -35,10 +50,12 @@ class Wrapper
     {
         $code = explode('?', $url);
         $result = [];
-        foreach (explode('&', $code[1]) as $param) {
-            if ($param) {
-                $value = explode('=', $param);
-                $result[$value[0]] = $value[1];
+        if (array_key_exists(1, $code)) {
+            foreach (explode('&', $code[1]) as $param) {
+                if ($param) {
+                    $value = explode('=', $param);
+                    $result[$value[0]] = $value[1];
+                }
             }
         }
         return $result;
@@ -51,10 +68,21 @@ class Wrapper
         return substr($str,0,-1);
     }
 
+    #[NoReturn]
+    private static function init(Repository $repo): void
+    {
+        $sql = $repo->buildSql();
+        self::$currentPage = $repo->getSql('page');
+        self::$limitPage = $repo->getSql('limit');
+        self::$totalPages = ceil(
+            Warframe::$db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / self::$limitPage
+        );
+    }
+
     final static function pageAddon(string $url, int $value = 0): string
     {
         $local = Wrapper::urlToArray($url);
-        $local['CRD_page'] += $value;
+        $local['CRD_page'] = self::$currentPage + $value;
         return Wrapper::arrayToUrl($local);
     }
 
@@ -68,19 +96,14 @@ class Wrapper
     final static function panel(Repository $repo): string
     {
         if ($repo->getSql('limit') > 0) {
-            $sql = $repo->buildSql();
-            Wrapper::$totalPages = ceil(
-                Warframe::$db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / $repo->getSql('limit')
-            );
+            self::init($repo);
+
             if (Wrapper::$totalPages <= 1) return '';
-            if (isset($_GET['CRD_page'])) {
-                $page = (int) $_GET['CRD_page'];
-            }else $page = 1;
+            $page = $repo->getSql('page');
 
             if ($page > Wrapper::$totalPages) $page = Wrapper::$totalPages;
             elseif ($page < 1) $page = 1;
 
-            if (empty($_GET['CRD_page'])) $_GET['CRD_page'] = 1;
             Wrapper::$params = Wrapper::arrayToUrl($_GET);
 
             return "<ul class=\"pagination pagination-flat pagination-rounded align-self-center justify-content-center mt-3\" >" .
@@ -232,45 +255,15 @@ class Wrapper
         return $selfPage;
     }
 
-    public static function arrayObjectsToArray(array $arrayList): array
-    {
-        $newArrayList = [];
-        foreach ($arrayList as $key => $object) {
-            $reflectionClass = new ReflectionClass(get_class($object));
-            $array = array();
-            foreach ($reflectionClass->getProperties() as $property) {
-                if (str_contains((string)$property->getType(), '?')) {
-                    $value = !$property->getValue($object) ? null : $property->getValue($object);
-                }else $value = $property->getValue($object);
-                $array[$property->getName()] = $value;
-            }
-            $newArrayList[$key] = $array;
-        }
-        return $newArrayList;
-    }
-
-    public static function objectToArray(object $object): array
-    {
-        $reflectionClass = new ReflectionClass(get_class($object));
-        $array = array();
-        foreach ($reflectionClass->getProperties() as $property) {
-            if (str_contains((string)$property->getType(), '?')) {
-                $value = !$property->getValue($object) ? null : $property->getValue($object);
-            }else $value = $property->getValue($object);
-            $array[$property->getName()] = $value;
-        }
-        return $array;
-    }
-
     public static function formObject(object $object): object
     {
         $reflectionClass = new ReflectionClass(get_class($object));
         $array = array();
         foreach ($reflectionClass->getProperties() as $property) {
             try {
-                if (str_contains((string)$property->getType(), '?')) {
+                if (str_contains((string)$property->getType(), '?'))
                     $value = !$property->getValue($object) ? null : $property->getValue($object);
-                }else $value = $property->getValue($object);
+                else $value = $property->getValue($object);
             } catch (Error) {
                 $value = null;
             }

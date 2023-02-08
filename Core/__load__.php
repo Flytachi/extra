@@ -49,7 +49,6 @@ class Core
             new $Class_construct($Arg, $Arg2);
 
         } catch (Error $e) {
-            print_r($e);
             Core::logMessage("Нет такой команды.", 31);
         }
         echo "\033[0m";

@@ -5,6 +5,6 @@ use Extra\Src\ModelInterface;
 
 class _ModelIndex_ extends Model implements ModelInterface
 {
-    private int|null $id = null;
-    private int $is_delete = 0;
+    public int|null $id = null;
+    public int $is_delete = 0;
 }

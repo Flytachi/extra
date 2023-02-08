@@ -11,7 +11,7 @@ use Warframe;
  * 
  *  Route - routing system
  * 
- * 	@version 13.2
+ * 	@version 13.3
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -72,11 +72,12 @@ class Route
 		510 => 'Not Extended'
 	];
 
-	/**
-	 * Start routing system
-	 * 
-	 * @return void
-	 */
+    /**
+     * Start routing system
+     *
+     * @return void
+     * @throws Throwable
+     */
 	final static function start(): void
 	{
 		if (ROUTE_PLUGIN_SYSTEM) self::routePlugin();
@@ -358,8 +359,8 @@ class Route
 	{
 		if ($redirect) {
 			if (empty($_SESSION['id'])) self::redirect('auth/login');
-		} else {
-			if (empty($_SESSION['id'])) self::Throwable(423, 'You are not authorized');
+        } else {
+            if (empty($_SESSION['id'])) self::Throwable(423, 'You are not authorized');
 		}
 	}
 

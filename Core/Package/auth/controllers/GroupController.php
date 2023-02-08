@@ -22,36 +22,38 @@ class GroupController extends Controller
     }
     protected function prepareHookSaveBefore(array $post): ModelInterface
     {
+        if (empty($post['name'])) Route::ErrorPage(400);
         if(isset($post['permission'])) unset($post['permission']);
         return parent::prepareHookSaveBefore($post);
     }
-    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
+    protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
+        if (empty($post['name'])) Route::ErrorPage(400);
         if(isset($post['permission'])) unset($post['permission']);
         return parent::prepareHookUpdateBefore($post, $pk);
     }
 
-    public function index()
+    public function index(): void
     {
         $this->method(METHOD::GET);
         Route::isAuthAdmin(1);
         $this->render('auth/group/main');
     }
 
-    public function list()
+    public function list(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
-        $this->repo->Limit(10);
-        $this->view('auth/group/table', Wrapper::paginator($this->repo));
+        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
+        $this->view('auth/group/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk)
+    public function get(?int $pk): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
         if($pk) $object = $this->getElement($pk);
-        else $object = new $this->repo->modelName;
+        else $object = $this->modelObject();
 
         $this->view('auth/group/form', array(
             'model' => formObject($object),

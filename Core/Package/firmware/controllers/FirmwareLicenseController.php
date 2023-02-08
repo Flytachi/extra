@@ -10,60 +10,59 @@ class FirmwareLicenseController extends Controller
 
     public bool $onHook = true;
     public bool $onCsrfHook = true;
-	public bool $onAuthHook = true;
+    public bool $onAuthHook = true;
 
-	public bool $onDelete = true;
-	public bool $onAuthDelete = true;
+    public bool $onDelete = true;
+    public bool $onAuthDelete = true;
 
     public bool $onRestore = true;
-	public bool $onAuthRestore = true;
-	
-	public bool $onRemove = true;
-	public bool $onAuthRemove = true;
+    public bool $onAuthRestore = true;
+
+    public bool $onRemove = true;
+    public bool $onAuthRemove = true;
 
     protected function prepareAuth():void
     {
         Route::isAuthAdmin();
     }
 
-    public function index()
+    public function index(): void
     {
         Route::isAuthAdmin(1);
         $this->render('firmware/license/main');
     }
 
-    public function list()
+    public function list(): void
     {
         Route::isAuthAdmin();
         $this->repo->as('l');
-        $this->repo->modelName = 'stdClass';
         $this->repo->Option("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
         $this->repo->JoinLEFT(new FirmwareEnterpriseRepository('e'), 'e.id=l.enterprise_id');
-        $this->repo->Limit(10);
-        $this->view('firmware/license/table', Wrapper::paginator($this->repo));
+        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
+        $this->view('firmware/license/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk)
-	{
+    public function get(?int $pk): void
+    {
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
-        else $object = new $this->repo->modelName;
+        else $object = $this->modelObject();
         $this->view('firmware/license/form', array(
             'model' => formObject($object),
             'enterpriseList' => (new FirmwareEnterpriseRepository)->getAllNotDelete(),
             'inputCsrf' => $this->csrfTokenInput()
         ));
-	}
+    }
 
-    public function getFile(int $pk)
+    public function getFile(int $pk): void
     {
         Route::isAuthAdmin(1);
         $object = $this->getElement($pk);
         $license = array(
             'licenseFirmware' => EXTRA_KEY,
-            'licenseDateFrom' => strtotime($object->getDateFrom()),
-            'licenseDateTo' => strtotime($object->getDateTo()),
-            'motherboardSeries' => $object->getSeries(), // motherboardSeries()
+            'licenseDateFrom' => strtotime($object->date_from),
+            'licenseDateTo' => strtotime($object->date_to),
+            'motherboardSeries' => $object->series
         );
         header("Content-type: text/plain");
         header("Content-Disposition: attachment; filename=license.crt");

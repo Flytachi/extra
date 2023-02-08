@@ -10,7 +10,7 @@ class FirewallController extends Controller
         Route::isAuthAdmin(1);
     }
 
-    public function index()
+    public function index(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -19,7 +19,7 @@ class FirewallController extends Controller
         ));
     }
 
-    public function get(string $confName)
+    public function get(string $confName): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -29,7 +29,7 @@ class FirewallController extends Controller
         ));
     }
 
-    public function license()
+    public function license(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -51,7 +51,7 @@ class FirewallController extends Controller
         ));
     }
 
-    public function licenseSpell()
+    public function licenseSpell(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -70,7 +70,7 @@ class FirewallController extends Controller
         }
     }
 
-    public function spell()
+    public function spell(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -88,7 +88,7 @@ class FirewallController extends Controller
         }
     }
 
-    public function upgrade()
+    public function upgrade(): void
     {
         $this->method(METHOD::GET);
         $curl = curl_init();
@@ -102,9 +102,9 @@ class FirewallController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_POSTFIELDS =>'{
-            "key": "' . Warframe::$cfg['SECURITY']['PRODUCT_KEY'] . '"
-        }',
+            CURLOPT_POSTFIELDS => json_encode([
+                'key' => Warframe::$cfg['SECURITY']['PRODUCT_KEY']
+            ]),
             CURLOPT_HTTPHEADER => array(
                 'Authorization: Bearer 5449jeo',
                 'Content-Type: application/json'
@@ -114,18 +114,18 @@ class FirewallController extends Controller
         $response = json_decode(curl_exec($curl));
         curl_close($curl);
         if ($response->statusCode == 200) {
-            if ($response->result) {
+            if ($response->data) {
                 $license = array(
-                    'licenseFirmware' => $response->result->firmware,
-                    'licenseDateFrom' => strtotime($response->result->date_from),
-                    'licenseDateTo' => strtotime($response->result->date_to),
-                    'motherboardSeries' => $response->result->series,
+                    'licenseFirmware' => $response->data->firmware,
+                    'licenseDateFrom' => strtotime($response->data->date_from),
+                    'licenseDateTo' => strtotime($response->data->date_to),
+                    'motherboardSeries' => $response->data->series,
                 );
                 $fp = fopen(LICENSE_PATH_KEY, "w");
                 fwrite($fp, bin2hex(zlib_encode(json_encode($license), ZLIB_ENCODING_DEFLATE)));
                 fclose($fp);
-                $this->renderJsonSuccess('Лицензия успешно обновленна!');
-            } else $this->renderJsonError('Нет доступных лицензий!');
+                $this->renderJsonSuccess('The license has been successfully updated.');
+            } else $this->renderJsonError('No licenses available.');
         } else $this->renderJsonError($response);
     }
 }

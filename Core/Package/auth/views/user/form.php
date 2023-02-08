@@ -21,7 +21,7 @@
             <select id="inp-group_id" name="info[group_id]" placeholder="Выберите группу" required>
                 <option></option>
                 <?php foreach($groupList as $row): ?>
-                    <option value="<?= $row->getId() ?>" <?php if($row->getId() == ($userInfo->group_id ?? 0)) echo 'selected' ?>><?= $row->getName() ?></option>
+                    <option value="<?= $row->id ?>" <?php if($row->id == ($userInfo->group_id ?? 0)) echo 'selected' ?>><?= $row->name ?></option>
                 <?php endforeach; ?>
             </select>
 

@@ -10,7 +10,7 @@ use METHOD;
  * 
  *  Api - api controller
  * 
- *  @version 6.6
+ *  @version 6.7
  *  @author itachi
  *  @package Extra\Src
  */
@@ -178,7 +178,7 @@ abstract class Api
         if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
 
         $object = $this->repo->getBy(['type' => 'Bearer', 'token' => $token]);
-        if ($object) $this->pk = $object->getId();
+        if ($object) $this->pk = $object->id;
         else Route::ApiResponseError(401, 'Authorization failed.');
     }
 
@@ -197,7 +197,7 @@ abstract class Api
         $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
 
         $object = $this->repo->get();
-        if ($object) $this->pk = $object->getId();
+        if ($object) $this->pk = $object->id;
         else Route::ApiResponseError(401, 'Authorization failed.');
     }
 

@@ -10,68 +10,76 @@ class PermissionController extends Controller
 {
     public PermissionRepository $repo;
 
-    public bool $onHook = true;
-    public bool $onCsrfHook = true;
-    public bool $onAuthHook = true;
-
-    public bool $onRemove = true;
-    public bool $onAuthRemove = true;
-
     protected function prepareAuth(): void
     {
         Route::isAuthAdmin();
     }
-    protected function prepareHookSaveBefore(array $post): ModelInterface
-    {
-        if (empty($post['name']) or empty($post['description'])) Route::ErrorPage(400);
-        $post['name'] = CDO::clean($post['name']);
-        $post['description'] = CDO::clean($post['description']);
-        return parent::prepareHookSaveBefore($post);
-    }
-    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
-    {
-        if (empty($post['name']) or empty($post['description'])) Route::ErrorPage(400);
-        $this->csrfTokenChange();
-        if(isset($post['csrf_token'])) unset($post['csrf_token']);
-        $object = $this->repo->getBy(['name' => $pk]);
-        if (!$object) Route::ErrorPage(404);
-        $object->setNewObject($post);
-        return $object;
-    }
-    protected function prepareRemoveBefore(string $pk): void
-    {
-        $object = $this->repo->getBy(['name' => $pk]);
-        if (!$object) Route::ErrorPage(404);
-    }
 
-    public function index()
+    public function index(): void
     {
         $this->method(METHOD::GET);
         Route::isAuthAdmin(1);
         $this->render('auth/permission/main');
     }
 
-    public function list()
+    public function list(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
-        $this->repo->Limit(10);
-        $this->view('auth/permission/table', Wrapper::paginator($this->repo));
+        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
+        $this->view('auth/permission/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?string $pk)
+    public function get(?string $pk): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
         if($pk) {
             $object = $this->repo->getBy(array('name'=> $pk));
             if (!$object) Route::ErrorPage(404);
-        }else $object = new $this->repo->modelName;
+        }else $object = $this->modelObject();
 
         $this->view('auth/permission/form', array(
             'model' => formObject($object),
             'inputCsrf' => $this->csrfTokenInput()
         ));
+    }
+
+    public function createOrUpdate(?string $pk = null): void
+    {
+        $this->method(METHOD::POST);
+        $this->prepareAuth();
+        if (empty($_POST)) Route::ErrorPage(400);
+        if (empty($_POST['name'])) Route::ErrorPage(400);
+        if (empty($_POST['description'])) Route::ErrorPage(400);
+        $post = $_POST;
+        $post['name'] = CDO::clean($post['name']);
+        $post['description'] = CDO::clean($post['description']);
+
+        $this->csrfTokenChange();
+        if(isset($post['csrf_token'])) unset($post['csrf_token']);
+        if ( $pk ) {
+            $object = $this->repo->getBy(['name' => $pk]);
+            if (!$object) Route::ErrorPage(404);
+            $object->reConstruct($post);
+            $result = $this->repo->update($pk, $object);
+            $this->renderJsonSuccess($result);
+        } else {
+            $object = $this->modelObject($post);
+            $result = $this->repo->save($object);
+            $this->renderJsonSuccess($result);
+        }
+    }
+
+    public function del(string $pk): void
+    {
+        $this->method(METHOD::GET);
+        $this->prepareAuth();
+
+        $object = $this->repo->getBy(['name' => $pk]);
+        if (!$object) Route::ErrorPage(404);
+        $result = $this->repo->delete($pk);
+        $this->renderJsonSuccess($result);
     }
 
 }

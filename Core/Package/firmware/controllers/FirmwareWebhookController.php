@@ -9,9 +9,9 @@ class FirmwareWebhookController extends Controller
 
     public bool $onHook = true;
     public bool $onCsrfHook = true;
-	public bool $onAuthHook = true;
+    public bool $onAuthHook = true;
 
-	protected function prepareAuth():void
+    protected function prepareAuth():void
     {
         Route::isAuthAdmin();
     }

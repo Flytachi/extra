@@ -3,6 +3,7 @@
 namespace Extra\Src;
 
 use METHOD;
+use Random\Randomizer;
 use ReflectionClass;
 use ReflectionProperty;
 use Warframe;
@@ -15,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo; 
  * 
- *  @version 8.2
+ *  @version 8.6
  *  @author itachi
  *  @package Extra\Src
  */
@@ -106,20 +107,22 @@ abstract class Controller
                     hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
                 unset($_SESSION['CSRF_TOKEN']);
                 unset($_POST['csrf_token']);
-            } else Route::Throwable(419, 'CSRF token auntification failed');
+            } else Route::Throwable(419, 'CSRF Token authentication error occurred');
         }
     }
 
     /**
-	 * CSRF Token Generation
-     * 
+     * CSRF Token Generation
+     *
      * Generate csrf token (24 chars)
-	 * 
-	 * @return string
-	 */
+     *
+     * @return string
+     *
+     */
     final protected function csrfTokenGen(): string
     {
-        $token = bin2hex(random_bytes(24));
+        $random = new RandomGenerator();
+        $token = bin2hex($random->generate(20));
         $_SESSION['CSRF_TOKEN'] = $token;
         return $token;
     }
@@ -137,16 +140,34 @@ abstract class Controller
         return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . $token . "\">";
     }
 
+    /**
+     * Get Model Object
+     *
+     * Searches for an element in the Model,
+     * if it does not, it gives a http 500 error
+     *
+     * @param array $data model data
+     *
+     * @return ModelInterface
+     */
+    final protected function modelObject(array $data = []): ModelInterface
+    {
+        $model = str_replace('Controller', 'Model', $this::class);
+        if (class_exists($model)) return new $model($data);
+        else Route::Throwable('500', 'Model '. $model . ' not found!');
+    }
 
     /**
 	 * Get Element (from Repository)
      * 
      * Searches for an element in the Repository, 
-     * if it does not, it gives an http 404 error
-	 * 
+     * if it does not, it gives a http 404 error
+	 *
+     * @param int $pk id
+     *
 	 * @return ModelInterface
 	 */
-    final protected function getElement($pk): ModelInterface
+    final protected function getElement(int $pk): ModelInterface
     {
         $object = $this->repo->getById($pk);
         if ($object) return $object;
@@ -156,7 +177,7 @@ abstract class Controller
     /**
      * Upload File
      * 
-     * Saves the file in the folder PATH_MEDIA/'the name of the сontroller'.
+     * Saves the file in the folder PATH_MEDIA/'the name of the Controller'.
      * 
      * @param array $file variable from from array $_FILES[?]
      * 
@@ -199,18 +220,17 @@ abstract class Controller
      * 
      * The method is used to update or create a record in the database
      * 
-     * @param string $pk id
+     * @param ?int $pk id
      * 
      * * if there is a pk, it updates, otherwise it creates a record
      * 
      * @return void
      */
-    public function hook(string $pk = null): void
+    public function hook(?int $pk = null): void
     {
         if ($this->onHook === false) Route::Throwable(404, 'Hook locked');
-        if ($this->onAuthHook === true) $this->prepareAuth();
-
         $this->method(METHOD::POST);
+        if ($this->onAuthHook === true) $this->prepareAuth();
         if (empty($_POST)) Route::Throwable(400, 'Empty post request');
 
         if ( $pk ) {
@@ -229,15 +249,15 @@ abstract class Controller
      * 
      * activates the "is_deleted" status
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return void
      */
-    public function delete(string $pk): void
+    public function delete(int $pk): void
     {
         if ($this->onDelete === false) Route::Throwable(404, 'Delete locked');
-        if ($this->onAuthDelete === true) $this->prepareAuth();
         $this->method(METHOD::GET);
+        if ($this->onAuthDelete === true) $this->prepareAuth();
 
         $object = $this->prepareDeleteBefore($pk);
         $result = $this->repo->update($pk, $object);
@@ -249,15 +269,15 @@ abstract class Controller
      * 
      * deactivates the "is_deleted" status
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return void
      */
-    public function restore(string $pk): void
+    public function restore(int $pk): void
     {
         if ($this->onRestore === false) Route::Throwable(404, 'Restore locked');
-        if ($this->onAuthRestore === true) $this->prepareAuth();
         $this->method(METHOD::GET);
+        if ($this->onAuthRestore === true) $this->prepareAuth();
 
         $object = $this->prepareRestoreBefore($pk);
         $result = $this->repo->update($pk, $object);
@@ -269,15 +289,15 @@ abstract class Controller
      * 
      * Deletes an entry
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return void
      */
-    public function remove(string $pk): void
+    public function remove(int $pk): void
     {
         if ($this->onRemove === false) Route::Throwable(404, 'Remove locked');
-        if ($this->onAuthRemove === true) $this->prepareAuth();
         $this->method(METHOD::GET);
+        if ($this->onAuthRemove === true) $this->prepareAuth();
 
         $this->prepareRemoveBefore($pk);
         $this->repo->delete($pk);
@@ -317,6 +337,7 @@ abstract class Controller
                 <label for="debug-item_general">GENERAL</label>
                 <div class="warframe_debug-accordion-body">
                     <pre><?php print_r([
+                            'sapi' => PHP_SAPI,
                             'controller' => get_class($this),
                             'mainTemplate' => VIEW_FOLDER . '/' . $this->template,
                             'template' => $content,
@@ -462,7 +483,7 @@ abstract class Controller
     {
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
-        return new $this->repo->modelName($post);
+        return $this->modelObject($post);
     }
 
     /**
@@ -492,11 +513,11 @@ abstract class Controller
      * the Model data on the POST data
      * 
      * @param array $post $_POST request
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return ModelInterface
      */
-    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
+    protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
@@ -530,11 +551,11 @@ abstract class Controller
      * The standard method checks the element for presence, 
      * then overwrites the 'is_delete' status to the POST data
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return ModelInterface
      */
-    protected function prepareDeleteBefore(string $pk): ModelInterface
+    protected function prepareDeleteBefore(int $pk): ModelInterface
     {
         $object = $this->getElement($pk);
         $object->reConstruct(['is_delete' => 1]);
@@ -566,11 +587,11 @@ abstract class Controller
      * The standard method checks the element for presence, 
      * then overwrites the 'is_delete' status to the POST data
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return ModelInterface
      */
-    protected function prepareRestoreBefore(string $pk): ModelInterface
+    protected function prepareRestoreBefore(int $pk): ModelInterface
     {
         $object = $this->getElement($pk);
         $object->reConstruct(array('is_delete' => 0));
@@ -601,11 +622,11 @@ abstract class Controller
      * 
      * The standard method checks the element for the presence of
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return void
      */
-    protected function prepareRemoveBefore(string $pk): void
+    protected function prepareRemoveBefore(int $pk): void
     {
         $this->getElement($pk);
     }
@@ -617,11 +638,11 @@ abstract class Controller
      * 
      * The standard method returns the id of the created record in JSON format
      * 
-     * @param string $pk id
+     * @param int $pk id
      * 
      * @return void
      */
-    protected function prepareRemoveAfter(string $pk): void
+    protected function prepareRemoveAfter(int $pk): void
     {
         $this->renderJsonSuccess($pk);
     }

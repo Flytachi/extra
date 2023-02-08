@@ -109,7 +109,6 @@ class __Make
             $file = dirname(__DIR__) . "/Template/repository";
             $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
             $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
-            $template = str_replace("_RepositoryModel_", $this->UC_word(str_replace('Repository', 'Model', $this->name)), $template);
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/repository', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }

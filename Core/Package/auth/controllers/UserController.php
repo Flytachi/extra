@@ -31,7 +31,7 @@ class UserController extends Controller
         }
         return parent::prepareHookSaveBefore($post);
     }
-    protected function prepareHookUpdateBefore(array $post, string $pk): ModelInterface
+    protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
         if(!isPermission('user_update')) Route::ErrorPage(423);
         if(isset($post['info'])) unset($post['info']);
@@ -40,23 +40,23 @@ class UserController extends Controller
         }
         return parent::prepareHookUpdateBefore($post, $pk);
     }
-    protected function prepareDeleteBefore(string $pk): ModelInterface
+    protected function prepareDeleteBefore(int $pk): ModelInterface
     {
         if(!isPermission('user_delete')) Route::ErrorPage(423);
         return parent::prepareDeleteBefore($pk);
     }
-    protected function prepareRestoreBefore(string $pk): ModelInterface
+    protected function prepareRestoreBefore(int $pk): ModelInterface
     {
         if(!isPermission('user_restore')) Route::ErrorPage(423);
         return parent::prepareRestoreBefore($pk);
     }
-    protected function prepareRemoveBefore(string $pk): void
+    protected function prepareRemoveBefore(int $pk): void
     {
         if(!isPermission('user_remove')) Route::ErrorPage(423);
         parent::prepareRemoveBefore($pk);
     }
 
-    public function index()
+    public function index(): void
     {
         $this->method(METHOD::GET);
         Route::isAuth(1);
@@ -64,41 +64,20 @@ class UserController extends Controller
         $this->render('auth/user/main');
     }
 
-    public function list()
+    public function list(): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
         if(!isPermission('user_view')) Route::ErrorPage(423);
         $this->repo->as('u');
-        $this->repo->modelName = "stdClass";
         $this->repo->Option("u.id, u.username, g.name 'group', ui.name, u.is_admin, u.is_delete");
         $this->repo->JoinLEFT(new UserInfoRepository('ui'), 'u.id=ui.user_id');
         $this->repo->JoinLEFT(new GroupRepository('g'), 'g.id=ui.group_id');
-        $this->repo->Limit(10);
-        $this->view('auth/user/table', Wrapper::paginator($this->repo));
+        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
+        $this->view('auth/user/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function changePassword(int $pk)
-    {
-        $this->method(METHOD::GET);
-        $this->prepareAuth();
-        $object = $this->getElement($pk);
-        if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
-        $this->view('auth/user/passwordChange', array(
-            'model'=> formObject($object),
-            'inputCsrf' => $this->csrfTokenInput()
-        ));
-    }
-
-    private function permissionChangePassword($user): bool
-    {
-        if (isAdmin()) return true;
-        else {
-            return $user->getId() == $_SESSION['id'] ? true : false;
-        }
-    }
-
-    public function get(?int $pk)
+    public function get(?int $pk): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
@@ -109,15 +88,33 @@ class UserController extends Controller
             if(!$info) $info = new UserInfoModel;
         } else {
             if (!isPermission('user_create')) Route::ErrorPage(423);
-            $object = new $this->repo->modelName;
+            $object = $this->modelObject();
             $info = new UserInfoModel;
         }
-        $this->view('auth/user/form', array(
+        $this->view('auth/user/form', [
             'model' => formObject($object),
             'userInfo' => formObject($info),
             'groupList' => (new GroupRepository)->getAll(),
             'inputCsrf' => $this->csrfTokeninput()
+        ]);
+    }
+
+    public function changePassword(int $pk): void
+    {
+        $this->method(METHOD::GET);
+        $this->prepareAuth();
+        $object = $this->getElement($pk);
+        if(!$this->permissionChangePassword($object)) Route::ErrorPage(423);
+        $this->view('auth/user/passwordChange', array(
+            'model'=> $object,
+            'inputCsrf' => $this->csrfTokenInput()
         ));
+    }
+
+    private function permissionChangePassword($user): bool
+    {
+        if (isAdmin()) return true;
+        else return $user->id == $_SESSION['id'];
     }
 
 }

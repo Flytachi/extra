@@ -11,7 +11,7 @@ use TypeError;
  *  
  *  All property is private, required getters and setters
  * 
- *  @version 13.0
+ *  @version 14.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -43,13 +43,25 @@ abstract class Model
      */
     public function reConstruct(?array $data = null): void
     {
+        $properties = $this->getProperties();
         if ($data) {
             foreach ($data as $key => $value) {
-                $func = 'set' . str_replace(" ", "", ucwords(str_replace("_", " ", $key)));
-                if (!property_exists($this, $key)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
-                if (!method_exists($this, $func)) throw new TypeError("Not method '" . $func . "' in " . get_class($this));
-                else $this->{$func}($value);
+                if (!array_key_exists($key, $properties)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
+                $this->{$key} = $value;
+                unset($properties[$key]);
+            }
+            foreach ($properties as $property => $type) {
+                if (gettype($this->{$property})) unset($properties[$property]);
             }
         }
+    }
+
+    private function getProperties(): array
+    {
+        $reflection = new \ReflectionClass($this);
+        $property = [];
+        foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty)
+            $property[$reflectionProperty->getName()] = (string) $reflectionProperty->getType();
+        return $property;
     }
 }

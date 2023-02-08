@@ -10,8 +10,8 @@
         <label>Привелегии</label>
         <?php foreach ($permissionList as $item): ?>
             <div>
-                <input type="checkbox" name="permission[]" id="perm-<?= $item->getName() ?>" value="<?= $item->getName() ?>" <?php if(in_array($item->getName(), $permission)) echo 'checked' ?>>
-                <label for="perm-<?= $item->getName() ?>"><?= $item->getDescription() ?></label>
+                <input type="checkbox" name="permission[]" id="perm-<?= $item->name ?>" value="<?= $item->name ?>" <?php if(in_array($item->name, $permission)) echo 'checked' ?>>
+                <label for="perm-<?= $item->name ?>"><?= $item->description ?></label>
             </div>
         <?php endforeach; ?>
 

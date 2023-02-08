@@ -10,7 +10,7 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 4.1
+ *  @version 5.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -26,7 +26,7 @@ class CDO extends PDO
      *  * @param PORT
      *  * @param NAME
      *  * @param USER
-     * 
+     *
      * @param array $debug debug mode
      * 
      * @return void
@@ -58,7 +58,7 @@ class CDO extends PDO
      * Create an entry in the database
      * 
      * @param string $table table name in database
-     * @param ModelInterface|array model or array data
+     * @param ModelInterface|array $model model or array data
      * 
      * @return string|false
      * 
@@ -66,13 +66,15 @@ class CDO extends PDO
      */
     final public function insert(string $table, ModelInterface|array $model): string|false
     {
-        if (is_array($model)) $array = $model;
-        else $array = Wrapper::objectToArray($model);
+        $array = (array) $model;
         $col = implode(",", array_keys($array));
         $val = ":".implode(", :", array_keys($array));
         try {
             $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
-            return $this->lastInsertId();
+            $result = $this->lastInsertId();
+            if (!is_numeric($result))
+                Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $result . ')');
+            return $result;
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
         }
@@ -82,7 +84,7 @@ class CDO extends PDO
      * Update an entry in the database
      * 
      * @param string $table table name in database
-     * @param ModelInterface model data
+     * @param ModelInterface|array $model data
      * @param int|string|array $pk field 'id' to database
      *  * param int field 'id' to database
      *  * param string field 'id' to database
@@ -92,15 +94,14 @@ class CDO extends PDO
      * 
      * @throws PDOException if debugging is enabled, it will return an error message
      */
-    final public function update(string $table, ModelInterface $model, int|string|array $pk): int|string
+    final public function update(string $table, ModelInterface|array $model, int|string|array $pk): int|string
     {
-        $array = Wrapper::objectToArray($model);
+        $array = (array) $model;
         $set = "";
         foreach ($array as $key => $value) {
             $array["S_$key"] = $value; unset($array[$key]);
             $set .= ", `$key`=:S_$key";
         }
-
         // Where
         $where = "";
         if(!is_array($pk)) $pk = array('id'=>$pk);
@@ -112,7 +113,10 @@ class CDO extends PDO
         try {
             $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
             $stm->execute([...$pk, ...$array]);
-            return $stm->rowCount();
+            $result = $stm->rowCount();
+            if (!is_numeric($result))
+                Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $result . ')');
+            return $result;
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $ex->getMessage() . ')');
         }
@@ -154,7 +158,10 @@ class CDO extends PDO
         try {
             $stmt = $this->prepare("DELETE FROM $table WHERE " . ltrim($where, " AND "));
             $stmt->execute($pk);
-            return $stmt->rowCount();
+            $result = $stmt->rowCount();
+            if (!is_numeric($result))
+                Route::Throwable(500, 'CDO: Error deleting a record in the database (' . $result . ')');
+            return $result;
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error deleting a record in the database (' . $ex->getMessage() . ')');
         }
