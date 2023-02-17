@@ -11,16 +11,16 @@ use TypeError;
  *  
  *  All property is private, required getters and setters
  * 
- *  @version 14.0
+ *  @version 15.0
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Model
+class Model extends \stdClass
 {
     function __toString(): string
     {
         $data = [];
-        foreach (array_keys(get_class_vars(get_class($this))) as $attr) $data[$attr] = $this->{$attr};
+        foreach (get_object_vars($this) as $key => $value) $data[$key] = $value;
         return json_encode($data);
     }
 

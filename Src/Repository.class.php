@@ -11,7 +11,7 @@ use Warframe;
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 5.0
+ *  @version 5.1
  *  @author itachi
  *  @package Extra\Src
  */
@@ -92,10 +92,10 @@ class Repository
                     array_key_exists('option', $this->CRD_SQL) ||
                     array_key_exists('join', $this->CRD_SQL) ||
                     array_key_exists('union', $this->CRD_SQL)
-                )    return 'stdClass';
+                )    return __NAMESPACE__ . '\Model';
                 else return $model;
             }
-        } else return 'stdClass';
+        } else return __NAMESPACE__ . '\Model';
     }
 
     /*
@@ -242,7 +242,7 @@ class Repository
         }
     }
 
-    final public function getAll(): array
+    final public function getAll(): array|false
     {
         try {
             return Warframe::$db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->getFetchMode());
@@ -252,7 +252,7 @@ class Repository
     }
 
     // START column is_delete
-    final public function getAllDelete(): array
+    final public function getAllDelete(): array|false
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
         if (array_key_exists('where', $this->CRD_SQL))
@@ -261,7 +261,7 @@ class Repository
         return $this->getAll();
     }
     
-    final public function getAllNotDelete(): array
+    final public function getAllNotDelete(): array|false
     {
         $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
         if (array_key_exists('where', $this->CRD_SQL))
