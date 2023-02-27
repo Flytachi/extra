@@ -7,15 +7,15 @@ use METHOD;
 
 /**
  *  Warframe collection
- * 
+ *
  *  Api - api controller
- * 
- *  @version 6.7
+ *
+ *  @version 6.8
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Api 
-{   
+abstract class Api
+{
     /** @var bool $isSecure check request header data */
     protected bool $isSecure = false;
     /** @var Repository $repo ApiRepository */
@@ -32,7 +32,7 @@ abstract class Api
 
     /**
      * Constructor
-     * 
+     *
      * @return void
      */
     function __construct()
@@ -70,11 +70,11 @@ abstract class Api
 
     /**
      * Upload File
-     * 
+     *
      * Saves the file in the folder PATH_MEDIA/'the name of the api controller'.
-     * 
+     *
      * @param array $file variable from from array $_FILES[?]
-     * 
+     *
      * @return string the path to the saved file
      */
     final protected function uploadFile(array $file): string
@@ -96,35 +96,35 @@ abstract class Api
                 // File size
                 if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize)
                     Route::ThrowableApi(507, 'UploadFile: Error file is too big.');
-        
+
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
                     else Route::ThrowableApi(507, 'UploadFile: Error writing to storage.');
-        
+
                 } else Route::ThrowableApi(507, 'UploadFile: Error unsupported file format.');
 
             } else Route::ThrowableApi(507, 'UploadFile: Error loading to temporary folder.');
-        
+
         }
     }
 
     /**
-	 * Headers
-	 * 
-	 * @return string
-	 */
+     * Headers
+     *
+     * @return string
+     */
     final protected function getHeaders(): string
     {
         return $this->headers;
     }
 
     /**
-	 * Bearer Token
-	 * 
-	 * @return string|null
-	 */
+     * Bearer Token
+     *
+     * @return string|null
+     */
     final protected function getBearerToken(): string|null
     {
         if (!empty($this->headers)) {
@@ -134,10 +134,10 @@ abstract class Api
     }
 
     /**
-	 * Basic Token
-	 * 
-	 * @return string|null
-	 */
+     * Basic Token
+     *
+     * @return string|null
+     */
     final protected function getBasicToken(): string|null
     {
         if (!empty($this->headers)) {
@@ -147,10 +147,10 @@ abstract class Api
     }
 
     /**
-	 * Authorization Header
-	 * 
-	 * @return void
-	 */
+     * Authorization Header
+     *
+     * @return void
+     */
     private function AuthorizationHeader(): void
     {
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
@@ -165,12 +165,12 @@ abstract class Api
     }
 
     /**
-	 * Authorization Bearer
-     * 
+     * Authorization Bearer
+     *
      * Bearer token authentication method
-	 * 
-	 * @return void
-	 */
+     *
+     * @return void
+     */
     final protected function authorizationBearer(): void
     {
         $this->repo = new ApiRepository;
@@ -183,12 +183,12 @@ abstract class Api
     }
 
     /**
-	 * Authorization Basic
-     * 
+     * Authorization Basic
+     *
      * Basic authentication method
-	 * 
-	 * @return void
-	 */
+     *
+     * @return void
+     */
     final protected function authorizationBasic(): void
     {
         $this->repo = new ApiRepository;
@@ -202,12 +202,12 @@ abstract class Api
     }
 
     /**
-	 * Allow method
-     * 
+     * Allow method
+     *
      * @param METHOD ...$allowMethods allowed methods
-	 * 
-	 * @return void
-	 */
+     *
+     * @return void
+     */
     final protected function method(METHOD ...$allowMethods): void
     {
         foreach ($allowMethods as $method) {
@@ -217,37 +217,50 @@ abstract class Api
     }
 
     /**
-	 * Request raw data to json
-	 * 
-	 * @return mixed
-	 */
+     * Request raw data to json
+     *
+     * @return mixed
+     */
     final protected function requestJson(): mixed
     {
         return json_decode(file_get_contents('php://input'));
     }
 
     /**
-	 * Api Ok Response
-	 * 
-	 * HTTP code - 200
-	 * 
-	 * @param mixed $data message
-	 * 
-	 * @return void
-	 */
+     * Api Response
+     *
+     * @param int $code HTTP code
+     * @param mixed $data message
+     *
+     * @return void
+     */
+    protected function response(int $code, mixed $data = null): void
+    {
+        Route::ApiResponse($code, $data);
+    }
+
+    /**
+     * Api Ok Response
+     *
+     * HTTP code - 200
+     *
+     * @param mixed $data message
+     *
+     * @return void
+     */
     protected function responseOk(mixed $data = null): void
     {
         Route::ApiResponseOk($data);
     }
 
     /**
-	 * Api Error Response
-	 * 
-	 * @param int $code HTTP code
-	 * @param mixed $data message
-	 * 
-	 * @return void
-	 */
+     * Api Error Response
+     *
+     * @param int $code HTTP code
+     * @param mixed $data message
+     *
+     * @return void
+     */
     protected function responseError(int $code, mixed $data = null): void
     {
         Route::ApiResponseError($code, $data);
