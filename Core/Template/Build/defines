@@ -37,3 +37,5 @@ if (ROUTE_PLUGIN_SYSTEM) {
     define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');
     define('ROUTE_PLUGIN_MAIN_ACTION', 'index');
 }
+
+const LOGGER_LOGGING_LEVEL = 'NONE';

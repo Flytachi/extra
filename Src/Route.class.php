@@ -11,7 +11,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 13.4
+ * 	@version 13.5
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -381,7 +381,7 @@ class Route
      * Redirect
      *
      * @param ?string $url /url address
-     * @param ?array $param get parametrs
+     * @param ?array $param get parameters
      *
      * @return never
      */
@@ -413,20 +413,6 @@ class Route
     }
 
     /**
-     * Response format to json
-     *
-     * @param array $data json data
-     *
-     * @return never
-     */
-    final static function responseJson(array $data): never
-    {
-        header('Content-type: application/json');
-        echo json_encode($data);
-        die;
-    }
-
-    /**
      * Api Response
      *
      * @param int $code index http error code
@@ -436,6 +422,7 @@ class Route
      */
     final static function ApiResponse(int $code, mixed $data = null): never
     {
+        Logger::loggingApi($code, json_encode($data));
         $status = self::$httpStatus[$code];
         header_remove("X-Powered-By");
         header('Access-Control-Allow-Origin: *');
@@ -490,6 +477,7 @@ class Route
      */
     final static function ApiResponseError(int $code, mixed $data = null): never
     {
+        Logger::loggingApi($code, json_encode($data));
         $status = self::$httpStatus[$code];
         header_remove("X-Powered-By");
         header('Access-Control-Allow-Origin: *');
@@ -521,6 +509,7 @@ class Route
      */
     final static function Throwable(int $code, string $title): never
     {
+        Logger::logging($code, $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
             $message = self::getThrowableMessage($code, $title);
             echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
@@ -546,6 +535,7 @@ class Route
      */
     final static function ThrowableApi(int $code, string $title): never
     {
+        Logger::loggingApi($code, $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
             $message = self::getThrowableMessage($code, $title);
             echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";
@@ -590,4 +580,5 @@ class Route
         echo '<pre style="background-color: black; color: #' . $tColor . '; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
         return $message;
     }
+
 }
