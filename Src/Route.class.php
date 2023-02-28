@@ -11,7 +11,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 13.5
+ * 	@version 13.6
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -422,7 +422,7 @@ class Route
      */
     final static function ApiResponse(int $code, mixed $data = null): never
     {
-        Logger::loggingApi($code, json_encode($data));
+        Logger::loggingApi($code, $_SERVER['REQUEST_URI'] . ' => ' . json_encode($data));
         $status = self::$httpStatus[$code];
         header_remove("X-Powered-By");
         header('Access-Control-Allow-Origin: *');
@@ -477,7 +477,7 @@ class Route
      */
     final static function ApiResponseError(int $code, mixed $data = null): never
     {
-        Logger::loggingApi($code, json_encode($data));
+        Logger::loggingApi($code, $_SERVER['REQUEST_URI'] . ' => ' . json_encode($data));
         $status = self::$httpStatus[$code];
         header_remove("X-Powered-By");
         header('Access-Control-Allow-Origin: *');
@@ -509,7 +509,7 @@ class Route
      */
     final static function Throwable(int $code, string $title): never
     {
-        Logger::logging($code, $title);
+        Logger::logging($code, $_SERVER['REQUEST_URI'] . ' => ' . $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
             $message = self::getThrowableMessage($code, $title);
             echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
@@ -535,7 +535,7 @@ class Route
      */
     final static function ThrowableApi(int $code, string $title): never
     {
-        Logger::loggingApi($code, $title);
+        Logger::loggingApi($code, $_SERVER['REQUEST_URI'] . ' => ' . $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
             $message = self::getThrowableMessage($code, $title);
             echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";

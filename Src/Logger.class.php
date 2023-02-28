@@ -11,7 +11,7 @@ namespace Extra\Src;
  *  * ERROR - logging only errors
  *  * WARNING - logging errors and warnings
  *
- * 	@version 1.0
+ * 	@version 1.1
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -91,9 +91,11 @@ class Logger
      */
     public final static function error(string $message): void
     {
-        self::init('error');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('error');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
     /**
@@ -105,9 +107,11 @@ class Logger
      */
     public final static function errorApi(string $message): void
     {
-        self::init('error-api');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('error-api');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
     /**
@@ -119,9 +123,11 @@ class Logger
      */
     public final static function warning(string $message): void
     {
-        self::init('warning');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('warning');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
     /**
@@ -133,9 +139,11 @@ class Logger
      */
     public final static function warningApi(string $message): void
     {
-        self::init('warning-api');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('warning-api');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
     /**
@@ -147,9 +155,11 @@ class Logger
      */
     public final static function info(string $message): void
     {
-        self::init('info');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('info');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
     /**
@@ -161,9 +171,11 @@ class Logger
      */
     public final static function infoApi(string $message): void
     {
-        self::init('info-api');
-        $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-        fwrite(self::$resource, $message);
+        if (self::$resource !== false) {
+            self::init('info-api');
+            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
+            fwrite(self::$resource, $message);
+        }
     }
 
 }
