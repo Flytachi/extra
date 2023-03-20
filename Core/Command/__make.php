@@ -23,17 +23,35 @@ class __Make
     private function resolution(): void
     {
         try {
-            if (in_array($this->argument, ['auto']))                    $this->mAuto();
-            elseif (in_array($this->argument, ['api']))                 $this->mApi();
-            elseif (in_array($this->argument, ['controller']))          $this->mController();
-            elseif (in_array($this->argument, ['model']))               $this->mModel();
-            elseif (in_array($this->argument, ['socket']))              $this->mSocket();
+            if     ($this->argument == 'stack')                         $this->mStack();
+            elseif ($this->argument == 'auto')                          $this->mAuto();
+            elseif ($this->argument == 'api')                           $this->mApi();
+            elseif ($this->argument == 'controller')                    $this->mController();
+            elseif ($this->argument == 'model')                         $this->mModel();
+            elseif ($this->argument == 'socket')                        $this->mSocket();
             elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
             else Core::logMessage("Шаблона '{$this->argument}' не существует!");
         } catch (Error) {
            Core::logMessage("Ошибка в скрипте.", 31);
         }
         
+    }
+
+    private function mStack(): void
+    {
+        $name = $this->name;
+
+        $this->name = $name . 'Controller';
+        $this->argument = 'controller';
+        $this->mController();
+
+        $this->name = $name . 'Model';
+        $this->argument = 'model';
+        $this->mModel();
+
+        $this->name = $name . 'Repository';
+        $this->argument = 'repository';
+        $this->mRepository();
     }
 
     private function mAuto(): void
@@ -134,10 +152,12 @@ class __Make
     {
         Core::logLabel("Help");
         Core::logText(":api          -  Создать Api-контроллер.");
-        Core::logText(":controller   -  Создать контроллер для обработки запросов.");
+        Core::logText(":controller   -  Создать Controller для обработки запросов.");
         Core::logText(":model        -  Создать Model (слепок таблицы, базы данных).");
         Core::logText(":repository   -  Создать Repository для соединения с базой данных.");
         Core::logText(":socket       -  Создать Socket контроллер.");
+        Core::logText(":auto         -  Создать шаблон (определение по названию).");
+        Core::logText(":stack        -  Создать пакет шаблонов (Controller, Model, Repository).");
         Core::logLabel("End");
     }
 
