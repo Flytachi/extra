@@ -1,12 +1,12 @@
 <div class="warframe_header">
-    <span class="warframe_header-title">Предприятия</span><br>
+    <span class="warframe_header-title">Enterprise</span><br>
     <span id="message"></span>
 </div>
 
 <div class="warframe_card">
     <div class="warframe_card-body">
 
-        <button onclick="checkModal('/firmwareEnterprise/get')" class="warframe_btn">Добавить</button>
+        <button onclick="checkModal('/firmwareEnterprise/get')" class="warframe_btn">Add</button>
         <div id="search_display"></div>
 
     </div>

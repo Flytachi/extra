@@ -68,4 +68,39 @@ class FirmwareEnterpriseController extends Controller
             'inputCsrf' => $this->csrfTokenInput()
         ]);
     }
+
+    public function sync(int $pk): void
+    {
+        $this->method(METHOD::GET);
+        Route::isAuthAdmin();
+        $object = $this->getElement($pk);
+        if (!$object->url) Route::ErrorPage(400);
+
+        $licenseRepo = (new FirmwareLicenseRepository);
+        $licenseRepo->Option("series, date_from, date_to");
+        $licenseRepo->Order("id DESC");
+        $license = $licenseRepo->getBy(['is_delete' => 0, 'enterprise_id' => $object->id]);
+        if ($license) $license->firmware = EXTRA_KEY;
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $object->url . '/api/firewall/license',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $license,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . EXTRA_KEY,
+                'Content-Type: application/json'
+            ],
+        ));
+
+        $response = json_decode(curl_exec($curl));
+        curl_close($curl);
+        $this->renderJsonSuccess($response);
+    }
 }

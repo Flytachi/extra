@@ -72,7 +72,7 @@ class FirewallController extends Controller
 
     public function spell(): void
     {
-        $this->method(METHOD::GET);
+        $this->method(METHOD::POST);
         $this->prepareAuth();
         $cfgNew = Warframe::$cfg;
         foreach ($_POST as $key => $value) {
@@ -83,9 +83,8 @@ class FirewallController extends Controller
             fwrite($fp, chunk_split( bin2hex(zlib_encode(json_encode($cfgNew), ZLIB_ENCODING_DEFLATE)) , 50, "\n") );
             fclose($fp);
             Route::redirect();
-        } else {
-            dd("Ошибка записи!");
         }
+        else Route::Throwable(500, "Ошибка записи!");
     }
 
     public function upgrade(): void

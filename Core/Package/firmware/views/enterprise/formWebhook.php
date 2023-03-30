@@ -1,17 +1,17 @@
 <form action="/firmwareWebhook/hook/<?= $webHook->id ?? null ?>" method="post" onsubmit="submitForm()">
-    <h3>Api ключ</h3>
+    <h3>Api Key</h3>
     <div class="warframe_form-group">
 
         <?= $inputCsrf ?>
 
         <input type="hidden" name="enterprise_id" value="<?= $model->id ?>">
 
-        <label for="inp-unique_key">Api ключ: 
-            <a onclick="genUid()" style="color:red" href="#">сгенерировать</a>
+        <label for="inp-unique_key">Api key:
+            <a onclick="genUid()" style="color:red" href="#">generation</a>
         </label>
-        <input type="text" id="inp-unique_key" name="unique_key" value="<?= $webHook->unique_key ?? '' ?>" placeholder="Введите уникальный ключ" required>
+        <input type="text" id="inp-unique_key" name="unique_key" value="<?= $webHook->unique_key ?? '' ?>" placeholder="Enter unique key..." required>
 
-        <button type="submit" class="warframe_btn">Сохранить</button>
+        <button type="submit" class="warframe_btn">Save</button>
 
     </div>
 </form>
@@ -33,9 +33,9 @@
             data: $(event.target).serializeArray(),
             success: function (response) {
                 modal.style.display = "none";
-                if (response.status == "success") {
+                if (response.status === "success") {
                     $("#message").css("color", "green");
-                    $("#message").html("Успешно!");
+                    $("#message").html("Success!");
                     credoSearch();
                 } else {
                     $("#message").css("color", "red");

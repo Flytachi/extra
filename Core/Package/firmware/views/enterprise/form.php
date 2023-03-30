@@ -1,16 +1,19 @@
 <form action="/firmwareEnterprise/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Предприятие</h3>
+    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Enterprise</h3>
     <div class="warframe_form-group">
 
         <?= $inputCsrf ?>
 
-        <label for="inp-name">Название</label>
-        <input type="text" id="inp-name" name="name" value="<?= $model->name ?>" placeholder="Введите название" required>
+        <label for="inp-name">Name</label>
+        <input type="text" id="inp-name" name="name" value="<?= $model->name ?>" placeholder="Enter name..." required>
 
-        <label for="inp-contact">Контакты</label>
-        <input type="text" id="inp-contact" name="contact" value="<?= $model->contact ?>" placeholder="Введите контакты" required>
+        <label for="inp-contact">Contact</label>
+        <input type="text" id="inp-contact" name="contact" value="<?= $model->contact ?>" placeholder="Enter contact..." required>
 
-        <button type="submit" class="warframe_btn">Сохранить</button>
+        <label for="inp-contact">Url</label>
+        <input type="text" id="inp-contact" name="url" value="<?= $model->url ?>" placeholder="Enter url...">
+
+        <button type="submit" class="warframe_btn">Save</button>
 
     </div>
 </form>
@@ -25,9 +28,9 @@
             data: $(event.target).serializeArray(),
             success: function (response) {
                 modal.style.display = "none";
-                if (response.status == "success") {
+                if (response.status === "success") {
                     $("#message").css("color", "green");
-                    $("#message").html("Успешно!");
+                    $("#message").html("Success!");
                     credoSearch();
                 } else {
                     $("#message").css("color", "red");
