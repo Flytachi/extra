@@ -27,9 +27,9 @@ function AjaxQuery(url, func = "credoSearch") {
             success: function (response) {
                 $(button).prop("disabled", false);
 
-                if (response.status == "success") {
+                if (response.status === "success") {
                     $("#message").css("color", "green");
-                    $("#message").html("Успешно!");
+                    $("#message").html("Success!");
                     window[func]();
                 } else {
                     $("#message").css("color", "red");

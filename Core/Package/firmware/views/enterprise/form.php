@@ -1,5 +1,5 @@
 <form action="/firmwareEnterprise/hook/<?= $model->id ?>" method="post" onsubmit="submitForm()">
-    <h3><?= ($model->id) ? 'Изменить' : 'Создать' ?> Enterprise</h3>
+    <h3><?= ($model->id) ? 'Edit' : 'Create' ?> Enterprise</h3>
     <div class="warframe_form-group">
 
         <?= $inputCsrf ?>

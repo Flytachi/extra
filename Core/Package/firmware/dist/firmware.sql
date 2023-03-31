@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `firmware_enterprises` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(100) NOT NULL,
   `contact` char(100) DEFAULT NULL,
+  `url` char(255) DEFAULT NULL,
   `is_delete` tinyint(1) NOT NULL DEFAULT 0,
   `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),

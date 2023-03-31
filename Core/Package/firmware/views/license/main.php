@@ -1,12 +1,12 @@
 <div class="warframe_header">
-    <span class="warframe_header-title">Лицензии</span><br>
+    <span class="warframe_header-title">License</span><br>
     <span id="message"></span>
 </div>
 
 <div class="warframe_card">
     <div class="warframe_card-body">
 
-        <button onclick="checkModal('/firmwareLicense/get')" class="warframe_btn">Добавить</button>
+        <button onclick="checkModal('/firmwareLicense/get')" class="warframe_btn">Add</button>
         <div id="search_display"></div>
 
     </div>
