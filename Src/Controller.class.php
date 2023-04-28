@@ -16,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 8.8
+ *  @version 8.9
  *  @author itachi
  *  @package Extra\Src
  */
@@ -681,7 +681,7 @@ abstract class Controller
      *
      * @return void
      */
-    protected final function validate(array $data, string $field, callable $validateFunc = null, string $message = null): void
+    protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
     {
         if (!array_key_exists($field, $data))
             Route::Throwable(400, "Field \"{$field}\" not found!");

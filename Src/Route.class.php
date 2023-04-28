@@ -3,6 +3,8 @@
 namespace Extra\Src;
 
 use Exception;
+use ReflectionException;
+use ReflectionMethod;
 use Throwable;
 use Warframe;
 
@@ -11,7 +13,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 13.6
+ * 	@version 13.9
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -149,10 +151,8 @@ class Route
         if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
         if ( $controllerName === 'Api' ) self::routeApi($data);
         if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
-        if ( !empty($routes[3]) ) {
-            $params = array_slice($routes, 3);
-            if(count($params) == 1) $params = $routes[3];
-        }
+        if ( !empty($routes[3]) ) $params = array_slice($routes, 3);
+
         $_GET = $data['get'];
         self::changePostSize();
 
@@ -200,10 +200,8 @@ class Route
             if ( file_exists($path) ) require $path;
             if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
             if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
-            if ( !empty($routes[4]) ) {
-                $params = array_slice($routes, 4);
-                if(count($params) == 1) $params = $routes[4];
-            }
+            if ( !empty($routes[4]) ) $params = array_slice($routes, 4);
+
             $_GET = $data['get'];
             self::changePostSize();
 
@@ -257,10 +255,8 @@ class Route
             $pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
             $controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
             $actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
-            if ( !empty($routes[5]) ) {
-                $params = array_slice($routes, 5);
-                if(count($params) == 1) $params = $routes[5];
-            } else $params = null;
+            if ( !empty($routes[5]) ) $params = array_slice($routes, 5);
+            else $params = null;
 
             // Imports
             spl_autoload_register(function($class) {
@@ -274,10 +270,8 @@ class Route
         } else {
             $controllerName = (!empty($routes[2])) ? ucfirst($routes[2]) : null;
             $actionName = (!empty($routes[3])) ? ucfirst($routes[3]) : null;
-            if (!empty($routes[4])) {
-                $params = array_slice($routes, 4);
-                if (count($params) == 1) $params = $routes[4];
-            } else $params = null;
+            if (!empty($routes[4])) $params = array_slice($routes, 4);
+            else $params = null;
 
             // Imports
             spl_autoload_register(function ($class) {
@@ -308,6 +302,8 @@ class Route
      * @param array|string|null $params method params
      *
      * @return void
+     *
+     * @throws ReflectionException
      */
     private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
     {
@@ -320,8 +316,9 @@ class Route
             }
             if (file_exists($file)) require $file;
         });
-        $controller = new $controllerName;
-        $controller->$actionName($params);
+
+        $reflectionMethod = new ReflectionMethod($controllerName, $actionName);
+        $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
     }
 
     /**
