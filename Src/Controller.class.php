@@ -16,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo; 
  * 
- *  @version 8.6
+ *  @version 8.8
  *  @author itachi
  *  @package Extra\Src
  */
@@ -219,6 +219,9 @@ abstract class Controller
      * Default Method Hook
      * 
      * The method is used to update or create a record in the database
+     *
+     * The method checks the POST data for CSRF validity
+     * and creates a Model from the POST data
      * 
      * @param ?int $pk id
      * 
@@ -232,6 +235,10 @@ abstract class Controller
         $this->method(METHOD::POST);
         if ($this->onAuthHook === true) $this->prepareAuth();
         if (empty($_POST)) Route::Throwable(400, 'Empty post request');
+
+        $this->csrfTokenChange();
+        if(array_key_exists('csrf_token', $_POST)) unset($_POST['csrf_token']);
+        $this->cleaner($_POST);
 
         if ( $pk ) {
             $object = $this->prepareHookUpdateBefore($_POST, $pk);
@@ -472,17 +479,12 @@ abstract class Controller
      * 
      * The method is applied before creating a record in the database
      * 
-     * The standard method checks the POST data for CSRF validity 
-     * and creates a Model from the POST data
-     * 
      * @param array $post $_POST request
      * 
      * @return ModelInterface
      */
     protected function prepareHookSaveBefore(array $post): ModelInterface
     {
-        $this->csrfTokenChange();
-        if(isset($post['csrf_token'])) unset($post['csrf_token']);
         return $this->modelObject($post);
     }
 
@@ -507,10 +509,9 @@ abstract class Controller
      * Prepare Hook Update Before
      * 
      * The method is applied before updating a record in the database
-     * 
-     * The standard method checks the POST data for CSRF validity 
-     * and also checks the element for existence, then overwrites 
-     * the Model data on the POST data
+     *
+     * The standard method also checks the element for existence,
+     * then overwrites the Model data on the POST data
      * 
      * @param array $post $_POST request
      * @param int $pk id
@@ -519,8 +520,6 @@ abstract class Controller
      */
     protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
-        $this->csrfTokenChange();
-        if(isset($post['csrf_token'])) unset($post['csrf_token']);
         $object = $this->getElement($pk);
         $object->reConstruct($post);
         return $object;
@@ -645,6 +644,51 @@ abstract class Controller
     protected function prepareRemoveAfter(int $pk): void
     {
         $this->renderJsonSuccess($pk);
+    }
+
+
+    /**
+     * Cleaner Method By Data
+     *
+     * The method cleans all data in the array from html tags and special characters
+     *
+     * @param array &$data array data
+     *
+     * @return void
+     */
+    protected final function cleaner(array &$data): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) $this->cleaner($value);
+            else $value = CDO::clean($value);
+            $data[$key] = $value;
+        }
+    }
+
+    /**
+     * Validate Method
+     *
+     * Checking the existence of a value in the data.
+     *
+     * If you set the argument "validateFunc" will check the
+     * data on the function with the condition that the
+     * function returns a bool value, and takes 1 argument
+     *
+     * @param array $data data -> array data
+     * @param string $field field name -> array key
+     * @param callable|null $validateFunc validation func returned bool!
+     * @param string|null $message message with incorrect validation in func
+     *
+     * @return void
+     */
+    protected final function validate(array $data, string $field, callable $validateFunc = null, string $message = null): void
+    {
+        if (!array_key_exists($field, $data))
+            Route::Throwable(400, "Field \"{$field}\" not found!");
+        if ($validateFunc !== null) {
+            if (!$validateFunc($data[$field]))
+                Route::Throwable(400, $message ?? "The \"{$field}\" field has the wrong data type!");
+        }
     }
 
 }
