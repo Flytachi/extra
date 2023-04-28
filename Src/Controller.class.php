@@ -16,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 8.9
+ *  @version 9.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -68,14 +68,6 @@ abstract class Controller
             if (strrpos($property->getType(), 'Repository'))
                 $this->{$property->getName()} = new ((string) $property->getType());
         }
-    }
-
-    /**
-     * Call
-     */
-    final function __call($name, $arguments)
-    {
-        Route::Throwable(404, 'The "' . $name . '" function was not found or is not a public method');
     }
 
     /**

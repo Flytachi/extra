@@ -2,10 +2,12 @@
 
 namespace Extra\Src;
 
+use ArgumentCountError;
 use Exception;
 use ReflectionException;
 use ReflectionMethod;
 use Throwable;
+use TypeError;
 use Warframe;
 
 /**
@@ -13,7 +15,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 13.9
+ * 	@version 14.0
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -317,8 +319,22 @@ class Route
             if (file_exists($file)) require $file;
         });
 
+        if (!method_exists($controllerName, $actionName))
+            self::ThrowableApi(404, 'The "' . $actionName . '" function was not found or is not a public method');
+
         $reflectionMethod = new ReflectionMethod($controllerName, $actionName);
-        $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
+        if ($reflectionMethod->isStatic())
+            self::ThrowableApi(404, 'The "' . $actionName . '" function is static method');
+        if ($reflectionMethod->isPrivate())
+            self::ThrowableApi(404, 'The "' . $actionName . '" function is private method');
+        if ($reflectionMethod->isProtected())
+            self::ThrowableApi(404, 'The "' . $actionName . '" function is protected method');
+
+        try {
+            $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
+        } catch (ArgumentCountError|TypeError $e) {
+            self::Throwable(400, $e->getMessage());
+        }
     }
 
     /**
