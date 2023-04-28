@@ -41,7 +41,7 @@ class FirmwareEnterpriseController extends Controller
         $this->view('firmware/enterprise/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk): void
+    public function get(?int $pk = null): void
     {
         $this->method(METHOD::GET);
         Route::isAuthAdmin();
@@ -54,7 +54,7 @@ class FirmwareEnterpriseController extends Controller
         ]);
     }
 
-    public function getWebhook(?int $pk): void
+    public function getWebhook(?int $pk = null): void
     {
         $this->method(METHOD::GET);
         Route::isAuthAdmin();

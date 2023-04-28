@@ -30,7 +30,7 @@ class PermissionController extends Controller
         $this->view('auth/permission/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?string $pk): void
+    public function get(?string $pk = null): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();

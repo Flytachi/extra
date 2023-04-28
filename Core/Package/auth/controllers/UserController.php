@@ -77,7 +77,7 @@ class UserController extends Controller
         $this->view('auth/user/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk): void
+    public function get(?int $pk = null): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();

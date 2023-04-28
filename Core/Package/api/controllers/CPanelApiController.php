@@ -28,29 +28,26 @@ class CPanelApiController extends Controller
     }
     protected function prepareHookSaveBefore(array $post): ModelInterface
     {
-        $post = $this->postValidation($post);
-        $this->csrfTokenChange();
-        if(isset($post['csrf_token'])) unset($post['csrf_token']);
+        $this->postValidation($post);
         return new ApiModel($post);
     }
     protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
-        $post = $this->postValidation($post);
+        $this->postValidation($post);
         return parent::prepareHookUpdateBefore($post, $pk);
     }
-    private function postValidation(array $post): array
+    private function postValidation(array &$post): void
     {
-        if (empty($post['type'])) Route::ErrorPage(400);
+        $this->valid($post, 'type');
         if ($post['type'] == 'Bearer') {
-            if (empty($post['token'])) Route::ErrorPage(400);
+            $this->valid($post, 'token');
             $post['username'] = null;
             $post['password'] = null;
         } elseif ($post['type'] == 'Basic') {
-            if (empty($post['username'])) Route::ErrorPage(400);
-            if (empty($post['password'])) Route::ErrorPage(400);
+            $this->valid($post, 'username');
+            $this->valid($post, 'password');
             $post['token'] = null;
         }
-        return $post;
     }
 
     public function index(): void
@@ -68,7 +65,7 @@ class CPanelApiController extends Controller
         $this->view('api/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk): void
+    public function get(?int $pk = null): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();

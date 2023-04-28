@@ -22,13 +22,13 @@ class GroupController extends Controller
     }
     protected function prepareHookSaveBefore(array $post): ModelInterface
     {
-        if (empty($post['name'])) Route::ErrorPage(400);
+        $this->valid($post, 'name');
         if(isset($post['permission'])) unset($post['permission']);
         return parent::prepareHookSaveBefore($post);
     }
     protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
     {
-        if (empty($post['name'])) Route::ErrorPage(400);
+        $this->valid($post, 'name');
         if(isset($post['permission'])) unset($post['permission']);
         return parent::prepareHookUpdateBefore($post, $pk);
     }
@@ -48,7 +48,7 @@ class GroupController extends Controller
         $this->view('auth/group/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk): void
+    public function get(?int $pk = null): void
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();

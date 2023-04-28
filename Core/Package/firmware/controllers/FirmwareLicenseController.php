@@ -42,7 +42,7 @@ class FirmwareLicenseController extends Controller
         $this->view('firmware/license/table', Wrapper::paginatorDecoration($this->repo));
     }
 
-    public function get(?int $pk): void
+    public function get(?int $pk = null): void
     {
         Route::isAuthAdmin();
         if($pk) $object = $this->getElement($pk);
