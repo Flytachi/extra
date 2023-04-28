@@ -10,17 +10,17 @@ use Warframe;
 
 /**
  *  Warframe collection
- * 
+ *
  *  Controller - controller for web requests
- * 
+ *
  *  ! The default repository must be specified in the class
- *  * Example: public 'Repository' $repo; 
- * 
+ *  * Example: public 'Repository' $repo;
+ *
  *  @version 8.8
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Controller 
+abstract class Controller
 {
     /** @var string $template the path to the template */
     public string $template = VIEW_TEMPLATE;
@@ -38,12 +38,12 @@ abstract class Controller
     protected bool $onDelete = false;
     /** @var bool $onHook default delete authentication status */
     protected bool $onAuthDelete = false;
-    
+
     /** @var bool $onHook default restore status */
     protected bool $onRestore = false;
     /** @var bool $onHook default restore authentication status */
     protected bool $onAuthRestore = false;
-    
+
     /** @var bool $onHook default remove status */
     protected bool $onRemove = false;
     /** @var bool $onHook default remove authentication status */
@@ -56,9 +56,9 @@ abstract class Controller
 
     /**
      * Constructor
-     * 
+     *
      * Initializes the specified Repositories
-     * 
+     *
      * @return void
      */
     final function __construct()
@@ -79,12 +79,12 @@ abstract class Controller
     }
 
     /**
-	 * Allow method
-     * 
+     * Allow method
+     *
      * @param METHOD ...$allowMethods allowed methods
-	 * 
-	 * @return void
-	 */
+     *
+     * @return void
+     */
     final protected function method(METHOD ...$allowMethods): void
     {
         foreach ($allowMethods as $method) {
@@ -94,17 +94,17 @@ abstract class Controller
     }
 
     /**
-	 * CSRF Token Change
-     * 
+     * CSRF Token Change
+     *
      * Checks csrf token for validity
-	 * 
-	 * @return void
-	 */
+     *
+     * @return void
+     */
     final protected function csrfTokenChange(): void
     {
         if($this->onCsrfHook === true) {
             if ((isset($_SESSION['CSRF_TOKEN']) and isset($_POST['csrf_token']) and
-                    hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
+                hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
                 unset($_SESSION['CSRF_TOKEN']);
                 unset($_POST['csrf_token']);
             } else Route::Throwable(419, 'CSRF Token authentication error occurred');
@@ -128,12 +128,12 @@ abstract class Controller
     }
 
     /**
-	 * CSRF Token Input
-     * 
+     * CSRF Token Input
+     *
      * Outputs the qsq input tag with the generated token
-	 * 
-	 * @return string
-	 */
+     *
+     * @return string
+     */
     final protected function csrfTokenInput(): string
     {
         $token = $this->csrfTokenGen();
@@ -158,15 +158,15 @@ abstract class Controller
     }
 
     /**
-	 * Get Element (from Repository)
-     * 
-     * Searches for an element in the Repository, 
+     * Get Element (from Repository)
+     *
+     * Searches for an element in the Repository,
      * if it does not, it gives a http 404 error
-	 *
+     *
      * @param int $pk id
      *
-	 * @return ModelInterface
-	 */
+     * @return ModelInterface
+     */
     final protected function getElement(int $pk): ModelInterface
     {
         $object = $this->repo->getById($pk);
@@ -176,11 +176,11 @@ abstract class Controller
 
     /**
      * Upload File
-     * 
+     *
      * Saves the file in the folder PATH_MEDIA/'the name of the Controller'.
-     * 
+     *
      * @param array $file variable from from array $_FILES[?]
-     * 
+     *
      * @return string the path to the saved file
      */
     final protected function uploadFile(array $file): string
@@ -202,31 +202,31 @@ abstract class Controller
                 // File size
                 if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize)
                     Route::Throwable(507, 'UploadFile: Error file is too big.');
-        
+
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
                     else Route::Throwable(507, 'UploadFile: Error writing to storage.');
-        
+
                 } else Route::Throwable(507, 'UploadFile: Error unsupported file format.');
 
             } else Route::Throwable(507, 'UploadFile: Error loading to temporary folder.');
-        }
+        } else Route::Throwable(507, 'UploadFile: Error file not name.');
     }
 
     /**
      * Default Method Hook
-     * 
+     *
      * The method is used to update or create a record in the database
      *
      * The method checks the POST data for CSRF validity
      * and creates a Model from the POST data
-     * 
+     *
      * @param ?int $pk id
-     * 
+     *
      * * if there is a pk, it updates, otherwise it creates a record
-     * 
+     *
      * @return void
      */
     public function hook(?int $pk = null): void
@@ -253,11 +253,11 @@ abstract class Controller
 
     /**
      * Default Method Delete
-     * 
+     *
      * activates the "is_deleted" status
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return void
      */
     public function delete(int $pk): void
@@ -273,11 +273,11 @@ abstract class Controller
 
     /**
      * Default Method Restore
-     * 
+     *
      * deactivates the "is_deleted" status
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return void
      */
     public function restore(int $pk): void
@@ -293,11 +293,11 @@ abstract class Controller
 
     /**
      * Default Method Remove
-     * 
+     *
      * Deletes an entry
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return void
      */
     public function remove(int $pk): void
@@ -311,7 +311,7 @@ abstract class Controller
         $this->prepareRemoveAfter($pk);
     }
 
-    /*  
+    /*
     ---------------------------------------------
         RESPONSE
     ---------------------------------------------
@@ -430,8 +430,8 @@ abstract class Controller
     {
         $code = 200;
         $status = Route::$httpStatus[$code];
-		header("HTTP/1.1 $code " . $status);
-		header("Status: $code " . $status);
+        header("HTTP/1.1 $code " . $status);
+        header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( $data );
         die;
@@ -441,8 +441,8 @@ abstract class Controller
     {
         $code = 200;
         $status = Route::$httpStatus[$code];
-		header("HTTP/1.1 $code " . $status);
-		header("Status: $code " . $status);
+        header("HTTP/1.1 $code " . $status);
+        header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( array('status' => 'success', 'message' => $message) );
         die;
@@ -452,8 +452,8 @@ abstract class Controller
     {
         $code = 200;
         $status = Route::$httpStatus[$code];
-		header("HTTP/1.1 $code " . $status);
-		header("Status: $code " . $status);
+        header("HTTP/1.1 $code " . $status);
+        header("Status: $code " . $status);
         header('Content-type: application/json');
         echo json_encode( array('status' => 'error', 'message' => $message) );
         die;
@@ -464,9 +464,9 @@ abstract class Controller
 
     /**
      * Prepare authentication
-     * 
+     *
      * Authorization method
-     * 
+     *
      * @return void
      */
     protected function prepareAuth(): void
@@ -476,11 +476,11 @@ abstract class Controller
 
     /**
      * Prepare Hook Save Before
-     * 
+     *
      * The method is applied before creating a record in the database
-     * 
+     *
      * @param array $post $_POST request
-     * 
+     *
      * @return ModelInterface
      */
     protected function prepareHookSaveBefore(array $post): ModelInterface
@@ -490,14 +490,14 @@ abstract class Controller
 
     /**
      * Prepare Hook Save After
-     * 
+     *
      * The method is applied after creating a record in the database
-     * 
+     *
      * The standard method returns the id of the created record in JSON format
-     * 
+     *
      * @param ModelInterface $model data model
      * @param string $result result message
-     * 
+     *
      * @return void
      */
     protected function prepareHookSaveAfter(ModelInterface $model, string $result): void
@@ -507,15 +507,15 @@ abstract class Controller
 
     /**
      * Prepare Hook Update Before
-     * 
+     *
      * The method is applied before updating a record in the database
      *
      * The standard method also checks the element for existence,
      * then overwrites the Model data on the POST data
-     * 
+     *
      * @param array $post $_POST request
      * @param int $pk id
-     * 
+     *
      * @return ModelInterface
      */
     protected function prepareHookUpdateBefore(array $post, int $pk): ModelInterface
@@ -527,14 +527,14 @@ abstract class Controller
 
     /**
      * Prepare Hook Update After
-     * 
+     *
      * The method is applied after updating a record in the database
-     * 
+     *
      * The standard method returns the id of the created record in JSON format
-     * 
+     *
      * @param ModelInterface $model data model
      * @param string $result result message
-     * 
+     *
      * @return void
      */
     protected function prepareHookUpdateAfter(ModelInterface $model, string $result): void
@@ -544,14 +544,14 @@ abstract class Controller
 
     /**
      * Prepare Delete Before
-     * 
+     *
      * This method is applied before updating the 'is_delete' status in the database
-     * 
-     * The standard method checks the element for presence, 
+     *
+     * The standard method checks the element for presence,
      * then overwrites the 'is_delete' status to the POST data
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return ModelInterface
      */
     protected function prepareDeleteBefore(int $pk): ModelInterface
@@ -563,14 +563,14 @@ abstract class Controller
 
     /**
      * Prepare Delete After
-     * 
+     *
      * This method is applied after updating the 'is_delete' status in the database
-     * 
+     *
      * The standard method returns the id of the created record in JSON format
-     * 
+     *
      * @param ModelInterface $model data model
      * @param string $result result message
-     * 
+     *
      * @return void
      */
     protected function prepareDeleteAfter(ModelInterface $model, string $result): void
@@ -580,14 +580,14 @@ abstract class Controller
 
     /**
      * Prepare Restore Before
-     * 
+     *
      * This method is applied before updating the 'is_delete' status in the database
-     * 
-     * The standard method checks the element for presence, 
+     *
+     * The standard method checks the element for presence,
      * then overwrites the 'is_delete' status to the POST data
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return ModelInterface
      */
     protected function prepareRestoreBefore(int $pk): ModelInterface
@@ -599,14 +599,14 @@ abstract class Controller
 
     /**
      * Prepare Restore After
-     * 
+     *
      * This method is applied after updating the 'is_delete' status in the database
-     * 
+     *
      * The standard method returns the id of the created record in JSON format
-     * 
+     *
      * @param ModelInterface $model data model
      * @param string $result result message
-     * 
+     *
      * @return void
      */
     protected function prepareRestoreAfter(ModelInterface $model, string $result): void
@@ -616,13 +616,13 @@ abstract class Controller
 
     /**
      * Prepare Remove Before
-     * 
+     *
      * This method is applied before deleting a record in the database
-     * 
+     *
      * The standard method checks the element for the presence of
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return void
      */
     protected function prepareRemoveBefore(int $pk): void
@@ -632,13 +632,13 @@ abstract class Controller
 
     /**
      * Prepare Remove After
-     * 
+     *
      * This method is applied after deleting a record in the database
-     * 
+     *
      * The standard method returns the id of the created record in JSON format
-     * 
+     *
      * @param int $pk id
-     * 
+     *
      * @return void
      */
     protected function prepareRemoveAfter(int $pk): void
