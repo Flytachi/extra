@@ -15,7 +15,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 14.0
+ * 	@version 14.3
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -228,6 +228,7 @@ class Route
         if ( file_exists($funcPath) ) require $funcPath;
 
         // Imitation
+        if(!class_exists($controllerName)) self::Throwable(404, 'The "' . $controllerName .'" controller was not found');
         try {
             self::imitation($controllerName, $actionName, $params);
         } catch (Throwable $e) {
@@ -240,8 +241,8 @@ class Route
      * Routing for api requests
      *
      * @param array $data
-     *  * @return array[url] URL string
-     *  * @return array[get] GET params array
+     *  * array[url] URL string
+     *  * array[get] GET params array
      *
      * @return never
      *
@@ -288,8 +289,9 @@ class Route
         }
 
         // Imitation
+        if(!class_exists($controllerName)) self::ThrowableApi(404, 'The "' . $controllerName .'" controller was not found');
         try {
-            self::imitation($controllerName, $actionName, $params);
+            self::imitation($controllerName, $actionName, $params, 'ThrowableApi');
         } catch (Throwable $e) {
             self::ThrowableApi(500, $e->getMessage());
         }
@@ -302,12 +304,13 @@ class Route
      * @param string $controllerName controller name
      * @param string $actionName controller public method
      * @param array|string|null $params method params
+     * @param string $throwableName name func [Throwable -> default, ThrowableApi]
      *
      * @return void
      *
      * @throws ReflectionException
      */
-    private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
+    private static function imitation(string $controllerName, string $actionName, array|string|null $params, string $throwableName = 'Throwable'): void
     {
         spl_autoload_register(function ($class) {
             $class = explode("\\", $class);
@@ -320,20 +323,20 @@ class Route
         });
 
         if (!method_exists($controllerName, $actionName))
-            self::ThrowableApi(404, 'The "' . $actionName . '" function was not found or is not a public method');
+            self::{$throwableName}(404, 'The "' . $actionName . '" function was not found or is not a public method');
 
         $reflectionMethod = new ReflectionMethod($controllerName, $actionName);
         if ($reflectionMethod->isStatic())
-            self::ThrowableApi(404, 'The "' . $actionName . '" function is static method');
+            self::{$throwableName}(404, 'The "' . $actionName . '" function is static method');
         if ($reflectionMethod->isPrivate())
-            self::ThrowableApi(404, 'The "' . $actionName . '" function is private method');
+            self::{$throwableName}(404, 'The "' . $actionName . '" function is private method');
         if ($reflectionMethod->isProtected())
-            self::ThrowableApi(404, 'The "' . $actionName . '" function is protected method');
+            self::{$throwableName}(404, 'The "' . $actionName . '" function is protected method');
 
         try {
             $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
         } catch (ArgumentCountError|TypeError $e) {
-            self::Throwable(400, $e->getMessage());
+            self::{$throwableName}(400, $e->getMessage());
         }
     }
 
@@ -524,13 +527,17 @@ class Route
     {
         Logger::logging($code, $_SERVER['REQUEST_URI'] . ' => ' . $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
+            $status = self::$httpStatus[$code];
             $message = self::getThrowableMessage($code, $title);
+            header("HTTP/1.1 $code " . $status);
+            header("Status: $code " . $status);
+            echo $message['before'];
             echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
-            print_r($message);
-            echo '<hr></pre>';
-            die();
-        }
-        else self::ErrorPage($code);
+            print_r($message['title']);
+            print_r($message['body']);
+            echo '<hr>' . $message['after'];
+            die;
+        } else self::ErrorPage($code);
     }
 
     /**
@@ -548,15 +555,29 @@ class Route
      */
     final static function ThrowableApi(int $code, string $title): never
     {
-        Logger::loggingApi($code, $_SERVER['REQUEST_URI'] . ' => ' . $title);
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
-            $message = self::getThrowableMessage($code, $title);
-            echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Api Debug Message</strong><hr>";
-            print_r($message);
-            echo '<hr></pre>';
-            die();
-        }
-        else self::ApiResponseError($code);
+            Logger::loggingApi($code, $_SERVER['REQUEST_URI'] . ' => ' . $title);
+            $message = self::getThrowableMessage($code, $title, true);
+            $status = self::$httpStatus[$code];
+            header_remove("X-Powered-By");
+            header("HTTP/1.1 $code " . $status);
+            header("Status: $code " . $status);
+            header('Access-Control-Allow-Origin: *');
+            header("Access-Control-Allow-Headers: *");
+            header("Access-Control-Allow-Methods: *");
+            header("Content-Type: application/json");
+            echo json_encode(array(
+                'statusCode' => $code,
+                'statusDescription' => $status,
+                'data' => [
+                    'debug' => [
+                        'title' => $title,
+                        'exception' => $message['body'],
+                    ]
+                ]
+            ));
+            die;
+        } else self::ApiResponseError($code, $title);
     }
 
     /**
@@ -564,13 +585,12 @@ class Route
      *
      * @param int $code
      * @param string $title
+     * @param bool $formatDetail
      *
-     * @return string error message
+     * @return array error message
      */
-    private static function getThrowableMessage(int $code, string $title): string
+    private static function getThrowableMessage(int $code, string $title, bool $formatDetail = false): array
     {
-        header("HTTP/1.1 $code " . self::$httpStatus[$code]);
-        header("Status: $code " . self::$httpStatus[$code]);
         $tColor = match ((int)($code / 100)) {
             1 => "00ffff",
             2 => "00ff00",
@@ -579,19 +599,45 @@ class Route
             5 => "ff0000",
             default => "dddddd",
         };
-        $message = "\t <strong style=\"font-size:14px;\">" . $title . '</strong>';
-        foreach (debug_backtrace() as $key => $value) {
-            if ($key != 0) {
-                $message .= "\n\t\t#" . $key . ' ';
-                if (isset($value['file'])) $message .= $value['file'];
-                if (isset($value['line'])) $message .= ' (' . $value['line'] . '): ';
-                if (isset($value['class'])) $message .= "\t" . $value['class'];
-                if (isset($value['type'])) $message .= $value['type'];
-                if (isset($value['function'])) $message .= $value['function'];
+
+        if ($formatDetail) {
+            $message = [];
+            foreach (debug_backtrace() as $key => $value) {
+                if ($key != 0) {
+                    $ms = "#{$key}";
+                    if (isset($value['file'])) $ms .= $value['file'];
+                    if (isset($value['line'])) $ms .= ' (' . $value['line'] . '): ';
+                    if (isset($value['class'])) $ms .= $value['class'];
+                    if (isset($value['type'])) $ms .= $value['type'];
+                    if (isset($value['function'])) $ms .= $value['function'];
+                    $message[] = $ms;
+                }
             }
+
+            return [
+                'title' => $title,
+                'body' => $message,
+            ];
+        } else {
+            $message = "";
+            foreach (debug_backtrace() as $key => $value) {
+                if ($key != 0) {
+                    $message .= "\n\t\t#" . $key . ' ';
+                    if (isset($value['file'])) $message .= $value['file'];
+                    if (isset($value['line'])) $message .= ' (' . $value['line'] . '): ';
+                    if (isset($value['class'])) $message .= "\t" . $value['class'];
+                    if (isset($value['type'])) $message .= $value['type'];
+                    if (isset($value['function'])) $message .= $value['function'];
+                }
+            }
+
+            return [
+                'before' => "<pre style=\"background-color: black; color: #{$tColor}; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px\">",
+                'title' => "\t <strong style=\"font-size:14px;\">" . $title . '</strong>',
+                'body' => $message,
+                'after' => "</pre>"
+            ];
         }
-        echo '<pre style="background-color: black; color: #' . $tColor . '; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px">';
-        return $message;
     }
 
 }

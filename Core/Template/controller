@@ -9,6 +9,7 @@ class _ControllerIndex_ extends Controller
     public bool $onHook = false;
     public bool $onCsrfHook = false;
 	public bool $onAuthHook = false;
+	public bool $onHookCleanData = true;
 
 	public bool $onDelete = false;
 	public bool $onAuthDelete = false;

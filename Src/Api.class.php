@@ -5,12 +5,21 @@ namespace Extra\Src;
 use ApiRepository;
 use METHOD;
 
+
+enum API_DATA
+{
+    case GET;
+    case POST;
+    case JSON;
+    case FILE;
+}
+
 /**
  *  Warframe collection
  *
  *  Api - api controller
  *
- *  @version 6.8
+ *  @version 7.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -18,16 +27,19 @@ abstract class Api
 {
     /** @var bool $isSecure check request header data */
     protected bool $isSecure = false;
-    /** @var Repository $repo ApiRepository */
-    public Repository $repo;
-    /** @var string $repo request header data */
-    private string $headers = '';
+    /** @var bool $cleanData status cleaning request data */
+    protected bool $cleanData = true;
+
+    /** @var array $headers request header data */
+    private array $headers;
     /** @var int $pk token id */
     private int $pk;
 
+    /** @var Repository $repo ApiRepository */
+    public Repository $repo;
     /** @var array $uploadFileFormat upload file format */
     public array $uploadFileFormat;
-    /** @var int $uploadFileFormat upload file size (byte) */
+    /** @var int $uploadFileSize upload file size (byte) */
     public int $uploadFileSize;
 
     /**
@@ -38,14 +50,6 @@ abstract class Api
     function __construct()
     {
         $this->AuthorizationHeader();
-    }
-
-    /**
-     * Call
-     */
-    final function __call($name, $arguments)
-    {
-        Route::ThrowableApi(404, 'The "' . $name . '" function was not found or is not a public method');
     }
 
     /**
@@ -107,17 +111,19 @@ abstract class Api
 
             } else Route::ThrowableApi(507, 'UploadFile: Error loading to temporary folder.');
 
-        }
+        } else Route::ThrowableApi(507, 'UploadFile: Error file not name.');
     }
 
     /**
      * Headers
      *
-     * @return string
+     * @param string|null $headerKey
+     *
+     * @return array|string
      */
-    final protected function getHeaders(): string
+    final protected function getHeaders(?string $headerKey = null): array|string
     {
-        return $this->headers;
+        return ($headerKey) ? $this->headers[$headerKey] : $this->headers;
     }
 
     /**
@@ -127,10 +133,9 @@ abstract class Api
      */
     final protected function getBearerToken(): string|null
     {
-        if (!empty($this->headers)) {
-            if (preg_match('/Bearer\s(\S+)/', $this->headers, $matches)) return $matches[1];
-        }
-        return null;
+        if (array_key_exists('Authorization', $this->headers)) {
+            if (preg_match('/Bearer\s(\S+)/', $this->headers['Authorization'], $matches)) return $matches[1];
+        } else return null;
     }
 
     /**
@@ -140,10 +145,9 @@ abstract class Api
      */
     final protected function getBasicToken(): string|null
     {
-        if (!empty($this->headers)) {
-            if (preg_match('/Basic\s(\S+)/', $this->headers, $matches)) return base64_decode($matches[1]);
-        }
-        return null;
+        if (array_key_exists('Authorization', $this->headers)) {
+            if (preg_match('/Basic\s(\S+)/', $this->headers['Authorization'], $matches)) return base64_decode($matches[1]);
+        } else return null;
     }
 
     /**
@@ -153,6 +157,15 @@ abstract class Api
      */
     private function AuthorizationHeader(): void
     {
+        if (function_exists('apache_request_headers')) {
+            $this->headers = apache_request_headers();
+            $this->headers = array_combine(array_map('ucwords', array_keys($this->headers)), array_values($this->headers));
+            if ($this->isSecure && empty($this->headers['Authorization']))
+                Route::ApiResponseError(400, 'The request is missing header data.');
+        }
+        else Route::ApiResponseError(500, 'The request is missing header data.');
+        /*  ! Remove
+
         if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
         elseif (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
         elseif (function_exists('apache_request_headers')) {
@@ -160,8 +173,9 @@ abstract class Api
             $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
             if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
         }
+        if ($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
 
-        if($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
+        */
     }
 
     /**
@@ -217,13 +231,90 @@ abstract class Api
     }
 
     /**
-     * Request raw data to json
+     * Request raw data to ...(format API_DATA)
+     *
+     * @param API_DATA $apiDataType
+     *
+     * @return array
+     */
+    final protected function request(API_DATA $apiDataType): array
+    {
+        switch ($apiDataType) {
+            case API_DATA::GET:
+                if ($_GET) $data = $_GET;
+                else Route::ThrowableApi(400, "There is no GET data in the request.");
+                break;
+            case API_DATA::POST:
+                if ($_POST) $data = $_POST;
+                else Route::ThrowableApi(400, "There is no POST data in the request.");
+                break;
+            case API_DATA::JSON:
+                $data = file_get_contents('php://input');
+                if ($data) $data = json_decode($data, true);
+                else Route::ThrowableApi(400, "There is no JSON data in the request.");
+                break;
+            case API_DATA::FILE:
+                if ($_FILES) $data = $_FILES;
+                else Route::ThrowableApi(400, "There is no FILE data in the request.");
+                break;
+
+        }
+        if ($this->cleanData) $this->cleaner($data);
+        return $data;
+    }
+
+    /**
+     * Request raw data to API_DATA::JSON
      *
      * @return mixed
      */
     final protected function requestJson(): mixed
     {
         return json_decode(file_get_contents('php://input'));
+    }
+
+    /**
+     * Cleaner Method By Data
+     *
+     * The method cleans all data in the array from html tags and special characters
+     *
+     * @param array &$data array data
+     *
+     * @return void
+     */
+    protected final function cleaner(array &$data): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) $this->cleaner($value);
+            else $value = CDO::clean($value);
+            $data[$key] = $value;
+        }
+    }
+
+    /**
+     * Validate Method
+     *
+     * Checking the existence of a value in the data.
+     *
+     * If you set the argument "validateFunc" will check the
+     * data on the function with the condition that the
+     * function returns a bool value, and takes 1 argument
+     *
+     * @param array $data data -> array data
+     * @param string $field field name -> array key
+     * @param callable|null $validateFunc validation func returned bool!
+     * @param string|null $message message with incorrect validation in func
+     *
+     * @return void
+     */
+    protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
+    {
+        if (!array_key_exists($field, $data))
+            Route::ThrowableApi(400, "Field \"{$field}\" not found!");
+        if ($validateFunc !== null) {
+            if (!$validateFunc($data[$field]))
+                Route::ThrowableApi(400, $message ?? "The \"{$field}\" field has the wrong data type!");
+        }
     }
 
     /**
