@@ -24,6 +24,7 @@ class __Make
     {
         try {
             if     ($this->argument == 'stack')                         $this->mStack();
+            elseif ($this->argument == 'stackApi')                      $this->mStackApi();
             elseif ($this->argument == 'auto')                          $this->mAuto();
             elseif ($this->argument == 'api')                           $this->mApi();
             elseif ($this->argument == 'controller')                    $this->mController();
@@ -44,6 +45,23 @@ class __Make
         $this->name = $name . 'Controller';
         $this->argument = 'controller';
         $this->mController();
+
+        $this->name = $name . 'Model';
+        $this->argument = 'model';
+        $this->mModel();
+
+        $this->name = $name . 'Repository';
+        $this->argument = 'repository';
+        $this->mRepository();
+    }
+
+    private function mStackApi(): void
+    {
+        $name = $this->name;
+
+        $this->name = $name . 'Api';
+        $this->argument = 'api';
+        $this->mApi();
 
         $this->name = $name . 'Model';
         $this->argument = 'model';
@@ -158,6 +176,7 @@ class __Make
         Core::logText(":socket       -  Создать Socket контроллер.");
         Core::logText(":auto         -  Создать шаблон (определение по названию).");
         Core::logText(":stack        -  Создать пакет шаблонов (Controller, Model, Repository).");
+        Core::logText(":stackApi     -  Создать пакет шаблонов (Api, Model, Repository).");
         Core::logLabel("End");
     }
 

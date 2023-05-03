@@ -11,7 +11,7 @@ namespace Extra\Src;
  *  * ERROR - logging only errors
  *  * WARNING - logging errors and warnings
  *
- * 	@version 1.1
+ * 	@version 1.2
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -25,6 +25,12 @@ class Logger
     private static function init(string $fileName): void
     {
         if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
+        if (!is_writable(PATH_LOG)) {
+            $status = Route::$httpStatus[500];
+            header("HTTP/1.1 500 " . $status);
+            header("Status: 500 " . $status);
+            dd("The \"logs\" folder does not have write access");
+        }
         self::$resource = fopen(PATH_LOG . '/' . $fileName . '.txt', 'a');
     }
 

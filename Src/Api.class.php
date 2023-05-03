@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.0
+ *  @version 7.1
  *  @author itachi
  *  @package Extra\Src
  */
@@ -57,7 +57,7 @@ abstract class Api
      *
      * @return int
      */
-    public function getPk(): int
+    final protected function getPk(): int
     {
         return $this->pk;
     }
@@ -67,7 +67,7 @@ abstract class Api
      *
      * @param int $pk
      */
-    public function setPk(int $pk): void
+    final protected function setPk(int $pk): void
     {
         $this->pk = $pk;
     }
@@ -135,6 +135,7 @@ abstract class Api
     {
         if (array_key_exists('Authorization', $this->headers)) {
             if (preg_match('/Bearer\s(\S+)/', $this->headers['Authorization'], $matches)) return $matches[1];
+            else return null;
         } else return null;
     }
 
@@ -147,6 +148,7 @@ abstract class Api
     {
         if (array_key_exists('Authorization', $this->headers)) {
             if (preg_match('/Basic\s(\S+)/', $this->headers['Authorization'], $matches)) return base64_decode($matches[1]);
+            else return null;
         } else return null;
     }
 
