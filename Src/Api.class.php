@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.1
+ *  @version 7.2
  *  @author itachi
  *  @package Extra\Src
  */
@@ -193,7 +193,7 @@ abstract class Api
         $token = $this->getBearerToken();
         if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
 
-        $object = $this->repo->getBy(['type' => 'Bearer', 'token' => $token]);
+        $object = $this->repo->getBy(['type' => 'Bearer', 'token' => $token, 'is_delete' => 0]);
         if ($object) $this->pk = $object->id;
         else Route::ApiResponseError(401, 'Authorization failed.');
     }
@@ -210,7 +210,7 @@ abstract class Api
         $this->repo = new ApiRepository;
         $token = $this->getBasicToken();
         if (empty($token)) Route::ApiResponseError(400, 'Authorization data not found.');
-        $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}'");
+        $this->repo->Where("type = 'Basic' AND CONCAT(username, ':', password) = '{$token}' AND 'is_delete' => 0");
 
         $object = $this->repo->get();
         if ($object) $this->pk = $object->id;
