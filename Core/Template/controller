@@ -20,12 +20,12 @@ class _ControllerIndex_ extends Controller
 	public bool $onRemove = false;
 	public bool $onAuthRemove = false;
 
-    public function index()
+    public function index(): void
     {
         dd("index");
     }
 
-    public function get(?int $pk)
+    public function get(?int $pk): void
 	{
 		if ($pk) {
 			header('Content-type: application/json');
