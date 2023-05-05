@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.2
+ *  @version 7.3
  *  @author itachi
  *  @package Extra\Src
  */
@@ -49,7 +49,46 @@ abstract class Api
      */
     function __construct()
     {
+        $this->AuthorizationCORS();
         $this->AuthorizationHeader();
+    }
+
+    /**
+     * Authorization CORS
+     *
+     * @return void
+     */
+    private function AuthorizationCORS(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] == METHOD::OPTIONS->name) $this->responseOk();
+    }
+
+    /**
+     * Authorization Header
+     *
+     * @return void
+     */
+    private function AuthorizationHeader(): void
+    {
+        if (function_exists('apache_request_headers')) {
+            $this->headers = apache_request_headers();
+            $this->headers = array_combine(array_map('ucwords', array_keys($this->headers)), array_values($this->headers));
+            if ($this->isSecure && empty($this->headers['Authorization']))
+                Route::ApiResponseError(400, 'The request is missing header data.');
+        }
+        else Route::ApiResponseError(500, 'The request is missing header data.');
+        /*  ! Remove
+
+        if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+        elseif (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
+        elseif (function_exists('apache_request_headers')) {
+            $requestHeaders = apache_request_headers();
+            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+            if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
+        }
+        if ($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
+
+        */
     }
 
     /**
@@ -150,34 +189,6 @@ abstract class Api
             if (preg_match('/Basic\s(\S+)/', $this->headers['Authorization'], $matches)) return base64_decode($matches[1]);
             else return null;
         } else return null;
-    }
-
-    /**
-     * Authorization Header
-     *
-     * @return void
-     */
-    private function AuthorizationHeader(): void
-    {
-        if (function_exists('apache_request_headers')) {
-            $this->headers = apache_request_headers();
-            $this->headers = array_combine(array_map('ucwords', array_keys($this->headers)), array_values($this->headers));
-            if ($this->isSecure && empty($this->headers['Authorization']))
-                Route::ApiResponseError(400, 'The request is missing header data.');
-        }
-        else Route::ApiResponseError(500, 'The request is missing header data.');
-        /*  ! Remove
-
-        if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-        elseif (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
-        elseif (function_exists('apache_request_headers')) {
-            $requestHeaders = apache_request_headers();
-            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-            if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
-        }
-        if ($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
-
-        */
     }
 
     /**
