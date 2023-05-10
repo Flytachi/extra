@@ -50,7 +50,7 @@ class __Install
                 Core::logLabel("$folder => уже существует!");
             else {
                 Core::logLabel("$folder => $link", 32);
-                echo exec("git clone $link " . PATH_LIB . '/ ' . $folder);
+                echo exec("git clone $link " . PATH_LIB . '/' . $folder);
                 Core::logLabel("$folder END", 32);
             }
         }

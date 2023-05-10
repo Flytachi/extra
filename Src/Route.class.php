@@ -15,7 +15,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 14.3
+ * 	@version 14.4
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -254,7 +254,7 @@ class Route
         $routes = explode('/', $data['url']);
         $_GET = $data['get'];
         $chP =  (isset($routes[2])) ? checkPlugin(ucfirst($routes[2])) : null;
-        if (ROUTE_PLUGIN_SYSTEM and $chP) {
+        if (ROUTE_PLUGIN_SYSTEM && $chP) {
             $pluginName     = ( !empty($routes[2]) ) ? ucfirst($routes[2]) : null;
             $controllerName = ( !empty($routes[3]) ) ? ucfirst($routes[3]) : null;
             $actionName     = ( !empty($routes[4]) ) ? ucfirst($routes[4]) : null;
@@ -267,6 +267,7 @@ class Route
                 $file = PATH_PLUGIN . "/Frame." . $class[0] . "/api/" . $class[1] . '.php';
                 if (file_exists($file)) require $file;
             });
+            $funcPath = PATH_PLUGIN . "/Frame.$pluginName/functions.php";
 
             // Prefix
             $controllerName = "$pluginName\\" . $controllerName . 'Api';
@@ -281,12 +282,13 @@ class Route
                 $file = dirname(__FILE__, 3) . '/api/' . $class . '.php';
                 if (file_exists($file)) require $file;
             });
-            $funcPath = dirname(__DIR__, 3) . '/functions.php';
-            if (file_exists($funcPath)) require $funcPath;
+            $funcPath = dirname(__DIR__, 2) . '/functions.php';
 
             // Prefix
             $controllerName = $controllerName . 'Api';
         }
+
+        if ( file_exists($funcPath) ) require $funcPath;
 
         // Imitation
         if(!class_exists($controllerName)) self::ThrowableApi(404, 'The "' . $controllerName .'" controller was not found');
