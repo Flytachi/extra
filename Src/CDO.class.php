@@ -10,7 +10,7 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 5.0
+ *  @version 6.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -18,7 +18,7 @@ class CDO extends PDO
 {
     /**
      * Constructor
-     *  
+     *
      * @param array $params
      *  * @param DRIVER
      *  * @param CHARSET
@@ -27,13 +27,13 @@ class CDO extends PDO
      *  * @param NAME
      *  * @param USER
      *
-     * @param array $debug debug mode
-     * 
+     * @param bool $debug debug mode
+     *
      * @return void
-     * 
+     *
      * @throws PDOException if debugging is enabled, it will return an error message
      */
-    function __construct(array $params, $debug = false)
+    function __construct(array $params, bool $debug = false)
     {
         if (is_null($params['DRIVER'])) Route::Throwable(500, 'CDO: Connection - driver not found!');
         if (is_null($params['CHARSET'])) Route::Throwable(500, 'CDO: Connection - charset not found!');
@@ -66,11 +66,13 @@ class CDO extends PDO
      */
     final public function insert(string $table, ModelInterface|array $model): string|false
     {
-        $array = (array) $model;
-        $col = implode(",", array_keys($array));
-        $val = ":".implode(", :", array_keys($array));
+        $data = (array) $model;
+        $col = implode(",", array_keys($data));
+        $val = ":".implode(", :", array_keys($data));
         try {
-            $this->prepare("INSERT INTO $table ($col) VALUES ($val)")->execute($array);
+            $stmt = $this->prepare("INSERT INTO $table ($col) VALUES ($val)");
+            foreach ($data as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
+            $stmt->execute();
             $result = $this->lastInsertId();
             if (!is_numeric($result))
                 Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $result . ')');
@@ -96,10 +98,10 @@ class CDO extends PDO
      */
     final public function update(string $table, ModelInterface|array $model, int|string|array $pk): int|string
     {
-        $array = (array) $model;
+        $data = (array) $model;
         $set = "";
-        foreach ($array as $key => $value) {
-            $array["S_$key"] = $value; unset($array[$key]);
+        foreach ($data as $key => $value) {
+            $data["S_$key"] = $value; unset($data[$key]);
             $set .= ", `$key`=:S_$key";
         }
         // Where
@@ -111,9 +113,10 @@ class CDO extends PDO
         }
         // Send
         try {
-            $stm = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
-            $stm->execute([...$pk, ...$array]);
-            $result = $stm->rowCount();
+            $stmt = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
+            foreach ([...$pk, ...$data] as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
+            $stmt->execute();
+            $result = $stmt->rowCount();
             if (!is_numeric($result))
                 Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $result . ')');
             return $result;
@@ -138,7 +141,7 @@ class CDO extends PDO
     final public function delete(string $table, int|string|array $pk): int|string
     {
         $where = '';
-        if(!is_array($pk)) $pk = array('id'=>$pk);
+        if(!is_array($pk)) $pk = ['id' => $pk];
         foreach ($pk as $key => $value) {
             if (is_array($value)) {
 
@@ -157,6 +160,7 @@ class CDO extends PDO
         // Send
         try {
             $stmt = $this->prepare("DELETE FROM $table WHERE " . ltrim($where, " AND "));
+            foreach ($pk as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
             $stmt->execute($pk);
             $result = $stmt->rowCount();
             if (!is_numeric($result))
@@ -179,5 +183,6 @@ class CDO extends PDO
         $data = stripslashes($data);
         $data = strip_tags($data);
         return htmlspecialchars($data);
+        return $data;
     }
 }

@@ -15,7 +15,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 14.4
+ * 	@version 14.5
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -334,6 +334,8 @@ class Route
             self::{$throwableName}(404, 'The "' . $actionName . '" function is private method');
         if ($reflectionMethod->isProtected())
             self::{$throwableName}(404, 'The "' . $actionName . '" function is protected method');
+
+        if (!is_array($params) && !is_null($params)) $params = [$params];
 
         try {
             $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
