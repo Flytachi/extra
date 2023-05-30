@@ -84,6 +84,8 @@ class PostmanApi extends Api
                 foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {
                     if ($apiMethod->name != '__construct') {
                         $annotations = $this->getAnnotation($apiMethod->getDocComment());
+                        $path = [ "api", lcfirst($apiUrl), $apiMethod->name ];
+                        foreach ($apiMethod->getParameters() as $parameter) $path[] = '[' . $parameter->name . ']';
 
                         if (array_key_exists('@postmanName' , $annotations) & array_key_exists('@postmanMethod' , $annotations)) {
                             $apiMethodData = [
@@ -94,11 +96,7 @@ class PostmanApi extends Api
                                     'url' => [
                                         'raw' => "",
                                         'host' => ["{{wBaseUrl}}"],
-                                        'path' => [
-                                            "api",
-                                            lcfirst($apiUrl),
-                                            $apiMethod->name
-                                        ]
+                                        'path' => $path
                                     ]
                                 ],
                                 "response" => [],
