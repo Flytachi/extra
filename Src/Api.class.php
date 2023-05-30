@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.4
+ *  @version 7.5
  *  @author itachi
  *  @package Extra\Src
  */
@@ -103,14 +103,19 @@ abstract class Api
      * Saves the file in the folder PATH_MEDIA/'the name of the api controller'.
      *
      * @param array $file variable from from array $_FILES[?]
+     * @param ?string $prefixFolder Prefix Folder Name
      *
      * @return string the path to the saved file
      */
-    final protected function uploadFile(array $file): string
+    final protected function uploadFile(array $file, ?string $prefixFolder = null): string
     {
         $uploadFolder = str_replace('Api', '', get_class($this));
-        // $uploadDir = PATH_MEDIA . $uploadFolder;
         if( !is_dir(PATH_MEDIA . '/' . $uploadFolder) ) mkdir(PATH_MEDIA . '/' . $uploadFolder);
+
+        if ($prefixFolder) {
+            $uploadFolder .= '/' . $prefixFolder;
+            if( !is_dir(PATH_MEDIA . '/' . $uploadFolder ) ) mkdir(PATH_MEDIA . '/' . $uploadFolder, 0777, true);
+        }
 
         if ( $file['name'] ) {
             // Upload File

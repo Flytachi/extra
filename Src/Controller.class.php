@@ -16,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 9.3
+ *  @version 9.4
  *  @author itachi
  *  @package Extra\Src
  */
@@ -172,14 +172,19 @@ abstract class Controller
      * Saves the file in the folder PATH_MEDIA/'the name of the Controller'.
      *
      * @param array $file variable from from array $_FILES[?]
+     * @param ?string $prefixFolder Prefix Folder Name
      *
      * @return string the path to the saved file
      */
-    final protected function uploadFile(array $file): string
+    final protected function uploadFile(array $file, ?string $prefixFolder = null): string
     {
         $uploadFolder = str_replace('Controller', '', get_class($this));
-        // $uploadDir = PATH_MEDIA . $uploadFolder;
         if( !is_dir(PATH_MEDIA . '/' . $uploadFolder) ) mkdir(PATH_MEDIA . '/' . $uploadFolder);
+
+        if ($prefixFolder) {
+            $uploadFolder .= '/' . $prefixFolder;
+            if( !is_dir(PATH_MEDIA . '/' . $uploadFolder ) ) mkdir(PATH_MEDIA . '/' . $uploadFolder, 0777, true);
+        }
 
         if ( $file['name'] ) {
             // Upload File
