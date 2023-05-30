@@ -16,7 +16,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 9.2
+ *  @version 9.3
  *  @author itachi
  *  @package Extra\Src
  */
@@ -33,8 +33,6 @@ abstract class Controller
     protected bool $onCsrfHook = false;
     /** @var bool $onAuthHook default hook authentication status */
     protected bool $onAuthHook = false;
-    /** @var bool $onHookCleanData status cleaning request data */
-    protected bool $onHookCleanData = true;
 
     /** @var bool $onDelete default delete status */
     protected bool $onDelete = false;
@@ -232,7 +230,6 @@ abstract class Controller
 
         $this->csrfTokenChange();
         if(array_key_exists('csrf_token', $_POST)) unset($_POST['csrf_token']);
-        if ($this->onHookCleanData) $this->cleaner($_POST);
 
         if ( $pk ) {
             $object = $this->prepareHookUpdateBefore($_POST, $pk);
@@ -640,24 +637,6 @@ abstract class Controller
         $this->renderJsonSuccess($pk);
     }
 
-
-    /**
-     * Cleaner Method By Data
-     *
-     * The method cleans all data in the array from html tags and special characters
-     *
-     * @param array &$data array data
-     *
-     * @return void
-     */
-    protected final function cleaner(array &$data): void
-    {
-        foreach ($data as $key => $value) {
-            if (is_array($value)) $this->cleaner($value);
-            else $value = CDO::clean($value);
-            $data[$key] = $value;
-        }
-    }
 
     /**
      * Validate Method

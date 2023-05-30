@@ -1,0 +1,5 @@
+# Static locker
+    location ~* ^.+\.(webp|jpg|jpeg|gif|png|svg|js|css|mp3|ogg|mpeg|avi|zip|gz|bz2|rar|swf|ico)$ {
+        valid_referers none blocked __HOSTS__ ~\.google\. ~\.yandex\.;
+        if ($invalid_referer) { return 403; }
+    }

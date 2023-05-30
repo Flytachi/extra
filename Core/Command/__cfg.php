@@ -7,6 +7,9 @@ class __Cfg
     private $argument;
     private Array $default_configurations = [
         'HOSTS' => [],
+        'PHP_FPM' => [
+            'PATH_SOCK' => '/run/php-fpm/php-fpm.sock'
+        ],
         'APACHE' => [
             'SERVER_ADMIN' => 'webmaster@dummy-host.example.loc',
             'SERVER_ALIAS' => null,
@@ -14,9 +17,10 @@ class __Cfg
             'SERVER_PORT' => 80,
         ],
         'NGINX' => [
-            'PHP_FPM_SOCK' => '/run/php-fpm/php-fpm.sock',
             'SERVER_PORT' => 80,
-            'ACCESS_METHOD' => 'HEAD,OPTIONS,GET,POST,PUT,DELETE',
+            'STATIC_LOCKER' => null,
+            'SECURITY' => null,
+            'SECURITY_ACCESS_METHOD' => 'HEAD,OPTIONS,GET,POST,PUT,DELETE',
         ],
         'SSL' => [
             'MODE_ON' => null,
@@ -160,6 +164,7 @@ class __Cfg
             $template = str_replace("__NAME__", $ini['APACHE']['SERVER_NAME'], $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
             $template = str_replace("__DIR__", PATH_ROOT . '/', $template);
+            $template = str_replace("__PHP_FPM__", $ini['PHP_FPM']['PATH_SOCK'], $template);
 
             if ($ini['SSL']['MODE_ON'] == 1) {
                 foreach ($ini['HOSTS'] as $host) $hostsSSL .= $host . ':443 ';
@@ -189,15 +194,27 @@ class __Cfg
 
             $hosts = implode(' ', $ini['HOSTS']);
             $template = str_replace("__HOSTS__", trim($hosts), file_get_contents($file));
-            $template = str_replace("__PHP_FPM__", $ini['NGINX']['PHP_FPM_SOCK'], $template);
+            $template = str_replace("__PHP_FPM__", $ini['PHP_FPM']['PATH_SOCK'], $template);
             $template = str_replace("__PORT__", $ini['NGINX']['SERVER_PORT'], $template);
-            $template = str_replace("__ACCESS_METHOD__", str_replace(',', '|', $ini['NGINX']['ACCESS_METHOD']), $template);
             $template = str_replace("__ROOT__", PATH_PUBLIC . '/', $template);
             if ($ini['SSL']['MODE_ON'] == 1) {
                 $template = str_replace("__REDIRECT_TYPE__", ($ini['SSL']['REDIRECT_BODY_DATA'] == 1) ? 307 : 301, $template);
                 $template = str_replace("__CERTIFICATE_FILE__", $ini['SSL']['CERTIFICATE_FILE'], $template);
                 $template = str_replace("__CERTIFICATE_KEY_FILE__", $ini['SSL']['CERTIFICATE_KEY_FILE'], $template);
             }
+
+            if ($ini['NGINX']['SECURITY']) {
+                $fileSecurity = dirname(__DIR__) . '/Template/Server/nginx-security';
+                $templateSecurity = str_replace("__ACCESS_METHOD__", str_replace(',', '|', $ini['NGINX']['SECURITY_ACCESS_METHOD']), file_get_contents($fileSecurity));
+                $template = str_replace("__SECURITY__", $templateSecurity, $template);
+            } else $template = str_replace("__SECURITY__", '', $template);
+
+            if ($ini['NGINX']['STATIC_LOCKER']) {
+                $fileStatic = dirname(__DIR__) . '/Template/Server/nginx-static';
+                $templateStatic = str_replace("__HOSTS__", trim($hosts), file_get_contents($fileStatic));
+                $template = str_replace("__STATIC__", $templateStatic, $template);
+            } else $template = str_replace("__STATIC__", '', $template);
+
             $fp = fopen(PATH_APP . '/nginx.conf', "w");
             fwrite($fp, $template);
             fclose($fp);

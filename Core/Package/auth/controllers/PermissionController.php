@@ -53,8 +53,6 @@ class PermissionController extends Controller
         if (empty($_POST['name'])) Route::ErrorPage(400);
         if (empty($_POST['description'])) Route::ErrorPage(400);
         $post = $_POST;
-        $post['name'] = CDO::clean($post['name']);
-        $post['description'] = CDO::clean($post['description']);
 
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);

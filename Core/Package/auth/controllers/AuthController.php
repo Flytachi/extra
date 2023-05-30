@@ -21,11 +21,9 @@ class AuthController extends Controller
         if (empty($_POST['password'])) $this->renderJsonError("User 'password' not found.");
 
         $userModel = new UserRepository;
-        $login = CDO::clean($_POST['username']);
-        $password = CDO::clean($_POST['password']);
-        $user = $userModel->getBy(['username' => $login, 'is_delete' => 0]);
+        $user = $userModel->getBy(['username' => $_POST['username'], 'is_delete' => 0]);
 
-        if ($user && password_verify($password, $user->password)) {
+        if ($user && password_verify($_POST['password'], $user->password)) {
             $_SESSION['id'] = $user->id;
             $_SESSION['is_admin'] = $user->is_admin;
             $_SESSION['TZ'] = $_POST['TZ'] ?? null;

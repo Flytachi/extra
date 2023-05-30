@@ -10,7 +10,7 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 6.0
+ *  @version 6.1
  *  @author itachi
  *  @package Extra\Src
  */
@@ -169,20 +169,5 @@ class CDO extends PDO
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error deleting a record in the database (' . $ex->getMessage() . ')');
         }
-    }
-
-    /**
-     * Clean request data
-     * 
-     * @param string $data request data
-     * @return string cleaned request data
-     */
-    static function clean(string $data): string
-    {
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = strip_tags($data);
-        return htmlspecialchars($data);
-        return $data;
     }
 }

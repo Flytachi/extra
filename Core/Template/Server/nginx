@@ -3,22 +3,17 @@ server {
     server_name __HOSTS__;
     root __ROOT__;
 
-    # Security
-    if ($request_method !~ ^(__ACCESS_METHOD__)$ ) { return 405; }
-    if ($http_user_agent ~* LWP::Simple|BBBike|wget) { return 403; }
-    if ($http_user_agent ~* msnbot|scrapbot) { return 403; }
-    if ($http_referer ~* (babes|forsale|girl|jewelry|love|nudit|organic|poker|porn|sex|teen) ){  return 403; }
+    __SECURITY__
 
-    location ~* ^.+\.(webp|jpg|jpeg|gif|png|svg|js|css|mp3|ogg|mpeg|avi|zip|gz|bz2|rar|swf|ico)$ {
-        valid_referers none blocked __HOSTS__ ~\.google\. ~\.yandex\.;
-        if ($invalid_referer) { return 403; }
-    }
-
+    # Main
     location / {
         index index.php;
         try_files $uri $uri/ /index.php?$args;
     }
 
+    __STATIC__
+
+    # Setting php-fpm
     location ~ \.php$ {
         try_files $fastcgi_script_name =404;
         include fastcgi_params;

@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.3
+ *  @version 7.4
  *  @author itachi
  *  @package Extra\Src
  */
@@ -27,8 +27,6 @@ abstract class Api
 {
     /** @var bool $isSecure check request header data */
     protected bool $isSecure = false;
-    /** @var bool $cleanData status cleaning request data */
-    protected bool $cleanData = true;
 
     /** @var array $headers request header data */
     private array $headers;
@@ -77,18 +75,6 @@ abstract class Api
                 Route::ApiResponseError(400, 'The request is missing header data.');
         }
         else Route::ApiResponseError(500, 'The request is missing header data.');
-        /*  ! Remove
-
-        if (isset($_SERVER['HTTP_AUTHORIZATION'])) $this->headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-        elseif (isset($_SERVER['Authorization'])) $this->headers = trim($_SERVER["Authorization"]);
-        elseif (function_exists('apache_request_headers')) {
-            $requestHeaders = apache_request_headers();
-            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-            if (isset($requestHeaders['Authorization'])) $this->headers = trim($requestHeaders['Authorization']);
-        }
-        if ($this->isSecure && empty($this->getHeaders())) Route::ApiResponseError(400, 'The request is missing header data.');
-
-        */
     }
 
     /**
@@ -272,7 +258,6 @@ abstract class Api
                 break;
 
         }
-        if ($this->cleanData) $this->cleaner($data);
         return $data;
     }
 
@@ -284,24 +269,6 @@ abstract class Api
     final protected function requestJson(): mixed
     {
         return json_decode(file_get_contents('php://input'));
-    }
-
-    /**
-     * Cleaner Method By Data
-     *
-     * The method cleans all data in the array from html tags and special characters
-     *
-     * @param array &$data array data
-     *
-     * @return void
-     */
-    protected final function cleaner(array &$data): void
-    {
-        foreach ($data as $key => $value) {
-            if (is_array($value)) $this->cleaner($value);
-            else $value = CDO::clean($value);
-            $data[$key] = $value;
-        }
     }
 
     /**
