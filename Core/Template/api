@@ -5,7 +5,6 @@ use Extra\Src\Api;
 class _ApiIndex_ extends Api
 {
     public bool $isSecure = false;
-    public bool $cleanData = true;
 
     /**
      * @postmanName Get Test Request
