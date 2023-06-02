@@ -135,7 +135,7 @@ class PostmanApi extends Api
                 case 'rawjson':
                     $apiMethodData['request']['body'] = [
                         'mode' => 'raw',
-                        'raw' => json_encode((array_key_exists('@postmanBodyItem', $annotations)) ? $annotations['@postmanBodyItem'] : []),
+                        'raw' => json_encode((array_key_exists('@postmanBodyItem', $annotations)) ? $annotations['@postmanBodyItem'] : [], JSON_PRETTY_PRINT),
                         'options' => [
                             'raw' => ['language' => 'json']
                         ]
@@ -144,7 +144,7 @@ class PostmanApi extends Api
                 case 'rawtext':
                     $apiMethodData['request']['body'] = [
                         'mode' => 'raw',
-                        'raw' => json_encode((array_key_exists('@postmanBodyItem', $annotations)) ? $annotations['@postmanBodyItem'] : [])
+                        'raw' => json_encode((array_key_exists('@postmanBodyItem', $annotations)) ? $annotations['@postmanBodyItem'] : [], JSON_PRETTY_PRINT)
                     ];
                     break;
                 case 'formdata':

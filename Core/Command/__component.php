@@ -39,7 +39,7 @@ class __Component
             if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
             if (is_dir("$path/models")) multiCopy("$path/models", "$root/app/models");
             if (is_dir("$path/repository")) multiCopy("$path/repository", "$root/app/repository");
-            if (is_dir("$path/views")) multiCopy("$path/views", PATH_PUBLIC . "/views/$this->name");
+            if (is_dir("$path/resources")) multiCopy("$path/resources", PATH_RESOURCE . "/$this->name");
             if (is_dir("$path/static")) multiCopy("$path/static", PATH_PUBLIC . "/static/$this->name");
             Core::logMessage("Пакет {$this->name} успешно установлен!", 32);
 

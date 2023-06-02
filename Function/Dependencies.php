@@ -5,7 +5,7 @@ use Extra\Src\Wrapper;
 
 function dieConnection($_error = null): never
 {
-    die(include PATH_PUBLIC . "/" . VIEW_ERROR . "/system.php");
+    die(include PATH_RESOURCE . "/exception/system.php");
 }
 
 function cfgGet(): array

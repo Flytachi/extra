@@ -9,23 +9,16 @@ define('PATH_APP', dirname(__DIR__) . '/app');
 define('PATH_PLUGIN', dirname(__DIR__) . '/plugins');
 define('PATH_PUBLIC', dirname(__DIR__) . '/public');
 
-
-const PATH_LIB = PATH_APP . '/libs';
-const PATH_LOG = PATH_APP . '/logs';
-const PATH_MEDIA = PATH_PUBLIC . '/media';
-
-// License
 define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
-
-// Cfg
 define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
 define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
 
+const PATH_LIB = PATH_APP . '/libs';
+const PATH_LOG = PATH_APP . '/logs';
+const PATH_RESOURCE = PATH_APP . '/resources';
+const PATH_MEDIA = PATH_PUBLIC . '/media';
 
-// Template
-const VIEW_FOLDER = 'views';
-const VIEW_ERROR = VIEW_FOLDER . '/error';
-const VIEW_TEMPLATE = 'template.php';
+const RESOURCE_TEMPLATE = 'template.php';
 
 // Route
 const ROUTE_MAIN_CONTROLLER = 'Main';

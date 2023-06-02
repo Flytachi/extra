@@ -423,11 +423,11 @@ class Route
     {
         header("HTTP/1.1 $code " . self::$httpStatus[$code]);
         header("Status: $code " . self::$httpStatus[$code]);
-        $page = PATH_PUBLIC . '/' . VIEW_ERROR . "/$code.php";
+        $page = PATH_RESOURCE . "/exception/$code.php";
         if (file_exists($page)) die( include $page );
         else {
             $_error = $code . ' ' . self::$httpStatus[$code];
-            die( include PATH_PUBLIC . '/' . VIEW_ERROR . "/system.php" );
+            die( include PATH_RESOURCE . '/exception/system.php' );
         }
         die;
     }

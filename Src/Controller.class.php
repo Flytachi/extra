@@ -16,14 +16,14 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 9.4
+ *  @version 9.5
  *  @author itachi
  *  @package Extra\Src
  */
 abstract class Controller
 {
     /** @var string $template the path to the template */
-    public string $template = VIEW_TEMPLATE;
+    public string $template = RESOURCE_TEMPLATE;
     /** @var array $storage betta test */
     protected array $storage = [];
 
@@ -315,8 +315,8 @@ abstract class Controller
     final protected function render(string $content, mixed $data = null): void
     {
         if(is_array($data)) extract($data);
-        $content = VIEW_FOLDER . "/$content.php";
-        include VIEW_FOLDER . '/' . $this->template;
+        $content = PATH_RESOURCE . "/$content.php";
+        include PATH_RESOURCE . '/' . $this->template;
         if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) $this->debugBar($content, $data);
     }
 
@@ -342,7 +342,7 @@ abstract class Controller
                     <pre><?php print_r([
                             'sapi' => PHP_SAPI,
                             'controller' => get_class($this),
-                            'mainTemplate' => VIEW_FOLDER . '/' . $this->template,
+                            'mainTemplate' => PATH_RESOURCE . '/' . $this->template,
                             'template' => $content,
                             'data' => $data
                         ]) ?></pre>
@@ -419,7 +419,7 @@ abstract class Controller
     final protected function view(string $content, mixed $data = null): void
     {
         if(is_array($data)) extract($data);
-        include VIEW_FOLDER . "/$content.php";
+        include PATH_RESOURCE . "/$content.php";
     }
 
     final protected function renderJson(array $data): never

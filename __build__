@@ -2,28 +2,15 @@
 <?php
 // Версия PHP 8
 if (PHP_VERSION_ID >= 80000) {
-    
-    if (is_dir(__DIR__ . '/.git')) {
-        function gitRmDir($dir): void
-        {
-            if (is_dir($dir)) {
-                $objects = scandir($dir); 
-                foreach ($objects as $object) { 
-                    if ($object != "." && $object != "..") { 
-                        if (filetype($dir."/".$object) == "dir")
-                            gitRmDir($dir."/".$object);
-                        else unlink($dir."/".$object);
-                    }
-                }
-                gitRmDir($dir);
-            }
-        }
 
-        gitRmDir(__DIR__ . '/.git');
+    if (is_dir(__DIR__ . '/.git')) {
+        echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": rm -R " .
+            __DIR__ .
+            "/.git \n";
     }
     
     $ROOT = dirname(__DIR__, 2);
-   
+
     $DIRS = [
         "$ROOT/app/api",
         "$ROOT/app/controllers",
@@ -33,10 +20,10 @@ if (PHP_VERSION_ID >= 80000) {
         "$ROOT/app/logs",
         "$ROOT/app/models",
         "$ROOT/app/repository",
+        "$ROOT/app/resources",
+        "$ROOT/app/resources/exception",
         "$ROOT/public",
         "$ROOT/public/static",
-        "$ROOT/public/views",
-        "$ROOT/public/views/error",
     ];
     $FILES = array(
         "$ROOT/app/defines.php" => "$ROOT/app/extra/Core/Template/Build/defines",
@@ -45,15 +32,15 @@ if (PHP_VERSION_ID >= 80000) {
         "$ROOT/app/bootstrap.php" => "$ROOT/app/extra/Core/Template/Build/bootstrap",
         "$ROOT/.gitignore" => "$ROOT/app/extra/Core/Template/Build/gitignore",
         "$ROOT/box" => "$ROOT/app/extra/Core/Template/Build/box",
+        "$ROOT/app/resources/template.php" => "$ROOT/app/extra/Core/Template/Build/template",
+        "$ROOT/app/resources/exception/system.php" => "$ROOT/app/extra/Core/Template/Build/error",
         //
         "$ROOT/public/.htaccess" => "$ROOT/app/extra/Core/Template/Build/htaccess",
         "$ROOT/public/index.php" => "$ROOT/app/extra/Core/Template/Build/index",
-        "$ROOT/public/views/template.php" => "$ROOT/app/extra/Core/Template/Build/template",
-        "$ROOT/public/views/error/system.php" => "$ROOT/app/extra/Core/Template/Build/error",
     );
 
     foreach ($DIRS as $dirPath) if(!is_dir($dirPath)) mkdir($dirPath);
-    
+
     foreach ($FILES as $filePath => $template) {
         if (!file_exists($filePath)) {
             $fr = fopen($filePath, 'w');
