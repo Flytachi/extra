@@ -1,0 +1,5 @@
+<?php
+
+namespace __NAME__;
+
+const PLUGIN_PREFIX = "__NAME__";

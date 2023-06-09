@@ -24,6 +24,7 @@ if (PHP_VERSION_ID >= 80000) {
         "$ROOT/app/resources/exception",
         "$ROOT/public",
         "$ROOT/public/static",
+        "$ROOT/scripts",
     ];
     $FILES = array(
         "$ROOT/app/defines.php" => "$ROOT/app/extra/Core/Template/Build/defines",

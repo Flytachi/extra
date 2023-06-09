@@ -6,3 +6,11 @@
  *  @value => folder name
  **/
 const GIT_LIBS = [];
+
+
+/**
+ *  Script Array
+ *  @key => script name
+ *  @value => script path (full)
+ **/
+const SCRIPTS = [];

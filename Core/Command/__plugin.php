@@ -43,7 +43,24 @@ class __Plugin
     {
         if (isset($this->name)) {
             if (is_dir(PATH_PLUGIN)) {
-                Core::logText(PATH_PLUGIN . $this->name);
+                $pluginDir = PATH_PLUGIN . '/Frame.' . $this->name;
+                if (!is_dir($pluginDir)) {
+
+                    mkdir($pluginDir);
+                    mkdir($pluginDir . '/api');
+                    mkdir($pluginDir . '/controllers');
+                    mkdir($pluginDir . '/models');
+                    mkdir($pluginDir . '/repository');
+                    mkdir($pluginDir . '/sockets');
+                    $file = dirname(__DIR__) . "/Template/pluginFrame";
+                    $template = str_replace("__NAME__", $this->name, file_get_contents($file));
+
+                    $fp = fopen($pluginDir . '/__frame__.php', "x");
+                    fwrite($fp, $template);
+                    fclose($fp);
+
+                    Core::logMessage("Плагин '". 'Frame.' . $this->name ."' создан.", 32);
+                } else Core::logMessage("Плагин уже существует.");
             }
             else Core::logMessage("Директория для плагинов не существует.");
         }
