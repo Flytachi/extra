@@ -19,7 +19,7 @@ enum API_DATA
  *
  *  Api - api controller
  *
- *  @version 7.5
+ *  @version 7.6
  *  @author itachi
  *  @package Extra\Src
  */
@@ -258,7 +258,18 @@ abstract class Api
                 else Route::ThrowableApi(400, "There is no JSON data in the request.");
                 break;
             case API_DATA::FILE:
-                if ($_FILES) $data = $_FILES;
+                if ($_FILES) {
+                    $data = [];
+                    foreach ($_FILES as $fileName => $fileData) {
+                        $data[$fileName] = [];
+                        foreach ($fileData as $fileDataKey => $fileDataItem) {
+                            if (is_array($fileDataItem)) {
+                                foreach ($fileDataItem as $iKey => $iValue)
+                                    $data[$fileName][$iKey][$fileDataKey] = $iValue;
+                            } else $data[$fileName][$fileDataKey] = $fileDataItem;
+                        }
+                    }
+                }
                 else Route::ThrowableApi(400, "There is no FILE data in the request.");
                 break;
 

@@ -11,15 +11,17 @@ use ReflectionClass;
 use TypeError;
 use Warframe;
 
+/**
+ *  Warframe collection
+ *
+ *  Wrapper
+ *
+ *  @version 4.0
+ *  @author itachi
+ *  @package Extra\Src
+ */
 class Wrapper
 {
-    /**
-     * 
-     * Wrapper
-     * 
-     * @version 3.9
-     */
-
     static int $totalPages;
     static int $currentPage;
     static int $limitPage;
@@ -295,6 +297,13 @@ class Wrapper
             if ((Warframe::$cfg['GLOBAL_SETTING']['DEBUG'])) dd($e);
             else return '';
         }
+    }
+
+    public static function isIntPositive(mixed $value): bool
+    {
+        if (!is_numeric($value)) return false;
+        if ((int) $value > 0) return true;
+        else return false;
     }
 
 }
