@@ -3,6 +3,7 @@
 namespace api;
 
 use Extra\Src\Api;
+use Extra\Src\API_DATA;
 use METHOD;
 use Warframe;
 
@@ -13,7 +14,7 @@ class FirewallApi extends Api
         $this->method(METHOD::POST);
         if ($this->getBearerToken() !== Warframe::$cfg['SECURITY']['PRODUCT_FIRMWARE'])
             $this->responseError(401);
-        if (!($data = $this->requestJson()) ||
+        if (!($data = $this->request(API_DATA::JSON)) ||
             !isset($data->series) ||
             !isset($data->date_from) ||
             !isset($data->date_to) ||

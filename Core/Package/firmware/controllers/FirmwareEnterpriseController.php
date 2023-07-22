@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO\CDN;
 use Extra\Src\Controller;
 use Extra\Src\Route;
 use Extra\Src\Wrapper;
@@ -61,7 +62,7 @@ class FirmwareEnterpriseController extends Controller
         if($pk) $object = $this->getElement($pk);
         else $object = $this->modelObject();
 
-        $webHook = (new FirmwareWebhookRepository)->getBy(['enterprise_id' => $pk]);
+        $webHook = (new FirmwareWebhookRepository)->getBy(CDN::eq('enterprise_id', $pk));
         $this->view('firmware/enterprise/formWebhook', [
             'model' => formObject($object),
             'webHook' => $webHook ? formObject($webHook) : null,
@@ -79,7 +80,10 @@ class FirmwareEnterpriseController extends Controller
         $licenseRepo = (new FirmwareLicenseRepository);
         $licenseRepo->Option("series, date_from, date_to");
         $licenseRepo->Order("id DESC");
-        $license = $licenseRepo->getBy(['is_delete' => 0, 'enterprise_id' => $object->id]);
+        $license = $licenseRepo->getBy(CDN::and(
+            CDN::eq('is_delete', 0),
+            CDN::eq('enterprise_id', $object->id)
+        ));
         if ($license) $license->firmware = EXTRA_KEY;
 
         $curl = curl_init();

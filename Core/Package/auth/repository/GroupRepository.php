@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO\CDN;
 use Extra\Src\Repository;
 
 class GroupRepository extends Repository
@@ -35,7 +36,7 @@ class GroupRepository extends Repository
     {
         parent::updateBody();
         $this->permission();
-        $infos = (new UserInfoRepository)->Where("group_id = ". $this->getPk());
+        $infos = (new UserInfoRepository)->Where(CDN::eq('group_id', $this->getPk()));
         $userModel = new UserRepository;
         foreach ($infos->getAll() as $info) {
             $userModel->setPk($info->user_id);

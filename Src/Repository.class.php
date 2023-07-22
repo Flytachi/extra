@@ -2,6 +2,8 @@
 
 namespace Extra\Src;
 
+use Extra\Src\CDO\CDN;
+use Extra\Src\Type\Cluster;
 use PDO;
 use Throwable;
 use Warframe;
@@ -11,7 +13,7 @@ use Warframe;
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 5.1
+ *  @version 7.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -111,9 +113,7 @@ class Repository
     final public function buildSql(): string
     {
         try {
-            $sql = 'SELECT ';
-            $sql .= array_key_exists('option', $this->CRD_SQL) ? $this->CRD_SQL['option'] : '*';
-            $sql .= ' FROM ' . $this->table;
+            $sql = 'SELECT ' . $this->prepareSelect() . ' FROM ' . $this->table;
             if(array_key_exists('as', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['as'];
             if(array_key_exists('join', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['join']);
             if(array_key_exists('where', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['where']);
@@ -131,17 +131,28 @@ class Repository
         
     }
 
-    final public function getSql(string $param = null): string|null
+    final public function getSql(string $param = null): string|array|null
     {
         if ($param) {
             return (array_key_exists($param, $this->CRD_SQL)) ? $this->CRD_SQL[$param] : null;
         } else return $this->buildSql();
     }
 
-    final public function Option(string $option): self
+    final public function Select(string $option): self
     {
         $this->CRD_SQL['option'] = $option;
         return $this;
+    }
+
+    /**
+     * Old method
+     *
+     * @param string $option
+     * @return self
+     */
+    final public function Option(string $option): self
+    {
+        return $this->Select($option);
     }
 
     final public function As(string $table_as): self
@@ -177,18 +188,12 @@ class Repository
         return $this;
     }
 
-    final public function Where(string|array $context): self
+    final public function Where(CDN $cdn): self
     {
-        $this->CRD_SQL['where'] = 'WHERE ';
-        if (is_array($context)) {
-            foreach ($context as $key => $value) {
-                if(is_array($value)) {
-                    $this->CRD_SQL['where'] .= ($this->CRD_SQL['where'] == "WHERE ") ? "$key IN (" . implode(',', $value) . ") " : "AND $key IN (" . implode(',', $value) . ") ";
-                } else {
-                    $this->CRD_SQL['where'] .= ($this->CRD_SQL['where'] == "WHERE ") ? "$key = '$value' " : "AND $key = '$value' ";
-                }
-            }
-        }else $this->CRD_SQL['where'] .= $context;
+        $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
+        if (array_key_exists('binds', $this->CRD_SQL)) {
+            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$cdn->getCatch()];
+        } else $this->CRD_SQL['binds'] = $cdn->getCatch();
         return $this;
     }
 
@@ -197,6 +202,9 @@ class Repository
         if (array_key_exists('union', $this->CRD_SQL)) {
             $this->CRD_SQL['union'] .= ' UNION ' . $repository->getSql();
         } else $this->CRD_SQL['union'] = 'UNION ' . $repository->getSql();
+        if (array_key_exists('binds', $this->CRD_SQL)) {
+            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$repository->getSql('binds')];
+        } else $this->CRD_SQL['binds'] = $repository->getSql('binds');
         return $this;
     }
 
@@ -214,8 +222,9 @@ class Repository
 
     final public function Limit(int $limit, int $page = 1): self
     {
-        $this->CRD_SQL['limit'] = $limit;
+        if ($page < 1) $this->error('page < 1');
         $this->CRD_SQL['page'] = $page;
+        $this->CRD_SQL['limit'] = $limit;
         return $this;
     }
 
@@ -234,9 +243,15 @@ class Repository
     {
         try {
             if ($data = implode(',', $items)) $this->Option($data);
-            $get = Warframe::$db->query($this->buildSql());
-            $get->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
-            return $get->fetch();
+            $stmt = Warframe::$db->prepare($this->buildSql());
+            $stmt->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
+            // Bind
+            if (array_key_exists('binds', $this->CRD_SQL)) {
+                foreach ($this->CRD_SQL['binds'] as $hash => $value)
+                    $stmt->bindValue($hash, $value);
+            }
+            $stmt->execute();
+            return $stmt->fetch();
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
@@ -245,66 +260,27 @@ class Repository
     final public function getAll(): array|false
     {
         try {
-            return Warframe::$db->query($this->buildSql())->fetchAll(PDO::FETCH_CLASS, $this->getFetchMode());
-        } catch (Throwable $th) {
-            $this->Throwable($th);
-        }
-    }
-
-    // START column is_delete
-    final public function getAllDelete(): array|false
-    {
-        $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
-        if (array_key_exists('where', $this->CRD_SQL))
-            $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 1 AND ', $this->CRD_SQL['where']);
-        else $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 1';
-        return $this->getAll();
-    }
-    
-    final public function getAllNotDelete(): array|false
-    {
-        $as = ($this->getSql('as')) ? $this->getSql('as') . '.' : '';
-        if (array_key_exists('where', $this->CRD_SQL))
-            $this->CRD_SQL['where'] = str_replace('WHERE', 'WHERE ' . $as . 'is_delete = 0 AND ', $this->CRD_SQL['where']);
-        else $this->CRD_SQL['where'] = ' WHERE ' . $as . 'is_delete = 0';
-        return $this->getAll();
-    }
-    // END column is_delete
-
-    final public function getBy(array $params, string|array $item = ''): mixed
-    {
-        try {
-            $where = '';
-            foreach ($params as $key => $value) {
-                if(is_array($value))
-                    $where .= ($where == '') ? "$key IN (" . implode(',', $value) . ") " : "AND $key IN (" . implode(',', $value) . ") ";
-                else $where .= ($where == '') ? "$key = '$value' " : "AND $key = '$value' ";
+            $stmt = Warframe::$db->prepare($this->buildSql());
+            $stmt->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
+            // Bind
+            if (array_key_exists('binds', $this->CRD_SQL)) {
+                foreach ($this->CRD_SQL['binds'] as $hash => $value)
+                    $stmt->bindValue($hash, $value);
             }
-            $this->Where($where);
-            if (!is_array($item)) return $this->get($item);
-            else return call_user_func_array([$this, 'get'], $item);
+            $stmt->execute();
+            return $stmt->fetchAll();
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
     }
 
-    final public function getById(int $id, string|array $item = ''): mixed
+    final public function getBy(CDN $cdn, string|array $item = ''): mixed
     {
         try {
-            $prefix = (array_key_exists('as', $this->CRD_SQL)) ? $this->CRD_SQL['as'].'.' : '';
-            $this->Where($prefix . "id = $id");
+            $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
+            $this->CRD_SQL['binds'] = $cdn->getCatch();
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
-        } catch (Throwable $th) {
-            $this->Throwable($th);
-        }
-    }
-
-    final public function getId(): mixed
-    {
-        try {
-            $this->Option("id");
-            return Warframe::$db->query($this->buildSql())->fetchColumn();
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
@@ -419,6 +395,23 @@ class Repository
     {
         if(Warframe::$db->inTransaction()) Warframe::$db->rollBack();
         Route::Throwable(500,  'Repository: ' . $message);
+    }
+
+    private function prepareSelect(): string
+    {
+        if (array_key_exists('option', $this->CRD_SQL)) return $this->CRD_SQL['option'];
+        else {
+            $values = [];
+            if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
+            else $prefix = '';
+
+            $reflection = new \ReflectionClass($this->getFetchMode());
+            foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+                $values[] = $prefix.Cluster::meta($reflectionProperty);
+            }
+
+            return implode(', ', $values);
+        }
     }
 
 }

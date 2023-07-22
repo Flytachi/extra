@@ -9,7 +9,7 @@ use METHOD;
 enum API_DATA
 {
     case GET;
-    case POST;
+    case FORM;
     case JSON;
     case FILE;
 }
@@ -248,7 +248,7 @@ abstract class Api
                 if ($_GET) $data = $_GET;
                 else Route::ThrowableApi(400, "There is no GET data in the request.");
                 break;
-            case API_DATA::POST:
+            case API_DATA::FORM:
                 if ($_POST) $data = $_POST;
                 else Route::ThrowableApi(400, "There is no POST data in the request.");
                 break;

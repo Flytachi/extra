@@ -40,8 +40,10 @@ class PostmanApi extends Api
 
     private function postmanInfo(): array
     {
+        $FOLDER = basename(PATH_ROOT) . ' API';
         return [
-            'name' => basename(PATH_ROOT) . " API",
+            'name' => $FOLDER,
+            'description' => "# **{$FOLDER}**\n\n**Update Collection:**\n" . SERVER_SCHEME . '/api/postman/collection/' . self::IMPORT_KEY,
             'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
         ];
     }
@@ -61,8 +63,9 @@ class PostmanApi extends Api
         return [
             [
                 'key' => 'wBaseUrl',
-                'value' => Warframe::$cfg['HOSTS'][0],
+                'value' => SERVER_SCHEME,
                 'type' => 'string',
+                'disabled' => false
             ]
         ];
     }
@@ -94,7 +97,7 @@ class PostmanApi extends Api
                                     'method' => $annotations['@postmanMethod'],
                                     'header' => [],
                                     'url' => [
-                                        'raw' => "",
+                                        'raw' => "{{wBaseUrl}}/" . implode('/', $path),
                                         'host' => ["{{wBaseUrl}}"],
                                         'path' => $path
                                     ]
@@ -197,7 +200,7 @@ class PostmanApi extends Api
             'variable' => $this->postmanVariable()
         ];
         $fileBody = json_encode($data);
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $data['info']['name'] . '.postman_collection.json');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');

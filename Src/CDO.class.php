@@ -2,6 +2,7 @@
 
 namespace Extra\Src;
 
+use Extra\Src\Type\Cluster;
 use PDO;
 use PDOException;
 
@@ -10,7 +11,7 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 6.1
+ *  @version 7.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -66,9 +67,25 @@ class CDO extends PDO
      */
     final public function insert(string $table, ModelInterface|array $model): string|false
     {
-        $data = (array) $model;
-        $col = implode(",", array_keys($data));
-        $val = ":".implode(", :", array_keys($data));
+        if ($model instanceof ModelInterface) {
+            $transform = Cluster::transform($model);
+
+            $data = $transform['data'];
+            $col = implode(",", array_keys($data));
+            $val = '';
+            foreach (array_keys($data) as $colValue) {
+                if(array_key_exists($colValue, $transform['wrapper']))
+                    $val .= str_replace('?', ':' . $colValue, $transform['wrapper'][$colValue]) . ', ';
+                else $val .= ':' . $colValue . ', ';
+            }
+            $val = rtrim($val, " ,");
+
+        } else {
+            $data = (array) $model;
+            $col = implode(",", array_keys($data));
+            $val = ":".implode(", :", array_keys($data));
+        }
+
         try {
             $stmt = $this->prepare("INSERT INTO $table ($col) VALUES ($val)");
             foreach ($data as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
@@ -80,6 +97,7 @@ class CDO extends PDO
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
         }
+
     }
 
     /**
@@ -98,12 +116,25 @@ class CDO extends PDO
      */
     final public function update(string $table, ModelInterface|array $model, int|string|array $pk): int|string
     {
-        $data = (array) $model;
-        $set = "";
-        foreach ($data as $key => $value) {
-            $data["S_$key"] = $value; unset($data[$key]);
-            $set .= ", `$key`=:S_$key";
+        if ($model instanceof ModelInterface) {
+            $transform = Cluster::transform($model);
+            $data = $transform['data'];
+            $set = '';
+            foreach ($data as $key => $value) {
+                $data["S_$key"] = $value; unset($data[$key]);
+                if(array_key_exists($key, $transform['wrapper']))
+                    $set .= ", `$key`=". str_replace('?', ':S_' . $key, $transform['wrapper'][$key]);
+                else $set .= ", `$key`=:S_$key";
+            }
+        } else {
+            $data = $model;
+            $set = "";
+            foreach ($data as $key => $value) {
+                $data["S_$key"] = $value; unset($data[$key]);
+                $set .= ", `$key`=:S_$key";
+            }
         }
+
         // Where
         $where = "";
         if(!is_array($pk)) $pk = array('id'=>$pk);

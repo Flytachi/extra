@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO\CDN;
 use Extra\Src\Controller;
 use Extra\Src\Route;
 use Extra\Src\CDO;
@@ -21,7 +22,10 @@ class AuthController extends Controller
         if (empty($_POST['password'])) $this->renderJsonError("User 'password' not found.");
 
         $userModel = new UserRepository;
-        $user = $userModel->getBy(['username' => $_POST['username'], 'is_delete' => 0]);
+        $user = $userModel->getBy(CDN::and(
+            CDN::eq('username', $_POST['username']),
+            CDN::eq('is_delete', 0)
+        ));
 
         if ($user && password_verify($_POST['password'], $user->password)) {
             $_SESSION['id'] = $user->id;

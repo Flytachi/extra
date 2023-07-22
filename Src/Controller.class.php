@@ -2,6 +2,7 @@
 
 namespace Extra\Src;
 
+use Extra\Src\CDO\CDN;
 use METHOD;
 use Random\Randomizer;
 use ReflectionClass;
@@ -16,7 +17,7 @@ use Warframe;
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 9.5
+ *  @version 9.6
  *  @author itachi
  *  @package Extra\Src
  */
@@ -161,7 +162,7 @@ abstract class Controller
      */
     final protected function getElement(int $pk): ModelInterface
     {
-        $object = $this->repo->getById($pk);
+        $object = $this->repo->getBy(CDN::eq('id', $pk));
         if ($object) return $object;
         else Route::Throwable(404, 'Object not found');
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO\CDN;
 use Extra\Src\Repository;
 
 class UserInfoRepository extends Repository
@@ -8,6 +9,6 @@ class UserInfoRepository extends Repository
     
     public function isUser($pk): mixed
     {
-        return $this->getBy(['user_id' => $pk]);
+        return $this->getBy(CDN::eq('user_id', $pk));
     }
 }

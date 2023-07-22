@@ -36,7 +36,7 @@ class FirmwareLicenseController extends Controller
     {
         Route::isAuthAdmin();
         $this->repo->as('l');
-        $this->repo->Option("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
+        $this->repo->Select("l.id, e.name 'enterprise', l.series, l.date_from, l.date_to, l.is_delete");
         $this->repo->JoinLEFT(new FirmwareEnterpriseRepository('e'), 'e.id=l.enterprise_id');
         $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
         $this->view('firmware/license/table', Wrapper::paginatorDecoration($this->repo));
@@ -49,7 +49,7 @@ class FirmwareLicenseController extends Controller
         else $object = $this->modelObject();
         $this->view('firmware/license/form', array(
             'model' => formObject($object),
-            'enterpriseList' => (new FirmwareEnterpriseRepository)->getAllNotDelete(),
+            'enterpriseList' => (new FirmwareEnterpriseRepository)->getAll(),
             'inputCsrf' => $this->csrfTokenInput()
         ));
     }

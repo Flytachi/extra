@@ -1,5 +1,6 @@
 <?php
 
+use Extra\Src\CDO\CDN;
 use Extra\Src\Repository;
 
 class GroupPermissionRepository extends Repository
@@ -9,7 +10,7 @@ class GroupPermissionRepository extends Repository
     public function getAllPermission($pk): array
     {
         $permission = [];
-        $this->Where(['group_id' => $pk]);
+        $this->Where(CDN::eq('group_id', $pk) );
         foreach ($this->getAll() as $value) $permission[] = $value->permission;
         return $permission;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use Extra\Src\CDO;
+use Extra\Src\CDO\CDN;
 use Extra\Src\Controller;
 use Extra\Src\ModelInterface;
 use Extra\Src\Route;
@@ -26,7 +27,7 @@ class PermissionController extends Controller
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
-        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
+        $this->repo->Limit(1, $_GET['CRD_page'] ?? 1);
         $this->view('auth/permission/table', Wrapper::paginatorDecoration($this->repo));
     }
 
@@ -35,7 +36,7 @@ class PermissionController extends Controller
         $this->method(METHOD::GET);
         $this->prepareAuth();
         if($pk) {
-            $object = $this->repo->getBy(array('name'=> $pk));
+            $object = $this->repo->getBy(CDN::eq('name', $pk));
             if (!$object) Route::ErrorPage(404);
         }else $object = $this->modelObject();
 
@@ -57,7 +58,7 @@ class PermissionController extends Controller
         $this->csrfTokenChange();
         if(isset($post['csrf_token'])) unset($post['csrf_token']);
         if ( $pk ) {
-            $object = $this->repo->getBy(['name' => $pk]);
+            $object = $this->repo->getBy(CDN::eq('name', $pk));
             if (!$object) Route::ErrorPage(404);
             $object->reConstruct($post);
             $result = $this->repo->update($pk, $object);
@@ -74,7 +75,7 @@ class PermissionController extends Controller
         $this->method(METHOD::GET);
         $this->prepareAuth();
 
-        $object = $this->repo->getBy(['name' => $pk]);
+        $object = $this->repo->getBy(CDN::eq('name', $pk));
         if (!$object) Route::ErrorPage(404);
         $result = $this->repo->delete($pk);
         $this->renderJsonSuccess($result);

@@ -80,7 +80,6 @@ class Route
      * Start routing system
      *
      * @return void
-     * @throws Throwable
      */
     final static function start(): void
     {
@@ -123,8 +122,6 @@ class Route
      * Checking the post request
      *
      * @return void
-     *
-     * @throws Exception PHP discarded POST data because of request exceeding post_max_size.
      */
     final static function changePostSize(): void
     {
@@ -137,8 +134,6 @@ class Route
      * Standard routing
      *
      * @return never
-     *
-     * @throws Throwable if debugging is enabled, it will return an error message
      */
     final static function routeApp(): never
     {
@@ -179,8 +174,6 @@ class Route
      * Routing for plugins
      *
      * @return never
-     *
-     * @throws Throwable if debugging is enabled, it will return an error message
      */
     final static function routePlugin(): never
     {
@@ -245,8 +238,6 @@ class Route
      *  * array[get] GET params array
      *
      * @return never
-     *
-     * @throws Throwable if debugging is enabled, it will return an error message
      */
     final static function routeApi(array $data): never
     {
