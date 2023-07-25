@@ -29,6 +29,25 @@ use Attribute;
     }
 
     /**
+     * @param PointType $point
+     * @param string $unit (kilometers or miles)
+     * @param int $round
+     * @return float
+     */
+    public function distance(self $point, string $unit = 'km', int $round = 2): float
+    {
+        $theta = $this->y - $point->y;
+        $distance = (sin(deg2rad($this->x)) * sin(deg2rad($point->x))) +
+            (cos(deg2rad($this->x)) * cos(deg2rad($point->x)) * cos(deg2rad($theta)));
+        $distance = rad2deg(acos($distance)) * 60 * 1.1515;
+        switch($unit) {
+            case 'ml': break;
+            case 'km': $distance *= 1.609344;
+        }
+        return (round($distance, $round));
+    }
+
+    /**
      * @return float|int
      */
     public function getX(): float|int
