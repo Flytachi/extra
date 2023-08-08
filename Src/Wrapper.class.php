@@ -16,7 +16,7 @@ use Warframe;
  *
  *  Wrapper
  *
- *  @version 6.0
+ *  @version 6.2
  *  @author itachi
  *  @package Extra\Src
  */
@@ -94,13 +94,24 @@ class Wrapper
         ];
     }
 
-    final static function paginatorDecoration(Repository $repo, string $func = 'getAll'): array
+    final static function paginatorDecoration(Repository $repo): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         return array(
-            'table' => $repo->{$func}(),
+            'table' => $repo->getAll(),
             'panel' => Wrapper::panel($repo)
         );
+    }
+
+    final static function panel(Repository $repo): string
+    {
+        self::init($repo);
+        if (Wrapper::$totalPages <= 1) return '';
+        Wrapper::$params = Wrapper::arrayToUrl($_GET);
+
+        return "<ul class=\"pagination pagination-flat pagination-rounded align-self-center justify-content-center mt-3\" >" .
+            Wrapper::buildPanel()
+            . "</ul>";
     }
 
     final static function urlToArray(string $url): array
@@ -137,22 +148,18 @@ class Wrapper
         $sql = $repo->buildSql();
         self::$currentPage = $repo->getSql('page');
         self::$limitPage = $repo->getSql('limit');
-        self::$totalPages = ceil(
-            Warframe::$db->query(substr($sql, 0, strpos($sql, 'LIMIT')))->rowCount() / self::$limitPage
-        );
-    }
 
-    private static function panel(Repository $repo): string
-    {
-        if ($repo->getSql('limit') > 0) {
-            self::init($repo);
-            if (Wrapper::$totalPages <= 1) return '';
-            Wrapper::$params = Wrapper::arrayToUrl($_GET);
-
-            return "<ul class=\"pagination pagination-flat pagination-rounded align-self-center justify-content-center mt-3\" >" .
-                    Wrapper::buildPanel()
-                . "</ul>";
+        $stmt = Warframe::$db->prepare(substr($sql, 0, strpos($sql, 'LIMIT')));
+        // Bind
+        if ($repo->getSql('binds')) {
+            foreach ($repo->getSql('binds') as $hash => $value)
+                $stmt->bindValue($hash, $value);
         }
+        $stmt->execute();
+
+        self::$totalPages = ceil(
+            $stmt->rowCount() / self::$limitPage
+        );
     }
 
     private static function buildPanel(): string

@@ -11,7 +11,7 @@ use PDOException;
  * 
  *  CDO - update version to PDO
  * 
- *  @version 7.0
+ *  @version 7.3
  *  @author itachi
  *  @package Extra\Src
  */
@@ -20,13 +20,7 @@ class CDO extends PDO
     /**
      * Constructor
      *
-     * @param array $params
-     *  * @param DRIVER
-     *  * @param CHARSET
-     *  * @param HOST
-     *  * @param PORT
-     *  * @param NAME
-     *  * @param USER
+     * @param array $params <@param string DRIVER, @param string HOST, @param int PORT, @param string NAME, @param string USER>
      *
      * @param bool $debug debug mode
      *
@@ -37,12 +31,18 @@ class CDO extends PDO
     function __construct(array $params, bool $debug = false)
     {
         if (is_null($params['DRIVER'])) Route::Throwable(500, 'CDO: Connection - driver not found!');
-        if (is_null($params['CHARSET'])) Route::Throwable(500, 'CDO: Connection - charset not found!');
         if (is_null($params['HOST'])) Route::Throwable(500, 'CDO: Connection - host not found!');
         if (is_null($params['PORT'])) Route::Throwable(500, 'CDO: Connection - port not found!');
         if (is_null($params['NAME'])) Route::Throwable(500, 'CDO: Connection - db name not found!');
         if (is_null($params['USER'])) Route::Throwable(500, 'CDO: Connection - username not found!');
-        $DNS = $params['DRIVER'] . ":host=".$params['HOST'] . ";port=" . $params['PORT'] . ";dbname=" . $params['NAME'] . ";charset=" . $params['CHARSET'];
+        if (array_key_exists('CHARSET', $params) && $params['CHARSET'] != '') {
+            if ($params['DRIVER'] == 'pgsql')
+                $charset = "options='--client_encoding=" . $params['CHARSET'] . "';";
+            else $charset = 'charset=' . $params['CHARSET'] . ';';
+        }
+        else $charset = '';
+
+        $DNS = $params['DRIVER'] . ":host=".$params['HOST'] . ";port=" . $params['PORT'] . ";dbname=" . $params['NAME'] . ";" . $charset;
         $user = $params['USER'];
         $password = $params['PASS'];
         try {
@@ -61,11 +61,11 @@ class CDO extends PDO
      * @param string $table table name in database
      * @param ModelInterface|array $model model or array data
      * 
-     * @return string|false
+     * @return ModelInterface|array
      * 
      * @throws PDOException if debugging is enabled, it will return an error message
      */
-    final public function insert(string $table, ModelInterface|array $model): string|false
+    final public function insert(string $table, ModelInterface|array $model): ModelInterface|array
     {
         if ($model instanceof ModelInterface) {
             $transform = Cluster::transform($model);
@@ -90,10 +90,7 @@ class CDO extends PDO
             $stmt = $this->prepare("INSERT INTO $table ($col) VALUES ($val)");
             foreach ($data as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
             $stmt->execute();
-            $result = $this->lastInsertId();
-            if (!is_numeric($result))
-                Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $result . ')');
-            return $result;
+            return $model;
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
         }
@@ -110,11 +107,11 @@ class CDO extends PDO
      *  * param string field 'id' to database
      *  * param array group(field => value, ...) to database
      * 
-     * @return int|string
+     * @return ModelInterface|array
      * 
      * @throws PDOException if debugging is enabled, it will return an error message
      */
-    final public function update(string $table, ModelInterface|array $model, int|string|array $pk): int|string
+    final public function update(string $table, ModelInterface|array $model, int|string|array $pk): ModelInterface|array
     {
         if ($model instanceof ModelInterface) {
             $transform = Cluster::transform($model);
@@ -150,7 +147,7 @@ class CDO extends PDO
             $result = $stmt->rowCount();
             if (!is_numeric($result))
                 Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $result . ')');
-            return $result;
+            return $model;
         } catch (PDOException $ex) {
             Route::Throwable(500, 'CDO: Error when changing a record in the database (' . $ex->getMessage() . ')');
         }
@@ -182,10 +179,10 @@ class CDO extends PDO
                     $body .= ":$name,";
                     $pk[$name] = $vValue;
                 }
-                $where .= " AND `$key` IN (" . rtrim($body, ',') . ")";
+                $where .= " AND $key IN (" . rtrim($body, ',') . ")";
                 unset($pk[$key]);
 
-            } else $where .= " AND `$key`=:$key";
+            } else $where .= " AND $key=:$key";
         }
 
         // Send

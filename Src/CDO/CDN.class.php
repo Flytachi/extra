@@ -9,7 +9,7 @@ use Extra\Src\RandomGenerator;
  *
  *  CDN - CDO command helper
  *
- *  @version 1.0
+ *  @version 1.2
  *  @author itachi
  *  @package Extra\Src
  */
@@ -18,12 +18,12 @@ class CDN
     private static string $alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
     private static ?RandomGenerator $generator = null;
     private string $prepareData;
-    private array $catch;
+    private array $cache;
 
-    private function __construct(string $temp, array $catch)
+    private function __construct(string $temp, array $cache)
     {
         $this->prepareData = $temp;
-        $this->catch = $catch;
+        $this->cache = $cache;
     }
 
     /**
@@ -35,7 +35,7 @@ class CDN
     {
         return [
             'query' => $this->prepareData,
-            'catch' => $this->catch
+            'cache' => $this->cache
         ];
     }
 
@@ -50,13 +50,13 @@ class CDN
     }
 
     /**
-     * Return Catch Data
+     * Return Cache Data
      *
      * @return array
      */
-    public function getCatch(): array
+    public function getCache(): array
     {
-        return $this->catch;
+        return $this->cache;
     }
 
     /**
@@ -220,7 +220,7 @@ class CDN
     public static function in(string $column, array $array): CDN
     {
         $data = self::prepareIn($array);
-        return new self("{$column} IN ({$data['prepareData']})", $data['catch']);
+        return new self("{$column} IN ({$data['prepareData']})", $data['cache']);
     }
 
     /**
@@ -236,7 +236,7 @@ class CDN
     public static function inNot(string $column, array $array): CDN
     {
         $data = self::prepareIn($array);
-        return new self("{$column} NOT IN ({$data['prepareData']})", $data['catch']);
+        return new self("{$column} NOT IN ({$data['prepareData']})", $data['cache']);
     }
 
     /**
@@ -328,7 +328,7 @@ class CDN
     public static function and(CDN ...$CDNObjects): CDN
     {
         $data = self::logicalPrepare('AND', $CDNObjects);
-        return new self($data['prepareData'], $data['catch']);
+        return new self($data['prepareData'], $data['cache']);
     }
 
     /**
@@ -343,7 +343,7 @@ class CDN
     public static function or(CDN ...$CDNObjects): CDN
     {
         $data = self::logicalPrepare('OR', $CDNObjects);
-        return new self($data['prepareData'], $data['catch']);
+        return new self($data['prepareData'], $data['cache']);
     }
 
     /**
@@ -358,7 +358,7 @@ class CDN
     public static function xor(CDN ...$CDNObjects): CDN
     {
         $data = self::logicalPrepare('XOR', $CDNObjects);
-        return new self($data['prepareData'], $data['catch']);
+        return new self($data['prepareData'], $data['cache']);
     }
 
     /**
@@ -372,7 +372,7 @@ class CDN
      */
     public static function clip(CDN $CDNObject): CDN
     {
-        return new self('(' . $CDNObject->prepareData . ')', $CDNObject->catch);
+        return new self('(' . $CDNObject->prepareData . ')', $CDNObject->cache);
     }
 
     /**
@@ -390,35 +390,46 @@ class CDN
         return new self($query, []);
     }
 
+    /**
+     * Empty CDN
+     *
+     * @return CDN
+     */
+    public static function empty(): CDN
+    {
+        return new self('', []);
+    }
+
     private static function logicalPrepare(string $prefix, array $CDNObjects): array
     {
         $prefix = " {$prefix} ";
         $value = "";
-        $catch = [];
+        $cache = [];
         foreach ($CDNObjects as $CDNObject) {
-            $catch = [...$catch, ...$CDNObject->catch];
+            if ($CDNObject->prepareData == '') continue;
+            $cache = [...$cache, ...$CDNObject->cache];
             $value .= $CDNObject->prepareData . $prefix;
         }
 
         return [
             'prepareData' => rtrim($value, $prefix),
-            'catch' => $catch
+            'cache' => $cache
         ];
     }
     private static function prepareIn(array $arrayItems): array
     {
         $value = "";
-        $catch = [];
+        $cache = [];
 
         foreach ($arrayItems as $item) {
             $hash = self::inject($item);
-            $catch = [...$catch, $hash =>$item];
+            $cache = [...$cache, $hash =>$item];
             $value .= $hash . ',';
         }
 
         return [
             'prepareData' => rtrim($value, ','),
-            'catch' => $catch
+            'cache' => $cache
         ];
     }
 

@@ -27,7 +27,7 @@ class PermissionController extends Controller
     {
         $this->method(METHOD::GET);
         $this->prepareAuth();
-        $this->repo->Limit(1, $_GET['CRD_page'] ?? 1);
+        $this->repo->Limit(10, $_GET['CRD_page'] ?? 1);
         $this->view('auth/permission/table', Wrapper::paginatorDecoration($this->repo));
     }
 

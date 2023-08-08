@@ -11,7 +11,7 @@ class Cluster {
     {
         if (array_key_exists('0', $property->getAttributes())) {
             return self::logic($property, $property->getAttributes()[0]->getName());
-        } else return '`' . $property->getName() . '`';
+        } else return $property->getName();
     }
 
     public static function transform(ModelInterface $model): array

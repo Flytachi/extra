@@ -13,7 +13,7 @@ use Warframe;
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 7.0
+ *  @version 7.5
  *  @author itachi
  *  @package Extra\Src
  */
@@ -28,7 +28,7 @@ class Repository
     private array $CRD_SQL = [];
     /** @var ModelInterface $model element object */
     private ModelInterface $model;
-    
+
     public function __construct($table_As = '')
     {
         $this->loader();
@@ -42,18 +42,18 @@ class Repository
     {
         spl_autoload_register(function($class) {
             $class = explode("\\", $class);
-			if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
-				$file = PATH_PLUGIN . "/Frame." . $class[0] . "/models/" . $class[1] . '.php';
-			} else {
-				$file = PATH_APP . '/models/' . $class[0] . '.php';
-			}
-			if (file_exists($file)) require $file;
+            if (ROUTE_PLUGIN_SYSTEM && count($class) > 1) {
+                $file = PATH_PLUGIN . "/Frame." . $class[0] . "/models/" . $class[1] . '.php';
+            } else {
+                $file = PATH_APP . '/models/' . $class[0] . '.php';
+            }
+            if (file_exists($file)) require $file;
         });
     }
 
     private function cluster(): void
     {
-        if (is_null(Warframe::$db)) 
+        if (is_null(Warframe::$db))
             Warframe::$db = new CDO(Warframe::$cfg['DATABASE'], Warframe::$cfg['GLOBAL_SETTING']['DEBUG']);
     }
 
@@ -62,13 +62,13 @@ class Repository
         SETS AND GETS DATATABLE
     ---------------------------------------------
     */
-    
+
 
     final public function setPk(string $pk): void
     {
         $this->pk = $pk;
     }
-    
+
     final public function getPk(): string
     {
         return $this->pk;
@@ -103,13 +103,18 @@ class Repository
     /*
     ---------------------------------------------
     */
-    
 
-    /*  
+
+    /*
     ---------------------------------------------
         PARAMETERS SQL
     ---------------------------------------------
     */
+    final public function cleanCache(): void
+    {
+        $this->CRD_SQL = [];
+    }
+
     final public function buildSql(): string
     {
         try {
@@ -128,7 +133,6 @@ class Repository
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
-        
     }
 
     final public function getSql(string $param = null): string|array|null
@@ -192,8 +196,8 @@ class Repository
     {
         $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
         if (array_key_exists('binds', $this->CRD_SQL)) {
-            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$cdn->getCatch()];
-        } else $this->CRD_SQL['binds'] = $cdn->getCatch();
+            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$cdn->getCache()];
+        } else $this->CRD_SQL['binds'] = $cdn->getCache();
         return $this;
     }
 
@@ -233,7 +237,7 @@ class Repository
     */
 
 
-    /*  
+    /*
     ---------------------------------------------
         QUERY
     ---------------------------------------------
@@ -278,7 +282,7 @@ class Repository
     {
         try {
             $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
-            $this->CRD_SQL['binds'] = $cdn->getCatch();
+            $this->CRD_SQL['binds'] = $cdn->getCache();
             if (!is_array($item)) return $this->get($item);
             else return call_user_func_array([$this, 'get'], $item);
         } catch (Throwable $th) {
