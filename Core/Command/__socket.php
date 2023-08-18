@@ -6,11 +6,10 @@ class __Socket
 {
     private mixed $argument;
     private mixed $name;
-    private string $PIDstorage = 'pid';
+    private string $PIDStorage = 'pid';
 
     function __construct($value = null, $name = null)
     {
-        Warframe::coreLoader();
         $this->argument = $value;
         $this->name = $name;
         $this->handle();
@@ -31,7 +30,6 @@ class __Socket
             elseif ($this->argument == "status") $this->status();
             else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (Error $e) {
-            dd($e);
             Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
@@ -39,11 +37,7 @@ class __Socket
     private function start(): void
     {
         if ($this->name) {
-
-            $names = explode('\\', $this->name);
-            if (ROUTE_PLUGIN_SYSTEM &&  count($names) != 1) 
-                $socketFile = PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php';
-            else $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+            $socketFile = PATH_APP . '/Sockets/' . $this->name . '.php';
 
             if (file_exists($socketFile)) {
 
@@ -71,15 +65,12 @@ class __Socket
     {
         if ($this->name) {
 
-            $names = explode('\\', $this->name);
-            if (ROUTE_PLUGIN_SYSTEM &&  count($names) != 1) 
-                $socketFile = PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php';
-            else $socketFile = PATH_APP . '/sockets/' . $this->name . '.php';
+            $socketFile = PATH_APP . '/Sockets/' . $this->name . '.php';
             
             if (file_exists($socketFile)) {
                 
                 $selfPID = $this->jsonPIDdata($this->name);
-                if ($selfPID != false) {
+                if ($selfPID) {
                     if (posix_kill($selfPID, SIGKILL)) {
                         $this->jsonDeletePID($selfPID);
                         Core::logMessage("Сокет {$this->name} остановлен.", 32);
@@ -92,51 +83,18 @@ class __Socket
 
     private function run(): void
     {
-        if ($this->name) {
-
-            if (ROUTE_PLUGIN_SYSTEM) {
-                $names = explode('\\', $this->name); 
-                if (count($names) == 1) $this->runSocket($names[0], PATH_APP . '/sockets/' . $this->name . '.php');
-                else $this->runSocket($this->name, PATH_PLUGIN . '/Frame.' . $names[0] . '/sockets/' . $names[1] . '.php');
-            } else $this->runSocket($this->name, PATH_APP . '/sockets/' . $this->name . '.php');
-            
-        } else Core::logMessage("Укажите имя сокета!");
+        if ($this->name)
+            $this->runSocket($this->name, PATH_APP . '/Sockets/' . $this->name . '.php');
+        else Core::logMessage("Укажите имя сокета!");
     }
 
     private function status(): void
     {
-        $appSockets = glob(PATH_APP . '/sockets/*.php');
-
-        if (ROUTE_PLUGIN_SYSTEM) {
-            $pluginSockets = glob(PATH_PLUGIN . '/Frame.*/sockets/*.php');
-            if((count($appSockets) + count($pluginSockets)) == 0) {
-                Core::logMessage("Не найдено ни одного сокета!");
-                return;
-            }
-
-            foreach ($pluginSockets as $socketFile) {
-                include $socketFile;
-                $plugin = str_replace('Frame.','', basename(dirname($socketFile, 2)));
-                $class = basename($socketFile, '.php');
-                $socket = new ($plugin . '\\' . $class);
-                $status = ($socket->statusConnection() ? "\033[34mACTIVE" : "\033[30mPASSIVE");
-                Core::logMessage(
-                    $plugin . '\\' . $class . "\t "
-                    . $socket->getIp() . ':' . $socket->getPort()
-                    . "\t\t " . $status
-                );
-            }
-        } else {
-            if(count($appSockets) == 0) {
-                Core::logMessage("Не найдено ни одного сокета!");
-                return;
-            }
-        }
+        $appSockets = glob(PATH_APP . '/Sockets/*.php');
 
         foreach ($appSockets as $socketFile) {
-            include $socketFile;
             $class = basename($socketFile, '.php');
-            $socket = new $class;
+            $socket = new ("\\Sockets\\" . $class);
             $status = ($socket->statusConnection() ? "\033[34mACTIVE" : "\033[30mPASSIVE");
             Core::logMessage(
                 $class . "\t "
@@ -146,12 +104,11 @@ class __Socket
         }
     }
 
-    private function runSocket(string $name, string $path)
+    private function runSocket(string $name, string $path): void
     {
         if (file_exists($path)) {
-            
-            include $path;
-            $socket = new $name;
+
+            $socket = new ("\\Sockets\\" . $name);
             if ($socket->statusConnection()) Core::logMessage("Сокет уже запущен!");
             else {
                 Core::logMessage("Сокет {$name} запущен!", 32);
@@ -161,9 +118,9 @@ class __Socket
         } else Core::logMessage("Сокет не найден!");
     }
 
-    private function jsonAddPID(int $pid, string $pidName)
+    private function jsonAddPID(int $pid, string $pidName): void
     {
-        $filePath = PATH_APP . '/' . $this->PIDstorage . '.json';
+        $filePath = PATH_APP . '/' . $this->PIDStorage . '.json';
         if (file_exists($filePath)) {
             $data = json_decode(file_get_contents($filePath), 1);
             $data['sockets'][$pid] = $pidName;
@@ -176,9 +133,9 @@ class __Socket
         }
     }
 
-    private function jsonDeletePID(int $pid)
+    private function jsonDeletePID(int $pid): void
     {
-        $filePath = PATH_APP . '/' . $this->PIDstorage . '.json';
+        $filePath = PATH_APP . '/' . $this->PIDStorage . '.json';
         if (file_exists($filePath)) {
             $data = json_decode(file_get_contents($filePath), 1);
             unset($data['sockets'][$pid]);
@@ -187,9 +144,9 @@ class __Socket
         }
     }
 
-    private function jsonPIDdata(string $pidName)
+    private function jsonPIDData(string $pidName): false|int|string
     {
-        $filePath = PATH_APP . '/' . $this->PIDstorage . '.json';
+        $filePath = PATH_APP . '/' . $this->PIDStorage . '.json';
         if (file_exists($filePath)) {
             $data = json_decode(file_get_contents($filePath), 1);
             return array_search($pidName, $data['sockets']);

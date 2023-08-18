@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
-// Версия PHP 8
-if (PHP_VERSION_ID >= 80000) {
+// Версия PHP 8.1
+if (PHP_VERSION_ID >= 80100) {
 
     if (is_dir(__DIR__ . '/.git')) {
         echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": rm -R " .
@@ -12,36 +12,38 @@ if (PHP_VERSION_ID >= 80000) {
     $ROOT = dirname(__DIR__, 2);
 
     $DIRS = [
-        "$ROOT/app/api",
-        "$ROOT/app/controllers",
-        "$ROOT/app/dist",
-        "$ROOT/app/dist/data",
-        "$ROOT/app/libs",
-        "$ROOT/app/logs",
-        "$ROOT/app/models",
-        "$ROOT/app/repository",
-        "$ROOT/app/resources",
-        "$ROOT/app/resources/exception",
+        "$ROOT/app/Apis",
+        "$ROOT/app/Controllers",
+        "$ROOT/app/Libs",
+        "$ROOT/app/Logs",
+        "$ROOT/app/Models",
+        "$ROOT/app/Repositories",
+        "$ROOT/app/Resources",
+        "$ROOT/app/Resources/exception",
+        "$ROOT/app/Services",
         "$ROOT/public",
         "$ROOT/public/static",
         "$ROOT/scripts",
     ];
-    $FILES = array(
-        "$ROOT/app/defines.php" => "$ROOT/app/extra/Core/Template/Build/defines",
-        "$ROOT/app/constants.php" => "$ROOT/app/extra/Core/Template/Build/constants",
-        "$ROOT/app/functions.php" => "$ROOT/app/extra/Core/Template/Build/functions",
-        "$ROOT/app/bootstrap.php" => "$ROOT/app/extra/Core/Template/Build/bootstrap",
-        "$ROOT/.gitignore" => "$ROOT/app/extra/Core/Template/Build/gitignore",
-        "$ROOT/box" => "$ROOT/app/extra/Core/Template/Build/box",
-        "$ROOT/app/resources/template.php" => "$ROOT/app/extra/Core/Template/Build/template",
-        "$ROOT/app/resources/exception/system.php" => "$ROOT/app/extra/Core/Template/Build/error",
-        //
-        "$ROOT/public/.htaccess" => "$ROOT/app/extra/Core/Template/Build/htaccess",
-        "$ROOT/public/index.php" => "$ROOT/app/extra/Core/Template/Build/index",
-    );
-
     foreach ($DIRS as $dirPath) if(!is_dir($dirPath)) mkdir($dirPath);
 
+
+    $FILES = array(
+        "$ROOT/app/defines.php" => "$ROOT/app/Extra/Core/Template/Build/defines",
+        "$ROOT/app/constants.php" => "$ROOT/app/Extra/Core/Template/Build/constants",
+        "$ROOT/app/functions.php" => "$ROOT/app/Extra/Core/Template/Build/functions",
+        "$ROOT/app/database.php" => "$ROOT/app/Extra/Core/Template/Build/database",
+        "$ROOT/app/bootstrap.php" => "$ROOT/app/Extra/Core/Template/Build/bootstrap",
+        "$ROOT/app/.env" => "$ROOT/app/Extra/Core/Template/Build/env",
+        "$ROOT/app/Resources/template.php" => "$ROOT/app/Extra/Core/Template/Build/template",
+        "$ROOT/app/Resources/exception/system.php" => "$ROOT/app/Extra/Core/Template/Build/error",
+        //
+        "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Core/Template/Build/htaccess",
+        "$ROOT/public/index.php" => "$ROOT/app/Extra/Core/Template/Build/index",
+        //
+        "$ROOT/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/gitignore",
+        "$ROOT/box" => "$ROOT/app/Extra/Core/Template/Build/box",
+    );
     foreach ($FILES as $filePath => $template) {
         if (!file_exists($filePath)) {
             $fr = fopen($filePath, 'w');
@@ -54,14 +56,12 @@ if (PHP_VERSION_ID >= 80000) {
         }
     }
 
-    require $ROOT . '/app/extra/Function/Console.php';
-    multiCopy("$ROOT/app/extra/Core/Template/Static", "$ROOT/public/static/warframe");
+    require $ROOT . '/app/Extra/Function/Console.php';
+    multiCopy("$ROOT/app/Extra/Core/Template/Static", "$ROOT/public/static/warframe");
 
-    require $ROOT . '/app/extra/Core/__load__.php';
-    require $ROOT . '/app/extra/Core/Command/__cfg.php';
-    require $ROOT . '/app/extra/Core/Command/__make.php';
+    require $ROOT . '/app/Extra/Core/__load__.php';
+    require $ROOT . '/app/Extra/Core/Command/__make.php';
     require $ROOT . '/app/defines.php';
-    new __Cfg("init");
     new __Make('controller', 'MainController');
 
     echo "\033[32m"." BUILDING SUCCESS.\n";

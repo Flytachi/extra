@@ -1,0 +1,12 @@
+<?php
+
+namespace Services;
+
+use Extra\Src\Service\Service;
+use Repositories\Auth\_ServiceRepository_;
+
+class _ServiceIndex_ extends Service
+{
+    protected _ServiceRepository_ $repo;
+
+}

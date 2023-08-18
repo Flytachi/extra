@@ -6,16 +6,14 @@ const EXTRA_KEY = '__extra_key__';
 // Path
 define('PATH_ROOT', dirname(__DIR__));
 define('PATH_APP', dirname(__DIR__) . '/app');
-define('PATH_PLUGIN', dirname(__DIR__) . '/plugins');
 define('PATH_PUBLIC', dirname(__DIR__) . '/public');
 
 define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
-define('CFG_PATH_CLOSE', dirname(__FILE__) . '/.cfg');
-define('CFG_PATH_OPEN', dirname(__FILE__) . '/setting.ini');
+define('ENV_PATH', dirname(__FILE__) . '/.env');
 
-const PATH_LIB = PATH_APP . '/libs';
-const PATH_LOG = PATH_APP . '/logs';
-const PATH_RESOURCE = PATH_APP . '/resources';
+const PATH_LIB = PATH_APP . '/Libs';
+const PATH_LOG = PATH_APP . '/Logs';
+const PATH_RESOURCE = PATH_APP . '/Resources';
 const PATH_MEDIA = PATH_PUBLIC . '/media';
 
 const RESOURCE_TEMPLATE = 'template.php';
@@ -23,15 +21,9 @@ const RESOURCE_TEMPLATE = 'template.php';
 // Route
 const ROUTE_MAIN_CONTROLLER = 'Main';
 const ROUTE_MAIN_ACTION = 'index';
-const ROUTE_PLUGIN_SYSTEM = false;
 const ROUTE_API_SYSTEM = false;
 
-if (ROUTE_PLUGIN_SYSTEM) {
-    define('ROUTE_PLUGIN_MAIN_CONTROLLER', 'Main');
-    define('ROUTE_PLUGIN_MAIN_ACTION', 'index');
-}
-
-const LOGGER_LOGGING_LEVEL = 'NONE';
+const LOGGER_LOGGING_LEVEL = 'ALL';
 
 // Wrapper
 const WRAPPER_PAGINATION_MAX_LIST = 10;

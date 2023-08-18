@@ -24,10 +24,13 @@ class __Make
     {
         try {
             if     ($this->argument == 'stack')                         $this->mStack();
+            elseif ($this->argument == 'stackFull')                     $this->mStackFull();
             elseif ($this->argument == 'stackApi')                      $this->mStackApi();
+            elseif ($this->argument == 'stackWeb')                      $this->mStackWeb();
             elseif ($this->argument == 'auto')                          $this->mAuto();
             elseif ($this->argument == 'api')                           $this->mApi();
             elseif ($this->argument == 'controller')                    $this->mController();
+            elseif ($this->argument == 'service')                       $this->mService();
             elseif ($this->argument == 'model')                         $this->mModel();
             elseif ($this->argument == 'socket')                        $this->mSocket();
             elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
@@ -35,16 +38,15 @@ class __Make
         } catch (Error) {
            Core::logMessage("Ошибка в скрипте.", 31);
         }
-        
     }
 
     private function mStack(): void
     {
         $name = $this->name;
 
-        $this->name = $name . 'Controller';
-        $this->argument = 'controller';
-        $this->mController();
+        $this->name = $name . 'Service';
+        $this->argument = 'service';
+        $this->mService();
 
         $this->name = $name . 'Model';
         $this->argument = 'model';
@@ -63,6 +65,56 @@ class __Make
         $this->argument = 'api';
         $this->mApi();
 
+        $this->name = $name . 'Service';
+        $this->argument = 'service';
+        $this->mService();
+
+        $this->name = $name . 'Model';
+        $this->argument = 'model';
+        $this->mModel();
+
+        $this->name = $name . 'Repository';
+        $this->argument = 'repository';
+        $this->mRepository();
+    }
+
+    private function mStackWeb(): void
+    {
+        $name = $this->name;
+
+        $this->name = $name . 'Controller';
+        $this->argument = 'controller';
+        $this->mController();
+
+        $this->name = $name . 'Service';
+        $this->argument = 'service';
+        $this->mService();
+
+        $this->name = $name . 'Model';
+        $this->argument = 'model';
+        $this->mModel();
+
+        $this->name = $name . 'Repository';
+        $this->argument = 'repository';
+        $this->mRepository();
+    }
+
+    private function mStackFull(): void
+    {
+        $name = $this->name;
+
+        $this->name = $name . 'Api';
+        $this->argument = 'api';
+        $this->mApi();
+
+        $this->name = $name . 'Controller';
+        $this->argument = 'controller';
+        $this->mController();
+
+        $this->name = $name . 'Service';
+        $this->argument = 'service';
+        $this->mService();
+
         $this->name = $name . 'Model';
         $this->argument = 'model';
         $this->mModel();
@@ -80,6 +132,9 @@ class __Make
         } elseif (strrpos($this->name, 'Controller')) {
             $this->argument = 'controller';
             $this->mController();
+        } elseif (strrpos($this->name, 'Service')) {
+            $this->argument = 'service';
+            $this->mService();
         } elseif (strrpos($this->name, 'Model')) {
             $this->argument = 'model';
             $this->mModel();
@@ -99,7 +154,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/api";
             $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/api', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Apis', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
@@ -110,8 +165,19 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $template = str_replace("_RepositoryIndex_", str_replace('Controller', 'Repository', $this->UC_word($this->name)), $template);
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/controllers', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Controllers', $template);
+        } else Core::logMessage("Укажите имя для шаблона.");
+    }
+
+    private function mService(): void
+    {
+        if ($this->name && !strrpos($this->name, 'Service')) {
+            Core::logMessage("Укажите корректное имя шаблона.");
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/service";
+            $template = str_replace("_ServiceIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_ServiceRepository_", str_replace('Service', 'Repository', $this->name), $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Services', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
@@ -122,7 +188,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/model";
             $template = str_replace("_ModelIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/models', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Models', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
@@ -133,7 +199,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/socket";
             $template = str_replace("_SocketIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/sockets', $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Sockets', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
     
@@ -145,7 +211,8 @@ class __Make
             $file = dirname(__DIR__) . "/Template/repository";
             $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
             $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/repository', $template);
+            $template = str_replace("_RepositoryModel_", str_replace('Repository', 'Model', $this->name), $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Repositories', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
@@ -171,12 +238,15 @@ class __Make
         Core::logLabel("Help");
         Core::logText(":api          -  Создать Api-контроллер.");
         Core::logText(":controller   -  Создать Controller для обработки запросов.");
+        Core::logText(":service      -  Создать Service для работы с логикой.");
         Core::logText(":model        -  Создать Model (слепок таблицы, базы данных).");
         Core::logText(":repository   -  Создать Repository для соединения с базой данных.");
         Core::logText(":socket       -  Создать Socket контроллер.");
         Core::logText(":auto         -  Создать шаблон (определение по названию).");
-        Core::logText(":stack        -  Создать пакет шаблонов (Controller, Model, Repository).");
-        Core::logText(":stackApi     -  Создать пакет шаблонов (Api, Model, Repository).");
+        Core::logText(":stack        -  Создать пакет шаблонов (Service, Model, Repository).");
+        Core::logText(":stackApi     -  Создать пакет шаблонов (Api, Service, Model, Repository).");
+        Core::logText(":stackWeb     -  Создать пакет шаблонов (Controller, Service, Model, Repository).");
+        Core::logText(":stackFull    -  Создать пакет шаблонов (Api, Controller, Service, Model, Repository).");
         Core::logLabel("End");
     }
 

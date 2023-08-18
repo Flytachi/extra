@@ -1,0 +1,14 @@
+<?php
+
+namespace Models\Auth;
+
+use Attribute;
+use Extra\Src\Model;
+use Extra\Src\ModelInterface;
+
+#[Attribute]
+class GroupPermissionModel extends Model implements ModelInterface
+{
+    public int $group_id;
+    public string $permission;
+}

@@ -1,0 +1,22 @@
+<?php
+
+namespace Repositories\Auth;
+
+use Extra\Src\CDO\CDN;
+use Extra\Src\Repository;
+use Models\Auth\GroupPermissionModel;
+
+class GroupPermissionRepository extends Repository
+{
+    public static string $table = 'auth_group_permissions';
+    #[GroupPermissionModel]
+    protected \Extra\Src\ModelInterface $model;
+    
+    public function getAllPermission($pk): array
+    {
+        $permission = [];
+        $this->Where(CDN::eq('group_id', $pk) );
+        foreach ($this->getAll() as $value) $permission[] = $value->permission;
+        return $permission;
+    }
+}

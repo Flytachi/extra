@@ -1,8 +1,6 @@
 <?php
-
-use Extra\Src\Wrapper;
-
 /*
+use Extra\Src\Wrapper;
 
 function dateConvert(string $dataTime): string
 {
@@ -17,7 +15,6 @@ function dateUTC(string $dataTime): string
 function isPermission(string $name): bool
 {
     if (isAdmin()) return true;
-    else return (new UserPermissionRepository)->getPermission($name); 
+    else return (new \Repositories\Auth\UserPermissionRepository)->getPermission($name);
 }
-
 */

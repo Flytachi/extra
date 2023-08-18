@@ -1,0 +1,15 @@
+<?php
+
+use Extra\Src\Artefact\Aegis;
+use Extra\Src\Artefact\Shard;
+
+// Databases
+Aegis::raise("db", new Shard(
+    Warframe::$env['DB_DRIVER'],
+    Warframe::$env['DB_HOST'],
+    Warframe::$env['DB_PORT'],
+    Warframe::$env['DB_NAME'],
+    Warframe::$env['DB_USER'],
+    Warframe::$env['DB_PASS'],
+    Warframe::$env['DB_CHARSET']
+));

@@ -1,6 +1,6 @@
 <?php
 
-function multiCopy($source, $dest, $over=false): void
+function multiCopy(string $source, string $dest, bool $over = false): void
 {
     if(!is_dir($dest)) mkdir($dest);
     if($handle = opendir($source))
@@ -11,7 +11,7 @@ function multiCopy($source, $dest, $over=false): void
             {
                 $path = $source . '/' . $file;
                 if(is_file($path)) {
-                    if(!is_file($dest . '/' . $file || $over)) if(!@copy($path, $dest . '/' . $file)) echo "('.$path.') Ошибка!!! "; 
+                    if(!is_file($dest . '/' . $file || $over)) if(!@copy($path, $dest . '/' . $file)) echo "('.$path.') Ошибка!!! ";
                 } elseif(is_dir($path)) {
                     if(!is_dir($dest . '/' . $file)) mkdir($dest . '/' . $file);
                     multiCopy($path, $dest . '/' . $file, $over);

@@ -14,13 +14,13 @@ class __Install
         $this->handle();
     }
 
-    private function handle()
+    private function handle(): void
     {
         if (!is_null($this->argument)) $this->resolution();
         else $this->help();
     }
 
-    private function resolution()
+    private function resolution(): void
     {
         try {
             if ($this->argument == "git") $this->git();
@@ -31,7 +31,7 @@ class __Install
         }
     }
 
-    private function npm()
+    private function npm(): void
     {
         Core::logLabel("В разработке!");
         // require PATH_APP . '/constants.php';
@@ -40,7 +40,7 @@ class __Install
         // Core::logTitle("=======================", 32);
     }
 
-    private function git()
+    private function git(): void
     {
         require PATH_APP . '/constants.php';
         Core::logTitle("Установка git библиотек", 32);
@@ -57,7 +57,7 @@ class __Install
         Core::logTitle("=======================", 32);
     }
 
-    public function help()
+    public function help(): void
     {
         Core::logLabel("Help");
         Core::logText(":git          -  Установить компоненты \"git\".");

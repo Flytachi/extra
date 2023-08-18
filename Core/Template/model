@@ -1,8 +1,12 @@
 <?php
 
+namespace Models;
+
+use Attribute;
 use Extra\Src\Model;
 use Extra\Src\ModelInterface;
 
+#[Attribute]
 class _ModelIndex_ extends Model implements ModelInterface
 {
     public int|null $id = null;

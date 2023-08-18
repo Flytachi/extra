@@ -10,8 +10,8 @@ function dieConnection($_error = null): never
 
 function cfgGet(): array
 {
-    if (!file_exists(CFG_PATH_CLOSE)) dieConnection("Configuration file not found.");
-    return json_decode(zlib_decode(hex2bin( str_replace("\n", "", file_get_contents(CFG_PATH_CLOSE)) )), true);
+//    if (!file_exists(CFG_PATH_CLOSE)) dieConnection("Configuration file not found.");
+//    return json_decode(zlib_decode(hex2bin( str_replace("\n", "", file_get_contents(CFG_PATH_CLOSE)) )), true);
 }
 
 function dd(mixed ...$value): never
@@ -23,17 +23,6 @@ function dd(mixed ...$value): never
     print_r($value);
     echo '</pre>';
     die();
-}
-
-function parad(string $title, mixed $value = null): void
-{
-    echo '<pre style="background-color: black; color: #00ff00; border-style: solid;',
-        'border-color: #ff0000; border-width: medium;',
-        'white-space: pre-wrap; white-space: -moz-pre-wrap;',
-        'white-space: -o-pre-wrap;word-wrap: break-word;">';
-    echo "<strong style=\"color: #ffffff;\">$title</strong><br>";
-    print_r($value);
-    echo '</pre>';
 }
 
 function getDirContent($dir, $filter = '', &$results = array())
@@ -53,30 +42,11 @@ function getDirContent($dir, $filter = '', &$results = array())
     return $results;
 }
 
-function formObject(object $object): object
-{
-    return Wrapper::formObject($object);
-}
-// *******************
-// * Imports
-// *******************
-
 function importLib(string ...$libs): void
 {
     foreach ($libs as $lib) {
         include PATH_LIB ."/$lib";
     }
-}
-
-// *******************
-// * End Imports
-// *******************
-
-function checkPlugin(string $plugin): bool
-{
-    if(empty($plugin)) return false;
-    $path = PATH_PLUGIN . "/Frame.$plugin";
-    return is_dir($path);
 }
 
 function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE): string

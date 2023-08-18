@@ -28,22 +28,43 @@ class __Component
     
     private function install(): void
     {
-        require dirname(__DIR__, 2) . '/Function/Console.php';
         $root = dirname(__DIR__, 4);
-        $path = dirname(__DIR__) . "/Package/$this->name";
+        $path = dirname(__DIR__) . "/Packages/$this->name";
 
         if (is_dir($path)) {
 
-            if (is_dir("$path/api")) multiCopy("$path/api", "$root/app/api");
-            if (is_dir("$path/controllers")) multiCopy("$path/controllers", "$root/app/controllers");
-            if (is_dir("$path/dist")) multiCopy("$path/dist", "$root/app/dist");
-            if (is_dir("$path/models")) multiCopy("$path/models", "$root/app/models");
-            if (is_dir("$path/repository")) multiCopy("$path/repository", "$root/app/repository");
-            if (is_dir("$path/resources")) multiCopy("$path/resources", PATH_RESOURCE . "/$this->name");
+            if (is_dir("$path/Apis")) $this->multiCopyPHP("$path/Apis", "$root/app/Apis");
+            if (is_dir("$path/Controllers")) $this->multiCopyPHP("$path/Controllers", "$root/app/Controllers");
+            if (is_dir("$path/Services")) $this->multiCopyPHP("$path/Services", "$root/app/Models");
+            if (is_dir("$path/Models")) $this->multiCopyPHP("$path/Models", "$root/app/Models");
+            if (is_dir("$path/Repositories")) $this->multiCopyPHP("$path/Repositories", "$root/app/Repositories");
+            if (is_dir("$path/Resources")) multiCopy("$path/Resources", PATH_RESOURCE . "/$this->name");
             if (is_dir("$path/static")) multiCopy("$path/static", PATH_PUBLIC . "/static/$this->name");
             Core::logMessage("Пакет {$this->name} успешно установлен!", 32);
 
         } else Core::logMessage("Пакет {$this->name} не существует!");
+    }
+
+    private function multiCopyPHP(string $source, string $dest, bool $over = false): void
+    {
+        if(!is_dir($dest)) mkdir($dest);
+        if($handle = opendir($source))
+        {
+            while(false !== ($file = readdir($handle)))
+            {
+                if($file != '.' && $file != '..')
+                {
+                    $path = $source . '/' . $file;
+                    if(is_file($path)) {
+                        if(!is_file($dest . '/' . $file || $over)) if(!@copy($path, $dest . '/' . $file . '.php')) echo "('.$path.') Ошибка!!! ";
+                    } elseif(is_dir($path)) {
+                        if(!is_dir($dest . '/' . $file)) mkdir($dest . '/' . $file);
+                        $this->multiCopyPHP($path, $dest . '/' . $file, $over);
+                    }
+                }
+            }
+            closedir($handle);
+        }
     }
 
     private function help(): void

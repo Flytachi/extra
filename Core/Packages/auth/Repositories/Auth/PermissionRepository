@@ -1,0 +1,24 @@
+<?php
+
+namespace Repositories\Auth;
+
+use Extra\Src\Repository;
+use Models\Auth\PermissionModel;
+use Warframe;
+
+class PermissionRepository extends Repository
+{
+    public static string $table = 'auth_permissions';
+    #[PermissionModel]
+    protected \Extra\Src\ModelInterface $model;
+
+    public function updateBody(): void
+    {
+        Warframe::$db->update($this::$table, $this->getModel(), ['name' => $this->getPk()]);
+    }
+
+    public function deleteBody(): void
+    {
+        Warframe::$db->delete($this::$table, ['name' => $this->getPk()]);
+    }
+}

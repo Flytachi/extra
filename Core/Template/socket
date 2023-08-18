@@ -1,5 +1,7 @@
 <?php
 
+namespace Sockets;
+
 use Extra\Src\WebSocketServer;
 
 class _SocketIndex_ extends WebSocketServer

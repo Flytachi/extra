@@ -1,0 +1,53 @@
+<?php
+
+namespace Apis;
+
+use Extra\Src\Annotation\Postman\PostmanAuth;
+use Extra\Src\Annotation\Postman\PostmanEvent;
+use Extra\Src\Annotation\Postman\PostmanVariable;
+use Extra\Src\Annotation\Postman\Requests\PostmanItem;
+use Extra\Src\Api;
+use Extra\Src\Enum\HttpCode;
+use Extra\Src\Enum\Method;
+use Extra\Src\Route;
+
+class PostmanApi extends Api
+{
+    const IMPORT_KEY = "03mf04yy";
+
+    private function postmanInfo(): array
+    {
+        $FOLDER = basename(PATH_ROOT) . ' API';
+        return [
+            'name' => $FOLDER,
+            'description' => "# **{$FOLDER}**\n\n**Update Collection:**\n" . SERVER_SCHEME . '/api/postman/collection/' . self::IMPORT_KEY,
+            'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        ];
+    }
+
+    public function collection(string $key): void
+    {
+        $this->method(Method::GET);
+        include PATH_APP . '/constants.php';
+        if (self::IMPORT_KEY !== $key) Route::Throwable(HttpCode::NOT_FOUND, "Authorization failed.");
+
+        $data = [
+            'info' => $this->postmanInfo(),
+            'item' => PostmanItem::morph(),
+            'auth' => PostmanAuth::morph(),
+            'event' => PostmanEvent::morph(),
+            'variable' => PostmanVariable::morph(
+                new PostmanVariable('wBaseUrl', SERVER_SCHEME)
+            )
+        ];
+
+        $fileBody = json_encode($data);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $data['info']['name'] . '.postman_collection.json');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Content-Length: ' . strlen($fileBody));
+        file_put_contents('php://output', $fileBody);
+    }
+
+}

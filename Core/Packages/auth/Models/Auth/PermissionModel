@@ -1,0 +1,15 @@
+<?php
+
+namespace Models\Auth;
+
+use Attribute;
+use Extra\Src\Model;
+use Extra\Src\ModelInterface;
+
+#[Attribute]
+class PermissionModel extends Model implements ModelInterface
+{
+    public string $name;
+    public string $description;
+}
+

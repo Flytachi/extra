@@ -1,0 +1,19 @@
+<?php
+
+namespace Repositories\Auth;
+
+use Extra\Src\CDO\CDN;
+use Extra\Src\Repository;
+use \Models\Auth\UserInfoModel;
+
+class UserInfoRepository extends Repository
+{
+    public static string $table = 'user_info';
+    #[UserInfoModel]
+    protected \Extra\Src\ModelInterface $model;
+    
+    public function isUser($pk): mixed
+    {
+        return $this->getBy(CDN::eq('user_id', $pk));
+    }
+}

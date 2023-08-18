@@ -1,40 +1,13 @@
 <?php
 
+namespace Controllers;
+
 use Extra\Src\Controller;
 
 class _ControllerIndex_ extends Controller
 {
-    public _RepositoryIndex_ $repo;
-
-    public bool $onHook = false;
-    public bool $onCsrfHook = false;
-	public bool $onAuthHook = false;
-
-	public bool $onDelete = false;
-	public bool $onAuthDelete = false;
-
-    public bool $onRestore = false;
-	public bool $onAuthRestore = false;
-	
-	public bool $onRemove = false;
-	public bool $onAuthRemove = false;
-
     public function index(): void
     {
         dd("index");
     }
-
-    public function get(?int $pk): void
-	{
-		if ($pk) {
-			header('Content-type: application/json');
-			echo (string) $this->getElement($pk);
-		} else dd("Form in create new element");
-        /*
-        $this->view('.', array(
-            'model' => ($pk) ? $this->getElement($pk) : new $this->repo->modelName,
-            'inputCsrf' => $this->csrfTokenGen()
-        ));
-        */
-	}
 }

@@ -30,9 +30,9 @@ class Core
     private function resolution(): void
     {
         require dirname(__DIR__) . '/warframe.php';
-        require dirname(__DIR__, 2) . '/defines.php';
-        
-        foreach (glob(__DIR__."/$this->command_dir/*") as $filename) require_once $filename;
+        Warframe::coreInit();
+
+        foreach (glob(__DIR__."/$this->command_dir/*.php") as $filename) require_once $filename;
 
         try {
             if ($Class = stristr($this->arguments[1], ":", true)) {
@@ -59,7 +59,10 @@ class Core
     {
         self::logTitle("Welcome to Warframe", 32);
         self::loglabel("Доступные команды:", 32);
-        foreach (glob(__DIR__."/$this->command_dir/*") as $command) self::logText(mb_strtolower(substr(strstr(basename($command), '_'), 2, -4)), 32);
+        foreach (glob(__DIR__."/$this->command_dir/*") as $filePath) {
+            if (is_dir($filePath)) break;
+            else self::logText(mb_strtolower(substr(strstr(basename($filePath), '_'), 2, -4)), 32);
+        }
         self::logTitle("===================", 32);
     }
 

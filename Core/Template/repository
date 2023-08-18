@@ -1,8 +1,13 @@
 <?php
 
-use Extra\Src\Repository;
+namespace Repositories;
+
+use Extra\Src\Repo\Repository;
+use Models\_RepositoryModel_;
 
 class _RepositoryIndex_ extends Repository
 {
-    public string $table = '_RepositoryTable_';
+    public static string $table = '_RepositoryTable_';
+    #[_RepositoryModel_]
+    protected \Extra\Src\ModelInterface $model;
 }

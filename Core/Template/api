@@ -1,15 +1,16 @@
 <?php
 
+namespace Apis;
+
+use Extra\Src\Annotation\Postman\PostmanHead;
 use Extra\Src\Api;
+use Extra\Src\Enum\Method;
 
 class _ApiIndex_ extends Api
 {
     public bool $isSecure = false;
 
-    /**
-     * @postmanName Get Test Request
-     * @postmanMethod GET
-     */
+    #[PostmanHead('Get Test Request', Method::GET)]
     public function get(): void
     {
         $this->responseOk('Api ok');

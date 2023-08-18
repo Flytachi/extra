@@ -1,16 +1,14 @@
 <?php
 
-use Extra\Src\Route;
+require 'Extra/warframe.php';
 
-require 'extra/warframe.php';
+Warframe::init();
 
-Warframe::loader();
-
-if (Warframe::$cfg['GLOBAL_SETTING']['DEBUG']) {
+if (Warframe::$env['DEBUG']) {
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
 }
 
 // run Route
-Route::start();
+Extra\Src\Route::start();

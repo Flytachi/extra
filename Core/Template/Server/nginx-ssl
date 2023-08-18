@@ -41,4 +41,10 @@ server {
         fastcgi_param DOCUMENT_ROOT $realpath_root;
         fastcgi_param SCRIPT_FILENAME       $realpath_root$fastcgi_script_name;
     }
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Set the default content type to HTML
+    default_type text/html;
 }
