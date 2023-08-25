@@ -16,7 +16,7 @@ abstract class Service
      *
      * @return void
      */
-    final function __construct()
+    public function __construct()
     {
         $reflect = new ReflectionClass($this);
         foreach ($reflect->getProperties() as $property) {

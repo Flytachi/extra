@@ -3,9 +3,12 @@
 namespace Controllers;
 
 use Extra\Src\Controller;
+use Services\_ControllerService_;
 
 class _ControllerIndex_ extends Controller
 {
+    protected _ControllerService_ $service;
+
     public function index(): void
     {
         dd("index");

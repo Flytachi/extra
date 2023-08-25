@@ -45,7 +45,7 @@ class PostmanItem implements Postman
                     }
 
                     foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {
-                        if ($apiMethod->name != '__construct') {
+                        if (!$apiMethod->isStatic() && $apiMethod->name != '__construct') {
                             // params
                             $path = ["api", lcfirst($apiUrl), $apiMethod->name];
                             foreach ($apiMethod->getParameters() as $parameter)

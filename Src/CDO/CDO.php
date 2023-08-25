@@ -33,12 +33,6 @@ class CDO extends PDO
      */
     function __construct(Shard $shard, bool $debug = false)
     {
-//        if (is_null($params['DRIVER'])) Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Connection - driver not found!');
-//        if (is_null($params['HOST']))   Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Connection - host not found!');
-//        if (is_null($params['PORT']))   Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Connection - port not found!');
-//        if (is_null($params['NAME']))   Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Connection - db name not found!');
-//        if (is_null($params['USER']))   Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Connection - username not found!');
-
         try {
             parent::__construct($shard->getDNS(), $shard->getUsername(), $shard->getPassword());
             $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

@@ -10,5 +10,4 @@ use Extra\Src\ModelInterface;
 class _ModelIndex_ extends Model implements ModelInterface
 {
     public int|null $id = null;
-    public int $is_delete = 0;
 }

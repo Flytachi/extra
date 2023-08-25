@@ -36,7 +36,7 @@ class __Make
             elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
             else Core::logMessage("Шаблона '{$this->argument}' не существует!");
         } catch (Error) {
-           Core::logMessage("Ошибка в скрипте.", 31);
+            Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
 
@@ -154,6 +154,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/api";
             $template = str_replace("_ApiIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_ApiService_", str_replace('Api', 'Service', $this->name), $template);
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Apis', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
@@ -165,6 +166,7 @@ class __Make
         }elseif ($this->name) {
             $file = dirname(__DIR__) . "/Template/controller";
             $template = str_replace("_ControllerIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_ControllerService_", str_replace('Controller', 'Service', $this->name), $template);
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Controllers', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
@@ -202,7 +204,7 @@ class __Make
             $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Sockets', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
-    
+
     private function mRepository(): void
     {
         if ($this->name && !strrpos($this->name, 'Repository')) {

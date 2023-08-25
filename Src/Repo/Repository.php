@@ -6,6 +6,7 @@ use Extra\Src\Artefact\Aegis;
 use Extra\Src\CDO\CDN;
 use Extra\Src\CDO\CDO;
 use Extra\Src\Enum\HttpCode;
+use Extra\Src\Model;
 use Extra\Src\ModelInterface;
 use Extra\Src\Route;
 use Extra\Src\Type\Cluster;
@@ -53,7 +54,7 @@ class Repository
         $property = new ReflectionProperty($this, 'model');
 
         if (array_key_exists('0', $property->getAttributes())) {
-            $model = $property->getAttributes()[0]->getName();
+            $model = '\\'. $property->getAttributes()[0]->getName();
             if (class_exists($model)) {
                 if (count($this->CRD_SQL) == 0) return $model;
                 else {
@@ -61,12 +62,12 @@ class Repository
                         array_key_exists('option', $this->CRD_SQL) ||
                         array_key_exists('join', $this->CRD_SQL) ||
                         array_key_exists('union', $this->CRD_SQL)
-                    )    return __NAMESPACE__ . '\Model';
+                    )    return Model::class;
                     else return $model;
                 }
-            } else return __NAMESPACE__ . '\Model';
+            } else return Model::class;
         }
-        else return __NAMESPACE__ . '\Model';
+        else return Model::class;
     }
 
 

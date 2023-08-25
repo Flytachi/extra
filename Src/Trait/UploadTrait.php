@@ -24,11 +24,11 @@ trait UploadTrait {
     final protected function uploadFile(array $file, ?string $prefixFolder = null): string
     {
         if( !is_dir(PATH_MEDIA) ) mkdir(PATH_MEDIA, 0777, true);
-        $uploadFolder = PATH_MEDIA;
+        $uploadFolder = '';
 
         if ($prefixFolder) {
-            $uploadFolder .= '/' . $prefixFolder;
-            if( !is_dir(PATH_MEDIA . '/' . $uploadFolder ) ) mkdir(PATH_MEDIA . '/' . $uploadFolder, 0777, true);
+            $uploadFolder .= $prefixFolder;
+            if( !is_dir(PATH_MEDIA . '/' . $uploadFolder) ) mkdir(PATH_MEDIA . '/' . $uploadFolder, 0777, true);
         }
 
         if ( $file['name'] ) {
