@@ -2,8 +2,8 @@
 
 namespace Extra\Src;
 
-use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\HttpStatus;
+use Extra\Src\Log\LoggerBase;
+use Extra\Src\Log\LoggerInterface;
 
 /**
  *  Warframe collection
@@ -14,34 +14,12 @@ use Extra\Src\Enum\HttpStatus;
  *  * ERROR - logging only errors
  *  * WARNING - logging errors and warnings
  *
- * 	@version 2.0
+ * 	@version 3.0
  * 	@author itachi
  * 	@package Extra\Src
  */
-class Logger
+class Logger extends LoggerBase implements LoggerInterface
 {
-    /**
-     * @var false|resource $resource
-     */
-    private static $resource;
-
-    private static function init(string $fileName): void
-    {
-        if (!is_writable(PATH_LOG)) {
-            $status = HttpStatus::status(HttpCode::from(500));
-            header("HTTP/1.1 500 " . $status);
-            header("Status: 500 " . $status);
-            dd("The \"Logs\" folder does not have write access");
-        }
-        if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
-        $file = PATH_LOG . '/' . $fileName . '.txt';
-        if (!file_exists($file)) {
-            file_put_contents($file,'');
-            chmod($file,0777);
-        }
-        self::$resource = fopen($file, 'a');
-    }
-
     /**
      * Logging Function
      *
@@ -70,33 +48,6 @@ class Logger
     }
 
     /**
-     * Logging Api Function
-     *
-     * The function itself determines which logging level to use
-     *
-     * @param int $httpCodeValue index http error code
-     * @param string $message message logging
-     *
-     * @return void
-     */
-    public final static function loggingApi(int $httpCodeValue, string $message): void
-    {
-        if (LOGGER_LOGGING_LEVEL != 'NONE') {
-            $st = (int)($httpCodeValue / 100);
-            if (LOGGER_LOGGING_LEVEL == 'ALL') {
-                if ($st == 5) self::errorApi($message);
-                elseif ($st == 4) self::warningApi($message);
-                else self::infoApi($message);
-            } elseif (LOGGER_LOGGING_LEVEL == 'WARNING') {
-                if ($st == 5) self::errorApi($message);
-                elseif ($st == 4) self::warningApi($message);
-            } elseif (LOGGER_LOGGING_LEVEL == 'ERROR') {
-                if ($st == 5) self::errorApi($message);
-            }
-        }
-    }
-
-    /**
      * Logging Error
      *
      * @param string $message message logging
@@ -107,22 +58,6 @@ class Logger
     {
         if (self::$resource !== false) {
             self::init('error');
-            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-            fwrite(self::$resource, $message);
-        }
-    }
-
-    /**
-     * Logging Error Api
-     *
-     * @param string $message message logging
-     *
-     * @return void
-     */
-    public final static function errorApi(string $message): void
-    {
-        if (self::$resource !== false) {
-            self::init('error-api');
             $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
             fwrite(self::$resource, $message);
         }
@@ -145,22 +80,6 @@ class Logger
     }
 
     /**
-     * Logging Warning Api
-     *
-     * @param string $message message logging
-     *
-     * @return void
-     */
-    public final static function warningApi(string $message): void
-    {
-        if (self::$resource !== false) {
-            self::init('warning-api');
-            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-            fwrite(self::$resource, $message);
-        }
-    }
-
-    /**
      * Logging Info
      *
      * @param string $message message logging
@@ -175,21 +94,4 @@ class Logger
             fwrite(self::$resource, $message);
         }
     }
-
-    /**
-     * Logging Info Api
-     *
-     * @param string $message message logging
-     *
-     * @return void
-     */
-    public final static function infoApi(string $message): void
-    {
-        if (self::$resource !== false) {
-            self::init('info-api');
-            $message = '[' . date('r') . '] | ' . $message . PHP_EOL;
-            fwrite(self::$resource, $message);
-        }
-    }
-
 }

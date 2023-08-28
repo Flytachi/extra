@@ -22,6 +22,13 @@ abstract class Job
     /** @var string $pidPath file path */
     private string $pidPath = PATH_APP . '/pid.json';
 
+    protected static JobLogger $log;
+
+    public function __construct()
+    {
+        static::$log = new JobLogger(static::class);
+    }
+
     /**
      * Start Job (sync)
      *
@@ -35,8 +42,13 @@ abstract class Job
     {
         $job = new static();
         $job->startRun();
-        $job->run($data);
-        $job->endRun();
+        try {
+            $job->run($data);
+        } catch (\Throwable $e) {
+            static::$log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+        } finally {
+            $job->endRun();
+        }
         return $job->pid;
     }
 
@@ -70,7 +82,7 @@ abstract class Job
      */
     protected function run(mixed $data = null): void
     {
-        Logger::info("RUN Job [" . $this->pid . "] => ". self::class);
+        static::$log::info("RUN [" . $this->pid . "]");
     }
 
     private function startRun(): void
@@ -90,6 +102,7 @@ abstract class Job
                 chmod($this->pidPath, 0777);
             }
         }
+        static::$log::info("START [" . $this->pid . "]");
     }
 
     private function endRun(): void
@@ -100,6 +113,7 @@ abstract class Job
             $jsonData = json_encode($data, JSON_PRETTY_PRINT);
             file_put_contents($this->pidPath, $jsonData);
         }
+        static::$log::info("END [" . $this->pid . "]");
     }
 
 }

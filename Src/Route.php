@@ -246,7 +246,7 @@ class Route
         header("Access-Control-Allow-Methods: *");
         header("Content-Type: application/json");
 
-        Logger::loggingApi($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . json_encode($data));
+        Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . json_encode($data));
         $debug = self::debugApi();
         echo json_encode([
             'statusCode' => $httpCode->value,
@@ -283,7 +283,7 @@ class Route
             header("Access-Control-Allow-Methods: *");
             header("Content-Type: application/json");
 
-            Logger::loggingApi($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $title);
+            Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $title);
             $debug = self::debugApi();
             $message = self::getThrowableMessage($httpCode->value, $title, true);
             $debug['debug'] = [...$debug['debug'], ...['exception' => $message['body']]];
