@@ -1,0 +1,13 @@
+<?php
+
+namespace Jobs;
+
+use Extra\Src\Job\Job;
+
+class _JobIndex_ extends Job
+{
+    protected function run(): void
+    {
+        parent::run();
+    }
+}

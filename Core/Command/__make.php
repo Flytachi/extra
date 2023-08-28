@@ -33,6 +33,7 @@ class __Make
             elseif ($this->argument == 'service')                       $this->mService();
             elseif ($this->argument == 'model')                         $this->mModel();
             elseif ($this->argument == 'socket')                        $this->mSocket();
+            elseif ($this->argument == 'job')                           $this->mJob();
             elseif (in_array($this->argument, ['repo', 'repository']))  $this->mRepository();
             else Core::logMessage("Шаблона '{$this->argument}' не существует!");
         } catch (Error) {
@@ -194,6 +195,19 @@ class __Make
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
+    private function mRepository(): void
+    {
+        if ($this->name && !strrpos($this->name, 'Repository')) {
+            Core::logMessage("Укажите корректное имя шаблона.");
+        }elseif ($this->name) {
+            $file = dirname(__DIR__) . "/Template/repository";
+            $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
+            $template = str_replace("_RepositoryModel_", str_replace('Repository', 'Model', $this->name), $template);
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Repositories', $template);
+        } else Core::logMessage("Укажите имя для шаблона.");
+    }
+
     private function mSocket(): void
     {
         if ($this->name && !strrpos($this->name, 'Socket')) {
@@ -205,16 +219,14 @@ class __Make
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
-    private function mRepository(): void
+    private function mJob()
     {
-        if ($this->name && !strrpos($this->name, 'Repository')) {
+        if ($this->name && !strrpos($this->name, 'Job')) {
             Core::logMessage("Укажите корректное имя шаблона.");
         }elseif ($this->name) {
-            $file = dirname(__DIR__) . "/Template/repository";
-            $template = str_replace("_RepositoryIndex_", $this->UC_word($this->name), file_get_contents($file));
-            $template = str_replace("_RepositoryTable_", strtolower(str_replace('Repository', 's', $this->name)), $template);
-            $template = str_replace("_RepositoryModel_", str_replace('Repository', 'Model', $this->name), $template);
-            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Repositories', $template);
+            $file = dirname(__DIR__) . "/Template/job";
+            $template = str_replace("_JobIndex_", $this->UC_word($this->name), file_get_contents($file));
+            $this->create_file($this->UC_word($this->name), basename(dirname(__DIR__, 3)) . '/Jobs', $template);
         } else Core::logMessage("Укажите имя для шаблона.");
     }
 
@@ -244,6 +256,7 @@ class __Make
         Core::logText(":model        -  Создать Model (слепок таблицы, базы данных).");
         Core::logText(":repository   -  Создать Repository для соединения с базой данных.");
         Core::logText(":socket       -  Создать Socket контроллер.");
+        Core::logText(":job          -  Создать Job контроллер.");
         Core::logText(":auto         -  Создать шаблон (определение по названию).");
         Core::logText(":stack        -  Создать пакет шаблонов (Service, Model, Repository).");
         Core::logText(":stackApi     -  Создать пакет шаблонов (Api, Service, Model, Repository).");
