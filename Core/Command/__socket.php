@@ -130,6 +130,7 @@ class __Socket
             $file = fopen($filePath, "x");
             $data = ['sockets' => [$pid=>$pidName]];
             fwrite($file, json_encode($data, JSON_PRETTY_PRINT));
+            chmod($filePath, 0777);
         }
     }
 
