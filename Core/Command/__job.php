@@ -38,8 +38,8 @@ class __job
         if ($this->name) {
 
             $processId = exec(sprintf(
-                '%s > %s 2>&1 & echo $!',
-                "php -q box job:run " . str_replace('\\', '\\\\', $this->name),
+                'php -q ../box job:run %s > %s 2>&1 & echo $!',
+                str_replace('\\', '\\\\', static::class),
                 "/dev/null"
             ));
             Core::logMessage("Задача {$this->name} запущена!", 32);
@@ -50,7 +50,10 @@ class __job
 
     private function run(): void
     {
-        if ($this->name) ($this->name)::start();
+        global $argv;
+        $data = (array_key_exists(3, $argv)) ?
+            json_decode(htmlspecialchars_decode($argv[3]), 1) : null;
+        if ($this->name) ($this->name)::start($data);
         else Core::logMessage("Укажите имя задачи!");
     }
 
@@ -59,7 +62,7 @@ class __job
         Core::logLabel("Help");
         Core::logText(":run          -  Запустить сокет сервер.");
         Core::logText(":start        -  Запустить сокет сервер в фоновом процессе.");
-        Core::logText(":status       -  Статус сокетов.");
+//        Core::logText(":status       -  Статус сокетов.");
         Core::logLabel("End");
     }
 

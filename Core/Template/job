@@ -6,8 +6,8 @@ use Extra\Src\Job\Job;
 
 class _JobIndex_ extends Job
 {
-    protected function run(): void
+    protected function run(mixed $data = null): void
     {
-        parent::run();
+        parent::run($data);
     }
 }

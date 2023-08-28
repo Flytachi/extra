@@ -15,6 +15,8 @@ use Extra\Src\Logger;
  */
 abstract class Job
 {
+    /** @var bool $savePid Save TMP System process id */
+    protected bool $savePid = false;
     /** @var int $pid System process id */
     protected int $pid;
     /** @var string $pidPath file path */
@@ -25,13 +27,15 @@ abstract class Job
      *
      * Running a task
      *
+     * @param mixed|null $data
+     *
      * @return int pid
      */
-    public static function start(): int
+    public static function start(mixed $data = null): int
     {
         $job = new static();
         $job->startRun();
-        $job->run();
+        $job->run($data);
         $job->endRun();
         return $job->pid;
     }
@@ -41,13 +45,16 @@ abstract class Job
      *
      * Running a task in the background
      *
+     * @param mixed|null $data
+     *
      * @return int pid
      */
-    public static function dispatch(): int
+    public static function dispatch(mixed $data = null): int
     {
         return exec(sprintf(
-            '%s > %s 2>&1 & echo $!',
-            "php -q ../box job:run " . str_replace('\\', '\\\\', static::class),
+            'php -q ../box job:run %s "%s" > %s 2>&1 & echo $!',
+            str_replace('\\', '\\\\', static::class),
+            (($data) ? htmlspecialchars(json_encode($data)): null),
             "/dev/null"
         ));
     }
@@ -57,9 +64,11 @@ abstract class Job
      *
      * Body task
      *
+     * @param mixed|null $data
+     *
      * @return void
      */
-    protected function run(): void
+    protected function run(mixed $data = null): void
     {
         Logger::info("RUN Job [" . $this->pid . "] => ". self::class);
     }
@@ -68,22 +77,24 @@ abstract class Job
     {
         $this->pid = getmypid();
 
-        if (file_exists($this->pidPath)) {
-            $data = json_decode(file_get_contents($this->pidPath), 1);
-            $data['jobs'][$this->pid] = static::class;
-            $jsonData = json_encode($data, JSON_PRETTY_PRINT);
-            file_put_contents($this->pidPath, $jsonData);
-        } else {
-            $file = fopen($this->pidPath, "x");
-            $data = ['jobs' => [$this->pid => static::class]];
-            fwrite($file, json_encode($data, JSON_PRETTY_PRINT));
-            chmod($this->pidPath, 0777);
+        if ($this->savePid) {
+            if (file_exists($this->pidPath)) {
+                $data = json_decode(file_get_contents($this->pidPath), 1);
+                $data['jobs'][$this->pid] = static::class;
+                $jsonData = json_encode($data, JSON_PRETTY_PRINT);
+                file_put_contents($this->pidPath, $jsonData);
+            } else {
+                $file = fopen($this->pidPath, "x");
+                $data = ['jobs' => [$this->pid => static::class]];
+                fwrite($file, json_encode($data, JSON_PRETTY_PRINT));
+                chmod($this->pidPath, 0777);
+            }
         }
     }
 
     private function endRun(): void
     {
-        if (file_exists($this->pidPath)) {
+        if ($this->savePid && file_exists($this->pidPath)) {
             $data = json_decode(file_get_contents($this->pidPath), 1);
             unset($data['jobs'][$this->pid]);
             $jsonData = json_encode($data, JSON_PRETTY_PRINT);
