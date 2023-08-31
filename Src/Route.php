@@ -16,7 +16,7 @@ use Warframe;
  *
  *  Route - routing system
  *
- * 	@version 15.0
+ * 	@version 15.1
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -237,6 +237,7 @@ class Route
      */
     final static function ApiResponse(HttpCode $httpCode, mixed $data = null): never
     {
+        if($httpCode->value >= 400) self::Throwable($httpCode, $data ?? $httpCode->name);
         $status = HttpStatus::status($httpCode);
         header_remove("X-Powered-By");
         header("HTTP/1.1 {$httpCode->value} " . $status);
@@ -266,11 +267,11 @@ class Route
      * If debugging is disabled it will return an error page with the specified code
      *
      * @param HttpCode $httpCode
-     * @param string $title error description
+     * @param string $message error description
      *
      * @return never
      */
-    final static function Throwable(HttpCode $httpCode, string $title): never
+    final static function Throwable(HttpCode $httpCode, string $message): never
     {
         $status = HttpStatus::status($httpCode);
         header("HTTP/1.1 {$httpCode->value} " . $status);
@@ -283,27 +284,27 @@ class Route
             header("Access-Control-Allow-Methods: *");
             header("Content-Type: application/json");
 
-            Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $title);
+            Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $message);
             $debug = self::debugApi();
-            $message = self::getThrowableMessage($httpCode->value, $title, true);
-            $debug['debug'] = [...$debug['debug'], ...['exception' => $message['body']]];
+            $exception = self::getThrowableMessage($httpCode->value, $message, true);
+            $debug['debug'] = [...$debug['debug'], ...['exception' => $exception['body']]];
             echo json_encode([
                 'statusCode' => $httpCode->value,
                 'statusDescription' => $status,
-                'data' => $title,
+                'message' => $message,
                 ...$debug
             ]);
 
         } else {
-            Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $title);
+            Logger::logging($httpCode->value, $_SERVER['REQUEST_URI'] . ' => ' . $message);
 
             if (Warframe::$env['DEBUG']) {
-                $message = self::getThrowableMessage($httpCode->value, $title);
-                echo $message['before'];
+                $exception = self::getThrowableMessage($httpCode->value, $message);
+                echo $exception['before'];
                 echo "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message</strong><hr>";
-                print_r($message['title']);
-                print_r($message['body']);
-                echo '<hr>' . $message['after'];
+                print_r($exception['title']);
+                print_r($exception['body']);
+                echo '<hr>' . $exception['after'];
             } else {
                 $page = PATH_RESOURCE . "/exception/{$httpCode->value}.php";
                 if (file_exists($page)) die( include $page );
