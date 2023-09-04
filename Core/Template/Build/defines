@@ -5,14 +5,16 @@ const EXTRA_KEY = '__extra_key__';
 
 // Path
 define('PATH_ROOT', dirname(__DIR__));
-define('PATH_APP', dirname(__DIR__) . '/app');
-define('PATH_PUBLIC', dirname(__DIR__) . '/public');
+define('PATH_APP', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app');
+define('PATH_PUBLIC', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'public');
+define('PATH_STORAGE', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage');
+define('ENV_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR . '.env');
 
-define('LICENSE_PATH_KEY', dirname(__FILE__) . '/license.crt');
-define('ENV_PATH', dirname(__FILE__) . '/.env');
+// Storage
+const PATH_CACHE = PATH_STORAGE . DIRECTORY_SEPARATOR . 'cache';
+const PATH_LOG = PATH_STORAGE . DIRECTORY_SEPARATOR . 'logs';
 
 const PATH_LIB = PATH_APP . '/Libs';
-const PATH_LOG = PATH_APP . '/Logs';
 const PATH_RESOURCE = PATH_APP . '/Resources';
 const PATH_MEDIA = PATH_PUBLIC . '/media';
 

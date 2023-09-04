@@ -51,8 +51,11 @@ class __job
     private function run(): void
     {
         global $argv;
-        $data = (array_key_exists(3, $argv)) ?
-            json_decode(htmlspecialchars_decode($argv[3]), 1) : null;
+        if (array_key_exists(3, $argv)) {
+            $filePath = PATH_CACHE . '/' . $argv[3];
+            $data = unserialize(file_get_contents($filePath));
+            unlink($filePath);
+        } else $data = null;
         if ($this->name) ($this->name)::start($data);
         else Core::logMessage("Укажите имя задачи!");
     }

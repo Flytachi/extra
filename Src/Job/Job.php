@@ -26,6 +26,7 @@ abstract class Job
 
     public function __construct()
     {
+        if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE, 0777, true);
         static::$log = new JobLogger(static::class);
     }
 
@@ -63,10 +64,16 @@ abstract class Job
      */
     public static function dispatch(mixed $data = null): int
     {
+        if ($data) {
+            $fileName = uniqid("jobCache-");
+            $filePath = PATH_CACHE . '/' . $fileName;
+            file_put_contents($filePath, serialize($data));
+            chmod($filePath, 0777);
+        }
         return exec(sprintf(
-            'php -q ../box job:run %s "%s" > %s 2>&1 & echo $!',
+            'php -q ../box job:run %s %s > %s 2>&1 & echo $!',
             str_replace('\\', '\\\\', static::class),
-            (($data) ? htmlspecialchars(json_encode($data)): null),
+            (($data) ? $fileName:''),
             "/dev/null"
         ));
     }
