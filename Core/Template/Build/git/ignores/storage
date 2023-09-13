@@ -1,4 +1,4 @@
 *
 !.gitignore
 !cache/
-!storage/
+!logs/
