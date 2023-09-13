@@ -20,9 +20,12 @@ if (PHP_VERSION_ID >= 80100) {
         "$ROOT/app/Resources",
         "$ROOT/app/Resources/exception",
         "$ROOT/app/Services",
+
         "$ROOT/public",
         "$ROOT/public/media",
         "$ROOT/public/static",
+
+        "$ROOT/storage",
         "$ROOT/storage/cache",
         "$ROOT/storage/logs",
     ];
