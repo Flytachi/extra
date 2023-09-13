@@ -21,11 +21,11 @@ class JobLogger extends LoggerBase implements LoggerInterface
             $status = HttpStatus::status(HttpCode::from(500));
             header("HTTP/1.1 500 " . $status);
             header("Status: 500 " . $status);
-            dd("The \"Logs\" folder does not have write access");
+            dd("The \"storage\" folder does not have write access");
         }
 
         $exp = explode('\\', $fileName);
-        $file = array_pop($exp) . '.txt';
+        $file = array_pop($exp) . '.log';
         $dir = implode('/', $exp);
 
         if (!is_dir(PATH_LOG . '/' . $dir)) mkdir(PATH_LOG . '/' . $dir, 0777, true);

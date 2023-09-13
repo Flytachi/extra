@@ -39,7 +39,7 @@ abstract class Job
      *
      * @return int pid
      */
-    public static function start(mixed $data = null): int
+    public final static function start(mixed $data = null): int
     {
         $job = new static();
         $job->startRun();
@@ -62,7 +62,7 @@ abstract class Job
      *
      * @return int pid
      */
-    public static function dispatch(mixed $data = null): int
+    public final static function dispatch(mixed $data = null): int
     {
         if ($data) {
             $fileName = uniqid("jobCache-");

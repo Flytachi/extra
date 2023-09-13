@@ -29,6 +29,7 @@ class __job
 //            elseif ($this->argument == "status") $this->status();
             else Core::logMessage("Команды '{$this->argument}' не существует!", 31);
         } catch (Error $e) {
+            dd($e->getMessage());
             Core::logMessage("Ошибка в скрипте.", 31);
         }
     }
@@ -51,12 +52,28 @@ class __job
     private function run(): void
     {
         global $argv;
+        if ($this->name) {
+            if (array_key_exists(3, $argv) && $argv[3]) {
+                $filePath = PATH_CACHE . '/' . $argv[3];
+                if (is_file($filePath)) {
+                    $data = unserialize(file_get_contents($filePath));
+                    unlink($filePath);
+                }
+            } else $data = null;
+            ($this->name)::start($data);
+        }
+        else Core::logMessage("Укажите имя задачи!");
+    }
+
+    private function visorRun(): void
+    {
+        global $argv;
         if (array_key_exists(3, $argv)) {
             $filePath = PATH_CACHE . '/' . $argv[3];
             $data = unserialize(file_get_contents($filePath));
             unlink($filePath);
         } else $data = null;
-        if ($this->name) ($this->name)::start($data);
+        if ($this->name) ($this->name)::visorStart($data);
         else Core::logMessage("Укажите имя задачи!");
     }
 

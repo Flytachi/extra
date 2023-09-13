@@ -15,7 +15,6 @@ if (PHP_VERSION_ID >= 80100) {
         "$ROOT/app/Apis",
         "$ROOT/app/Controllers",
         "$ROOT/app/Libs",
-        "$ROOT/app/Logs",
         "$ROOT/app/Models",
         "$ROOT/app/Repositories",
         "$ROOT/app/Resources",
@@ -23,7 +22,6 @@ if (PHP_VERSION_ID >= 80100) {
         "$ROOT/app/Services",
         "$ROOT/public",
         "$ROOT/public/static",
-        "$ROOT/scripts",
     ];
     foreach ($DIRS as $dirPath) if(!is_dir($dirPath)) mkdir($dirPath);
 
@@ -62,7 +60,6 @@ if (PHP_VERSION_ID >= 80100) {
     require $ROOT . '/app/Extra/Core/__load__.php';
     require $ROOT . '/app/Extra/Core/Command/__make.php';
     require $ROOT . '/app/defines.php';
-    new __Make('controller', 'MainController');
 
     echo "\033[32m"." BUILDING SUCCESS.\n";
 
