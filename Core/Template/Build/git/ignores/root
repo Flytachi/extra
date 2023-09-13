@@ -6,12 +6,6 @@
 /.vscode
 
 ## App ----
-/app/Libs/*
-/app/Logs/*
 /app/*.conf
 /app/.env
-/app/.crt
 /app/pid.json
-/backup/
-/ssl/
-/public/media/

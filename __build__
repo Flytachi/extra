@@ -21,25 +21,35 @@ if (PHP_VERSION_ID >= 80100) {
         "$ROOT/app/Resources/exception",
         "$ROOT/app/Services",
         "$ROOT/public",
+        "$ROOT/public/media",
         "$ROOT/public/static",
+        "$ROOT/storage/cache",
+        "$ROOT/storage/logs",
     ];
     foreach ($DIRS as $dirPath) if(!is_dir($dirPath)) mkdir($dirPath);
 
 
     $FILES = array(
-        "$ROOT/app/defines.php" => "$ROOT/app/Extra/Core/Template/Build/defines",
-        "$ROOT/app/constants.php" => "$ROOT/app/Extra/Core/Template/Build/constants",
-        "$ROOT/app/functions.php" => "$ROOT/app/Extra/Core/Template/Build/functions",
-        "$ROOT/app/database.php" => "$ROOT/app/Extra/Core/Template/Build/database",
-        "$ROOT/app/bootstrap.php" => "$ROOT/app/Extra/Core/Template/Build/bootstrap",
-        "$ROOT/app/.env" => "$ROOT/app/Extra/Core/Template/Build/env",
-        "$ROOT/app/Resources/template.php" => "$ROOT/app/Extra/Core/Template/Build/template",
-        "$ROOT/app/Resources/exception/system.php" => "$ROOT/app/Extra/Core/Template/Build/error",
-        //
+        // app
+        "$ROOT/app/.env" => "$ROOT/app/Extra/Core/Template/Build/app/env",
+        "$ROOT/app/bootstrap.php" => "$ROOT/app/Extra/Core/Template/Build/app/bootstrap",
+        "$ROOT/app/constants.php" => "$ROOT/app/Extra/Core/Template/Build/app/constants",
+        "$ROOT/app/database.php" => "$ROOT/app/Extra/Core/Template/Build/app/database",
+        "$ROOT/app/defines.php" => "$ROOT/app/Extra/Core/Template/Build/app/defines",
+        "$ROOT/app/functions.php" => "$ROOT/app/Extra/Core/Template/Build/app/functions",
+        // app => resource
+        "$ROOT/app/Resources/template.php" => "$ROOT/app/Extra/Core/Template/Build/app/resource/template",
+        "$ROOT/app/Resources/exception/system.php" => "$ROOT/app/Extra/Core/Template/Build/app/resource/error",
+        // public
         "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Core/Template/Build/htaccess",
         "$ROOT/public/index.php" => "$ROOT/app/Extra/Core/Template/Build/index",
-        //
-        "$ROOT/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/gitignore",
+        // git =>  gitignore
+        "$ROOT/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/git/ignores/root",
+        "$ROOT/public/media/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/media",
+        "$ROOT/storage/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storage",
+        "$ROOT/storage/cache/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storageCache",
+        "$ROOT/storage/logs/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storageLogs",
+        // root
         "$ROOT/box" => "$ROOT/app/Extra/Core/Template/Build/box",
     );
     foreach ($FILES as $filePath => $template) {
@@ -56,14 +66,9 @@ if (PHP_VERSION_ID >= 80100) {
 
     require $ROOT . '/app/Extra/Function/Console.php';
     multiCopy("$ROOT/app/Extra/Core/Template/Static", "$ROOT/public/static/warframe");
-
-    require $ROOT . '/app/Extra/Core/__load__.php';
-    require $ROOT . '/app/Extra/Core/Command/__make.php';
-    require $ROOT . '/app/defines.php';
-
     echo "\033[32m"." BUILDING SUCCESS.\n";
 
-}else {
+} else {
     echo "\033[32m"." Пожалуйста используйте PHP версии 8 и выше.\n";
     echo "\033[33m"." Текущая версия PHP => ".PHP_VERSION."\n";
 }
