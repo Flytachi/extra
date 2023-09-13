@@ -44,14 +44,14 @@ if (PHP_VERSION_ID >= 80100) {
         "$ROOT/app/Resources/template.php" => "$ROOT/app/Extra/Core/Template/Build/app/resource/template",
         "$ROOT/app/Resources/exception/system.php" => "$ROOT/app/Extra/Core/Template/Build/app/resource/error",
         // public
-        "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Core/Template/Build/htaccess",
-        "$ROOT/public/index.php" => "$ROOT/app/Extra/Core/Template/Build/index",
+        "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Core/Template/Build/public/htaccess",
+        "$ROOT/public/index.php" => "$ROOT/app/Extra/Core/Template/Build/public/index",
         // git =>  gitignore
-        "$ROOT/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/git/ignores/root",
-        "$ROOT/public/media/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/media",
-        "$ROOT/storage/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storage",
-        "$ROOT/storage/cache/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storageCache",
-        "$ROOT/storage/logs/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/storageLogs",
+        "$ROOT/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/ignores/root",
+        "$ROOT/public/media/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/ignores/media",
+        "$ROOT/storage/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/ignores/storage",
+        "$ROOT/storage/cache/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/ignores/storageCache",
+        "$ROOT/storage/logs/.gitignore" => "$ROOT/app/Extra/Core/Template/Build/git/ignores/storageLogs",
         // root
         "$ROOT/box" => "$ROOT/app/Extra/Core/Template/Build/box",
     );
