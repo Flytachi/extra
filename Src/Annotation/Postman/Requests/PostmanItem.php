@@ -2,10 +2,8 @@
 
 namespace Extra\Src\Annotation\Postman\Requests;
 
-use Apis\PostmanApi;
 use Exception;
 use Extra\Src\Annotation\Postman\Postman;
-use Extra\Src\Annotation\Postman\PostmanEvent;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -25,7 +23,7 @@ class PostmanItem implements Postman
                 "event" => [],
             ];
 
-            if ($apiName != PostmanApi::class) {
+            if ($apiName != "PostmanApi::class") {
                 try {
                     $apiClass = new ReflectionClass($apiName);
 

@@ -3,7 +3,6 @@
 namespace Extra\Src\Annotation\Postman;
 
 use Attribute;
-use Extra\Src\Annotation\Postman\Auth\PostmanAuthInterface;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class PostmanFolder implements Postman

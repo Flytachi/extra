@@ -4,8 +4,6 @@ namespace Extra\Src\Annotation\Postman\Auth;
 
 use Attribute;
 
-//use Attribute;
-
 #[Attribute(Attribute::TARGET_CLASS|Attribute::TARGET_METHOD)]
 class PostmanAuthBearerToken implements PostmanAuthInterface
 {

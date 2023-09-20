@@ -15,7 +15,6 @@ abstract class Dispatcher
      *
      * @param mixed|null $data
      * @return int
-     * @throws DispatcherException
      */
     protected final static function runnable(mixed $data = null): int
     {
@@ -33,7 +32,7 @@ abstract class Dispatcher
                 "/dev/null"
             ));
         } catch (\Throwable $err) {
-            throw new DispatcherException($err->getMessage());
+            DispatcherException::fatal($err->getMessage());
         }
 
     }

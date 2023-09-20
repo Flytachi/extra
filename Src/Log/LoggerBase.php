@@ -2,30 +2,81 @@
 
 namespace Extra\Src\Log;
 
-use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\HttpStatus;
-
 abstract class LoggerBase {
+    /**
+     * @var string $handle file name
+     */
+    protected static string $handle = 'base';
     /**
      * @var false|resource $resource
      */
-    protected static $resource;
+    protected static mixed $resource = null;
+    protected static LoggerType $type = LoggerType::STACK;
     protected static string $dateFormat = 'Y-m-d H:i:s P';
+    private static int $level = 0;
 
-    protected static function init(string $fileName): void
+    private static function initial(): void
     {
-        if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
-        if (!is_writable(PATH_LOG)) {
-            $status = HttpStatus::status(HttpCode::from(500));
-            header("HTTP/1.1 500 " . $status);
-            header("Status: 500 " . $status);
-            dd("The \"storage\" folder does not have write access");
+        if (is_null(static::$resource)) {
+            $file = match (static::$type) {
+                LoggerType::STACK => PATH_LOG . '/' . static::$handle . '.log',
+                LoggerType::DAILY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m-d") . '.log',
+                LoggerType::MONTHLY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m") . '.log',
+            };
+            if (!file_exists($file)) {
+                file_put_contents($file,'');
+                chmod($file,0777);
+            }
+            static::$resource = fopen($file, 'a');
         }
-        $file = PATH_LOG . '/' . $fileName . '.log';
-        if (!file_exists($file)) {
-            file_put_contents($file,'');
-            chmod($file,0777);
+    }
+
+    protected final static function write(string $message): void
+    {
+        static::initial();
+        if (static::$resource !== false) fwrite(static::$resource, $message);
+    }
+
+    protected final static function writeIsLevel(string $message, int $level): void
+    {
+        if (static::$level === $level) {
+            static::initial();
+            if (static::$resource !== false) fwrite(static::$resource, $message);
         }
-        self::$resource = fopen($file, 'a');
+    }
+
+    protected final static function writeIsNotLevel(string $message, int $level): void
+    {
+        if (static::$level !== $level) {
+            static::initial();
+            if (static::$resource !== false) fwrite(static::$resource, $message);
+        }
+    }
+
+    /**
+     * @param LoggerType $type
+     * @return void
+     */
+    public final static function setType(LoggerType $type = LoggerType::STACK): void
+    {
+        static::$type = $type;
+    }
+
+    /**
+     * @param string $format
+     * @return void
+     */
+    public final static function setFormat(string $format = 'Y-m-d H:i:s P'): void
+    {
+        static::$dateFormat = $format;
+    }
+
+    /**
+     * @param int $level (0 - no logging, 1 - default logging, 2 - trace logging)
+     * @return void
+     */
+    public final static function setLevel(int $level = 0): void
+    {
+        static::$level = $level;
     }
 }

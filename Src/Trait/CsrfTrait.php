@@ -2,8 +2,9 @@
 
 namespace Extra\Src\Trait;
 
+use Extra\Src\Enum\HttpCode;
+use Extra\Src\Error\CsrfError;
 use Extra\Src\RandomGenerator;
-use Extra\Src\Route;
 
 trait CsrfTrait {
     /**
@@ -19,7 +20,7 @@ trait CsrfTrait {
             hash_equals($_SESSION['CSRF_TOKEN'], $_POST['csrf_token']))) {
             unset($_SESSION['CSRF_TOKEN']);
             unset($_POST['csrf_token']);
-        } else Route::Throwable(419, 'CSRF Token authentication error occurred');
+        } else CsrfError::throw(HttpCode::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616, 'CSRF Token authentication error occurred');
     }
 
     /**

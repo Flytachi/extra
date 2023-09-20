@@ -1,8 +1,10 @@
 <?php
 
-namespace Extra\Src\Job;
+namespace Extra\Src\Process\Job;
 
-use Extra\Src\Logger;
+use Extra\Src\Log\Log;
+use Extra\Src\Process\Dispatcher\Dispatcher;
+use Extra\Src\Process\Dispatcher\DispatcherInterface;
 
 /**
  *  Warframe collection
@@ -13,7 +15,7 @@ use Extra\Src\Logger;
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Job
+abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {
     /** @var bool $savePid Save TMP System process id */
     protected bool $savePid = false;
@@ -22,12 +24,9 @@ abstract class Job
     /** @var string $pidPath file path */
     private string $pidPath = PATH_APP . '/pid.json';
 
-    protected static JobLogger $log;
-
     public function __construct()
     {
         if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE, 0777, true);
-        static::$log = new JobLogger(static::class);
     }
 
     /**
@@ -46,50 +45,11 @@ abstract class Job
         try {
             $job->run($data);
         } catch (\Throwable $e) {
-            static::$log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
         } finally {
             $job->endRun();
         }
         return $job->pid;
-    }
-
-    /**
-     * Start Job (async)
-     *
-     * Running a task in the background
-     *
-     * @param mixed|null $data
-     *
-     * @return int pid
-     */
-    public final static function dispatch(mixed $data = null): int
-    {
-        if ($data) {
-            $fileName = uniqid("jobCache-");
-            $filePath = PATH_CACHE . '/' . $fileName;
-            file_put_contents($filePath, serialize($data));
-            chmod($filePath, 0777);
-        }
-        return exec(sprintf(
-            'php -q ../box job:run %s %s > %s 2>&1 & echo $!',
-            str_replace('\\', '\\\\', static::class),
-            (($data) ? $fileName:''),
-            "/dev/null"
-        ));
-    }
-
-    /**
-     * Task
-     *
-     * Body task
-     *
-     * @param mixed|null $data
-     *
-     * @return void
-     */
-    protected function run(mixed $data = null): void
-    {
-        static::$log::info("RUN [" . $this->pid . "]");
     }
 
     private function startRun(): void
@@ -109,7 +69,6 @@ abstract class Job
                 chmod($this->pidPath, 0777);
             }
         }
-        static::$log::info("START [" . $this->pid . "]");
     }
 
     private function endRun(): void
@@ -120,7 +79,17 @@ abstract class Job
             $jsonData = json_encode($data, JSON_PRETTY_PRINT);
             file_put_contents($this->pidPath, $jsonData);
         }
-        static::$log::info("END [" . $this->pid . "]");
+    }
+
+    /**
+     * Dispatch script
+     *
+     * @param mixed|null $data
+     * @return int
+     */
+    public final static function dispatch(mixed $data = null): int
+    {
+        return self::runnable($data);
     }
 
 }

@@ -2,11 +2,12 @@
 
 namespace Extra\Src\Process;
 
-use Exception;
+use Extra\Src\Error\ErrorLogTrait;
+use Extra\Src\Error\ExtraException;
 
 
 /**
  * Base exception class for Process errors.
  */
-abstract class ProcessException extends Exception
+abstract class ProcessException extends ExtraException
 {}

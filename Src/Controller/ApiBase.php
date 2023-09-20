@@ -1,31 +1,28 @@
 <?php
 
-namespace Extra\Src;
+namespace Extra\Src\Controller;
 
-use ApiRepository;
-use Extra\Src\CDO\CDN;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\Method;
-use Extra\Src\Repo\Repository;
+use Extra\Src\Enum\Request;
+use Extra\Src\Error\ExtraException;
+use Extra\Src\Log\Log;
+use Extra\Src\Route\Route;
 use ReflectionClass;
-
 
 /**
  *  Warframe collection
  *
- *  Api - api controller
+ *  ApiBase - api controller
  *
- *  @version 8.0
+ *  @version 9.0
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Api
+abstract class ApiBase
 {
     /** @var bool $isSecure check request header data */
     protected bool $isSecure = false;
-
-    /** @var array $headers request header data */
-    private array $headers;
 
     /**
      * Constructor
@@ -34,7 +31,6 @@ abstract class Api
      */
     function __construct()
     {
-        Route::$isApi = true;
         $this->AuthorizationCORS();
         $this->AuthorizationHeader();
 
@@ -52,6 +48,7 @@ abstract class Api
      */
     private function AuthorizationCORS(): void
     {
+        Log::trace('Api authorization: CORS');
         if ($_SERVER['REQUEST_METHOD'] == Method::OPTIONS->name) $this->responseOk();
     }
 
@@ -62,26 +59,11 @@ abstract class Api
      */
     private function AuthorizationHeader(): void
     {
-        if (function_exists('apache_request_headers')) {
-            $this->headers = apache_request_headers();
-            $this->headers = array_combine(array_map('ucwords', array_keys($this->headers)), array_values($this->headers));
-            if ($this->isSecure && empty($this->headers['Authorization']))
-                Route::Throwable(HttpCode::BAD_REQUEST, 'The request is missing header data.');
-        }
-        else Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'The request is missing header data.');
+        Log::trace('Api authorization: Header');
+        if ($this->isSecure && !Request::getHeader('Authorization'))
+            ControllerError::throw(HttpCode::BAD_REQUEST, 'The request is missing header data.');
     }
 
-    /**
-     * Headers
-     *
-     * @param string|null $headerKey
-     *
-     * @return array|string
-     */
-    final protected function getHeaders(?string $headerKey = null): array|string
-    {
-        return ($headerKey) ? $this->headers[$headerKey] : $this->headers;
-    }
 
     /**
      * Bearer Token
@@ -90,8 +72,8 @@ abstract class Api
      */
     final protected function getBearerToken(): string|null
     {
-        if (array_key_exists('Authorization', $this->headers)) {
-            if (preg_match('/Bearer\s(\S+)/', $this->headers['Authorization'], $matches)) return $matches[1];
+        if ($auth = Request::getHeader('Authorization')) {
+            if (preg_match('/Bearer\s(\S+)/', $auth, $matches)) return $matches[1];
             else return null;
         } else return null;
     }
@@ -103,8 +85,8 @@ abstract class Api
      */
     final protected function getBasicToken(): string|null
     {
-        if (array_key_exists('Authorization', $this->headers)) {
-            if (preg_match('/Basic\s(\S+)/', $this->headers['Authorization'], $matches)) return base64_decode($matches[1]);
+        if ($auth = Request::getHeader('Authorization')) {
+            if (preg_match('/Basic\s(\S+)/', $auth, $matches)) return base64_decode($matches[1]);
             else return null;
         } else return null;
     }
@@ -118,8 +100,9 @@ abstract class Api
      */
     final protected function method(Method ...$allowMethods): void
     {
+        Log::trace('Api method: change method');
         foreach ($allowMethods as $method) if($method->name === $_SERVER['REQUEST_METHOD']) return;
-        Route::Throwable(HttpCode::METHOD_NOT_ALLOWED, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
+        ControllerError::throw(HttpCode::METHOD_NOT_ALLOWED, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
     }
 
     /**
@@ -140,11 +123,12 @@ abstract class Api
      */
     protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
     {
+        Log::trace('Api valid: field' . $field);
         if (!array_key_exists($field, $data))
-            Route::Throwable(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
+            ControllerError::throw(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
         if ($validateFunc !== null) {
             if (!$validateFunc($data[$field]))
-                Route::Throwable(HttpCode::BAD_REQUEST, $message ?? "The \"{$field}\" field has the wrong data type!");
+                ControllerError::throw(HttpCode::BAD_REQUEST, $message ?? "The \"{$field}\" field has the wrong data type!");
         }
     }
 
@@ -158,6 +142,7 @@ abstract class Api
      */
     protected function response(HttpCode $httpCode, mixed $data = null): void
     {
+        if($httpCode->value >= 400) ControllerError::throw($httpCode, $data ?? $httpCode->name);
         Route::ApiResponse($httpCode, $data);
     }
 

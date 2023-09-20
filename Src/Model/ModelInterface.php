@@ -1,6 +1,6 @@
 <?php
 
-namespace Extra\Src;
+namespace Extra\Src\Model;
 
 use TypeError;
 

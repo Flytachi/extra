@@ -1,11 +1,13 @@
 <?php
 
-namespace Extra\Src;
+namespace Extra\Src\Betta;
 
-use METHOD;
-use Warframe;
+use Extra\Src\Controller\ControllerBase;
+use Extra\Src\METHOD;
+use Extra\Src\Route\Route;
+use Extra\Src\Warframe;
 
-abstract class TelegramBot extends Controller
+abstract class TelegramBot extends ControllerBase
 {
     /**
      * 

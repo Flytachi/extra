@@ -1,17 +1,13 @@
 <?php
 
-use Extra\Src\Route;
-use Extra\Src\Wrapper;
-
 function dieConnection($_error = null): never
 {
     die(include PATH_RESOURCE . "/exception/system.php");
 }
 
-function cfgGet(): array
+function env(?string $name = null, string|int|float|bool|null $default = null): array|string|bool|null
 {
-//    if (!file_exists(CFG_PATH_CLOSE)) dieConnection("Configuration file not found.");
-//    return json_decode(zlib_decode(hex2bin( str_replace("\n", "", file_get_contents(CFG_PATH_CLOSE)) )), true);
+    return getenv($name) ?: $default;
 }
 
 function dd(mixed ...$value): never

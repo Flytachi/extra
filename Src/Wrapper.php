@@ -7,16 +7,16 @@ use DateTimeZone;
 use Error;
 use Exception;
 use Extra\Src\Repo\Repository;
+use Extra\Src\Repo\RepositoryError;
 use ReflectionClass;
 use TypeError;
-use Warframe;
 
 /**
  *  Warframe collection
  *
  *  Wrapper
  *
- *  @version 7.0
+ *  @version 8.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -34,30 +34,46 @@ class Wrapper
     static int $limitPage;
     static string $params;
 
+    /**
+     * @param string $dataTime date from
+     * @param string $timeZone date to
+     * @param string $format return date format
+     * @return string result date
+     */
     public static function dateConvertTo(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
     {
         try {
-            $date = new DateTime($dataTime, new DateTimeZone(Warframe::$env['TIME_ZONE']));
+            $date = new DateTime($dataTime, new DateTimeZone(env('TIME_ZONE', 'UTC')));
             $date->setTimezone(new DateTimeZone($timeZone));
             return $date->format($format);
         } catch (Exception $e) {
-            if ((Warframe::$env['DEBUG'])) dd($e);
+            if (env('DEBUG', false)) dd($e);
             else return '';
         }
     }
 
+    /**
+     * @param string $dataTime date from
+     * @param string $timeZone date to
+     * @param string $format return date format
+     * @return string result date
+     */
     public static function dateConvertToUTC(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
     {
         try {
             $date = new DateTime($dataTime, new DateTimeZone($timeZone));
-            $date->setTimezone(new DateTimeZone(Warframe::$env['TIME_ZONE']));
+            $date->setTimezone(new DateTimeZone(env('TIME_ZONE', 'UTC')));
             return $date->format($format);
         } catch (Exception $e) {
-            if ((Warframe::$env['DEBUG'])) dd($e);
+            if (env('DEBUG', false)) dd($e);
             else return '';
         }
     }
 
+    /**
+     * @param mixed $value
+     * @return bool
+     */
     public static function isIntPositive(mixed $value): bool
     {
         if (!is_numeric($value)) return false;
@@ -65,6 +81,10 @@ class Wrapper
         else return false;
     }
 
+    /**
+     * @param object $object
+     * @return object
+     */
     public static function formObject(object $object): object
     {
         $reflectionClass = new ReflectionClass(get_class($object));
@@ -82,6 +102,11 @@ class Wrapper
         return (object) $array;
     }
 
+    /**
+     * @param Repository $repo
+     * @param string $func
+     * @return array
+     */
     final static function paginator(Repository $repo, string $func = 'getAll'): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
@@ -94,6 +119,10 @@ class Wrapper
         ];
     }
 
+    /**
+     * @param Repository $repo
+     * @return array
+     */
     final static function paginatorDecoration(Repository $repo): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");

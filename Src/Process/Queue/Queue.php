@@ -32,11 +32,7 @@ class Queue extends Dispatcher implements CasterInterface, DispatcherInterface
      */
     public final static function dispatch(mixed $data = null): int
     {
-        try {
-            return self::runnable($data);
-        } catch (DispatcherException $err) {
-//            static::$log::error($err->getMessage() . "\n" . $err->getTraceAsString());
-        }
+        return self::runnable($data);
     }
 
 }

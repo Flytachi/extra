@@ -4,8 +4,8 @@ namespace Extra\Src\CDO;
 
 use Extra\Src\Artefact\Shard;
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\ModelInterface;
-use Extra\Src\Route;
+use Extra\Src\Log\Log;
+use Extra\Src\Model\ModelInterface;
 use Extra\Src\Type\Cluster;
 use PDO;
 use PDOException;
@@ -15,7 +15,7 @@ use PDOException;
  *
  *  CDO - update version to PDO
  *
- *  @version 8.0
+ *  @version 10.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -28,8 +28,6 @@ class CDO extends PDO
      * @param bool $debug debug mode
      *
      * @return void
-     *
-     * @throws PDOException if debugging is enabled, it will return an error message
      */
     function __construct(Shard $shard, bool $debug = false)
     {
@@ -38,8 +36,9 @@ class CDO extends PDO
             $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
             if ($debug) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            Log::trace('CDO connection:' . $shard->getDNS());
         } catch (PDOException $e) {
-            Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: ' . $e->getMessage());
+            CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: ' . $e->getMessage());
         }
     }
 
@@ -50,8 +49,6 @@ class CDO extends PDO
      * @param ModelInterface|array $model model or array data
      *
      * @return mixed
-     *
-     * @throws PDOException if debugging is enabled, it will return an error message
      */
     final public function insert(string $table, ModelInterface|array $model): mixed
     {
@@ -76,15 +73,18 @@ class CDO extends PDO
         }
 
         try {
-            $stmt = $this->prepare("INSERT INTO $table ($col) VALUES ($val) RETURNING " . array_key_first($model));
+            $query = "INSERT INTO $table ($col) VALUES ($val) RETURNING " . array_key_first($model);
+            Log::trace('CDO insert:' . $query);
+
+            $stmt = $this->prepare($query);
             foreach ($data as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
             $stmt->execute();
             $result = $stmt->fetchColumn();
             if (!$result)
-                Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $result . ')');
+                CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $result . ')');
             return $result;
         } catch (PDOException $ex) {
-            Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
+            CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
         }
     }
 
@@ -97,8 +97,6 @@ class CDO extends PDO
      *  * param array group(field => value, ...) to database
      *
      * @return int|string
-     *
-     * @throws PDOException if debugging is enabled, it will return an error message
      */
     final public function update(string $table, ModelInterface|array $model, mixed $pk): int|string
     {
@@ -130,15 +128,18 @@ class CDO extends PDO
         }
         // Send
         try {
-            $stmt = $this->prepare("UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND "));
+            $query = "UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND ");
+            Log::trace('CDO update:' . $query);
+
+            $stmt = $this->prepare($query);
             foreach ([...$pk, ...$data] as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
             $stmt->execute();
             $result = $stmt->rowCount();
             if (!is_numeric($result))
-                Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $result . ')');
+                CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $result . ')');
             return $result;
         } catch (PDOException $ex) {
-            Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $ex->getMessage() . ')');
+            CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $ex->getMessage() . ')');
         }
     }
 
@@ -152,8 +153,6 @@ class CDO extends PDO
      *  * param array group(field => value, ...) to database
      *
      * @return int|string
-     *
-     * @throws PDOException if debugging is enabled, it will return an error message
      */
     final public function delete(string $table, int|string|array $pk): int|string
     {
@@ -176,15 +175,18 @@ class CDO extends PDO
 
         // Send
         try {
-            $stmt = $this->prepare("DELETE FROM $table WHERE " . ltrim($where, " AND "));
+            $query = "DELETE FROM $table WHERE " . ltrim($where, " AND ");
+            Log::trace('CDO delete:' . $query);
+
+            $stmt = $this->prepare($query);
             foreach ($pk as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
             $stmt->execute($pk);
             $result = $stmt->rowCount();
             if (!is_numeric($result))
-                Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error deleting a record in the database (' . $result . ')');
+                CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error deleting a record in the database (' . $result . ')');
             return $result;
         } catch (PDOException $ex) {
-            Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error deleting a record in the database (' . $ex->getMessage() . ')');
+            CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error deleting a record in the database (' . $ex->getMessage() . ')');
         }
     }
 }

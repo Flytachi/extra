@@ -1,10 +1,10 @@
 <?php
 
-require 'Extra/warframe.php';
+require 'Extra/Warframe.php';
 
-Warframe::init();
+Extra\Warframe::init();
 
-if (Warframe::$env['DEBUG']) {
+if (env('DEBUG', false)) {
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);

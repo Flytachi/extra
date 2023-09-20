@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Service;
 
-use Extra\Src\ModelInterface;
+use Extra\Src\Model\ModelInterface;
 
 interface ServiceCrudInterface
 {

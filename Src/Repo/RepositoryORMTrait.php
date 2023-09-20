@@ -6,6 +6,10 @@ use Extra\Src\CDO\CDN;
 
 trait RepositoryORMTrait
 {
+    /**
+     * @param string $option
+     * @return Repository
+     */
     final public function Select(string $option): Repository
     {
         $this->CRD_SQL['option'] = $option;
@@ -13,22 +17,20 @@ trait RepositoryORMTrait
     }
 
     /**
-     * Old method
-     *
-     * @param string $option
+     * @param string $table_as
      * @return Repository
      */
-    final public function Option(string $option): Repository
-    {
-        return $this->Select($option);
-    }
-
     final public function As(string $table_as): Repository
     {
         $this->CRD_SQL['as'] = $table_as;
         return $this;
     }
 
+    /**
+     * @param Repository $repository
+     * @param string $on
+     * @return Repository
+     */
     final public function Join(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
@@ -38,6 +40,11 @@ trait RepositoryORMTrait
         return $this;
     }
 
+    /**
+     * @param Repository $repository
+     * @param string $on
+     * @return Repository
+     */
     final public function JoinLEFT(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
@@ -47,6 +54,11 @@ trait RepositoryORMTrait
         return $this;
     }
 
+    /**
+     * @param Repository $repository
+     * @param string $on
+     * @return Repository
+     */
     final public function JoinRIGHT(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
@@ -56,7 +68,11 @@ trait RepositoryORMTrait
         return $this;
     }
 
-    final public function Where(CDN $cdn): self
+    /**
+     * @param CDN $cdn
+     * @return Repository
+     */
+    final public function Where(CDN $cdn): Repository
     {
         $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
         if (array_key_exists('binds', $this->CRD_SQL)) {
@@ -65,6 +81,10 @@ trait RepositoryORMTrait
         return $this;
     }
 
+    /**
+     * @param Repository $repository
+     * @return Repository
+     */
     final public function Union(Repository $repository): Repository
     {
         if (array_key_exists('union', $this->CRD_SQL)) {
@@ -76,18 +96,31 @@ trait RepositoryORMTrait
         return $this;
     }
 
+    /**
+     * @param string $context
+     * @return Repository
+     */
     final public function Group(string $context): Repository
     {
         $this->CRD_SQL['group'] = 'GROUP BY ' . $context;
         return $this;
     }
 
+    /**
+     * @param string $context
+     * @return Repository
+     */
     final public function Order(string $context): Repository
     {
         $this->CRD_SQL['order'] = 'ORDER BY ' . $context;
         return $this;
     }
 
+    /**
+     * @param int $limit
+     * @param int $page
+     * @return Repository
+     */
     final public function Limit(int $limit, int $page = 1): Repository
     {
         if ($page < 1) $this->Throwable(new \TypeError('page < 1'));

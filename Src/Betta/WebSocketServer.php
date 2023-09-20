@@ -1,8 +1,6 @@
 <?php
 
-namespace Extra\Src;
-
-use Warframe;
+namespace Extra\Src\Betta;
 
 class WebSocketServer 
 {

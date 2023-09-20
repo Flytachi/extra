@@ -1,25 +1,27 @@
 <?php
 
-namespace Extra\Src;
+namespace Extra\Src\Controller;
 
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\Method;
+use Extra\Src\Error\ExtraException;
+use Extra\Src\Log\Log;
+use Extra\Src\Route\Route;
 use ReflectionClass;
-use Warframe;
 
 /**
  *  Warframe collection
  *
- *  Controller - controller for web requests
+ *  ControllerBase - controller for web requests
  *
  *  ! The default repository must be specified in the class
  *  * Example: public 'Repository' $repo;
  *
- *  @version 10.0
+ *  @version 12.0
  *  @author itachi
  *  @package Extra\Src
  */
-abstract class Controller
+abstract class ControllerBase
 {
     /** @var string $template the path to the template */
     public string $template = RESOURCE_TEMPLATE;
@@ -52,10 +54,11 @@ abstract class Controller
      */
     final protected function method(Method ...$allowMethods): void
     {
+        Log::trace('Controller method: change method');
         foreach ($allowMethods as $method) {
             if($method->name === $_SERVER['REQUEST_METHOD']) return;
         }
-        Route::Throwable(HttpCode::METHOD_NOT_ALLOWED, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
+        ControllerError::throw(HttpCode::METHOD_NOT_ALLOWED, 'Method ' . $_SERVER['REQUEST_METHOD'] . ' not allowed!');
     }
 
     /*
@@ -65,10 +68,11 @@ abstract class Controller
     */
     final protected function render(string $content, mixed $data = null): void
     {
+        Log::trace('Controller render: ' . $content);
         if(is_array($data)) extract($data);
         $content = PATH_RESOURCE . "/$content.php";
         include PATH_RESOURCE . '/' . $this->template;
-        if (Warframe::$env['DEBUG']) $this->debugBar($content, $data);
+        if (env('DEBUG', false)) $this->debugBar($content, $data);
     }
 
     private function debugBar(string $content, mixed $data = null): void
@@ -169,6 +173,7 @@ abstract class Controller
 
     final protected function view(string $content, mixed $data = null): void
     {
+        Log::trace('Controller view: ' . $content);
         if(is_array($data)) extract($data);
         include PATH_RESOURCE . "/$content.php";
     }
@@ -188,7 +193,11 @@ abstract class Controller
      */
     protected function prepareAuth(bool $redirect = false): void
     {
-        Route::isAuth($redirect);
+        if ($redirect) {
+            if (empty($_SESSION['id'])) Route::redirect('auth/login');
+        } else {
+            if (empty($_SESSION['id'])) ControllerError::throw(HttpCode::LOCKED, 'You are not authorized');
+        }
     }
 
     /**
@@ -209,11 +218,12 @@ abstract class Controller
      */
     protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
     {
+        Log::trace('Controller valid: field' . $field);
         if (!array_key_exists($field, $data))
-            Route::Throwable(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
+            ControllerError::throw(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
         if ($validateFunc !== null) {
             if (!$validateFunc($data[$field]))
-                Route::Throwable(HttpCode::BAD_REQUEST, $message ?? "The \"{$field}\" field has the wrong data type!");
+                ControllerError::throw(HttpCode::BAD_REQUEST, $message ?? "The \"{$field}\" field has the wrong data type!");
         }
     }
 

@@ -3,8 +3,7 @@
 namespace Extra\Src\Type;
 
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\ModelInterface;
-use Extra\Src\Route;
+use Extra\Src\Model\ModelInterface;
 use ReflectionProperty;
 
 class Cluster {
@@ -36,7 +35,7 @@ class Cluster {
                 'wrapper' => $wrapper
             ];
         } catch (\Throwable $e) {
-            Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR, $e->getMessage());
+            TypeError::throw(HttpCode::INTERNAL_SERVER_ERROR, $e->getMessage());
         }
 
     }

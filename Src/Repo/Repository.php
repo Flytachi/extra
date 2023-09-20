@@ -3,25 +3,27 @@
 namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
+use Extra\Src\Artefact\ArtefactError;
 use Extra\Src\CDO\CDN;
 use Extra\Src\CDO\CDO;
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Model;
-use Extra\Src\ModelInterface;
-use Extra\Src\Route;
+use Extra\Src\Log\Log;
+use Extra\Src\Model\ModelBase;
+use Extra\Src\Model\ModelInterface;
 use Extra\Src\Type\Cluster;
+use Extra\Warframe;
 use PDO;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 use Throwable;
-use Warframe;
 
 /**
  *  Warframe collection
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 8.0
+ *  @version 10.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -36,19 +38,29 @@ class Repository
     /** @var array $CRD_SQL sql parameters */
     private array $CRD_SQL = [];
 
-    public function __construct($table_As = '')
+    public function __construct(string $table_As = '')
     {
         if(get_parent_class($this)) {
             if ($table_As) $this->CRD_SQL['as'] = $table_As;
         }else self::$table = $table_As;
-        Warframe::setDb($this::$shardKey, Aegis::getShard($this::$shardKey));
+        try {
+            Warframe::setDb($this::$shardKey, Aegis::getShard($this::$shardKey));
+        } catch (ArtefactError $err) {
+            RepositoryError::throw(HttpCode::from($err->getCode()), static::class . ': ' . $err->getMessage());
+        }
     }
 
+    /**
+     * @return CDO
+     */
     final public function db(): CDO
     {
         return Warframe::db($this::$shardKey);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function getFetchMode(): string
     {
         $property = new ReflectionProperty($this, 'model');
@@ -62,12 +74,12 @@ class Repository
                         array_key_exists('option', $this->CRD_SQL) ||
                         array_key_exists('join', $this->CRD_SQL) ||
                         array_key_exists('union', $this->CRD_SQL)
-                    )    return Model::class;
+                    )    return ModelBase::class;
                     else return $model;
                 }
-            } else return Model::class;
+            } else return ModelBase::class;
         }
-        else return Model::class;
+        else return ModelBase::class;
     }
 
 
@@ -90,6 +102,7 @@ class Repository
                 $offset = (int) $this->CRD_SQL['limit'] * ($this->CRD_SQL['page'] - 1);
                 $sql .= ' LIMIT ' . $this->CRD_SQL['limit'] . ' OFFSET ' . $offset;
             }
+            Log::trace('Repository build:'. $sql);
             return $sql;
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -103,10 +116,14 @@ class Repository
         } else return $this->buildSql();
     }
 
+    /**
+     * @param string ...$items
+     * @return mixed
+     */
     final public function get(string ...$items): mixed
     {
         try {
-            if ($data = implode(',', $items)) $this->Option($data);
+            if ($data = implode(',', $items)) $this->Select($data);
             $stmt = $this->db()->prepare($this->buildSql());
             $stmt->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
             // Bind
@@ -121,6 +138,9 @@ class Repository
         }
     }
 
+    /**
+     * @return array|false
+     */
     final public function getAll(): array|false
     {
         try {
@@ -138,6 +158,11 @@ class Repository
         }
     }
 
+    /**
+     * @param CDN $cdn
+     * @param string|array $item
+     * @return mixed
+     */
     final public function getBy(CDN $cdn, string|array $item = ''): mixed
     {
         try {
@@ -165,26 +190,14 @@ class Repository
         return $this->db()->delete($this::$table, $pk);
     }
 
-    /*
-    ---------------------------------------------
-    */
-
-    private function clsDta(array|string $value): array|string
-    {
-        if (!is_array($value)) {
-            $value = trim($value);
-            $value = stripslashes($value);
-            $value = strip_tags($value);
-            $value = htmlspecialchars($value);
-        }
-        return $value;
-    }
-
     private function Throwable(Throwable $error): never
     {
-        Route::Throwable(HttpCode::INTERNAL_SERVER_ERROR,  'Repository: ' . $error->getMessage());
+        RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,  static::class  . ': ' . $error->getMessage());
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function prepareSelect(): string
     {
         if (array_key_exists('option', $this->CRD_SQL)) return $this->CRD_SQL['option'];

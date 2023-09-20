@@ -2,12 +2,10 @@
 
 namespace Extra\Src\Process\Caster;
 
-use Extra\Src\ModelInterface;
+use Extra\Src\Enum\HttpCode;
+use Extra\Src\Model\ModelInterface;
 use Extra\Src\Process\Dispatcher\Dispatcher;
-use Extra\Src\Process\Dispatcher\DispatcherException;
 use Extra\Src\Process\Dispatcher\DispatcherInterface;
-use Extra\Src\Process\ProcessException;
-use Extra\Src\Process\ProcessLogger;
 
 /**
  *  Warframe collection
@@ -26,7 +24,6 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
     protected  array $childrenPid;
     /** @var int $workerQty Count workers */
     protected int $workerQty = 1;
-    protected static ProcessLogger $log;
 
     /**
      * Caster
@@ -34,7 +31,6 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
     private function __construct()
     {
         if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE, 0777, true);
-        static::$log = new ProcessLogger(static::class);
     }
 
     /**
@@ -46,15 +42,9 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
     public final static function start(mixed $data = null): int
     {
         $cast = new static();
-
-        try {
-            $cast->mainProcPrepare();
-            $cast->mainProcFork($data);
-        } catch (ProcessException $err) {
-            static::$log::critical($err->getMessage() . "\n" . $err->getTraceAsString());
-        } finally {
-            return $cast->pid;
-        }
+        $cast->mainProcPrepare();
+        $cast->mainProcFork($data);
+        return $cast->pid;
     }
 
     /**
@@ -74,7 +64,6 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      *
      * @param mixed|null $data
      * @return void
-     * @throws CasterException
      */
     private function mainProcFork(mixed $data = null): void
     {
@@ -82,14 +71,14 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
         try {
             $this->mainBefore($data);
         } catch (\Throwable $err) {
-            throw new CasterException("MainBefore: " . $err->getMessage());
+            CasterException::fatal("MainBefore: " . $err->getMessage());
         }
 
         // Father Fork
         if (is_array($data)) {
             foreach ($data as $fragment) {
                 $pid = pcntl_fork();
-                if ($pid== -1) throw new CasterException("[{$this->pid}] Error: Unable to fork process.");
+                if ($pid== -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
                 // Child process
                 elseif ($pid == 0) $this->procFork($fragment);
                 // Parent process
@@ -97,7 +86,7 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
             }
         } else {
             $pid = pcntl_fork();
-            if ($pid== -1) throw new CasterException("[{$this->pid}] Error: Unable to fork process.");
+            if ($pid== -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) $this->procFork($data);
             // Parent process
@@ -108,7 +97,7 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
         try {
             $this->mainAfter();
         } catch (\Throwable $err) {
-            throw new CasterException("MainAfter: " . $err->getMessage());
+            CasterException::fatal("MainAfter: " . $err->getMessage());
         }
     }
 
@@ -125,8 +114,10 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
             if (PHP_SAPI === 'cli')
                 cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
             $this->proc(getmypid(), $data);
-        } catch (\Throwable $e) {
-            static::$log::error("[{$pid}] " . $e->getMessage() . "\n" . $e->getTraceAsString());
+        } catch (\Throwable $err) {
+            CasterException::throw(HttpCode::INTERNAL_SERVER_ERROR,
+                "[{$pid}] " . $err->getMessage() . "\n" . $err->getTraceAsString()
+            );
         } finally {
             exit();
         }
@@ -167,11 +158,7 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      */
     public final static function dispatch(mixed $data = null): int
     {
-        try {
-            return self::runnable($data);
-        } catch (DispatcherException $err) {
-            static::$log::error($err->getMessage() . "\n" . $err->getTraceAsString());
-        }
+        return self::runnable($data);
     }
 
     /**

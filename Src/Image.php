@@ -223,5 +223,3 @@ class Image
         return imagegetclip($this->imgInput);
     }
 }
-
-?>

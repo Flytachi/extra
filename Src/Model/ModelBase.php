@@ -1,6 +1,6 @@
 <?php
 
-namespace Extra\Src;
+namespace Extra\Src\Model;
 
 use Attribute;
 use TypeError;
@@ -8,7 +8,7 @@ use TypeError;
 /**
  *  Warframe collection
  * 
- *  Model - private mode
+ *  ModelBase - private mode
  *  
  *  All property is private, required getters and setters
  * 
@@ -17,7 +17,7 @@ use TypeError;
  *  @package Extra\Src
  */
 #[Attribute]
-class Model extends \stdClass
+class ModelBase extends \stdClass
 {
     function __toString(): string
     {

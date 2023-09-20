@@ -3,7 +3,7 @@
 namespace Extra\Src\Trait;
 
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Route;
+use Extra\Src\Error\UploadError;
 
 trait UploadTrait {
     /** @var array $uploadFileFormat upload file format */
@@ -43,16 +43,16 @@ trait UploadTrait {
 
                 // File size
                 if ($this->uploadFileSize > 0 and $this->uploadFileSize < $fileSize)
-                    Route::Throwable(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error file is too big.');
+                    UploadError::throw(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error file is too big.');
 
                 // File format
                 if (empty($this->uploadFileFormat) or ($this->uploadFileFormat > 0 and (in_array($fileExtension, $this->uploadFileFormat) or $this->uploadFileFormat == $fileExtension)) ) {
 
                     if(move_uploaded_file($fileTmpPath, PATH_MEDIA . "/$uploadFolder/$newFileName")) return "$uploadFolder/$newFileName";
-                    else Route::Throwable(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error writing to storage.');
+                    else UploadError::throw(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error writing to storage.');
 
-                } else Route::Throwable(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error unsupported file format.');
-            } else Route::Throwable(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error loading to temporary folder.');
-        } else Route::Throwable(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error file not name.');
+                } else UploadError::throw(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error unsupported file format.');
+            } else UploadError::throw(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error loading to temporary folder.');
+        } else UploadError::throw(HttpCode::INSUFFICIENT_STORAGE, 'UploadFile: Error file not name.');
     }
 }

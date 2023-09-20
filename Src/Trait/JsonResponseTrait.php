@@ -2,7 +2,6 @@
 
 namespace Extra\Src\Trait;
 
-
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\HttpStatus;
 
