@@ -33,7 +33,6 @@ class Request
     /**
      * @param bool $required
      * @return array
-     * @throws ExtraException
      */
     public static function get(bool $required = true): array
     {
@@ -44,7 +43,6 @@ class Request
     /**
      * @param bool $required
      * @return array
-     * @throws ExtraException
      */
     public static function post(bool $required = true): array
     {
@@ -55,7 +53,6 @@ class Request
     /**
      * @param bool $required
      * @return array
-     * @throws ExtraException
      */
     public static function form(bool $required = true): array
     {
@@ -66,7 +63,6 @@ class Request
     /**
      * @param bool $required
      * @return array
-     * @throws ExtraException
      */
     public static function json(bool $required = true): array
     {
@@ -77,7 +73,6 @@ class Request
 
     /**
      * @return array
-     * @throws ExtraException
      */
     public static function files(): array
     {

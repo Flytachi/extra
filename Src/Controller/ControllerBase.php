@@ -218,7 +218,7 @@ abstract class ControllerBase
      */
     protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
     {
-        Log::trace('Controller valid: field' . $field);
+        Log::trace('Controller valid: ' . $field);
         if (!array_key_exists($field, $data))
             ControllerError::throw(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
         if ($validateFunc !== null) {

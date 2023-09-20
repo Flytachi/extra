@@ -37,9 +37,6 @@ class Warframe
         }
     }
 
-    /**
-     * @throws Error
-     */
     public final static function init(): void
     {
         require dirname(__DIR__) . '/defines.php';
@@ -49,9 +46,16 @@ class Warframe
         try {
             foreach (glob(dirname(__DIR__)."/Config/*") as $function) require $function;
 
+            if (!is_dir(PATH_STORAGE)) mkdir(PATH_STORAGE);
+            if (!is_writable(PATH_STORAGE))
+                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
             if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
             if (!is_writable(PATH_LOG))
-                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
+                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
+            if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE);
+            if (!is_writable(PATH_CACHE))
+                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
+
         } catch (\Throwable $err) {
             Error::throw(HttpCode::INTERNAL_SERVER_ERROR,
                 $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'

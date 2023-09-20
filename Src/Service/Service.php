@@ -2,6 +2,7 @@
 
 namespace Extra\Src\Service;
 
+use Extra\Src\Log\Log;
 use ReflectionClass;
 
 abstract class Service
@@ -18,6 +19,7 @@ abstract class Service
      */
     public function __construct()
     {
+        Log::trace('Service construct: ' . static::class);
         $reflect = new ReflectionClass($this);
         foreach ($reflect->getProperties() as $property) {
             if (strrpos($property->getType(), 'Repository'))
