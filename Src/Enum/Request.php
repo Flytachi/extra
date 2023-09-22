@@ -27,7 +27,7 @@ class Request
      */
     public static function getHeader(string $key): string
     {
-        return self::$headers[$key] ?: '';
+        return self::$headers[$key] ?? '';
     }
 
     /**

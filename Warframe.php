@@ -5,9 +5,7 @@ namespace Extra;
 use Extra\Src\Artefact\Shard;
 use Extra\Src\CDO\CDO;
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Error\Error;
-use Extra\Src\Route\Route;
-use Predis\Response\ErrorInterface;
+use Extra\Src\Error\BaseError;
 
 class Warframe
 {
@@ -46,18 +44,15 @@ class Warframe
         try {
             foreach (glob(dirname(__DIR__)."/Config/*") as $function) require $function;
 
-            if (!is_dir(PATH_STORAGE)) mkdir(PATH_STORAGE);
             if (!is_writable(PATH_STORAGE))
-                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
-            if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
+                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
             if (!is_writable(PATH_LOG))
-                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
-            if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE);
+                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
             if (!is_writable(PATH_CACHE))
-                Error::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
+                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
 
         } catch (\Throwable $err) {
-            Error::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR,
                 $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'
             );
         }

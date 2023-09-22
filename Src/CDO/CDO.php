@@ -77,7 +77,14 @@ class CDO extends PDO
             Log::trace('CDO insert:' . $query);
 
             $stmt = $this->prepare($query);
-            foreach ($data as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
+            foreach ($data as $keyVal => $paramVal) {
+                switch (gettype($paramVal)) {
+                    case 'NULL': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
+                    default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
+                }
+            }
             $stmt->execute();
             $result = $stmt->fetchColumn();
             if (!$result)
@@ -132,7 +139,14 @@ class CDO extends PDO
             Log::trace('CDO update:' . $query);
 
             $stmt = $this->prepare($query);
-            foreach ([...$pk, ...$data] as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
+            foreach ([...$pk, ...$data] as $keyVal => $paramVal) {
+                switch (gettype($paramVal)) {
+                    case 'NULL': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
+                    default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
+                }
+            }
             $stmt->execute();
             $result = $stmt->rowCount();
             if (!is_numeric($result))

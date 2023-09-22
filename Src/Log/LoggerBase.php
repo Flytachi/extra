@@ -18,16 +18,18 @@ abstract class LoggerBase {
     private static function initial(): void
     {
         if (is_null(static::$resource)) {
-            $file = match (static::$type) {
-                LoggerType::STACK => PATH_LOG . '/' . static::$handle . '.log',
-                LoggerType::DAILY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m-d") . '.log',
-                LoggerType::MONTHLY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m") . '.log',
-            };
-            if (!file_exists($file)) {
-                file_put_contents($file,'');
-                chmod($file,0777);
-            }
-            static::$resource = fopen($file, 'a');
+            if (is_writable(PATH_LOG)) {
+                $file = match (static::$type) {
+                    LoggerType::STACK => PATH_LOG . '/' . static::$handle . '.log',
+                    LoggerType::DAILY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m-d") . '.log',
+                    LoggerType::MONTHLY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m") . '.log',
+                };
+                if (!file_exists($file)) {
+                    file_put_contents($file,'');
+                    chmod($file,0777);
+                }
+                static::$resource = fopen($file, 'a');
+            } else static::$resource = false;
         }
     }
 
