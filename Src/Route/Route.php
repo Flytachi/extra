@@ -63,7 +63,7 @@ class Route
         $routes = explode('/', $data['url']);
 
         $_GET = $data['get'];
-        self::changePostSize();
+        // self::changePostSize();
 
         $controllerName = '';
         $actionName = 'index';
