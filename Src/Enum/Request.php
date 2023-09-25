@@ -23,11 +23,12 @@ class Request
 
     /**
      * @param string $key
+     * @param bool $isUcWords
      * @return string
      */
-    public static function getHeader(string $key): string
+    public static function getHeader(string $key, bool $isUcWords = true): string
     {
-        return self::$headers[$key] ?? '';
+        return self::$headers[($isUcWords ? ucwords($key) : $key)] ?? '';
     }
 
     /**
