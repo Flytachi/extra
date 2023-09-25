@@ -23,7 +23,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
 
         if (PHP_SAPI === 'cli') return parent::__toString();
         else {
-            if (Request::getHeader('Accept') == 'application/json') die($this->getThrowableJson());
+            if (Request::inHeader('Accept', 'application/json')) die($this->getThrowableJson());
             else die($this->getThrowableText());
         }
     }

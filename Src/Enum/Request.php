@@ -32,6 +32,17 @@ class Request
     }
 
     /**
+     * @param string $key
+     * @param string $value
+     * @param bool $isUcWords
+     * @return bool
+     */
+    public static function inHeader(string $key, string $value, bool $isUcWords = true): bool
+    {
+        return str_contains((self::$headers[($isUcWords ? ucwords($key) : $key)] ?? ''), $value);
+    }
+
+    /**
      * @param bool $required
      * @return array
      */

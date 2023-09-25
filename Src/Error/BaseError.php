@@ -19,7 +19,7 @@ class BaseError extends ExtraException
 
         if (PHP_SAPI === 'cli') throw $exception;
         else {
-            if (Request::getHeader('Accept') == 'application/json') die($exception->getThrowableJson());
+            if (Request::inHeader('Accept', 'application/json')) die($exception->getThrowableJson());
             else die($exception->getThrowableText());
         }
     }
