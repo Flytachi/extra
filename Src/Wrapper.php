@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Extra\Src;
 
@@ -16,7 +16,7 @@ use TypeError;
  *
  *  Wrapper
  *
- *  @version 8.0
+ *  @version 8.5
  *  @author itachi
  *  @package Extra\Src
  */
@@ -26,13 +26,13 @@ class Wrapper
     const PREV_ELEMENTS = WRAPPER_PAGINATION_PREV_ELEMENTS;
     const NEXT_ELEMENTS = WRAPPER_PAGINATION_NEXT_ELEMENTS;
     const MIDL_ELEMENTS = WRAPPER_PAGINATION_MIDL_ELEMENTS;
-
     static int $maxListValue;
-
     static int $totalPages;
+    static int $totalItem;
     static int $currentPage;
     static int $limitPage;
     static string $params;
+    static array $paginationParams = [];
 
     /**
      * @param string $dataTime date from
@@ -135,9 +135,12 @@ class Wrapper
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         self::init($repo);
         return [
-            'pageTotal' => self::$totalPages,
-            'pageCurrent' => self::$currentPage,
-            'pageElement' => self::$limitPage,
+            'pagination' => [
+                'current' => self::$currentPage,
+                'perPage' => self::$limitPage,
+                'totalItem' => self::$totalItem,
+                'totalPage' => self::$totalPages,
+            ],
             'list' => $repo->{$func}(),
         ];
     }
@@ -198,19 +201,23 @@ class Wrapper
     private static function init(Repository $repo): void
     {
         $sql = $repo->buildSql();
+        if (str_contains($sql, 'LIMIT')) $sql = strstr($sql, 'LIMIT' ,true);
+        if (str_contains($sql, 'ORDER')) $sql = strstr($sql, 'ORDER' ,true);
+        if (str_contains($sql, 'GROUP')) $sql = strstr($sql, 'GROUP' ,true);
+        $sql = 'SELECT COUNT(*) '. strstr($sql, 'FROM');
         self::$currentPage = $repo->getSql('page');
         self::$limitPage = $repo->getSql('limit');
 
-        $stmt = $repo->db()->prepare(substr($sql, 0, strpos($sql, 'LIMIT')));
+        $stmt = $repo->db()->prepare($sql);
         // Bind
         if ($repo->getSql('binds')) {
             foreach ($repo->getSql('binds') as $hash => $value)
                 $stmt->bindValue($hash, $value);
         }
         $stmt->execute();
-
+        self::$totalItem = $stmt->fetchColumn();
         self::$totalPages = ceil(
-            $stmt->rowCount() / self::$limitPage
+            self::$totalItem / self::$limitPage
         );
     }
 
@@ -320,7 +327,7 @@ class Wrapper
     private static function templateBtn(bool $status, string $url, string $text): string
     {
         return "<li class=\"page-item ". (($status) ? 'active' : '') . "\">"
-                . "<a onclick=\"credoSearch('{$url}')\" class=\"page-link\">{$text}</a>"
+            . "<a onclick=\"credoSearch('{$url}')\" class=\"page-link\">{$text}</a>"
             . "</li>";
     }
 
