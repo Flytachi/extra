@@ -203,7 +203,7 @@ class Wrapper
         $sql = $repo->buildSql();
         if (str_contains($sql, 'LIMIT')) $sql = strstr($sql, 'LIMIT' ,true);
         if (str_contains($sql, 'ORDER')) $sql = strstr($sql, 'ORDER' ,true);
-        if (str_contains($sql, 'GROUP')) $sql = strstr($sql, 'GROUP' ,true);
+        // if (str_contains($sql, 'GROUP')) $sql = strstr($sql, 'GROUP' ,true);
         $sql = 'SELECT COUNT(*) '. strstr($sql, 'FROM');
         self::$currentPage = $repo->getSql('page');
         self::$limitPage = $repo->getSql('limit');
