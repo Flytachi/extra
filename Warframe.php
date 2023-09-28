@@ -37,6 +37,7 @@ class Warframe
 
     public final static function init(): void
     {
+        define('WARFRAME_STARTUP_TIME', microtime(true));
         require dirname(__DIR__) . '/defines.php';
         self::loadFunction();
         self::autoload();
