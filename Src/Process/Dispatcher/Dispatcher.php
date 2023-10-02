@@ -5,7 +5,7 @@ namespace Extra\Src\Process\Dispatcher;
 /**
  * Dispatcher
  *
- * @version 1.0
+ * @version 2.0
  */
 abstract class Dispatcher
 {
@@ -25,10 +25,11 @@ abstract class Dispatcher
                 file_put_contents($filePath, serialize($data));
                 chmod($filePath, 0777);
             }
+
             return exec(sprintf(
-                'php -q ../box job:run %s %s > %s 2>&1 & echo $!',
-                str_replace('\\', '\\\\', static::class),
-                (($data) ? $fileName:''),
+                "php -q ../extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
+                static::class,
+                ($data ? "--class-cache='{$fileName}'" : ''),
                 "/dev/null"
             ));
         } catch (\Throwable $err) {

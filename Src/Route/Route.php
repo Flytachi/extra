@@ -5,8 +5,8 @@ namespace Extra\Src\Route;
 use ArgumentCountError;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\HttpStatus;
-use Extra\Src\Enum\Request;
 use Extra\Src\Log\Log;
+use Extra\Src\Request\Request;
 use ReflectionException;
 use ReflectionMethod;
 use TypeError;
@@ -16,7 +16,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 17.0
+ * 	@version 18.0
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -27,6 +27,23 @@ class Route
     public static function group(string $prefix, string $folder): void
     {
         self::$groups[$prefix] = $folder;
+    }
+
+    /**
+     * @param string $url
+     * @return string|null
+     */
+    private static function inGroup(string &$url): string|null
+    {
+        if (self::$groups) {
+            foreach (self::$groups as $group => $folder) {
+                if (str_starts_with($url, '/' . $group)) {
+                    $url = str_replace('/' . $group, '', $url);
+                    return $folder;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -60,8 +77,6 @@ class Route
     {
         Log::trace("Route uri:" . $_SERVER['REQUEST_URI']);
         $data = self::urlToArray($_SERVER['REQUEST_URI']);
-        $routes = explode('/', $data['url']);
-
         $_GET = $data['get'];
         // self::changePostSize();
 
@@ -69,17 +84,12 @@ class Route
         $actionName = 'index';
         $params = null;
 
-        if (array_key_exists($routes[1], self::$groups)) {
-            if ( !empty($routes[2]) ) $controllerName = ucfirst($routes[2]);
-            if ( !empty($routes[3]) ) $actionName = ucfirst($routes[3]);
-            if ( !empty($routes[4]) ) $params = array_slice($routes, 4);
-            $controllerName = '\Controllers\\' . self::$groups[$routes[1]] . '\\' . $controllerName . 'Controller';
-        } else {
-            if ( !empty($routes[1]) ) $controllerName = ucfirst($routes[1]);
-            if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
-            if ( !empty($routes[3]) ) $params = array_slice($routes, 3);
-            $controllerName = '\Controllers\\' . $controllerName . 'Controller';
-        }
+        $folder = self::inGroup($data['url']);
+        $routes = explode('/', $data['url']);
+        if ( !empty($routes[1]) ) $controllerName = ($folder ? $folder . '\\' : '') . ucfirst($routes[1]);
+        if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
+        if ( !empty($routes[3]) ) $params = array_slice($routes, 3);
+        $controllerName = '\Controllers\\' . $controllerName . 'Controller';
 
         // Imports
         $funcPath = dirname(__DIR__, 2) . '/Config/functions.php';
@@ -127,7 +137,7 @@ class Route
         try {
             $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
         } catch (ReflectionException|ArgumentCountError|TypeError $err) {
-            RouteError::throw(HttpCode::NOT_FOUND,
+            RouteError::throw(HttpCode::BAD_REQUEST,
                 $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'
             );
         }

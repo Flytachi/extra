@@ -4,8 +4,8 @@ namespace Extra\Src\Error;
 
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\HttpStatus;
-use Extra\Src\Enum\Request;
 use Extra\Src\Log\Log;
+use Extra\Src\Request\Request;
 
 abstract class ExtraException extends \Exception implements ErrorInterface
 {
@@ -109,11 +109,14 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         }
         else {
             $page = PATH_RESOURCE . "/exception/{$this->code}.php";
-            if (file_exists($page)) die( include $page );
+            if (file_exists($page)) include $page;
             else {
+                $page = PATH_RESOURCE . '/exception/system.php';
                 $_error = $this->code . ' ' . $status;
-                return include PATH_RESOURCE . '/exception/system.php';
+                if (file_exists($page)) include $page;
+                else include PATH_APP . '/Extra/Console/Template/Resource/exception/system';
             }
+            return '';
         }
     }
 

@@ -14,6 +14,7 @@ abstract class LoggerBase {
     protected static LoggerType $type = LoggerType::STACK;
     protected static string $dateFormat = 'Y-m-d H:i:s P';
     private static int $level = 0;
+    private static int $lifeTime = 0;
 
     private static function initial(): void
     {
@@ -24,7 +25,13 @@ abstract class LoggerBase {
                     LoggerType::DAILY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m-d") . '.log',
                     LoggerType::MONTHLY => PATH_LOG . '/' . static::$handle . '-' . date("Y-m") . '.log',
                 };
+
                 if (!file_exists($file)) {
+                    if (self::$lifeTime != 0) {
+                        $list = glob(PATH_LOG . '/*');
+                        $over = count($list)+1 - self::$lifeTime;
+                        for ($i = 0; $i < $over; $i++) unlink($list[$i]);
+                    }
                     file_put_contents($file,'');
                     chmod($file,0777);
                 }
@@ -80,5 +87,14 @@ abstract class LoggerBase {
     public final static function setLevel(int $level = 0): void
     {
         static::$level = $level;
+    }
+
+    /**
+     * @param int $lifeTime count log file (0 - dont limit)
+     * @return void
+     */
+    public static function setLifeTime(int $lifeTime = 0): void
+    {
+        self::$lifeTime = $lifeTime;
     }
 }

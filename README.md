@@ -1,4 +1,4 @@
-# EXTRA
+# Warframe Extra Framework
 
 ## Запуск проекта
 * В директории проректа создайте папку App.

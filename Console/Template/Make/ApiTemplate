@@ -1,0 +1,15 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Controller\ApiBase;
+
+class __className__ extends ApiBase
+{
+
+    public function index(): void
+    {
+        $this->responseOk();
+    }
+
+}

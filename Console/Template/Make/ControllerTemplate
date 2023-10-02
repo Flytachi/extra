@@ -1,0 +1,15 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Controller\ControllerBase;
+
+class __className__ extends ControllerBase
+{
+
+    public function index(): void
+    {
+        $this->responseOk();
+    }
+
+}
