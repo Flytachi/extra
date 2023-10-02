@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Repo;
 
-use Extra\Src\CDO\CDN;
+use Extra\Src\CDO\BKB;
 
 trait RepositoryORMTrait
 {
@@ -10,19 +10,19 @@ trait RepositoryORMTrait
      * @param string $option
      * @return Repository
      */
-    final public function Select(string $option): Repository
+    final public function select(string $option): Repository
     {
         $this->CRD_SQL['option'] = $option;
         return $this;
     }
 
     /**
-     * @param string $table_as
+     * @param string $alias
      * @return Repository
      */
-    final public function As(string $table_as): Repository
+    final public function as(string $alias): Repository
     {
-        $this->CRD_SQL['as'] = $table_as;
+        $this->CRD_SQL['as'] = $alias;
         return $this;
     }
 
@@ -31,7 +31,7 @@ trait RepositoryORMTrait
      * @param string $on
      * @return Repository
      */
-    final public function Join(Repository $repository, string $on): Repository
+    final public function join(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
@@ -45,7 +45,7 @@ trait RepositoryORMTrait
      * @param string $on
      * @return Repository
      */
-    final public function JoinLEFT(Repository $repository, string $on): Repository
+    final public function joinLeft(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
@@ -59,7 +59,7 @@ trait RepositoryORMTrait
      * @param string $on
      * @return Repository
      */
-    final public function JoinRIGHT(Repository $repository, string $on): Repository
+    final public function joinRight(Repository $repository, string $on): Repository
     {
         $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
@@ -69,15 +69,15 @@ trait RepositoryORMTrait
     }
 
     /**
-     * @param CDN $cdn
+     * @param BKB $bkb
      * @return Repository
      */
-    final public function Where(CDN $cdn): Repository
+    final public function where(BKB $bkb): Repository
     {
-        $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
+        $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
         if (array_key_exists('binds', $this->CRD_SQL)) {
-            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$cdn->getCache()];
-        } else $this->CRD_SQL['binds'] = $cdn->getCache();
+            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
+        } else $this->CRD_SQL['binds'] = $bkb->getCache();
         return $this;
     }
 
@@ -85,7 +85,7 @@ trait RepositoryORMTrait
      * @param Repository $repository
      * @return Repository
      */
-    final public function Union(Repository $repository): Repository
+    final public function union(Repository $repository): Repository
     {
         if (array_key_exists('union', $this->CRD_SQL)) {
             $this->CRD_SQL['union'] .= ' UNION ' . $repository->getSql();
@@ -100,7 +100,7 @@ trait RepositoryORMTrait
      * @param string $context
      * @return Repository
      */
-    final public function Group(string $context): Repository
+    final public function groupBy(string $context): Repository
     {
         $this->CRD_SQL['group'] = 'GROUP BY ' . $context;
         return $this;
@@ -110,7 +110,7 @@ trait RepositoryORMTrait
      * @param string $context
      * @return Repository
      */
-    final public function Order(string $context): Repository
+    final public function orderBy(string $context): Repository
     {
         $this->CRD_SQL['order'] = 'ORDER BY ' . $context;
         return $this;
@@ -118,14 +118,16 @@ trait RepositoryORMTrait
 
     /**
      * @param int $limit
-     * @param int $page
+     * @param int $offset
      * @return Repository
      */
-    final public function Limit(int $limit, int $page = 1): Repository
+    final public function limit(int $limit, int $offset = 0): Repository
     {
-        if ($page < 1) $this->Throwable(new \TypeError('page < 1'));
-        $this->CRD_SQL['page'] = $page;
+        if ($limit < 1) $this->Throwable(new \TypeError('limit < 1'));
+        if ($offset < 0) $this->Throwable(new \TypeError('offset < 0'));
         $this->CRD_SQL['limit'] = $limit;
+        $this->CRD_SQL['offset'] = $offset;
         return $this;
     }
+
 }

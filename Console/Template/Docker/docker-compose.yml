@@ -1,0 +1,27 @@
+version: '3.8'
+
+networks:
+  __project__-network:
+
+services:
+  __project__-nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "8000:80"
+    networks:
+      - __project__-network
+    depends_on:
+      - __project__-php
+    volumes:
+      - ./docker/nginx/local.nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./:/var/www/html/
+  __project__-php:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    networks:
+      - __project__-network
+    volumes:
+      - ./:/var/www/html/

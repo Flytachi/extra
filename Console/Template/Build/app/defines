@@ -1,0 +1,19 @@
+<?php
+
+// EXTRA
+const EXTRA_KEY = '__extra_key__';
+
+// Path
+define('PATH_ROOT', dirname(__DIR__));
+define('PATH_APP', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app');
+define('PATH_PUBLIC', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'public');
+define('PATH_STORAGE', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage');
+define('ENV_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env');
+
+// Storage
+const PATH_CACHE = PATH_STORAGE . DIRECTORY_SEPARATOR . 'cache';
+const PATH_LOG = PATH_STORAGE . DIRECTORY_SEPARATOR . 'logs';
+
+const PATH_LIB = PATH_APP . DIRECTORY_SEPARATOR . 'Libs';
+const PATH_RESOURCE = PATH_APP . DIRECTORY_SEPARATOR . 'Resources';
+const PATH_MEDIA = PATH_PUBLIC . DIRECTORY_SEPARATOR . 'media';

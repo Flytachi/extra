@@ -1,0 +1,7 @@
+<?php
+/**
+ * Route groups
+ */
+
+use Extra\Src\Route\Route;
+

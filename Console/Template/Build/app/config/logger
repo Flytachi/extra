@@ -1,0 +1,11 @@
+<?php
+/**
+ * Logger
+ */
+
+use Extra\Src\Log\Log;
+use Extra\Src\Log\LoggerType;
+
+Log::setType(LoggerType::STACK);
+Log::setFormat('Y-m-d H:i:s P');
+Log::setLevel(env('LOG_LEVEL', 0));

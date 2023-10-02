@@ -24,7 +24,7 @@ use ReflectionClass;
 abstract class ControllerBase
 {
     /** @var string $template the path to the template */
-    public string $template = RESOURCE_TEMPLATE;
+    public string $template = 'template.php';
 
     /**
      * Constructor
@@ -197,33 +197,6 @@ abstract class ControllerBase
             if (empty($_SESSION['id'])) Route::redirect('auth/login');
         } else {
             if (empty($_SESSION['id'])) ControllerError::throw(HttpCode::LOCKED, 'You are not authorized');
-        }
-    }
-
-    /**
-     * Validate Method
-     *
-     * Checking the existence of a value in the data.
-     *
-     * If you set the argument "validateFunc" will check the
-     * data on the function with the condition that the
-     * function returns a bool value, and takes 1 argument
-     *
-     * @param array $data data -> array data
-     * @param string $field field name -> array key
-     * @param callable|null $validateFunc validation func returned bool!
-     * @param string|null $message message with incorrect validation in func
-     *
-     * @return void
-     */
-    protected final function valid(array $data, string $field, callable $validateFunc = null, string $message = null): void
-    {
-        Log::trace('Controller valid: ' . $field);
-        if (!array_key_exists($field, $data))
-            ControllerError::throw(HttpCode::BAD_REQUEST, "Field \"{$field}\" not found!");
-        if ($validateFunc !== null) {
-            if (!$validateFunc($data[$field]))
-                ControllerError::throw(HttpCode::BAD_REQUEST, $message ?? "The \"{$field}\" field has the wrong data type!");
         }
     }
 

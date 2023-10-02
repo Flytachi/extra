@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Warframe</title>
+    <link rel="shortcut icon" href="/static/warframe/img/logo.png" type="image/x-icon">
+    <link href="/static/warframe/css/main.css" rel="stylesheet" type="text/css">
+    <link href="/static/warframe/css/loader.css" rel="stylesheet" type="text/css">
+</head>
+
+<div id="modalDefault" class="modal">
+    <div class="modal-content" id="modalDefault-content"></div>
+</div>
+<script src="/static/warframe/js/modal.js"></script>
+
+<script src="/static/warframe/js/jquery-3.6.0.min.js"></script>
+<script src="/static/warframe/js/scripts.js"></script>
+<script src="/static/warframe/js/loader.js"></script>
+
+<body>
+    
+    <?php include $content ?>
+
+</body>
+</html>

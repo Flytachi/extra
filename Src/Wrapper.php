@@ -16,17 +16,17 @@ use TypeError;
  *
  *  Wrapper
  *
- *  @version 8.5
+ *  @version 9.0
  *  @author itachi
  *  @package Extra\Src
  */
 class Wrapper
 {
-    const MAX_LIST = WRAPPER_PAGINATION_MAX_LIST;
-    const PREV_ELEMENTS = WRAPPER_PAGINATION_PREV_ELEMENTS;
-    const NEXT_ELEMENTS = WRAPPER_PAGINATION_NEXT_ELEMENTS;
-    const MIDL_ELEMENTS = WRAPPER_PAGINATION_MIDL_ELEMENTS;
-    static int $maxListValue;
+    private static int $paginationMaxList = 10;
+    private static int $paginationPrevElement = 1;
+    private static int $paginationMidElement = 5;
+    private static int $paginationNextElement = 1;
+    private static int $maxListValue;
     static int $totalPages;
     static int $totalItem;
     static int $currentPage;
@@ -130,7 +130,7 @@ class Wrapper
      * @param string $func
      * @return array
      */
-    final static function paginator(Repository $repo, string $func = 'getAll'): array
+    final static function paginator(Repository $repo, string $func = 'findAll'): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         self::init($repo);
@@ -147,13 +147,14 @@ class Wrapper
 
     /**
      * @param Repository $repo
+     * @param string $func
      * @return array
      */
-    final static function paginatorDecoration(Repository $repo): array
+    final static function paginatorDecoration(Repository $repo, string $func = 'findAll'): array
     {
         if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         return array(
-            'table' => $repo->getAll(),
+            'table' => $repo->{$func}(),
             'panel' => Wrapper::panel($repo)
         );
     }
@@ -203,10 +204,9 @@ class Wrapper
         $sql = $repo->buildSql();
         if (str_contains($sql, 'LIMIT')) $sql = strstr($sql, 'LIMIT' ,true);
         if (str_contains($sql, 'ORDER')) $sql = strstr($sql, 'ORDER' ,true);
-        // if (str_contains($sql, 'GROUP')) $sql = strstr($sql, 'GROUP' ,true);
         $sql = 'SELECT COUNT(*) '. strstr($sql, 'FROM');
-        self::$currentPage = $repo->getSql('page');
         self::$limitPage = $repo->getSql('limit');
+        self::$currentPage = (self::$limitPage + $repo->getSql('offset')) / self::$limitPage;
 
         $stmt = $repo->db()->prepare($sql);
         // Bind
@@ -225,8 +225,8 @@ class Wrapper
     {
         $panel = '';
 
-        self::$maxListValue = self::PREV_ELEMENTS + self::MIDL_ELEMENTS + self::PREV_ELEMENTS + 2;
-        if (self::MAX_LIST > self::$maxListValue) self::$maxListValue = self::MAX_LIST;
+        self::$maxListValue = self::$paginationPrevElement + self::$paginationMidElement + self::$paginationPrevElement + 2;
+        if (self::$paginationMaxList > self::$maxListValue) self::$maxListValue = self::$paginationMaxList;
 
         self::buildPanelPrev($panel);
         self::buildPanelMidl($panel);
@@ -242,7 +242,7 @@ class Wrapper
                 self::templateBtn(false, self::pageSetter(self::$currentPage - 1), "&larr; &nbsp; Prev");
 
             // Elements
-            for ($i = 1; $i <= self::PREV_ELEMENTS; $i++) {
+            for ($i = 1; $i <= self::$paginationPrevElement; $i++) {
                 $panel .= self::templateBtn(self::$currentPage == $i, self::pageSetter($i), $i);
             }
         }
@@ -252,7 +252,7 @@ class Wrapper
     {
         if (self::$totalPages > self::$maxListValue) {
             // Elements
-            for ($i = self::$totalPages - self::NEXT_ELEMENTS+1; $i <= self::$totalPages; $i++) {
+            for ($i = self::$totalPages - self::$paginationNextElement+1; $i <= self::$totalPages; $i++) {
                 $panel .= self::templateBtn(self::$currentPage == $i, self::pageSetter($i), $i);
             }
 
@@ -268,7 +268,7 @@ class Wrapper
                 $panel .= self::templateBtn(self::$currentPage == $i, self::pageSetter($i), $i);
             }
         } else {
-            $midTemp = ceil((self::MIDL_ELEMENTS-1) / 2);
+            $midTemp = ceil((self::$paginationMidElement-1) / 2);
             self::buildPanelMidlBack($panel, $midTemp);
             self::buildPanelMidlCenter($panel, $midTemp);
             self::buildPanelMidlNext($panel, $midTemp);
@@ -278,25 +278,25 @@ class Wrapper
     private static function buildPanelMidlBack(string &$panel, $midTemp): void
     {
         if (
-            self::PREV_ELEMENTS != 0 &&
+            self::$paginationPrevElement != 0 &&
             (
-                self::$currentPage <= self::PREV_ELEMENTS || self::$currentPage > self::PREV_ELEMENTS + $midTemp + 2
+                self::$currentPage <= self::$paginationPrevElement || self::$currentPage > self::$paginationPrevElement + $midTemp + 2
             )
         )   $panel .= self::capBtn();
-        if(self::$currentPage == self::PREV_ELEMENTS + $midTemp+2)
-            $panel .= self::templateBtn(false, self::pageSetter(self::PREV_ELEMENTS+1), self::PREV_ELEMENTS+1);
+        if(self::$currentPage == self::$paginationPrevElement + $midTemp+2)
+            $panel .= self::templateBtn(false, self::pageSetter(self::$paginationPrevElement+1), self::$paginationPrevElement+1);
     }
 
     private static function buildPanelMidlCenter(string &$panel, int $midTemp): void
     {
-        $elementNext = self::$totalPages - self::NEXT_ELEMENTS;
+        $elementNext = self::$totalPages - self::$paginationNextElement;
 
         if (
-            self::$currentPage <= self::PREV_ELEMENTS
+            self::$currentPage <= self::$paginationPrevElement
             || self::$currentPage > $elementNext
         ) {
-            $startCenter = floor((self::$totalPages - self::MIDL_ELEMENTS) / 2)+1;
-            for ($i = $startCenter; $i < $startCenter + self::MIDL_ELEMENTS; $i++) {
+            $startCenter = floor((self::$totalPages - self::$paginationMidElement) / 2)+1;
+            for ($i = $startCenter; $i < $startCenter + self::$paginationMidElement; $i++) {
                 $panel .= self::templateBtn(self::$currentPage == $i, self::pageSetter($i), $i);
             }
         } else {
@@ -304,7 +304,7 @@ class Wrapper
             $endPage = self::$currentPage + $midTemp;
 
             for ($i = $startPage; $i <= $endPage; $i++) {
-                if ($i > self::PREV_ELEMENTS && $i <= $elementNext)
+                if ($i > self::$paginationPrevElement && $i <= $elementNext)
                     $panel .= self::templateBtn(self::$currentPage == $i, self::pageSetter($i), $i);
             }
         }
@@ -313,15 +313,15 @@ class Wrapper
     private static function buildPanelMidlNext(string &$panel, $midTemp): void
     {
         if (
-            self::NEXT_ELEMENTS != 0 &&
+            self::$paginationNextElement != 0 &&
             (
-                self::$currentPage >= self::$totalPages - self::NEXT_ELEMENTS + 1 ||
-                self::$currentPage < self::$totalPages - self::NEXT_ELEMENTS - $midTemp - 1
+                self::$currentPage >= self::$totalPages - self::$paginationNextElement + 1 ||
+                self::$currentPage < self::$totalPages - self::$paginationNextElement - $midTemp - 1
             )
         )   $panel .= self::capBtn();
 
-        if(self::$currentPage == self::$totalPages - self::NEXT_ELEMENTS - $midTemp - 1)
-            $panel .= self::templateBtn(false, self::pageSetter(self::$totalPages - self::NEXT_ELEMENTS), self::$totalPages - self::NEXT_ELEMENTS);
+        if(self::$currentPage == self::$totalPages - self::$paginationNextElement - $midTemp - 1)
+            $panel .= self::templateBtn(false, self::pageSetter(self::$totalPages - self::$paginationNextElement), self::$totalPages - self::$paginationNextElement);
     }
 
     private static function templateBtn(bool $status, string $url, string $text): string
@@ -338,4 +338,23 @@ class Wrapper
             . "</li>";
     }
 
+    public static function setPaginationMaxList(int $paginationMaxList): void
+    {
+        self::$paginationMaxList = $paginationMaxList;
+    }
+
+    public static function setPaginationPrevElement(int $paginationPrevElement): void
+    {
+        self::$paginationPrevElement = $paginationPrevElement;
+    }
+
+    public static function setPaginationMidElement(int $paginationMidElement): void
+    {
+        self::$paginationMidElement = $paginationMidElement;
+    }
+
+    public static function setPaginationNextElement(int $paginationNextElement): void
+    {
+        self::$paginationNextElement = $paginationNextElement;
+    }
 }

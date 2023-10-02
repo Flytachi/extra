@@ -3,8 +3,6 @@
 namespace Extra\Src\Error;
 
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\Request;
-use Extra\Src\Log\Log;
 
 trait ErrorLogTrait
 {

@@ -3,6 +3,7 @@
 namespace Extra\Src\Model;
 
 use Attribute;
+use Extra\Src\Enum\HttpCode;
 use TypeError;
 
 /**
@@ -43,18 +44,22 @@ class ModelBase extends \stdClass
      * 
      * @throws TypeError error data property or property setter
      */
-    public function reConstruct(?array $data = null): void
+    public final function reConstruct(?array $data = null): void
     {
-        $properties = $this->getProperties();
-        if ($data) {
-            foreach ($data as $key => $value) {
-                if (!array_key_exists($key, $properties)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
-                $this->{$key} = $value;
-                unset($properties[$key]);
+        try {
+            $properties = $this->getProperties();
+            if ($data) {
+                foreach ($data as $key => $value) {
+                    if (!array_key_exists($key, $properties)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
+                    $this->{$key} = $value;
+                    unset($properties[$key]);
+                }
+                foreach ($properties as $property => $type) {
+                    if (gettype($this->{$property})) unset($properties[$property]);
+                }
             }
-            foreach ($properties as $property => $type) {
-                if (gettype($this->{$property})) unset($properties[$property]);
-            }
+        } catch (\Throwable $exception) {
+            ModelError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }
     }
 

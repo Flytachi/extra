@@ -1,0 +1,10 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Service\Service;
+
+class __className__ extends Service
+{
+
+}

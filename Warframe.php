@@ -35,7 +35,7 @@ class Warframe
         }
     }
 
-    public final static function init(): void
+    public final static function init(bool $isConsole = false): void
     {
         define('WARFRAME_STARTUP_TIME', microtime(true));
         require dirname(__DIR__) . '/defines.php';
@@ -45,13 +45,14 @@ class Warframe
         try {
             foreach (glob(dirname(__DIR__)."/Config/*") as $function) require $function;
 
-            if (!is_writable(PATH_STORAGE))
-                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
-            if (!is_writable(PATH_LOG))
-                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
-            if (!is_writable(PATH_CACHE))
-                BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
-
+            if (!$isConsole) {
+                if (!is_writable(PATH_STORAGE))
+                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
+                if (!is_writable(PATH_LOG))
+                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
+                if (!is_writable(PATH_CACHE))
+                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
+            }
         } catch (\Throwable $err) {
             BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR,
                 $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'

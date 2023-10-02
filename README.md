@@ -1,48 +1,41 @@
-# EXTRA
+# Warframe Extra Framework
 
-## Запуск проекта
-* В директории проректа создайте папку App.
-* В папку App скачайте репозиторий extra.
-* Затем запустите скрипт сборки "php App/extra/\_\_build\_\_".
+Author: Flytachi
+
+Naming extra framework for rapid deployment of projects: microservices, monolithic programs and software. 
+Deployment environment
+1. Clean deployment nginx, apache server. 
+2. Deployment in docker compose and swarm.
+
+Framework uses MVC pattern, code style similar to Java Spring.
+
+### The structure of the ideal chain: 
+
+Controller -> Service -> Repository -> Model
+
+* Controller - represents the description of the client request, checks its data and performs validation.
+* Service - represents business logic.
+* Repository - is the bridge of communication with the database.
+* Model - representation of a column in the database table (entity).
+
+### Additional options:
+
+* Wrapper - represents additional data wrapping (pagination). 
+* CDO - database connection. 
+* BKB - SQL query generator (where). 
+* Request - client data object. Checks validity and typing of data.
+
+
+## Quick start
+* In the directory of the provost, create a folder 'app'.
+* Download the 'Extra' repository to the 'app' folder.
+* Then run the build script 'php app/Extra/\_\_build\_\_'.
+
 
 ## Справочник
 
 -------------------------------------------
-`cfg` - Используется для настройки сайта!
+`extra` - Console command
 -------------------------------------------
-
-* Сохраняет даные из таблицы, вместо * поместите название таблицы!
-
-        php box cfg:*
-
--------------------------------------------
-
--------------------------------------------
-`make` - Используется для создания шаблонов!
--------------------------------------------
-
-* Создать api контроллер, имя контроллера должно оканчиваться на ...Api!
-    
-        php box make:api MainApi
-
-* Создать контроллер, имя контроллера должно оканчиваться на ...Controller!
-    
-        php box make:controller MainController
-
-* Создать модель, имя модели должно оканчиваться на ...Model!
-    
-        php box make:model MainModel
-
-* Создать репозиторий, имя репозитория должно оканчиваться на ...Repository!
-    
-        php box make:repository MainRepository
-
--------------------------------------------
-`seed` - Используется для миграции данных в таблицы!
--------------------------------------------
-
-* Сохраняет даные из таблицы, вместо * поместите название таблицы!
-
-        php box seed:*
-
+        php extra [args...] -[flags...] --[options...]
 -------------------------------------------

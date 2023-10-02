@@ -4,7 +4,7 @@ namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\ArtefactError;
-use Extra\Src\CDO\CDN;
+use Extra\Src\CDO\BKB;
 use Extra\Src\CDO\CDO;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Log\Log;
@@ -23,28 +23,34 @@ use Throwable;
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 10.0
+ *  @version 11.0
  *  @author itachi
  *  @package Extra\Src
  */
 class Repository
 {
     use RepositoryORMTrait;
-    /** @var string $shardKey Aegis shard key */
+    /** @var string $shardKey Aegis shard key (default => 'db') */
     protected static string $shardKey = 'db';
-    /** @var string $table name of the table in the database */
+    /** @var string $modelClassName model class name (default => ModelBase::class) */
+    protected string $modelClassName = ModelBase::class;
+    /** @var bool $isReadonly readonly status (block writing permission) */
+    protected bool $isReadonly = false;
     public static string $table;
+    /** @var string $table name of the table in the database */
 
+    /** @var string|null $schema schema in database */
+    private ?string $schema = null;
     /** @var array $CRD_SQL sql parameters */
     private array $CRD_SQL = [];
 
     public function __construct(string $table_As = '')
     {
-        if(get_parent_class($this)) {
-            if ($table_As) $this->CRD_SQL['as'] = $table_As;
-        }else self::$table = $table_As;
+        if ($table_As) $this->CRD_SQL['as'] = $table_As;
         try {
-            Warframe::setDb($this::$shardKey, Aegis::getShard($this::$shardKey));
+            $shard = Aegis::getShard($this::$shardKey);
+            $this->schema = $shard->getSchema();
+            Warframe::setDb($this::$shardKey, $shard);
         } catch (ArtefactError $err) {
             RepositoryError::throw(HttpCode::from($err->getCode()), static::class . ': ' . $err->getMessage());
         }
@@ -58,31 +64,6 @@ class Repository
         return Warframe::db($this::$shardKey);
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    private function getFetchMode(): string
-    {
-        $property = new ReflectionProperty($this, 'model');
-
-        if (array_key_exists('0', $property->getAttributes())) {
-            $model = '\\'. $property->getAttributes()[0]->getName();
-            if (class_exists($model)) {
-                if (count($this->CRD_SQL) == 0) return $model;
-                else {
-                    if (
-                        array_key_exists('option', $this->CRD_SQL) ||
-                        array_key_exists('join', $this->CRD_SQL) ||
-                        array_key_exists('union', $this->CRD_SQL)
-                    )    return ModelBase::class;
-                    else return $model;
-                }
-            } else return ModelBase::class;
-        }
-        else return ModelBase::class;
-    }
-
-
     final public function cleanCache(): void
     {
         $this->CRD_SQL = [];
@@ -91,17 +72,16 @@ class Repository
     final public function buildSql(): string
     {
         try {
-            $sql = 'SELECT ' . $this->prepareSelect() . ' FROM ' . $this::$table;
+            $sql = 'SELECT ' . $this->prepareSelect();
+            $sql .= ' FROM ' . (($this->schema) ? $this->schema . '.' : '') . $this::$table;
             if(array_key_exists('as', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['as'];
             if(array_key_exists('join', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['join']);
             if(array_key_exists('where', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['where']);
             if(array_key_exists('union', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['union']);
             if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
             if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
-            if(array_key_exists('limit', $this->CRD_SQL)) {
-                $offset = (int) $this->CRD_SQL['limit'] * ($this->CRD_SQL['page'] - 1);
-                $sql .= ' LIMIT ' . $this->CRD_SQL['limit'] . ' OFFSET ' . $offset;
-            }
+            if(array_key_exists('limit', $this->CRD_SQL)) $sql .= ' LIMIT ' . trim($this->CRD_SQL['limit']);
+            if(array_key_exists('offset', $this->CRD_SQL)) $sql .= ' OFFSET ' . trim($this->CRD_SQL['offset']);
             Log::trace('Repository build:'. $sql);
             return $sql;
         } catch (Throwable $th) {
@@ -117,59 +97,64 @@ class Repository
     }
 
     /**
-     * @param string ...$items
+     * @param int $column column index (started from 0 index)
      * @return mixed
      */
-    final public function get(string ...$items): mixed
+    final public function findColumn(int $column = 0): mixed
     {
         try {
-            if ($data = implode(',', $items)) $this->Select($data);
+            $this->limit(1);
             $stmt = $this->db()->prepare($this->buildSql());
-            $stmt->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
             // Bind
             if (array_key_exists('binds', $this->CRD_SQL)) {
                 foreach ($this->CRD_SQL['binds'] as $hash => $value)
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
-            return $stmt->fetch();
+            return $stmt->fetchColumn($column);
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
     }
 
     /**
-     * @return array|false
+     * @param string|null $modelClassName
+     * @return mixed
      */
-    final public function getAll(): array|false
+    final public function find(?string $modelClassName = null): mixed
     {
         try {
+            if($modelClassName) $this->modelClassName = $modelClassName;
+            $this->limit(1);
             $stmt = $this->db()->prepare($this->buildSql());
-            $stmt->setFetchMode(PDO::FETCH_CLASS, $this->getFetchMode());
             // Bind
             if (array_key_exists('binds', $this->CRD_SQL)) {
                 foreach ($this->CRD_SQL['binds'] as $hash => $value)
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchObject($modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
     }
 
     /**
-     * @param CDN $cdn
-     * @param string|array $item
-     * @return mixed
+     * @param string|null $modelClassName
+     * @return array<ModelBase>|false
      */
-    final public function getBy(CDN $cdn, string|array $item = ''): mixed
+    final public function findAll(?string $modelClassName = null): array|false
     {
         try {
-            $this->CRD_SQL['where'] = 'WHERE ' . $cdn->getQuery();
-            $this->CRD_SQL['binds'] = $cdn->getCache();
-            if (!is_array($item)) return $this->get($item);
-            else return call_user_func_array([$this, 'get'], $item);
+            if($modelClassName) $this->modelClassName = $modelClassName;
+            $stmt = $this->db()->prepare($this->buildSql());
+            // Bind
+            if (array_key_exists('binds', $this->CRD_SQL)) {
+                foreach ($this->CRD_SQL['binds'] as $hash => $value)
+                    $stmt->bindValue($hash, $value);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_CLASS, $modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
         }
@@ -177,17 +162,24 @@ class Repository
 
     public function insert(ModelInterface $model): mixed
     {
-        return $this->db()->insert($this::$table, $model);
+        if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            static::class  . ': No write access');
+
+        return $this->db()->insert(($this->schema ? $this->schema . '.' : '') . $this::$table, $model);
     }
 
-    public function update(ModelInterface $model, mixed $pk): int|string
+    public function update(ModelInterface $model, BKB $bkb): int|string
     {
-        return $this->db()->update($this::$table, $model, $pk);
+        if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            static::class  . ': No write access');
+        return $this->db()->update(($this->schema ? $this->schema . '.' : '') . $this::$table, $model, $bkb);
     }
 
-    public function delete(int|string|array $pk): int|string
+    public function delete(BKB $bkb): int|string
     {
-        return $this->db()->delete($this::$table, $pk);
+        if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            static::class  . ': No write access');
+        return $this->db()->delete(($this->schema ? $this->schema . '.' : '') . $this::$table, $bkb);
     }
 
     private function Throwable(Throwable $error): never
@@ -200,19 +192,27 @@ class Repository
      */
     private function prepareSelect(): string
     {
-        if (array_key_exists('option', $this->CRD_SQL)) return $this->CRD_SQL['option'];
-        else {
+        if (array_key_exists('option', $this->CRD_SQL)) {
+            $this->modelClassName = ModelBase::class;
+            return $this->CRD_SQL['option'];
+        } else {
             $values = [];
             if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
             else $prefix = '';
 
-            $reflection = new ReflectionClass($this->getFetchMode());
+            if (
+                $this->modelClassName === \stdClass::class || $this->modelClassName === ModelBase::class
+            ) return '*';
+            else {
+                $reflection = new ReflectionClass($this->modelClassName);
 
-            foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-                $values[] = $prefix.Cluster::meta($reflectionProperty);
+                foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+                    $values[] = $prefix.Cluster::meta($reflectionProperty);
+                }
+
+                return implode(', ', $values);
             }
 
-            return implode(', ', $values);
         }
     }
 

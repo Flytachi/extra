@@ -15,7 +15,7 @@ use PDOException;
  *
  *  CDO - update version to PDO
  *
- *  @version 10.0
+ *  @version 11.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -100,19 +100,18 @@ class CDO extends PDO
      *
      * @param string $table table name in database
      * @param ModelInterface|array $model data
-     * @param mixed $pk field 'id' to database
-     *  * param array group(field => value, ...) to database
+     * @param BKB $bkb BKBObject
      *
      * @return int|string
      */
-    final public function update(string $table, ModelInterface|array $model, mixed $pk): int|string
+    final public function update(string $table, ModelInterface|array $model, BKB $bkb): int|string
     {
         if ($model instanceof ModelInterface) {
             $transform = Cluster::transform($model);
             $data = $transform['data'];
             $set = '';
             foreach ($data as $key => $value) {
-                $data["S_$key"] = $value; unset($data[$key]);
+                $data[":S_$key"] = $value; unset($data[$key]);
                 if(array_key_exists($key, $transform['wrapper']))
                     $set .= ",$key=" . sprintf($transform['wrapper'][$key], ':S_' . $key);
                 else $set .= ",$key=:S_$key";
@@ -121,30 +120,23 @@ class CDO extends PDO
             $data = $model;
             $set = "";
             foreach ($data as $key => $value) {
-                $data["S_$key"] = $value; unset($data[$key]);
+                $data[":S_$key"] = $value; unset($data[$key]);
                 $set .= ",$key=:S_$key";
             }
         }
 
-        // Where
-        $where = "";
-        if(!is_array($pk)) $pk = array('id'=>$pk);
-        foreach ($pk as $key => $value) {
-            $pk["W_$key"] = $value; unset($pk[$key]);
-            $where .= " AND $key=:W_$key";
-        }
         // Send
         try {
-            $query = "UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . ltrim($where, " AND ");
+            $query = "UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . $bkb->getQuery();
             Log::trace('CDO update:' . $query);
 
             $stmt = $this->prepare($query);
-            foreach ([...$pk, ...$data] as $keyVal => $paramVal) {
+            foreach ([...$bkb->getCache(), ...$data] as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
-                    case 'NULL': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
-                    case 'boolean': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
-                    case 'integer': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
-                    default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
+                    case 'NULL': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
+                    default: $stmt->bindValue($keyVal, $paramVal); break;
                 }
             }
             $stmt->execute();
@@ -161,40 +153,27 @@ class CDO extends PDO
      * Delete an entry in the database
      *
      * @param string $table table name in database
-     * @param int|string|array $pk field 'id' to database
-     *  * param int field 'id' to database
-     *  * param string field 'id' to database
-     *  * param array group(field => value, ...) to database
+     * @param BKB $bkb BKBObject
      *
-     * @return int|string
+     * @return int|string deleted count
      */
-    final public function delete(string $table, int|string|array $pk): int|string
+    final public function delete(string $table, BKB $bkb): int|string
     {
-        $where = '';
-        if(!is_array($pk)) $pk = ['id' => $pk];
-        foreach ($pk as $key => $value) {
-            if (is_array($value)) {
-
-                $body = '';
-                foreach ($value as $vKey => $vValue) {
-                    $name = $key . "_in_$vKey";
-                    $body .= ":$name,";
-                    $pk[$name] = $vValue;
-                }
-                $where .= " AND $key IN (" . rtrim($body, ',') . ")";
-                unset($pk[$key]);
-
-            } else $where .= " AND $key=:$key";
-        }
-
         // Send
         try {
-            $query = "DELETE FROM $table WHERE " . ltrim($where, " AND ");
+            $query = "DELETE FROM $table WHERE " . $bkb->getQuery();
             Log::trace('CDO delete:' . $query);
 
             $stmt = $this->prepare($query);
-            foreach ($pk as $keyVal => $paramVal) $stmt->bindValue(':' . $keyVal, $paramVal);
-            $stmt->execute($pk);
+            foreach ($bkb->getCache() as $keyVal => $paramVal) {
+                switch (gettype($paramVal)) {
+                    case 'NULL': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
+                    default: $stmt->bindValue($keyVal, $paramVal); break;
+                }
+            }
+            $stmt->execute();
             $result = $stmt->rowCount();
             if (!is_numeric($result))
                 CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error deleting a record in the database (' . $result . ')');
