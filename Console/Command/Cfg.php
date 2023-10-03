@@ -46,11 +46,11 @@ class Cfg extends Cmd
 
     private function envCreate(): void
     {
-        if (!file_exists(PATH_APP . '/Build/.env')) {
+        if (!file_exists(PATH_ROOT . '/.env')) {
 
             if (copy(
                 $this->templatePath . '/Build/env',
-                PATH_APP . '/.env'
+                PATH_ROOT . '/.env'
             )) self::printMessage("File '.env' is created.", 32);
             else self::printMessage("File '.env' dont created.", 31);
 
