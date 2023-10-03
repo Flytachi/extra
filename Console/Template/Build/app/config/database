@@ -6,6 +6,8 @@
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\Shard;
 
+/* Example
+
 Aegis::raise("db", new Shard(
     env('DB_DRIVER'),
     env('DB_HOST'),
@@ -16,3 +18,5 @@ Aegis::raise("db", new Shard(
     env('DB_CHARSET'),
     env('DB_SCHEMA')
 ));
+
+*/
