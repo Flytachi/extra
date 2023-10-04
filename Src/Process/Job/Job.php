@@ -56,19 +56,21 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
 
     private function startRun(): void
     {
-        pcntl_signal(SIGHUP, function () {$this->signClose();});
-        pcntl_signal(SIGINT, function () {$this->signInterrupt();});
-        pcntl_signal(SIGTERM, function () {$this->signTermination();});
-
-        if (PHP_SAPI === 'cli')
-            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class);
         $this->pid = getmypid();
-        $this->conductor->recordAdd(static::class, $this->pid);
+
+        if (PHP_SAPI === 'cli') {
+            pcntl_signal(SIGHUP, function () {$this->signClose();});
+            pcntl_signal(SIGINT, function () {$this->signInterrupt();});
+            pcntl_signal(SIGTERM, function () {$this->signTermination();});
+            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class);
+            $this->conductor->recordAdd(static::class, $this->pid);
+        }
     }
 
     private function endRun(): void
     {
-        $this->conductor->recordRemove(static::class, $this->pid);
+        if (PHP_SAPI === 'cli')
+            $this->conductor->recordRemove(static::class, $this->pid);
     }
 
     /**

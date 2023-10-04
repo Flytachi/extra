@@ -68,14 +68,14 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
     private function mainProcPrepareStart(): void
     {
         $this->pid = getmypid();
-        pcntl_signal(SIGHUP, function () {$this->signClose();});
-        pcntl_signal(SIGINT, function () {$this->signInterrupt();});
-        pcntl_signal(SIGTERM, function () {$this->signTermination();});
 
-        if (PHP_SAPI === 'cli')
+        if (PHP_SAPI === 'cli') {
+            pcntl_signal(SIGHUP, function () {$this->signClose();});
+            pcntl_signal(SIGINT, function () {$this->signInterrupt();});
+            pcntl_signal(SIGTERM, function () {$this->signTermination();});
             cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Father');
-
-        $this->conductor->recordAdd(static::class, $this->pid);
+            $this->conductor->recordAdd(static::class, $this->pid);
+        }
     }
 
     /**
@@ -85,7 +85,8 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      */
     private function mainProcPrepareEnd(): void
     {
-        $this->conductor->recordRemove(static::class, $this->pid);
+        if (PHP_SAPI === 'cli')
+            $this->conductor->recordRemove(static::class, $this->pid);
     }
 
     /**
@@ -173,9 +174,11 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      */
     public final function wait(?callable $callableEndChild = null): void
     {
-        foreach ($this->childrenPid as $pid) {
-            pcntl_waitpid($pid, $status);
-            if (!is_null($callableEndChild)) $callableEndChild($pid, $status);
+        if (PHP_SAPI === 'cli') {
+            foreach ($this->childrenPid as $pid) {
+                pcntl_waitpid($pid, $status);
+                if (!is_null($callableEndChild)) $callableEndChild($pid, $status);
+            }
         }
     }
 
