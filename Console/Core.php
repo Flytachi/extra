@@ -2,7 +2,6 @@
 
 namespace Extra\Console;
 
-use Extra\Console\Command\Make;
 use Extra\Console\Inc\CoreHandle;
 
 class Core extends CoreHandle

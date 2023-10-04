@@ -5,7 +5,7 @@ namespace Extra\Src\Process\Dispatcher;
 /**
  * Dispatcher
  *
- * @version 2.0
+ * @version 3.0
  */
 abstract class Dispatcher
 {
@@ -27,7 +27,7 @@ abstract class Dispatcher
             }
 
             return exec(sprintf(
-                "php -q ../extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
+                "php ../extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
                 static::class,
                 ($data ? "--class-cache='{$fileName}'" : ''),
                 "/dev/null"

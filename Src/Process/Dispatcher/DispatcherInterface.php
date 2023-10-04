@@ -15,4 +15,5 @@ interface DispatcherInterface
      * @return int
      */
     public static function dispatch(mixed $data = null): int;
+
 }

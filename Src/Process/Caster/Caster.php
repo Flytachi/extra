@@ -3,7 +3,10 @@
 namespace Extra\Src\Process\Caster;
 
 use Extra\Src\Enum\HttpCode;
+use Extra\Src\Log\Log;
 use Extra\Src\Model\ModelInterface;
+use Extra\Src\Process\Conductor\ConductorInterface;
+use Extra\Src\Process\Conductor\Json\Conductor;
 use Extra\Src\Process\Dispatcher\Dispatcher;
 use Extra\Src\Process\Dispatcher\DispatcherInterface;
 
@@ -18,6 +21,8 @@ use Extra\Src\Process\Dispatcher\DispatcherInterface;
  */
 abstract class Caster extends Dispatcher implements CasterInterface, DispatcherInterface
 {
+    protected string $conductorClassName = Conductor::class;
+    private ConductorInterface $conductor;
     /** @var int $pid Main system process id */
     protected int $pid;
     /** @var array<int> $childrenPid Children process ids */
@@ -41,22 +46,46 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      */
     public final static function start(mixed $data = null): int
     {
-        $cast = new static();
-        $cast->mainProcPrepare();
-        $cast->mainProcFork($data);
-        return $cast->pid;
+        $process = new static();
+        try {
+            $process->conductor = new $process->conductorClassName;
+            $process->mainProcPrepareStart();
+            $process->mainProcFork($data);
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+        } finally {
+            $process->mainProcPrepareEnd();
+        }
+
+        return $process->pid;
     }
 
     /**
-     * Father Process Prepare
+     * Father Process Prepare Start
      *
      * @return void
      */
-    private function mainProcPrepare(): void
+    private function mainProcPrepareStart(): void
     {
         $this->pid = getmypid();
+        pcntl_signal(SIGHUP, function () {$this->signClose();});
+        pcntl_signal(SIGINT, function () {$this->signInterrupt();});
+        pcntl_signal(SIGTERM, function () {$this->signTermination();});
+
         if (PHP_SAPI === 'cli')
             cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Father');
+
+        $this->conductor->recordAdd(static::class, $this->pid);
+    }
+
+    /**
+     * Father Process Prepare End
+     *
+     * @return void
+     */
+    private function mainProcPrepareEnd(): void
+    {
+        $this->conductor->recordRemove(static::class, $this->pid);
     }
 
     /**
@@ -78,7 +107,7 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
         if (is_array($data)) {
             foreach ($data as $fragment) {
                 $pid = pcntl_fork();
-                if ($pid== -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
+                if ($pid == -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
                 // Child process
                 elseif ($pid == 0) $this->procFork($fragment);
                 // Parent process
@@ -86,7 +115,7 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
             }
         } else {
             $pid = pcntl_fork();
-            if ($pid== -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
+            if ($pid == -1) CasterException::fatal("[{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) $this->procFork($data);
             // Parent process
@@ -179,5 +208,95 @@ abstract class Caster extends Dispatcher implements CasterInterface, DispatcherI
      * @return void
      */
     protected function mainAfter(): void {}
+
+
+    /**
+     * @return never
+     */
+    private function signClose(): never
+    {
+        // Parent
+        if (getmypid() === $this->pid) {
+            foreach ($this->childrenPid as $childPid) {
+                posix_kill($childPid, SIGINT);
+                pcntl_waitpid($childPid, $status);
+            }
+            $this->asClose();
+            $this->mainProcPrepareEnd();
+        }
+        // Child
+        else $this->asProcClose();
+        exit(1);
+    }
+
+    /**
+     * @return never
+     */
+    private function signInterrupt(): never
+    {
+        // Parent
+        if (getmypid() === $this->pid) {
+            foreach ($this->childrenPid as $childPid) {
+                posix_kill($childPid, SIGINT);
+                pcntl_waitpid($childPid, $status);
+            }
+            $this->asInterrupt();
+            $this->mainProcPrepareEnd();
+        }
+        // Child
+        else $this->asProcInterrupt();
+        exit();
+    }
+
+
+    /**
+     * @return never
+     */
+    private function signTermination(): never
+    {
+        // Parent
+        if (getmypid() === $this->pid) {
+            foreach ($this->childrenPid as $childPid) {
+                posix_kill($childPid, SIGTERM);
+                pcntl_waitpid($childPid, $status);
+            }
+            $this->asTermination();
+            $this->mainProcPrepareEnd();
+        }
+        // Child
+        else $this->asProcTermination();
+
+        exit(1);
+    }
+
+    protected function asClose(): void
+    {
+        Log::critical("[{$this->pid}] " . static::class . ' CLOSE');
+    }
+
+    protected function asTermination(): void
+    {
+        Log::critical("[{$this->pid}] " . static::class . ' TERMINATION');
+    }
+
+    protected function asInterrupt(): void
+    {
+        Log::alert("[{$this->pid}] " . static::class . ' INTERRUPTED');
+    }
+
+    protected function asProcClose(): void
+    {
+        Log::critical('[' . getmypid() . '] ' . static::class . ' TERMINATION CLOSE');
+    }
+
+    protected function asProcTermination(): void
+    {
+        Log::critical('[' . getmypid() . '] ' . static::class . ' TERMINATION CHILD');
+    }
+
+    protected function asProcInterrupt(): void
+    {
+        Log::alert('[' . getmypid() . '] ' . static::class . ' INTERRUPTED CHILD');
+    }
 
 }

@@ -3,6 +3,8 @@
 namespace Extra\Src\Process\Job;
 
 use Extra\Src\Log\Log;
+use Extra\Src\Process\Conductor\ConductorInterface;
+use Extra\Src\Process\Conductor\Json\Conductor;
 use Extra\Src\Process\Dispatcher\Dispatcher;
 use Extra\Src\Process\Dispatcher\DispatcherInterface;
 
@@ -17,12 +19,10 @@ use Extra\Src\Process\Dispatcher\DispatcherInterface;
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {
-    /** @var bool $savePid Save TMP System process id */
-    protected bool $savePid = false;
+    protected string $conductorClassName = Conductor::class;
+    private ConductorInterface $conductor;
     /** @var int $pid System process id */
     protected int $pid;
-    /** @var string $pidPath file path */
-    private string $pidPath = PATH_APP . '/pid.json';
 
     public function __construct()
     {
@@ -40,45 +40,35 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
      */
     public final static function start(mixed $data = null): int
     {
-        $job = new static();
-        $job->startRun();
+        $process = new static();
+
         try {
-            $job->run($data);
+            $process->conductor = new $process->conductorClassName;
+            $process->startRun();
+            $process->run($data);
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
         } finally {
-            $job->endRun();
+            $process->endRun();
         }
-        return $job->pid;
+        return $process->pid;
     }
 
     private function startRun(): void
     {
-        $this->pid = getmypid();
+        pcntl_signal(SIGHUP, function () {$this->signClose();});
+        pcntl_signal(SIGINT, function () {$this->signInterrupt();});
+        pcntl_signal(SIGTERM, function () {$this->signTermination();});
 
-        if ($this->savePid) {
-            if (file_exists($this->pidPath)) {
-                $data = json_decode(file_get_contents($this->pidPath), 1);
-                $data['jobs'][$this->pid] = static::class;
-                $jsonData = json_encode($data, JSON_PRETTY_PRINT);
-                file_put_contents($this->pidPath, $jsonData);
-            } else {
-                $file = fopen($this->pidPath, "x");
-                $data = ['jobs' => [$this->pid => static::class]];
-                fwrite($file, json_encode($data, JSON_PRETTY_PRINT));
-                chmod($this->pidPath, 0777);
-            }
-        }
+        if (PHP_SAPI === 'cli')
+            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class);
+        $this->pid = getmypid();
+        $this->conductor->recordAdd(static::class, $this->pid);
     }
 
     private function endRun(): void
     {
-        if ($this->savePid && file_exists($this->pidPath)) {
-            $data = json_decode(file_get_contents($this->pidPath), 1);
-            unset($data['jobs'][$this->pid]);
-            $jsonData = json_encode($data, JSON_PRETTY_PRINT);
-            file_put_contents($this->pidPath, $jsonData);
-        }
+        $this->conductor->recordRemove(static::class, $this->pid);
     }
 
     /**
@@ -90,6 +80,52 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     public final static function dispatch(mixed $data = null): int
     {
         return self::runnable($data);
+    }
+
+    /**
+     * @return never
+     */
+    private function signClose(): never
+    {
+        $this->asClose();
+        $this->endRun();
+        exit(1);
+    }
+
+    /**
+     * @return never
+     */
+    private function signInterrupt(): never
+    {
+        $this->asInterrupt();
+        $this->endRun();
+        exit();
+    }
+
+
+    /**
+     * @return never
+     */
+    private function signTermination(): never
+    {
+        $this->asTermination();
+        $this->endRun();
+        exit(1);
+    }
+
+    protected function asClose(): void
+    {
+        Log::critical(static::class . ' CLOSE TERMINAL');
+    }
+
+    protected function asTermination(): void
+    {
+        Log::critical(static::class . ' TERMINATION');
+    }
+
+    protected function asInterrupt(): void
+    {
+        Log::alert(static::class . ' INTERRUPTED');
     }
 
 }

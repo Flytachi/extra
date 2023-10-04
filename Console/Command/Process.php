@@ -81,7 +81,7 @@ class Process extends Cmd
         }
 
         $processId = exec(sprintf(
-            "php -q extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
+            "php extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
             $class,
             ($cache ? "--class-cache='{$cache}'" : ''),
             "/dev/null"
