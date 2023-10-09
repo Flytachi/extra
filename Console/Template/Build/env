@@ -1,4 +1,3 @@
-PHP_FPM_PATH_SOCK=/run/php-fpm/php-fpm.sock
 TIME_ZONE=UTC
 DEBUG=1
 LOG_LEVEL=2

@@ -3,6 +3,7 @@
 namespace Extra\Src\Request;
 
 use Extra\Src\Enum\HttpCode;
+use Extra\Src\Log\Log;
 
 class Request
 {
@@ -112,5 +113,36 @@ class Request
             }
         }
         return new self($data);
+    }
+
+    /**
+     * Validate Field
+     *
+     * Checking the existence of a value in the data.
+     *
+     * If you set the argument "validateFunc" will check the
+     * data on the function with the condition that the
+     * function returns a bool value, and takes 1 argument
+     *
+     * @param string $field field name -> array key
+     * @param callable|null $validateFunc validation func returned bool!
+     * @param string|null $message message with incorrect validation in func
+     *
+     * @return self
+     */
+    public final function valid(string $field, callable $validateFunc = null, string $message = null): self
+    {
+        Log::trace(self::class . ' valid: ' . $field);
+        try {
+            if(!array_key_exists($field, $this->data))
+                RequestError::throw(HttpCode::BAD_REQUEST,"Field \"{$field}\" not found!");
+            if ($validateFunc !== null) {
+                if (!$validateFunc($this->data[$field]))
+                    RequestError::throw(HttpCode::BAD_REQUEST, "{$field} - " . ($message ?? "field has the wrong data type!"));
+            }
+        } catch (\Throwable $exception) {
+            RequestError::throw(HttpCode::BAD_REQUEST, $exception->getMessage());
+        }
+        return $this;
     }
 }
