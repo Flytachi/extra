@@ -7,5 +7,5 @@ use Extra\Src\Model\ModelInterface;
 
 class __className__ extends ModelBase implements ModelInterface
 {
-    public int|null $id = null;
+    public ?int $id = null;
 }
