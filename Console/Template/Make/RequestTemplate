@@ -1,0 +1,10 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Request\RequestObject;
+
+class __className__ extends RequestObject
+{
+
+}
