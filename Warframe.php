@@ -9,8 +9,6 @@ use Extra\Src\Error\BaseError;
 
 class Warframe
 {
-    private static array $dbs = [];
-
     public final static function autoload(): void
     {
         spl_autoload_register(function($class) {
@@ -53,9 +51,9 @@ class Warframe
                 if (!is_writable(PATH_CACHE))
                     BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
             }
-        } catch (\Throwable $err) {
+        } catch (\Throwable $exception) {
             BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR,
-                $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'
+                $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
             );
         }
 
@@ -72,18 +70,6 @@ class Warframe
     public final static function loadFunction(): void
     {
         foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
-    }
-
-    public final static function setDb(string $key, Shard $shard): void
-    {
-        if (!array_key_exists($key, self::$dbs)) {
-            self::$dbs[$key] = new CDO($shard, env('DEBUG', false));
-        }
-    }
-
-    public final static function db(?string $key = null): CDO
-    {
-        return ($key) ? self::$dbs[$key] : reset(self::$dbs);
     }
 
 }

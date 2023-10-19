@@ -16,7 +16,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 18.0
+ * 	@version 18.2
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -120,26 +120,27 @@ class Route
 
         try {
             $reflectionMethod = new ReflectionMethod($controllerName, $actionName);
-        } catch (ReflectionException $err) {
-            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $err->getMessage());
-        }
 
-        if ($reflectionMethod->isStatic())
-            RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is static method');
-        if ($reflectionMethod->isPrivate())
-            RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is private method');
-        if ($reflectionMethod->isProtected())
-            RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is protected method');
+            if ($reflectionMethod->isStatic())
+                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is static method');
+            if ($reflectionMethod->isPrivate())
+                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is private method');
+            if ($reflectionMethod->isProtected())
+                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is protected method');
 
-        if (!is_array($params) && !is_null($params)) $params = [$params];
+            if (!is_array($params) && !is_null($params)) $params = [$params];
 
-        Log::trace("Route imitation:" . $controllerName);
-        try {
-            $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
-        } catch (ReflectionException|ArgumentCountError|TypeError $err) {
-            RouteError::throw(HttpCode::BAD_REQUEST,
-                $err->getMessage() . ' in ' . $err->getFile() . '(' . $err->getLine() . ')'
-            );
+            Log::trace("Route imitation:" . $controllerName);
+            try {
+                $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
+            } catch (ReflectionException|ArgumentCountError|TypeError $exception) {
+                RouteError::throw(HttpCode::BAD_REQUEST,
+                    $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
+                );
+            }
+
+        } catch (ReflectionException $exception) {
+            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }
     }
 

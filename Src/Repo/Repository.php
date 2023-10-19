@@ -23,7 +23,7 @@ use Throwable;
  *
  *  Repository - a class for working with tables in a database
  *
- *  @version 11.0
+ *  @version 11.1
  *  @author itachi
  *  @package Extra\Src
  */
@@ -47,13 +47,9 @@ class Repository
     public function __construct(string $table_As = '')
     {
         if ($table_As) $this->CRD_SQL['as'] = $table_As;
-        try {
-            $shard = Aegis::getShard($this::$shardKey);
-            $this->schema = $shard->getSchema();
-            Warframe::setDb($this::$shardKey, $shard);
-        } catch (ArtefactError $err) {
-            RepositoryError::throw(HttpCode::from($err->getCode()), static::class . ': ' . $err->getMessage());
-        }
+        $shard = Aegis::getShard($this::$shardKey);
+        $this->schema = $shard->getSchema();
+        $shard->connect();
     }
 
     /**
@@ -61,7 +57,7 @@ class Repository
      */
     final public function db(): CDO
     {
-        return Warframe::db($this::$shardKey);
+        return Aegis::db($this::$shardKey);
     }
 
     final public function cleanCache(): void

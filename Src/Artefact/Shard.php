@@ -2,8 +2,11 @@
 
 namespace Extra\Src\Artefact;
 
+use Extra\Src\CDO\CDO;
+
 class Shard
 {
+    private static ?CDO $cdo = null;
     private string $driver;
     private string $host;
     private int $port;
@@ -97,5 +100,19 @@ class Shard
     public function getSchema(): ?string
     {
         return $this->schema;
+    }
+
+    public final function connect(): void
+    {
+        if (is_null(self::$cdo)) self::$cdo = new CDO($this, env('DEBUG', false));
+    }
+
+    /**
+     * @return CDO
+     */
+    public function connection(): CDO
+    {
+        if (is_null(self::$cdo)) self::$cdo = new CDO($this, env('DEBUG', false));
+        return self::$cdo;
     }
 }
