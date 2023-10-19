@@ -147,7 +147,6 @@ class Cfg extends Cmd
         if (!file_exists(PATH_APP . '/Controllers/PostmanController.php')) {
 
             $code = file_get_contents($this->templatePath . '/Packages/PostmanTemplate');
-//
             $fp = fopen(PATH_APP . '/Controllers/PostmanController.php', "x");
             fwrite($fp, $code);
             fclose($fp);
