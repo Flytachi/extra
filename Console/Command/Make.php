@@ -39,6 +39,10 @@ class Make extends Cmd
             $this->createRepository($this->args['arguments'][1]);
         if (in_array('m', $this->args['flags']))
             $this->createModel($this->args['arguments'][1]);
+        if (in_array('q', $this->args['flags']))
+            $this->createRequest($this->args['arguments'][1]);
+        if (in_array('j', $this->args['flags']))
+            $this->createJob($this->args['arguments'][1]);
     }
 
     private function createApiController(string $name): void
@@ -105,6 +109,32 @@ class Make extends Cmd
         $code = str_replace("__className__", $name, $code);
 
         $this->createFile($name, $path, $code, 'model');
+    }
+
+    private function createRequest(string $name): void
+    {
+        $name = $this->ucWord($name) . 'Request';
+        $templatePath = $this->templatePath . '/RequestTemplate';
+        $path = $this->getPath('Requests');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'request');
+    }
+
+    private function createJob(string $name): void
+    {
+        $name = $this->ucWord($name) . 'Job';
+        $templatePath = $this->templatePath . '/JobTemplate';
+        $path = $this->getPath('Jobs');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'job');
     }
 
 

@@ -35,7 +35,7 @@ abstract class RequestObject
      */
     public final function valid(string $field, callable $validateFunc = null, string $message = null): static
     {
-        Log::trace('Request valid: ' . $field);
+        Log::trace(static::class . ' valid: ' . $field);
         try {
             if(!property_exists($this, $field))
                 RequestError::throw(HttpCode::BAD_REQUEST,"Field \"{$field}\" not found!");

@@ -10,7 +10,7 @@ class BaseError extends ExtraException
 {
     protected string $handle = 'Core';
 
-    public final static function throw(HttpCode $httpCode, string $message): never
+    public final static function throw(HttpCode $httpCode, string $message, \Throwable|null $previous = null): never
     {
         $exception = new self($message, $httpCode->value);
 

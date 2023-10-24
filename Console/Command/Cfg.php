@@ -31,6 +31,7 @@ class Cfg extends Cmd
             switch ($this->args['arguments'][1]) {
                 case 'env': $this->envArg(); break;
                 case 'docker': $this->dockerArg(); break;
+                case 'postman': $this->postmanArg(); break;
                 default:
                     self::printMessage("Argument '{$this->args['arguments'][1]}' not found");
                     break;
@@ -136,6 +137,24 @@ class Cfg extends Cmd
         } else self::printMessage("Folder 'docker' is already exist.");
     }
 
+    private function postmanArg(): void
+    {
+        $this->postmanCreate();
+    }
+
+    private function postmanCreate(): void
+    {
+        if (!file_exists(PATH_APP . '/Controllers/PostmanController.php')) {
+
+            $code = file_get_contents($this->templatePath . '/Packages/PostmanTemplate');
+            $fp = fopen(PATH_APP . '/Controllers/PostmanController.php', "x");
+            fwrite($fp, $code);
+            fclose($fp);
+            self::printMessage("File 'PostmanController' is created.", 32);
+
+        } else self::printMessage("File 'PostmanController' is already exist.");
+    }
+
     public static function help(): void
     {
         $cl = 34;
@@ -145,6 +164,7 @@ class Cfg extends Cmd
         self::printMessage("args - command", $cl);
         self::print("env - project configuration file", $cl);
         self::print("docker - create docker configuration file", $cl);
+        self::print("postman - create postman collection api controller", $cl);
 
         // env
         self::printLabel("env", $cl);
