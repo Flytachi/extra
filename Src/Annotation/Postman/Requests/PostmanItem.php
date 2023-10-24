@@ -60,8 +60,10 @@ class PostmanItem implements Postman
 
                 foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {
                     if (!$apiMethod->isStatic() && $apiMethod->name != '__construct') {
+
+                        $folder = trim(lcfirst(str_replace([PATH_APP . '/Controllers/', basename($apiPath)], '', $apiPath)), '/');
                         // params
-                        $path = ["api", lcfirst($apiUrl), $apiMethod->name];
+                        $path = [$folder, lcfirst($apiUrl), $apiMethod->name];
                         foreach ($apiMethod->getParameters() as $parameter)
                             $path[] = ($parameter->isDefaultValueAvailable())
                                 ? $parameter->getDefaultValue()
