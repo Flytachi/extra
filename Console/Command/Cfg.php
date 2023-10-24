@@ -144,6 +144,8 @@ class Cfg extends Cmd
 
     private function postmanCreate(): void
     {
+        if (!is_dir(PATH_APP . '/Controllers'))
+            mkdir(PATH_APP . '/Controllers', 0777, true);
         if (!file_exists(PATH_APP . '/Controllers/PostmanController.php')) {
 
             $code = file_get_contents($this->templatePath . '/Packages/PostmanTemplate');
