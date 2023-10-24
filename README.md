@@ -32,7 +32,7 @@ Controller -> Service -> Repository -> Model
 * Then run the build script 'php app/Extra/\_\_build\_\_'.
 
 
-## Справочник
+## Manual
 
 -------------------------------------------
 `extra` - Console command
