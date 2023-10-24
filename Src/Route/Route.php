@@ -5,6 +5,7 @@ namespace Extra\Src\Route;
 use ArgumentCountError;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\HttpStatus;
+use Extra\Src\Error\ExtraException;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 use ReflectionException;
@@ -16,7 +17,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 18.2
+ * 	@version 18.5
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -139,7 +140,9 @@ class Route
                 );
             }
 
-        } catch (ReflectionException $exception) {
+        } catch (ExtraException $exception) {
+            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
+        } catch (\Throwable $exception) {
             RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }
     }

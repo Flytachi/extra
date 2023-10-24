@@ -32,24 +32,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
     {
         if (env('DEBUG', false)) {
             $message = [];
-            foreach ($this->getTrace() as $key => $value) {
-                $ms = "#{$key} ";
-                if ($key == 0) {
-                    $ms .= $value['file'] ?? $this->file;
-                    $ms .= ' (' . ($value['line'] ?? $this->line) . '): ';
-                    if (isset($value['class'])) $ms .= $value['class'];
-                    if (isset($value['type'])) $ms .= $value['type'];
-                    if (isset($value['function'])) $ms .= $value['function'];
-                    $message[] = $ms;
-                } else {
-                    if (isset($value['file'])) $ms .= $value['file'];
-                    if (isset($value['line'])) $ms .= ' (' . $value['line'] . '): ';
-                    if (isset($value['class'])) $ms .= $value['class'];
-                    if (isset($value['type'])) $ms .= $value['type'];
-                    if (isset($value['function'])) $ms .= $value['function'];
-                    $message[] = $ms;
-                }
-            }
+            $this->forThrow($message, $this);
 
             $delta = round(microtime(true)-$_SERVER['REQUEST_TIME'], 3);
             return [
@@ -83,23 +66,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             };
 
             $message = "";
-            foreach ($this->getTrace() as $key => $value) {
-                if ($key == 0) {
-                    $message .= "\n\t\t#" . $key . ' ';
-                    $message .= $value['file'] ?? $this->file;
-                    $message .= ' (' . ($value['line'] ?? $this->line) . '): ';
-                    if (isset($value['class'])) $message .= "\t" . $value['class'];
-                    if (isset($value['type'])) $message .= $value['type'];
-                    if (isset($value['function'])) $message .= $value['function'];
-                } else {
-                    $message .= "\n\t\t#" . $key . ' ';
-                    if (isset($value['file'])) $message .= $value['file'];
-                    if (isset($value['line'])) $message .= ' (' . $value['line'] . '): ';
-                    if (isset($value['class'])) $message .= "\t" . $value['class'];
-                    if (isset($value['type'])) $message .= $value['type'];
-                    if (isset($value['function'])) $message .= $value['function'];
-                }
-            }
+            $this->forThrow($message, $this);
 
             return "<pre style=\"background-color: black; color: #{$tColor}; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px\">"
                 . "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message | " . $this->handle . "</strong><hr>"
@@ -137,5 +104,50 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             'message' => $this->message,
             ...$debug
         ]);
+    }
+
+    protected function forThrow(array|string &$message, \Throwable $throwable): void
+    {
+        $previous = $throwable->getPrevious();
+        if($previous) $throwable->forThrow($message, $previous);
+        if (is_array($message)) {
+            foreach ($throwable->getTrace() as $key => $value) {
+                $ms = "#{$key} ";
+                if ($key == 0) {
+                    $ms .= $value['file'] ?? $this->file;
+                    $ms .= ' (' . ($value['line'] ?? $this->line) . '): ';
+                    if (isset($value['class'])) $ms .= $value['class'];
+                    if (isset($value['type'])) $ms .= $value['type'];
+                    if (isset($value['function'])) $ms .= $value['function'];
+                    $message[] = $ms;
+                } else {
+                    if (isset($value['file'])) $ms .= $value['file'];
+                    if (isset($value['line'])) $ms .= ' (' . $value['line'] . '): ';
+                    if (isset($value['class'])) $ms .= $value['class'];
+                    if (isset($value['type'])) $ms .= $value['type'];
+                    if (isset($value['function'])) $ms .= $value['function'];
+                    $message[] = $ms;
+                }
+            }
+        } else {
+            foreach ($throwable->getTrace() as $key => $value) {
+                if ($key == 0) {
+                    $message .= "\n\t\t#" . $key . ' ';
+                    $message .= $value['file'] ?? $throwable->file;
+                    $message .= ' (' . ($value['line'] ?? $throwable->line) . '): ';
+                    if (isset($value['class'])) $message .= "\t" . $value['class'];
+                    if (isset($value['type'])) $message .= $value['type'];
+                    if (isset($value['function'])) $message .= $value['function'];
+                } else {
+                    $message .= "\n\t\t#" . $key . ' ';
+                    if (isset($value['file'])) $message .= $value['file'];
+                    if (isset($value['line'])) $message .= ' (' . $value['line'] . '): ';
+                    if (isset($value['class'])) $message .= "\t" . $value['class'];
+                    if (isset($value['type'])) $message .= $value['type'];
+                    if (isset($value['function'])) $message .= $value['function'];
+                }
+            }
+        }
+
     }
 }
