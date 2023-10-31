@@ -55,7 +55,7 @@ class PostmanItem implements Postman
 
                 if (array_key_exists('request', $apiData) && array_key_exists('auth', $apiData['request'])) {
                     $apiData['auth'] = $apiData['request']['auth'];
-                    unset($apiData['request']['auth']);
+                    unset($apiData['request']);
                 }
 
                 foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {

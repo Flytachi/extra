@@ -17,7 +17,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 18.6
+ * 	@version 18.7
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -143,7 +143,8 @@ class Route
             }
 
         } catch (ExtraException $exception) {
-            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
+            $code = HttpCode::tryFrom((int) $exception->getCode());
+            RouteError::throw($code ?: HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
         } catch (\Throwable $exception) {
             RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }
