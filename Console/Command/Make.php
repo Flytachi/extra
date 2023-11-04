@@ -179,6 +179,8 @@ class Make extends Cmd
         self::print("s - Template Service, prefix Service", $cl);
         self::print("r - Template Repository, prefix Repository", $cl);
         self::print("m - Template ModelBase, prefix Model", $cl);
+        self::print("q - Template RequestObject, prefix Request", $cl);
+        self::print("j - Template Job, prefix Job", $cl);
         self::printMessage("options - additional option", $cl);
         self::print("folder - folder where template will be added (recursive creation is used)", $cl);
 
