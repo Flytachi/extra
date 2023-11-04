@@ -6,7 +6,7 @@ use Extra\Src\CDO\CDO;
 
 class Shard
 {
-    private static ?CDO $cdo = null;
+    private ?CDO $cdo = null;
     private string $driver;
     private string $host;
     private int $port;
@@ -104,7 +104,7 @@ class Shard
 
     public final function connect(): void
     {
-        if (is_null(self::$cdo)) self::$cdo = new CDO($this, env('DEBUG', false));
+        if (is_null($this->cdo)) $this->cdo = new CDO($this, env('DEBUG', false));
     }
 
     /**
@@ -112,7 +112,7 @@ class Shard
      */
     public function connection(): CDO
     {
-        if (is_null(self::$cdo)) self::$cdo = new CDO($this, env('DEBUG', false));
-        return self::$cdo;
+        $this->connect();
+        return $this->cdo;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Extra\Src\CDO;
 
-use Extra\Src\RandomGenerator;
+use Extra\Src\Algorithm\Algorithm;
 
 /**
  *  Warframe collection
@@ -15,8 +15,6 @@ use Extra\Src\RandomGenerator;
  */
 class BKB
 {
-    private static string $alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
-    private static ?RandomGenerator $generator = null;
     private string $prepareData;
     private array $cache;
 
@@ -463,8 +461,6 @@ class BKB
 
     private static function inject(string|int|float $value): string
     {
-        if(is_null(self::$generator))
-            self::$generator = new RandomGenerator(self::$alphabet);
-        return ':' . self::$generator->generate(10);
+        return ':' . Algorithm::random(10, "abcdefghijklmnopqrstuvwxyz0123456789");
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Extra\Src\Trait;
 
+use Extra\Src\Algorithm\Algorithm;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Error\CsrfError;
-use Extra\Src\RandomGenerator;
 
 trait CsrfTrait {
     /**
@@ -33,8 +33,7 @@ trait CsrfTrait {
      */
     final protected function csrfTokenGen(): string
     {
-        $random = new RandomGenerator();
-        $token = bin2hex($random->generate(20));
+        $token = bin2hex(Algorithm::random(20));
         $_SESSION['CSRF_TOKEN'] = $token;
         return $token;
     }

@@ -55,13 +55,17 @@ class PostmanItem implements Postman
 
                 if (array_key_exists('request', $apiData) && array_key_exists('auth', $apiData['request'])) {
                     $apiData['auth'] = $apiData['request']['auth'];
-                    unset($apiData['request']['auth']);
+                    unset($apiData['request']);
                 }
 
                 foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {
                     if (!$apiMethod->isStatic() && $apiMethod->name != '__construct') {
 
-                        $folder = trim(lcfirst(str_replace([PATH_APP . '/Controllers/', basename($apiPath)], '', $apiPath)), '/');
+                        $folder = trim(str_replace([PATH_APP . '/Controllers/', basename($apiPath)], '', $apiPath), '/');
+                        $folders = [];
+                        foreach (explode('/', $folder) as $item) $folders[] = lcfirst($item);
+                        $folder = implode('/', $folders);
+
                         // params
                         $path = [$folder, lcfirst($apiUrl), $apiMethod->name];
                         foreach ($apiMethod->getParameters() as $parameter)

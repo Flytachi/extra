@@ -17,7 +17,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 18.5
+ * 	@version 18.7
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -87,7 +87,9 @@ class Route
 
         $folder = self::inGroup($data['url']);
         $routes = explode('/', $data['url']);
-        if ( !empty($routes[1]) ) $controllerName = ($folder ? $folder . '\\' : '') . ucfirst($routes[1]);
+        if ( !empty($routes[1]) ) $controllerName = ($folder
+                ? (str_replace('/', '\\', $folder) . '\\')
+                : '') . ucfirst($routes[1]);
         if ( !empty($routes[2]) ) $actionName = ucfirst($routes[2]);
         if ( !empty($routes[3]) ) $params = array_slice($routes, 3);
         $controllerName = '\Controllers\\' . $controllerName . 'Controller';
@@ -141,7 +143,8 @@ class Route
             }
 
         } catch (ExtraException $exception) {
-            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
+            $code = HttpCode::tryFrom((int) $exception->getCode());
+            RouteError::throw($code ?: HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
         } catch (\Throwable $exception) {
             RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }

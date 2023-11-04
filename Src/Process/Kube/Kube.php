@@ -15,7 +15,7 @@ use Extra\Src\Process\Dispatcher\DispatcherInterface;
  *
  *  Kube
  *
- *  @version 1.0
+ *  @version 1.1
  *  @author itachi
  *  @package Extra\Src\Process
  */
@@ -248,6 +248,11 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     protected function asProcInterrupt(): void
     {
         Log::alert('[' . getmypid() . '] ' . static::class . ' INTERRUPTED CHILD');
+    }
+
+    public function proc(int $pid, mixed $data = null): void
+    {
+        Log::info("PROC {$pid} running");
     }
 
 }
