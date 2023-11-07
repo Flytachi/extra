@@ -16,7 +16,7 @@ use TypeError;
  *
  *  Wrapper
  *
- *  @version 9.0
+ *  @version 9.1
  *  @author itachi
  *  @package Extra\Src
  */
@@ -137,6 +137,8 @@ class Wrapper
         return [
             'pagination' => [
                 'current' => self::$currentPage,
+                'previous' => self::$currentPage-1,
+                'next' => (self::$totalPages > self::$currentPage) ? self::$currentPage+1 : 0,
                 'perPage' => self::$limitPage,
                 'totalItem' => self::$totalItem,
                 'totalPage' => self::$totalPages,
