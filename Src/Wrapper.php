@@ -16,7 +16,7 @@ use TypeError;
  *
  *  Wrapper
  *
- *  @version 9.1
+ *  @version 10.0
  *  @author itachi
  *  @package Extra\Src
  */
@@ -32,7 +32,6 @@ class Wrapper
     static int $currentPage;
     static int $limitPage;
     static string $params;
-    static array $paginationParams = [];
 
     /**
      * @param string $dataTime date from
@@ -127,18 +126,24 @@ class Wrapper
 
     /**
      * @param Repository $repo
+     * @param int|null $limit
+     * @param int $page
      * @param string $func
+     *
      * @return array
      */
-    final static function paginator(Repository $repo, string $func = 'findAll'): array
+    final static function paginator(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array
     {
-        if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
+        else {
+            if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        }
         self::init($repo);
         return [
             'pagination' => [
                 'current' => self::$currentPage,
-                'previous' => self::$currentPage-1,
-                'next' => (self::$totalPages > self::$currentPage) ? self::$currentPage+1 : 0,
+                'previous' => self::$currentPage - 1,
+                'next' => (self::$totalPages > self::$currentPage) ? self::$currentPage + 1 : 0,
                 'perPage' => self::$limitPage,
                 'totalItem' => self::$totalItem,
                 'totalPage' => self::$totalPages,
@@ -149,12 +154,18 @@ class Wrapper
 
     /**
      * @param Repository $repo
+     * @param int|null $limit
+     * @param int $page
      * @param string $func
+     *
      * @return array
      */
-    final static function paginatorDecoration(Repository $repo, string $func = 'findAll'): array
+    final static function paginatorDecoration(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array
     {
-        if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
+        else {
+            if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        }
         return array(
             'table' => $repo->{$func}(),
             'panel' => Wrapper::panel($repo)
