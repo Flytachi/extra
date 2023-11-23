@@ -38,6 +38,11 @@ class PostmanBody implements Postman
                 }
                 break;
             case PostmanDataType::JSON:
+                $arrayData['request']['header'][] = [
+                    'key' => 'Content-Type',
+                    'value' => 'application/json',
+                    'type' => 'text',
+                ];
                 $arrayData['request']['body'] = [
                     'mode' => 'raw',
                     'raw' => json_encode($this->data, JSON_PRETTY_PRINT),
