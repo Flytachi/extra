@@ -9,7 +9,7 @@ namespace Extra\Src\Algorithm;
  *  Algorithm
  *
  *  @package Extra\Src
- *  @version 1.0
+ *  @version 1.5
  *  @author itachi
  */
 class Algorithm
@@ -52,16 +52,18 @@ class Algorithm
      * Optimized for a large number of elements.
      *
      * @param array $values index array of elements
-     * @param array $weights index array of corresponding weights
+     * @param array<int|float> $weights index array of corresponding weights
      * @return mixed selected item
      */
     public static function weightedRandom(array $values, array $weights): mixed
     {
-        if (self::$lookup == null OR self::$totalWeight == null)
-            self::calcLookups($values, $weights);
-
-        $rand = mt_rand(1, self::$totalWeight);
-        return $values[self::binarySearch($rand, self::$lookup)];
+        $totalWeight = array_sum($weights);
+        $randomValue = mt_rand() / mt_getrandmax() * $totalWeight;
+        foreach ($weights as $key => $weight) {
+            $randomValue -= $weight;
+            if ($randomValue <= 0) return $values[$key];
+        }
+        return null;
     }
 
     private static function setAlphabet(string $alphabet): void
@@ -91,38 +93,5 @@ class Algorithm
         } while ($rnd >= $range);
 
         return ($min + $rnd);
-    }
-
-    private static function calcLookups(array $values, array $weights): void
-    {
-        self::$lookup = array();
-        self::$totalWeight = 0;
-
-        for ($i=0; $i < count($weights); $i++)
-        {
-            self::$totalWeight += $weights[$i];
-            self::$lookup[$i] = self::$totalWeight;
-        }
-    }
-
-    private static function binarySearch(int $needle, array $haystack): int
-    {
-        $high = count($haystack) - 1;
-        $low = 0;
-
-        while ( $low < $high )
-        {
-            $probe = (int)(($high + $low) / 2);
-
-            if ($haystack[$probe] < $needle)
-                $low = $probe + 1;
-            elseif ($haystack[$probe] > $needle)
-                $high = $probe - 1;
-            else return $probe;
-        }
-
-        if ( $low != $high ) return $probe;
-        else
-            return ($haystack[$low] >= $needle) ? $low : $low + 1;
     }
 }

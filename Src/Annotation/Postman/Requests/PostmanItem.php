@@ -4,6 +4,7 @@ namespace Extra\Src\Annotation\Postman\Requests;
 
 use Exception;
 use Extra\Src\Annotation\Postman\Postman;
+use Extra\Src\Controller\ApiBase;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -61,6 +62,16 @@ class PostmanItem implements Postman
                 foreach ($apiClass->getMethods(ReflectionMethod::IS_PUBLIC) as $apiMethod) {
                     if (!$apiMethod->isStatic() && $apiMethod->name != '__construct') {
 
+                        // header
+                        $header = [];
+                        if ($apiClass->getParentClass()->name == ApiBase::class) {
+                            $header[] = [
+                                'key' => 'Accept',
+                                'value' => 'application/json',
+                                'type' => 'text',
+                            ];
+                        }
+
                         $folder = trim(str_replace([PATH_APP . '/Controllers/', basename($apiPath)], '', $apiPath), '/');
                         $folders = [];
                         foreach (explode('/', $folder) as $item) $folders[] = lcfirst($item);
@@ -79,7 +90,7 @@ class PostmanItem implements Postman
                             "request" => [
                                 'auth' => [],
                                 'method' => "GET",
-                                'header' => [],
+                                'header' => $header,
                                 'url' => [
                                     'raw' => "{{wBaseUrl}}/" . implode('/', $path),
                                     'host' => ["{{wBaseUrl}}"],

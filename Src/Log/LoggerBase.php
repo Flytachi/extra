@@ -15,6 +15,7 @@ abstract class LoggerBase {
     protected static string $dateFormat = 'Y-m-d H:i:s P';
     private static int $level = 0;
     private static int $lifeTime = 0;
+    private static string|null $prepareFunction = null;
 
     private static function initial(): void
     {
@@ -44,6 +45,7 @@ abstract class LoggerBase {
     {
         static::initial();
         if (static::$resource !== false) fwrite(static::$resource, $message);
+        if (static::$prepareFunction != null) (static::$prepareFunction)($message);
     }
 
     protected final static function writeIsLevel(string $message, int $level): void
@@ -51,6 +53,7 @@ abstract class LoggerBase {
         if (static::$level === $level) {
             static::initial();
             if (static::$resource !== false) fwrite(static::$resource, $message);
+            if (static::$prepareFunction != null) (static::$prepareFunction)($message);
         }
     }
 
@@ -59,6 +62,7 @@ abstract class LoggerBase {
         if (static::$level !== $level) {
             static::initial();
             if (static::$resource !== false) fwrite(static::$resource, $message);
+            if (static::$prepareFunction != null) (static::$prepareFunction)($message);
         }
     }
 
@@ -96,5 +100,10 @@ abstract class LoggerBase {
     public static function setLifeTime(int $lifeTime = 0): void
     {
         self::$lifeTime = $lifeTime;
+    }
+
+    public static function prepareCallable(callable|null $prepareFunction = null): void
+    {
+        self::$prepareFunction = $prepareFunction;
     }
 }
