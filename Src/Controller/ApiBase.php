@@ -14,7 +14,7 @@ use ReflectionClass;
  *
  *  ApiBase - api controller
  *
- *  @version 9.0
+ *  @version 9.2
  *  @author itachi
  *  @package Extra\Src
  */
@@ -114,7 +114,6 @@ abstract class ApiBase
      */
     protected function response(HttpCode $httpCode, mixed $data = null): void
     {
-        if($httpCode->value >= 400) ControllerError::throw($httpCode, $data ?? $httpCode->name);
         Route::ApiResponse($httpCode, $data);
     }
 
@@ -130,6 +129,33 @@ abstract class ApiBase
     protected function responseOk(mixed $data = null): void
     {
         Route::ApiResponse(HttpCode::OK, $data);
+    }
+
+    /**
+     * Api Response Message
+     *
+     * @param HttpCode $httpCode
+     * @param string $message
+     *
+     * @return void
+     */
+    protected function responseMessage(HttpCode $httpCode, string $message = ''): void
+    {
+        Route::ApiResponseMessage($httpCode, $message);
+    }
+
+    /**
+     * Text Response
+     *
+     * @param HttpCode $httpCode
+     * @param string $text
+     * @param bool $htmlEntities
+     *
+     * @return void
+     */
+    protected function textResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): void
+    {
+        Route::TextResponse($httpCode, $text, $htmlEntities);
     }
 
 }
