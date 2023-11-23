@@ -17,7 +17,7 @@ use TypeError;
  *
  *  Route - routing system
  *
- * 	@version 18.7
+ * 	@version 19.0
  * 	@author itachi
  * 	@package Extra\Src
  */
@@ -191,7 +191,7 @@ class Route
      * Api Response
      *
      * @param HttpCode $httpCode
-     * @param mixed $data message
+     * @param mixed $data data
      *
      * @return never
      */
@@ -214,6 +214,61 @@ class Route
             'data' => $data,
             ...$debug
         ]);
+        die;
+    }
+
+    /**
+     * Api Response Message
+     *
+     * @param HttpCode $httpCode
+     * @param string $message
+     *
+     * @return never
+     */
+    final static function ApiResponseMessage(HttpCode $httpCode, string $message = ''): never
+    {
+        $status = HttpStatus::status($httpCode);
+        header_remove("X-Powered-By");
+        header("HTTP/1.1 {$httpCode->value} " . $status);
+        header("Status: {$httpCode->value} " . $status);
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Methods: *");
+        header("Content-Type: application/json");
+
+        Log::trace($_SERVER['REQUEST_URI'] . ' => ' . json_encode($message));
+        $debug = self::debugApi();
+        echo json_encode([
+            'statusCode' => $httpCode->value,
+            'statusDescription' => $status,
+            'message' => $message,
+            ...$debug
+        ]);
+        die;
+    }
+
+    /**
+     * Text Response
+     *
+     * @param HttpCode $httpCode
+     * @param string $text
+     * @param bool $htmlEntities
+     *
+     * @return never
+     */
+    final static function TextResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never
+    {
+        $status = HttpStatus::status($httpCode);
+        header_remove("X-Powered-By");
+        header("HTTP/1.1 {$httpCode->value} " . $status);
+        header("Status: {$httpCode->value} " . $status);
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Methods: *");
+        header("Content-Type: text/plain");
+
+        Log::trace($_SERVER['REQUEST_URI'] . ' => ' . json_encode($text));
+        echo ($htmlEntities) ? htmlentities($text) : $text;
         die;
     }
 
