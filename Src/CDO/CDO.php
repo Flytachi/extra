@@ -79,9 +79,11 @@ class CDO extends PDO
             $stmt = $this->prepare($query);
             foreach ($data as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
-                    case 'NULL': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
-                    case 'boolean': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
-                    case 'integer': $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
+                    case 'NULL'    :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
+                    case 'array'   :  $stmt->bindValue(':' . $keyVal, json_encode($paramVal)); break;
+                    case 'object'  :  $stmt->bindValue(':' . $keyVal, serialize($paramVal)); break;
                     default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
                 }
             }
@@ -133,9 +135,11 @@ class CDO extends PDO
             $stmt = $this->prepare($query);
             foreach ([...$bkb->getCache(), ...$data] as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
-                    case 'NULL': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
-                    case 'boolean': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
-                    case 'integer': $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
+                    case 'NULL'    :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
+                    case 'array'   :  $stmt->bindValue(':' . $keyVal, json_encode($paramVal)); break;
+                    case 'object'  :  $stmt->bindValue(':' . $keyVal, serialize($paramVal)); break;
                     default: $stmt->bindValue($keyVal, $paramVal); break;
                 }
             }

@@ -6,63 +6,148 @@ abstract class HttpStatus
 {
     final public static function status(HttpCode $code): string
     {
-        switch ($code) {
-            // 1xx
-            case HttpCode::CONTINUE: return 'Continue'; break;
-            case HttpCode::SWITCHING_PROTOCOLS: return 'Switching Protocols'; break;
-            case HttpCode::PROCESSING: return 'Processing'; break;
+        return match ($code) {
             // 2xx
-            case HttpCode::OK: return 'Ok'; break;
-            case HttpCode::CREATED: return 'Created'; break;
-            case HttpCode::ACCEPTED: return 'Accepted'; break;
-            case HttpCode::NON_AUTHORITATIVE_INFORMATION: return 'Non-Authoritative Information'; break;
-            case HttpCode::NO_CONTENT: return 'No Content'; break;
-            case HttpCode::RESET_CONTENT: return 'Reset Content'; break;
-            case HttpCode::PARTIAL_CONTENT: return 'Partial Content'; break;
-            case HttpCode::MULTI_STATUS: return 'Multi-Status'; break;
+            HttpCode::OK                                      =>  'Ok',
+            HttpCode::CREATED                                 =>  'Created',
+            HttpCode::ACCEPTED                                =>  'Accepted',
+            HttpCode::NON_AUTHORITATIVE_INFORMATION           =>  'Non-Authoritative Information',
+            HttpCode::NO_CONTENT                              =>  'No Content',
+            HttpCode::RESET_CONTENT                           =>  'Reset Content',
+            HttpCode::PARTIAL_CONTENT                         =>  'Partial Content',
+            HttpCode::MULTI_STATUS                            =>  'Multi-Status',
+            HttpCode::ALREADY_REPORTED                        =>  'Already Reported',
+            HttpCode::IM_USED                                 =>  'IM Used',
             // 3xx
-            case HttpCode::MULTIPLE_CHOICES: return 'Multiple Choices'; break;
-            case HttpCode::MOVED_PERMANENTLY: return 'Moved Permanently'; break;
-            case HttpCode::FOUND: return 'Found'; break;
-            case HttpCode::SEE_OTHER: return 'See Other'; break;
-            case HttpCode::NOT_MODIFIED: return 'Not Modified'; break;
-            case HttpCode::USE_PROXY: return 'Use Proxy'; break;
-            case HttpCode::TEMPORARY_REDIRECT: return 'Temporary Redirect'; break;
+            HttpCode::MULTIPLE_CHOICES                        =>  'Multiple Choices',
+            HttpCode::MOVED_PERMANENTLY                       =>  'Moved Permanently',
+            HttpCode::FOUND                                   =>  'Found',
+            HttpCode::SEE_OTHER                               =>  'See Other',
+            HttpCode::NOT_MODIFIED                            =>  'Not Modified',
+            HttpCode::USE_PROXY                               =>  'Use Proxy',
+            HttpCode::TEMPORARY_REDIRECT                      =>  'Temporary Redirect',
+            HttpCode::PERMANENT_REDIRECT                      =>  'Permanent Redirect',
             // 4xx
-            case HttpCode::BAD_REQUEST: return 'Bad Request'; break;
-            case HttpCode::UNAUTHORIZED: return 'Unauthorized'; break;
-            case HttpCode::PAYMENT_REQUIRED: return 'Payment Required'; break;
-            case HttpCode::FORBIDDEN: return 'Forbidden'; break;
-            case HttpCode::NOT_FOUND: return 'Not Found'; break;
-            case HttpCode::METHOD_NOT_ALLOWED: return 'Method Not Allowed'; break;
-            case HttpCode::NOT_ACCEPTABLE: return 'Not Acceptable'; break;
-            case HttpCode::PROXY_AUTHENTICATION_REQUIRED: return 'Proxy Authentication Required'; break;
-            case HttpCode::REQUEST_TIMEOUT: return 'Request Timeout'; break;
-            case HttpCode::CONFLICT: return 'Conflict'; break;
-            case HttpCode::GONE: return 'Gone'; break;
-            case HttpCode::LENGTH_REQUIRED: return 'Length Required'; break;
-            case HttpCode::PRECONDITION_FAILED: return 'Precondition Failed'; break;
-            case HttpCode::REQUEST_ENTITY_TOO_LARGE: return 'Request Entity Too Large'; break;
-            case HttpCode::REQUEST_URI_TOO_LONG: return 'Request-URI Too Long'; break;
-            case HttpCode::UNSUPPORTED_MEDIA_TYPE: return 'Unsupported Media Type'; break;
-            case HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE: return 'Requested Range Not Satisfiable'; break;
-            case HttpCode::EXPECTATION_FAILED: return 'Expectation Failed'; break;
-            case HttpCode::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616: return 'Authentication Timeout (not in RFC 2616)'; break;
-            case HttpCode::UNPROCESSABLE_ENTITY: return 'Unprocessable Entity'; break;
-            case HttpCode::LOCKED: return 'Locked'; break;
-            case HttpCode::FAILED_DEPENDENCY: return 'Failed Dependency'; break;
-            case HttpCode::UPGRADE_REQUIRED: return 'Upgrade Required'; break;
+            HttpCode::BAD_REQUEST                             =>  'Bad Request',
+            HttpCode::UNAUTHORIZED                            =>  'Unauthorized',
+            HttpCode::PAYMENT_REQUIRED                        =>  'Payment Required',
+            HttpCode::FORBIDDEN                               =>  'Forbidden',
+            HttpCode::NOT_FOUND                               =>  'Not Found',
+            HttpCode::METHOD_NOT_ALLOWED                      =>  'Method Not Allowed',
+            HttpCode::NOT_ACCEPTABLE                          =>  'Not Acceptable',
+            HttpCode::PROXY_AUTHENTICATION_REQUIRED           =>  'Proxy Authentication Required',
+            HttpCode::REQUEST_TIMEOUT                         =>  'Request Timeout',
+            HttpCode::CONFLICT                                =>  'Conflict',
+            HttpCode::GONE                                    =>  'Gone',
+            HttpCode::LENGTH_REQUIRED                         =>  'Length Required',
+            HttpCode::PRECONDITION_FAILED                     =>  'Precondition Failed',
+            HttpCode::REQUEST_ENTITY_TOO_LARGE                =>  'Request Entity Too Large',
+            HttpCode::REQUEST_URI_TOO_LONG                    =>  'Request-URI Too Long',
+            HttpCode::UNSUPPORTED_MEDIA_TYPE                  =>  'Unsupported Media Type',
+            HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE         =>  'Requested Range Not Satisfiable',
+            HttpCode::EXPECTATION_FAILED                      =>  'Expectation Failed',
+            HttpCode::IM_A_TEAPOT                             =>  'I’m a teapot',
+            HttpCode::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616  =>  'Authentication Timeout (not in RFC 2616)',
+            HttpCode::MISDIRECTED_REQUEST                     =>  'Misdirected Request',
+            HttpCode::UNPROCESSABLE_ENTITY                    =>  'Unprocessable Entity',
+            HttpCode::LOCKED                                  =>  'Locked',
+            HttpCode::FAILED_DEPENDENCY                       =>  'Failed Dependency',
+            HttpCode::TOO_EARLY                               =>  'Too Early',
+            HttpCode::UPGRADE_REQUIRED                        =>  'Upgrade Required',
+            HttpCode::PRECONDITION_REQUIRED                   =>  'Precondition Required',
+            HttpCode::TOO_MANY_REQUESTS                       =>  'Too Many Requests',
+            HttpCode::REQUEST_HEADER_FIELDS_TOO_LARGE         =>  'Request Header Fields Too Large',
+            HttpCode::RETRY_WITH                              =>  'Retry With',
+            HttpCode::UNAVAILABLE_FOR_LEGAL_REASONS           =>  'Unavailable For Legal Reasons',
+            HttpCode::CLIENT_CLOSED_REQUEST                   =>  'Client Closed Request',
             // 5xx
-            case HttpCode::INTERNAL_SERVER_ERROR: return 'Internal Server Error'; break;
-            case HttpCode::NOT_IMPLEMENTED: return 'Not Implemented'; break;
-            case HttpCode::BAD_GATEWAY: return 'Bad Gateway'; break;
-            case HttpCode::SERVICE_UNAVAILABLE: return 'Service Unavailable'; break;
-            case HttpCode::GATEWAY_TIMEOUT: return 'Gateway Timeout'; break;
-            case HttpCode::HTTP_VERSION_NOT_SUPPORTED: return 'HTTP Version Not Supported'; break;
-            case HttpCode::VARIANT_ALSO_NEGOTIATES: return 'Variant Also Negotiates'; break;
-            case HttpCode::INSUFFICIENT_STORAGE: return 'Insufficient Storage'; break;
-            case HttpCode::BANDWIDTH_LIMIT_EXCEEDED: return 'Bandwidth Limit Exceeded'; break;
-            case HttpCode::NOT_EXTENDED: return 'Not Extended'; break;
-        }
+            HttpCode::INTERNAL_SERVER_ERROR                   =>  'Internal Server Error',
+            HttpCode::NOT_IMPLEMENTED                         =>  'Not Implemented',
+            HttpCode::BAD_GATEWAY                             =>  'Bad Gateway',
+            HttpCode::SERVICE_UNAVAILABLE                     =>  'Service Unavailable',
+            HttpCode::GATEWAY_TIMEOUT                         =>  'Gateway Timeout',
+            HttpCode::HTTP_VERSION_NOT_SUPPORTED              =>  'HTTP Version Not Supported',
+            HttpCode::VARIANT_ALSO_NEGOTIATES                 =>  'Variant Also Negotiates',
+            HttpCode::INSUFFICIENT_STORAGE                    =>  'Insufficient Storage',
+            HttpCode::LOOP_DETECTED                           =>  'Loop Detected',
+            HttpCode::BANDWIDTH_LIMIT_EXCEEDED                =>  'Bandwidth Limit Exceeded',
+            HttpCode::NOT_EXTENDED                            =>  'Not Extended',
+            HttpCode::NETWORK_AUTHENTICATION_REQUIRED         =>  'Network Authentication Required',
+            HttpCode::UNKNOWN_ERROR                           =>  'Unknown Error',
+            HttpCode::WEB_SERVER_IS_DOWN                      =>  'Web Server Is Down',
+            HttpCode::CONNECTION_TIMED_OUT                    =>  'Connection Timed Out',
+            HttpCode::ORIGIN_IS_UNREACHABLE                   =>  'Origin Is Unreachable',
+            HttpCode::A_TIMEOUT_OCCURRED                      =>  'A Timeout Occurred',
+            HttpCode::SSL_HANDSHAKE_FAILED                    =>  'SSL Handshake Failed',
+            HttpCode::INVALID_SSL_CERTIFICATE                 =>  'Invalid SSL Certificate'
+        };
+    }
+
+    final public static function isSuccess(HttpCode $code): bool
+    {
+        return match ($code) {
+            HttpCode::OK, HttpCode::CREATED, HttpCode::ACCEPTED,
+            HttpCode::NON_AUTHORITATIVE_INFORMATION,
+            HttpCode::NO_CONTENT, HttpCode::RESET_CONTENT,
+            HttpCode::PARTIAL_CONTENT, HttpCode::MULTI_STATUS,
+            HttpCode::ALREADY_REPORTED, HttpCode::IM_USED
+            => true,
+            default => false
+        };
+    }
+
+    final public static function isRedirection(HttpCode $code): bool
+    {
+        return match ($code) {
+            HttpCode::MULTIPLE_CHOICES, HttpCode::MOVED_PERMANENTLY,
+            HttpCode::FOUND, HttpCode::SEE_OTHER,
+            HttpCode::NOT_MODIFIED, HttpCode::USE_PROXY,
+            HttpCode::TEMPORARY_REDIRECT, HttpCode::PERMANENT_REDIRECT
+            => true,
+            default => false
+        };
+    }
+
+    final public static function isClientError(HttpCode $code): bool
+    {
+        return match ($code) {
+            HttpCode::BAD_REQUEST, HttpCode::UNAUTHORIZED,
+            HttpCode::PAYMENT_REQUIRED, HttpCode::FORBIDDEN,
+            HttpCode::NOT_FOUND, HttpCode::METHOD_NOT_ALLOWED,
+            HttpCode::NOT_ACCEPTABLE, HttpCode::PROXY_AUTHENTICATION_REQUIRED,
+            HttpCode::REQUEST_TIMEOUT, HttpCode::CONFLICT, HttpCode::GONE,
+            HttpCode::LENGTH_REQUIRED, HttpCode::PRECONDITION_FAILED,
+            HttpCode::REQUEST_ENTITY_TOO_LARGE, HttpCode::REQUEST_URI_TOO_LONG,
+            HttpCode::UNSUPPORTED_MEDIA_TYPE,
+            HttpCode::REQUESTED_RANGE_NOT_SATISFIABLE,
+            HttpCode::EXPECTATION_FAILED, HttpCode::IM_A_TEAPOT,
+            HttpCode::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616,
+            HttpCode::MISDIRECTED_REQUEST, HttpCode::UNPROCESSABLE_ENTITY,
+            HttpCode::LOCKED, HttpCode::FAILED_DEPENDENCY, HttpCode::TOO_EARLY,
+            HttpCode::UPGRADE_REQUIRED, HttpCode::PRECONDITION_REQUIRED,
+            HttpCode::TOO_MANY_REQUESTS, HttpCode::REQUEST_HEADER_FIELDS_TOO_LARGE,
+            HttpCode::RETRY_WITH, HttpCode::UNAVAILABLE_FOR_LEGAL_REASONS,
+            HttpCode::CLIENT_CLOSED_REQUEST,
+            => true,
+            default => false
+        };
+    }
+
+    final public static function isServerError(HttpCode $code): bool
+    {
+        return match ($code) {
+            HttpCode::INTERNAL_SERVER_ERROR, HttpCode::NOT_IMPLEMENTED,
+            HttpCode::BAD_GATEWAY, HttpCode::SERVICE_UNAVAILABLE,
+            HttpCode::GATEWAY_TIMEOUT, HttpCode::HTTP_VERSION_NOT_SUPPORTED,
+            HttpCode::VARIANT_ALSO_NEGOTIATES, HttpCode::INSUFFICIENT_STORAGE,
+            HttpCode::LOOP_DETECTED, HttpCode::BANDWIDTH_LIMIT_EXCEEDED,
+            HttpCode::NOT_EXTENDED, HttpCode::NETWORK_AUTHENTICATION_REQUIRED,
+            HttpCode::UNKNOWN_ERROR, HttpCode::WEB_SERVER_IS_DOWN,
+            HttpCode::CONNECTION_TIMED_OUT, HttpCode::ORIGIN_IS_UNREACHABLE,
+            HttpCode::A_TIMEOUT_OCCURRED, HttpCode::SSL_HANDSHAKE_FAILED,
+            HttpCode::INVALID_SSL_CERTIFICATE
+            => true,
+            default => false
+        };
     }
 }
