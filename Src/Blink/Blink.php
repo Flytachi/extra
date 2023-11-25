@@ -6,15 +6,37 @@ namespace Extra\Src\Blink;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Log\Log;
 
+
+/**
+ *  Warframe collection
+ *
+ *  Blink - Request internal service
+ *
+ *  Constants:
+ *  @const ACCEPT_JSON
+ *  @const CONTENT_JSON
+ *
+ *
+ *  Methods:
+ *  @method  self         authBearer(string $token)
+ *  @method  self         retry(int $count, int $timeout = 30)
+ *  @method  self         headers(string ...$headers)
+ *  @method  self         get(string $url, null|array $params = null)
+ *  @method  self         put(string $url, null|array $params = null)
+ *  @method  self         post(string $url, null|array $params = null, null|array $body = null)
+ *  @method  self         delete(string $url, null|array $params = null)
+ *  @method  self         patch(string $url, null|array $params = null)
+ *  @method  self         request(string $method, string $url, null|array $params = null)
+ *  @method  self         body(array $body, string $type = 'json')
+ *
+ *  @version 2.0
+ *  @author itachi
+ *  @package Extra\Src
+ */
 class Blink
 {
     const ACCEPT_JSON = 'Accept: application/json';
     const CONTENT_JSON = 'Content-Type: application/json';
-
-    public static function authBearer(string $token): string
-    {
-        return 'Authorization: Bearer ' . $token;
-    }
 
     private static null|Blink $blink = null;
     private \CurlHandle $curl;
@@ -23,6 +45,11 @@ class Blink
     public function __construct()
     {
         $this->curl = curl_init();
+    }
+
+    public static function authBearer(string $token): string
+    {
+        return 'Authorization: Bearer ' . $token;
     }
 
     private static function setOption(int $option, mixed $value): void

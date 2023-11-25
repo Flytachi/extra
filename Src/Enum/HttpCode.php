@@ -4,11 +4,6 @@ namespace Extra\Src\Enum;
 
 enum HttpCode: int
 {
-    // 1xx
-    case CONTINUE = 100;
-    case SWITCHING_PROTOCOLS = 101;
-    case PROCESSING = 102;
-
     // 2xx
     case OK = 200;
     case CREATED = 201;
@@ -18,6 +13,8 @@ enum HttpCode: int
     case RESET_CONTENT = 205;
     case PARTIAL_CONTENT = 206;
     case MULTI_STATUS = 207;
+    case ALREADY_REPORTED = 208;
+    case IM_USED = 226;
 
     // 3xx
     case MULTIPLE_CHOICES = 300;
@@ -27,6 +24,7 @@ enum HttpCode: int
     case NOT_MODIFIED = 304;
     case USE_PROXY = 305;
     case TEMPORARY_REDIRECT = 307;
+    case PERMANENT_REDIRECT = 308;
 
     // 4xx
     case BAD_REQUEST = 400;
@@ -47,11 +45,21 @@ enum HttpCode: int
     case UNSUPPORTED_MEDIA_TYPE = 415;
     case REQUESTED_RANGE_NOT_SATISFIABLE = 416;
     case EXPECTATION_FAILED = 417;
+    case IM_A_TEAPOT = 418;
     case AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616 = 419;
+    case MISDIRECTED_REQUEST = 421;
     case UNPROCESSABLE_ENTITY = 422;
     case LOCKED = 423;
     case FAILED_DEPENDENCY = 424;
+    case TOO_EARLY = 425;
     case UPGRADE_REQUIRED = 426;
+    case PRECONDITION_REQUIRED = 428;
+    case TOO_MANY_REQUESTS = 429;
+    case REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+    case RETRY_WITH = 449;
+    case UNAVAILABLE_FOR_LEGAL_REASONS = 451;
+    case CLIENT_CLOSED_REQUEST = 499;
+
 
     // 5xx
     case INTERNAL_SERVER_ERROR = 500;
@@ -62,6 +70,15 @@ enum HttpCode: int
     case HTTP_VERSION_NOT_SUPPORTED = 505;
     case VARIANT_ALSO_NEGOTIATES = 506;
     case INSUFFICIENT_STORAGE = 507;
+    case LOOP_DETECTED = 508;
     case BANDWIDTH_LIMIT_EXCEEDED = 509;
     case NOT_EXTENDED = 510;
+    case NETWORK_AUTHENTICATION_REQUIRED = 511;
+    case UNKNOWN_ERROR = 520;
+    case WEB_SERVER_IS_DOWN = 521;
+    case CONNECTION_TIMED_OUT = 522;
+    case ORIGIN_IS_UNREACHABLE = 523;
+    case A_TIMEOUT_OCCURRED = 524;
+    case SSL_HANDSHAKE_FAILED = 525;
+    case INVALID_SSL_CERTIFICATE = 526;
 }
