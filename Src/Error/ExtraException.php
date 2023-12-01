@@ -3,7 +3,6 @@
 namespace Extra\Src\Error;
 
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\HttpStatus;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 
@@ -50,7 +49,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
 
     protected function getThrowableText(): string
     {
-        $status = HttpStatus::status(HttpCode::from($this->code));
+        $status = HttpCode::from($this->code)->message();
         header("HTTP/1.1 {$this->code} " . $status);
         header("Status: {$this->code} " . $status);
         header_remove("X-Powered-By");
@@ -89,7 +88,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
 
     protected function getThrowableJson(): string
     {
-        $status = HttpStatus::status(HttpCode::from($this->code));
+        $status = HttpCode::from($this->code)->message();
         header("HTTP/1.1 {$this->code} " . $status);
         header("Status: {$this->code} " . $status);
         header_remove("X-Powered-By");

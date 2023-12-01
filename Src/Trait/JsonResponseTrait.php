@@ -3,13 +3,12 @@
 namespace Extra\Src\Trait;
 
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\HttpStatus;
 
 trait JsonResponseTrait {
     final protected function renderJson(array $data): never
     {
         $httpCode = HttpCode::OK;
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
         header('Content-type: application/json');
@@ -20,7 +19,7 @@ trait JsonResponseTrait {
     final protected function renderJsonSuccess(mixed $message = null): never
     {
         $httpCode = HttpCode::OK;
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
         header('Content-type: application/json');
@@ -31,7 +30,7 @@ trait JsonResponseTrait {
     final protected function renderJsonError(mixed $message): never
     {
         $httpCode = HttpCode::OK;
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
         header('Content-type: application/json');
