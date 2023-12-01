@@ -81,4 +81,151 @@ enum HttpCode: int
     case A_TIMEOUT_OCCURRED = 524;
     case SSL_HANDSHAKE_FAILED = 525;
     case INVALID_SSL_CERTIFICATE = 526;
+
+    final public function message(): string
+    {
+        return match ($this) {
+            // 2xx
+            self::OK                                      =>  'Ok',
+            self::CREATED                                 =>  'Created',
+            self::ACCEPTED                                =>  'Accepted',
+            self::NON_AUTHORITATIVE_INFORMATION           =>  'Non-Authoritative Information',
+            self::NO_CONTENT                              =>  'No Content',
+            self::RESET_CONTENT                           =>  'Reset Content',
+            self::PARTIAL_CONTENT                         =>  'Partial Content',
+            self::MULTI_STATUS                            =>  'Multi-Status',
+            self::ALREADY_REPORTED                        =>  'Already Reported',
+            self::IM_USED                                 =>  'IM Used',
+            // 3xx
+            self::MULTIPLE_CHOICES                        =>  'Multiple Choices',
+            self::MOVED_PERMANENTLY                       =>  'Moved Permanently',
+            self::FOUND                                   =>  'Found',
+            self::SEE_OTHER                               =>  'See Other',
+            self::NOT_MODIFIED                            =>  'Not Modified',
+            self::USE_PROXY                               =>  'Use Proxy',
+            self::TEMPORARY_REDIRECT                      =>  'Temporary Redirect',
+            self::PERMANENT_REDIRECT                      =>  'Permanent Redirect',
+            // 4xx
+            self::BAD_REQUEST                             =>  'Bad Request',
+            self::UNAUTHORIZED                            =>  'Unauthorized',
+            self::PAYMENT_REQUIRED                        =>  'Payment Required',
+            self::FORBIDDEN                               =>  'Forbidden',
+            self::NOT_FOUND                               =>  'Not Found',
+            self::METHOD_NOT_ALLOWED                      =>  'Method Not Allowed',
+            self::NOT_ACCEPTABLE                          =>  'Not Acceptable',
+            self::PROXY_AUTHENTICATION_REQUIRED           =>  'Proxy Authentication Required',
+            self::REQUEST_TIMEOUT                         =>  'Request Timeout',
+            self::CONFLICT                                =>  'Conflict',
+            self::GONE                                    =>  'Gone',
+            self::LENGTH_REQUIRED                         =>  'Length Required',
+            self::PRECONDITION_FAILED                     =>  'Precondition Failed',
+            self::REQUEST_ENTITY_TOO_LARGE                =>  'Request Entity Too Large',
+            self::REQUEST_URI_TOO_LONG                    =>  'Request-URI Too Long',
+            self::UNSUPPORTED_MEDIA_TYPE                  =>  'Unsupported Media Type',
+            self::REQUESTED_RANGE_NOT_SATISFIABLE         =>  'Requested Range Not Satisfiable',
+            self::EXPECTATION_FAILED                      =>  'Expectation Failed',
+            self::IM_A_TEAPOT                             =>  'I’m a teapot',
+            self::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616  =>  'Authentication Timeout (not in RFC 2616)',
+            self::MISDIRECTED_REQUEST                     =>  'Misdirected Request',
+            self::UNPROCESSABLE_ENTITY                    =>  'Unprocessable Entity',
+            self::LOCKED                                  =>  'Locked',
+            self::FAILED_DEPENDENCY                       =>  'Failed Dependency',
+            self::TOO_EARLY                               =>  'Too Early',
+            self::UPGRADE_REQUIRED                        =>  'Upgrade Required',
+            self::PRECONDITION_REQUIRED                   =>  'Precondition Required',
+            self::TOO_MANY_REQUESTS                       =>  'Too Many Requests',
+            self::REQUEST_HEADER_FIELDS_TOO_LARGE         =>  'Request Header Fields Too Large',
+            self::RETRY_WITH                              =>  'Retry With',
+            self::UNAVAILABLE_FOR_LEGAL_REASONS           =>  'Unavailable For Legal Reasons',
+            self::CLIENT_CLOSED_REQUEST                   =>  'Client Closed Request',
+            // 5xx
+            self::INTERNAL_SERVER_ERROR                   =>  'Internal Server Error',
+            self::NOT_IMPLEMENTED                         =>  'Not Implemented',
+            self::BAD_GATEWAY                             =>  'Bad Gateway',
+            self::SERVICE_UNAVAILABLE                     =>  'Service Unavailable',
+            self::GATEWAY_TIMEOUT                         =>  'Gateway Timeout',
+            self::HTTP_VERSION_NOT_SUPPORTED              =>  'HTTP Version Not Supported',
+            self::VARIANT_ALSO_NEGOTIATES                 =>  'Variant Also Negotiates',
+            self::INSUFFICIENT_STORAGE                    =>  'Insufficient Storage',
+            self::LOOP_DETECTED                           =>  'Loop Detected',
+            self::BANDWIDTH_LIMIT_EXCEEDED                =>  'Bandwidth Limit Exceeded',
+            self::NOT_EXTENDED                            =>  'Not Extended',
+            self::NETWORK_AUTHENTICATION_REQUIRED         =>  'Network Authentication Required',
+            self::UNKNOWN_ERROR                           =>  'Unknown Error',
+            self::WEB_SERVER_IS_DOWN                      =>  'Web Server Is Down',
+            self::CONNECTION_TIMED_OUT                    =>  'Connection Timed Out',
+            self::ORIGIN_IS_UNREACHABLE                   =>  'Origin Is Unreachable',
+            self::A_TIMEOUT_OCCURRED                      =>  'A Timeout Occurred',
+            self::SSL_HANDSHAKE_FAILED                    =>  'SSL Handshake Failed',
+            self::INVALID_SSL_CERTIFICATE                 =>  'Invalid SSL Certificate'
+        };
+    }
+
+    final public function isSuccess(): bool
+    {
+        return match ($this) {
+            self::OK, self::CREATED, self::ACCEPTED,
+            self::NON_AUTHORITATIVE_INFORMATION,
+            self::NO_CONTENT, self::RESET_CONTENT,
+            self::PARTIAL_CONTENT, self::MULTI_STATUS,
+            self::ALREADY_REPORTED, self::IM_USED
+            => true,
+            default => false
+        };
+    }
+
+    final public function isRedirection(): bool
+    {
+        return match ($this) {
+            self::MULTIPLE_CHOICES, self::MOVED_PERMANENTLY,
+            self::FOUND, self::SEE_OTHER,
+            self::NOT_MODIFIED, self::USE_PROXY,
+            self::TEMPORARY_REDIRECT, self::PERMANENT_REDIRECT
+            => true,
+            default => false
+        };
+    }
+
+    final public function isClientError(): bool
+    {
+        return match ($this) {
+            self::BAD_REQUEST, self::UNAUTHORIZED,
+            self::PAYMENT_REQUIRED, self::FORBIDDEN,
+            self::NOT_FOUND, self::METHOD_NOT_ALLOWED,
+            self::NOT_ACCEPTABLE, self::PROXY_AUTHENTICATION_REQUIRED,
+            self::REQUEST_TIMEOUT, self::CONFLICT, self::GONE,
+            self::LENGTH_REQUIRED, self::PRECONDITION_FAILED,
+            self::REQUEST_ENTITY_TOO_LARGE, self::REQUEST_URI_TOO_LONG,
+            self::UNSUPPORTED_MEDIA_TYPE,
+            self::REQUESTED_RANGE_NOT_SATISFIABLE,
+            self::EXPECTATION_FAILED, self::IM_A_TEAPOT,
+            self::AUTHENTICATION_TIMEOUT_NOT_IN_RFC_2616,
+            self::MISDIRECTED_REQUEST, self::UNPROCESSABLE_ENTITY,
+            self::LOCKED, self::FAILED_DEPENDENCY, self::TOO_EARLY,
+            self::UPGRADE_REQUIRED, self::PRECONDITION_REQUIRED,
+            self::TOO_MANY_REQUESTS, self::REQUEST_HEADER_FIELDS_TOO_LARGE,
+            self::RETRY_WITH, self::UNAVAILABLE_FOR_LEGAL_REASONS,
+            self::CLIENT_CLOSED_REQUEST,
+            => true,
+            default => false
+        };
+    }
+
+    final public function isServerError(): bool
+    {
+        return match ($this) {
+            self::INTERNAL_SERVER_ERROR, self::NOT_IMPLEMENTED,
+            self::BAD_GATEWAY, self::SERVICE_UNAVAILABLE,
+            self::GATEWAY_TIMEOUT, self::HTTP_VERSION_NOT_SUPPORTED,
+            self::VARIANT_ALSO_NEGOTIATES, self::INSUFFICIENT_STORAGE,
+            self::LOOP_DETECTED, self::BANDWIDTH_LIMIT_EXCEEDED,
+            self::NOT_EXTENDED, self::NETWORK_AUTHENTICATION_REQUIRED,
+            self::UNKNOWN_ERROR, self::WEB_SERVER_IS_DOWN,
+            self::CONNECTION_TIMED_OUT, self::ORIGIN_IS_UNREACHABLE,
+            self::A_TIMEOUT_OCCURRED, self::SSL_HANDSHAKE_FAILED,
+            self::INVALID_SSL_CERTIFICATE
+            => true,
+            default => false
+        };
+    }
 }

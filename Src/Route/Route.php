@@ -4,7 +4,6 @@ namespace Extra\Src\Route;
 
 use ArgumentCountError;
 use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\HttpStatus;
 use Extra\Src\Error\ExtraException;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
@@ -197,7 +196,7 @@ class Route
      */
     final static function ApiResponse(HttpCode $httpCode, mixed $data = null): never
     {
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header_remove("X-Powered-By");
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
@@ -227,7 +226,7 @@ class Route
      */
     final static function ApiResponseMessage(HttpCode $httpCode, string $message = ''): never
     {
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header_remove("X-Powered-By");
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
@@ -258,7 +257,7 @@ class Route
      */
     final static function TextResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never
     {
-        $status = HttpStatus::status($httpCode);
+        $status = $httpCode->message();
         header_remove("X-Powered-By");
         header("HTTP/1.1 {$httpCode->value} " . $status);
         header("Status: {$httpCode->value} " . $status);
