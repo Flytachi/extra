@@ -6,7 +6,7 @@ use Extra\Src\Enum\HttpCode;
 use Extra\Src\Enum\Method;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
-use Extra\Src\Route\Route;
+use Extra\Src\Route\Response;
 use ReflectionClass;
 
 /**
@@ -114,7 +114,7 @@ abstract class ApiBase
      */
     protected function response(HttpCode $httpCode, mixed $data = null): void
     {
-        Route::ApiResponse($httpCode, $data);
+        Response::json($httpCode, $data);
     }
 
     /**
@@ -128,7 +128,7 @@ abstract class ApiBase
      */
     protected function responseOk(mixed $data = null): void
     {
-        Route::ApiResponse(HttpCode::OK, $data);
+        Response::json(HttpCode::OK, $data);
     }
 
     /**
@@ -141,7 +141,7 @@ abstract class ApiBase
      */
     protected function responseMessage(HttpCode $httpCode, string $message = ''): void
     {
-        Route::ApiResponseMessage($httpCode, $message);
+        Response::jsonMessage($httpCode, $message);
     }
 
     /**
@@ -155,7 +155,7 @@ abstract class ApiBase
      */
     protected function textResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): void
     {
-        Route::TextResponse($httpCode, $text, $htmlEntities);
+        Response::text($httpCode, $text, $htmlEntities);
     }
 
 }
