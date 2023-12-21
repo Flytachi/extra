@@ -9,7 +9,7 @@ namespace Extra\Src\Algorithm;
  *  Algorithm
  *
  *  @package Extra\Src
- *  @version 1.5
+ *  @version 1.7
  *  @author itachi
  */
 class Algorithm
@@ -55,7 +55,7 @@ class Algorithm
      * @param array<int|float> $weights index array of corresponding weights
      * @return mixed selected item
      */
-    public static function weightedRandom(array $values, array $weights): mixed
+    public static function weightedRandomLite(array $values, array $weights): mixed
     {
         $totalWeight = array_sum($weights);
         $randomValue = mt_rand() / mt_getrandmax() * $totalWeight;
@@ -64,6 +64,42 @@ class Algorithm
             if ($randomValue <= 0) return $values[$key];
         }
         return null;
+    }
+
+    /**
+     * Randomly selects one of the elements based on their weight.
+     * Optimized for a large number of elements.
+     *
+     * @param array $values index array of elements
+     * @param array<int|float> $weights index array of corresponding weights
+     * @return mixed selected item
+     */
+    public static function weightedRandom(array $values, array $weights): mixed
+    {
+        $cum_weights = array();
+        $total = 0;
+        foreach ($weights as $weight) {
+            $total += $weight;
+            $cum_weights[] = $total;
+        }
+
+        $rand = mt_rand(0, $total*1000000000000000-1) / 1000000000000000.0;
+        $index = self::binarySearch($cum_weights, $rand);
+        return $values[$index];
+    }
+
+    public static function binarySearch(array $arr, int|float $value): int
+    {
+        $low = 0;
+        $high = count($arr) - 1;
+
+        while ($low <= $high) {
+            $mid = intval(($low + $high) / 2);
+            if ($arr[$mid] < $value) $low = $mid + 1;
+            else $high = $mid - 1;
+        }
+
+        return ($arr[$low] >= $value) ? $low : -1;
     }
 
     private static function setAlphabet(string $alphabet): void
