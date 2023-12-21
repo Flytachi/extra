@@ -88,6 +88,21 @@ class Algorithm
         return $values[$index];
     }
 
+    public static function weightedCalculateProbabilities(array $values, array $weights, bool $isCombine = false): array
+    {
+        $totalWeight = array_sum($weights);
+        $probabilities = [];
+        foreach($weights as $key => $weight) {
+            if ($isCombine) {
+                $probabilities[$key] = [
+                    'value' => $values[$key],
+                    'calculate' => ($weight / $totalWeight) * 100,
+                ];
+            } else $probabilities[$key] = ($weight / $totalWeight) * 100;
+        }
+        return $probabilities;
+    }
+
     public static function binarySearch(array $arr, int|float $value): int
     {
         $low = 0;
