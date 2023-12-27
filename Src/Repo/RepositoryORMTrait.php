@@ -110,6 +110,16 @@ trait RepositoryORMTrait
      * @param string $context
      * @return Repository
      */
+    final public function having(string $context): Repository
+    {
+        $this->CRD_SQL['group'] = 'HAVING ' . $context;
+        return $this;
+    }
+
+    /**
+     * @param string $context
+     * @return Repository
+     */
     final public function orderBy(string $context): Repository
     {
         $this->CRD_SQL['order'] = 'ORDER BY ' . $context;

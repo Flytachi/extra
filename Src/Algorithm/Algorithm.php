@@ -9,7 +9,7 @@ namespace Extra\Src\Algorithm;
  *  Algorithm
  *
  *  @package Extra\Src
- *  @version 1.7
+ *  @version 1.8
  *  @author itachi
  */
 class Algorithm
@@ -18,10 +18,6 @@ class Algorithm
     private static string $alphabet;
     /** @var int */
     private static int $alphabetLength;
-    /** @var array|null */
-    private static ?array $lookup = null;
-    /** @var int|null */
-    private static ?int $totalWeight = null;
 
     /**
      * @param int $length
@@ -70,8 +66,10 @@ class Algorithm
      * Randomly selects one of the elements based on their weight.
      * Optimized for a large number of elements.
      *
+     * ! WARNING !:thousandths of a decimal point (0.001)
+     *
      * @param array $values index array of elements
-     * @param array<int|float> $weights index array of corresponding weights
+     * @param array<int|float> $weights index array of corresponding weights (range )
      * @return mixed selected item
      */
     public static function weightedRandom(array $values, array $weights): mixed
@@ -83,7 +81,7 @@ class Algorithm
             $cum_weights[] = $total;
         }
 
-        $rand = mt_rand(0, $total*1000000000000000-1) / 1000000000000000.0;
+        $rand = mt_rand(0, $total*1000-1) / 1000.0;
         $index = self::binarySearch($cum_weights, $rand);
         return $values[$index];
     }
