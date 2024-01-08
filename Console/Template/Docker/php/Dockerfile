@@ -1,5 +1,4 @@
 FROM php:8.2-fpm
-WORKDIR /var/www/html
 
 RUN apt-get update
 RUN apt-get install -y libpq-dev
