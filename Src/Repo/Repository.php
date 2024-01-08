@@ -70,13 +70,14 @@ class Repository
         try {
             $sql = 'SELECT ' . $this->prepareSelect();
             $sql .= ' FROM ' . (($this->schema) ? $this->schema . '.' : '') . $this::$table;
-            if(array_key_exists('as', $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['as'];
-            if(array_key_exists('join', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['join']);
-            if(array_key_exists('where', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['where']);
-            if(array_key_exists('union', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['union']);
-            if(array_key_exists('group', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
-            if(array_key_exists('order', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
-            if(array_key_exists('limit', $this->CRD_SQL)) $sql .= ' LIMIT ' . trim($this->CRD_SQL['limit']);
+            if(array_key_exists('as',     $this->CRD_SQL)) $sql .= ' ' . $this->CRD_SQL['as'];
+            if(array_key_exists('join',   $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['join']);
+            if(array_key_exists('where',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['where']);
+            if(array_key_exists('union',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['union']);
+            if(array_key_exists('group',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['group']);
+            if(array_key_exists('having', $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['having']);
+            if(array_key_exists('order',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
+            if(array_key_exists('limit',  $this->CRD_SQL)) $sql .= ' LIMIT ' . trim($this->CRD_SQL['limit']);
             if(array_key_exists('offset', $this->CRD_SQL)) $sql .= ' OFFSET ' . trim($this->CRD_SQL['offset']);
             Log::trace('Repository build:'. $sql);
             return $sql;

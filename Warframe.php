@@ -2,10 +2,9 @@
 
 namespace Extra;
 
-use Extra\Src\Artefact\Shard;
-use Extra\Src\CDO\CDO;
 use Extra\Src\Enum\HttpCode;
 use Extra\Src\Error\BaseError;
+use Extra\Src\Error\Error;
 
 class Warframe
 {
@@ -64,7 +63,16 @@ class Warframe
             ini_set('error_reporting', E_ALL);
             ini_set('display_errors', 1);
             ini_set('display_startup_errors', 1);
+            set_error_handler('\Extra\Warframe::warningHandler');
         }
+    }
+
+    public final static function warningHandler($severity, $message, $file, $line): void
+    {
+        if (!(error_reporting() & $severity)) return;
+        Error::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            "Warning: $message in $file on line $line"
+        );
     }
 
     public final static function loadFunction(): void

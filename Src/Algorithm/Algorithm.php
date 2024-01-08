@@ -9,7 +9,7 @@ namespace Extra\Src\Algorithm;
  *  Algorithm
  *
  *  @package Extra\Src
- *  @version 1.5
+ *  @version 1.8
  *  @author itachi
  */
 class Algorithm
@@ -18,10 +18,6 @@ class Algorithm
     private static string $alphabet;
     /** @var int */
     private static int $alphabetLength;
-    /** @var array|null */
-    private static ?array $lookup = null;
-    /** @var int|null */
-    private static ?int $totalWeight = null;
 
     /**
      * @param int $length
@@ -55,7 +51,7 @@ class Algorithm
      * @param array<int|float> $weights index array of corresponding weights
      * @return mixed selected item
      */
-    public static function weightedRandom(array $values, array $weights): mixed
+    public static function weightedRandomLite(array $values, array $weights): mixed
     {
         $totalWeight = array_sum($weights);
         $randomValue = mt_rand() / mt_getrandmax() * $totalWeight;
@@ -64,6 +60,59 @@ class Algorithm
             if ($randomValue <= 0) return $values[$key];
         }
         return null;
+    }
+
+    /**
+     * Randomly selects one of the elements based on their weight.
+     * Optimized for a large number of elements.
+     *
+     * ! WARNING !:thousandths of a decimal point (0.001)
+     *
+     * @param array $values index array of elements
+     * @param array<int|float> $weights index array of corresponding weights (range )
+     * @return mixed selected item
+     */
+    public static function weightedRandom(array $values, array $weights): mixed
+    {
+        $cum_weights = array();
+        $total = 0;
+        foreach ($weights as $weight) {
+            $total += $weight;
+            $cum_weights[] = $total;
+        }
+
+        $rand = mt_rand(0, $total*1000-1) / 1000.0;
+        $index = self::binarySearch($cum_weights, $rand);
+        return $values[$index];
+    }
+
+    public static function weightedCalculateProbabilities(array $values, array $weights, bool $isCombine = false): array
+    {
+        $totalWeight = array_sum($weights);
+        $probabilities = [];
+        foreach($weights as $key => $weight) {
+            if ($isCombine) {
+                $probabilities[$key] = [
+                    'value' => $values[$key],
+                    'calculate' => ($weight / $totalWeight) * 100,
+                ];
+            } else $probabilities[$key] = ($weight / $totalWeight) * 100;
+        }
+        return $probabilities;
+    }
+
+    public static function binarySearch(array $arr, int|float $value): int
+    {
+        $low = 0;
+        $high = count($arr) - 1;
+
+        while ($low <= $high) {
+            $mid = intval(($low + $high) / 2);
+            if ($arr[$mid] < $value) $low = $mid + 1;
+            else $high = $mid - 1;
+        }
+
+        return ($arr[$low] >= $value) ? $low : -1;
     }
 
     private static function setAlphabet(string $alphabet): void
