@@ -79,10 +79,14 @@ class PostmanItem implements Postman
 
                         // params
                         $path = [$folder, lcfirst($apiUrl), $apiMethod->name];
-                        foreach ($apiMethod->getParameters() as $parameter)
-                            $path[] = ($parameter->isDefaultValueAvailable())
-                                ? $parameter->getDefaultValue()
-                                : ('[' . $parameter->name . ']');
+                        $variables = [];
+                        foreach ($apiMethod->getParameters() as $parameter) {
+                            $variables[] = [
+                                'key' => $parameter->name,
+                                'value' => ($parameter->isDefaultValueAvailable()) ? $parameter->getDefaultValue() : ''
+                            ];
+                            $path[] = ':' . $parameter->name;
+                        }
 
                         $apiItemData = [
                             "name" => 'Unknown',
@@ -95,7 +99,8 @@ class PostmanItem implements Postman
                                     'raw' => "{{wBaseUrl}}/" . implode('/', $path),
                                     'host' => ["{{wBaseUrl}}"],
                                     'path' => $path,
-                                    'query' => []
+                                    'query' => [],
+                                    'variable' => $variables
                                 ],
                                 'body' => []
                             ],
