@@ -67,74 +67,10 @@ class Cfg extends Cmd
 
     private function dockerArg(): void
     {
-        $this->dockerComposeCreate();
-        $this->dockerFolderCreate();
-    }
-
-    private function dockerComposeCreate(): void
-    {
-        if (!file_exists(PATH_ROOT . '/docker-compose.yml')) {
-
-            $code = file_get_contents($this->templatePath . '/Docker/docker-compose.yml');
-            $code = str_replace("__project__", strtolower(basename(PATH_ROOT)), $code);
-
-            $fp = fopen(PATH_ROOT . '/docker-compose.yml', "x");
-            fwrite($fp, $code);
-            fclose($fp);
-            self::printMessage("File 'docker-compose' is created.", 32);
-
-        } else self::printMessage("File 'docker-compose' is already exist.");
-    }
-
-    private function dockerFolderCreate(): void
-    {
-        if (!is_dir(PATH_ROOT . '/docker')) {
-
-            // nginx
-            if (mkdir(PATH_ROOT. '/docker/nginx', 0777, true)) {
-                self::printMessage("Folder 'docker/nginx' is created.", 32);
-
-                $code = file_get_contents($this->templatePath . '/Docker/nginx/Dockerfile');
-
-                $fp = fopen(PATH_ROOT . '/docker/nginx/Dockerfile', "x");
-                fwrite($fp, $code);
-                fclose($fp);
-                self::printMessage("File 'docker/nginx/Dockerfile' is created.", 32);
-
-                $code = file_get_contents($this->templatePath . '/Docker/nginx/local.nginx.conf');
-                $code = str_replace("__project__", strtolower(basename(PATH_ROOT)), $code);
-
-                $fp = fopen(PATH_ROOT . '/docker/nginx/local.nginx.conf', "x");
-                fwrite($fp, $code);
-                fclose($fp);
-                self::printMessage("File 'docker/nginx/local.nginx.conf' is created.", 32);
-
-                $code = file_get_contents($this->templatePath . '/Docker/nginx/nginx.conf');
-                $code = str_replace("__project__", strtolower(basename(PATH_ROOT)), $code);
-
-                $fp = fopen(PATH_ROOT . '/docker/nginx/nginx.conf', "x");
-                fwrite($fp, $code);
-                fclose($fp);
-                self::printMessage("File 'docker/nginx/nginx.conf' is created.", 32);
-
-            }
-            else self::printMessage("Folder 'docker/nginx' is dont created.", 31);
-
-            // php
-            if (mkdir(PATH_ROOT. '/docker/php', 0777, true)) {
-
-                $code = file_get_contents($this->templatePath . '/Docker/php/Dockerfile');
-
-                $fp = fopen(PATH_ROOT . '/docker/php/Dockerfile', "x");
-                fwrite($fp, $code);
-                fclose($fp);
-                self::printMessage("File 'docker/php/Dockerfile' is created.", 32);
-
-                self::printMessage("Folder 'docker/php' is created.", 32);
-
-            } else self::printMessage("Folder 'docker/php' is dont created.", 31);
-
-        } else self::printMessage("Folder 'docker' is already exist.");
+        multiCopy($this->templatePath . '/Docker', PATH_ROOT);
+        self::printMessage("Folder 'docker' is created.", 32);
+        self::printMessage("File 'docker-compose' is created.", 32);
+        self::printMessage("File 'Dockerfile' is created.", 32);
     }
 
     private function postmanArg(): void
