@@ -37,14 +37,14 @@ COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 
 
 RUN mkdir -p /etc/service/php-fpm  \
-    && echo -e "#!/bin/sh\nexec php-fpm82 -F" > /etc/service/php-fpm/run \
+    && echo -e "#!/bin/sh\nexec php-fpm82 -F --allow-to-run-as-root" > /etc/service/php-fpm/run \
     && chmod +x /etc/service/php-fpm/run
 
 RUN mkdir -p /etc/service/nginx  \
     && echo -e "#!/bin/sh\nexec nginx -g 'daemon off;'" > /etc/service/nginx/run \
     && chmod +x /etc/service/nginx/run
 
-RUN chown -R nobody:nobody /var/www/html \
+RUN chown -R nginx:nginx /var/www/html \
     && chmod -R 755 /var/www/html/public \
     && chmod -R 777 /var/www/html/storage
 
