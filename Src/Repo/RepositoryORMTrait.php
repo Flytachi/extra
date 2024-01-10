@@ -74,10 +74,12 @@ trait RepositoryORMTrait
      */
     final public function where(BKB $bkb): Repository
     {
-        $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
-        if (array_key_exists('binds', $this->CRD_SQL)) {
-            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
-        } else $this->CRD_SQL['binds'] = $bkb->getCache();
+        if ($bkb->getQuery()){
+            $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
+            if (array_key_exists('binds', $this->CRD_SQL)) {
+                $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
+            } else $this->CRD_SQL['binds'] = $bkb->getCache();
+        }
         return $this;
     }
 
