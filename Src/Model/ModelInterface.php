@@ -12,8 +12,7 @@ use TypeError;
  *  * ModelEasy Class - public mode
  * 
  *  @version 3.0
- *  @author itachi
- *  @package Extra\Src
+ *  @author Flytachi
  */
 interface ModelInterface
 {
@@ -26,7 +25,7 @@ interface ModelInterface
     /**
      * Model constructor
      */
-    public function __construct(?array $data = null);
+    public function __construct();
     /**
      * Construct Array data to Model data
      * 

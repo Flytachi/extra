@@ -1,10 +1,5 @@
 <?php
 
-function dieConnection($_error = null): never
-{
-    die(include PATH_RESOURCE . "/exception/system.php");
-}
-
 function env(?string $name = null, string|int|float|bool|null $default = null): array|string|bool|null
 {
     return getenv($name) ?: $default;
@@ -19,23 +14,6 @@ function dd(mixed ...$value): never
     print_r($value);
     echo '</pre>';
     die();
-}
-
-function getDirContent($dir, $filter = '', &$results = array())
-{
-    $files = scandir($dir);
-
-    foreach($files as $key => $value){
-        $path = realpath($dir.DIRECTORY_SEPARATOR.$value); 
-
-        if(!is_dir($path)) {
-            if(empty($filter) || preg_match($filter, $path)) $results[] = $path;
-        } elseif($value != "." && $value != "..") {
-            getDirContent($path, $filter, $results);
-        }
-    }
-
-    return $results;
 }
 
 function importLib(string ...$libs): void

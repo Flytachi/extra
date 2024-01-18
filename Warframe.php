@@ -2,12 +2,32 @@
 
 namespace Extra;
 
-use Extra\Src\Enum\HttpCode;
 use Extra\Src\Error\BaseError;
 use Extra\Src\Error\Error;
+use Extra\Src\HttpCode;
 
+/**
+ * Class Warframe
+ *
+ * `Warframe` is a helper class to manage application-level tasks such as autoload, initialization and configurations loading.
+ *
+ * The methods provided by `Warframe` include:
+ *
+ * - `autoload(): void`: Handles automatic class file loading based on namespaces.
+ * - `init(bool $isConsole = false): void`: Initializes the application, defines constants, loads functions, and checks directory write access.
+ * - `warningHandler($severity, $message, $file, $line): void`: Error handler for managing PHP warnings.
+ * - `loadFunction(): void`: Loads all available functions from the Function directory.
+ *
+ * @version 4.0
+ * @author Flytachi
+ */
 class Warframe
 {
+    /**
+     * Registers an autoloader function and loads the specified class file when needed.
+     *
+     * @return void
+     */
     public final static function autoload(): void
     {
         spl_autoload_register(function($class) {
@@ -32,6 +52,13 @@ class Warframe
         }
     }
 
+    /**
+     * Initializes the application.
+     *
+     * @param bool $isConsole Whether the application is running in a console environment. Default is false.
+     * @return void
+     * @throws BaseError
+     */
     public final static function init(bool $isConsole = false): void
     {
         define('WARFRAME_STARTUP_TIME', microtime(true));
@@ -67,6 +94,15 @@ class Warframe
         }
     }
 
+    /**
+     * Handles warnings and throws an error with HTTP code 500 (Internal Server Error).
+     *
+     * @param int $severity The severity level of the warning.
+     * @param string $message The warning message.
+     * @param string $file The file in which the warning occurred.
+     * @param int $line The line number at which the warning occurred.
+     * @return void
+     */
     public final static function warningHandler($severity, $message, $file, $line): void
     {
         if (!(error_reporting() & $severity)) return;
@@ -75,6 +111,13 @@ class Warframe
         );
     }
 
+    /**
+     * Loads all function files from the "Function" directory.
+     *
+     * This method scans the "Function" directory and includes all PHP files found.
+     *
+     * @return void
+     */
     public final static function loadFunction(): void
     {
         foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;

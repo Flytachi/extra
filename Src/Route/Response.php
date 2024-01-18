@@ -2,17 +2,31 @@
 
 namespace Extra\Src\Route;
 
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 
+/**
+ * Class Response
+ *
+ * `Response` is a class that provides a set of methods to facilitate HTTP responses.
+ * It allows you to consistently format and send various HTTP responses such as JSON and plain text.
+ *
+ * The methods provided by `Response` include:
+ *
+ * - `json(HttpCode $httpCode, mixed $data = null): never`: Sends a JSON response with a status code and optional data.
+ * - `jsonMessage(HttpCode $httpCode, string $message = ''): never`: Sends a JSON response with a status code and a message.
+ * - `text(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never`: Sends a plain text response with a status code. If the `$htmlEntities` flag gets set to true, the `$text` will be escaped using `htmlentities`.
+ *
+ * @version 1.0
+ * @author Flytachi
+ */
 class Response
 {
     /**
-     * Api Response
+     * Api Response JSON
      *
-     * @param HttpCode $httpCode
-     * @param mixed $data data
-     *
+     * @param HttpCode $httpCode The HTTP code for the response
+     * @param mixed $data The data to be sent in the response (optional)
      * @return never
      */
     final static function json(HttpCode $httpCode, mixed $data = null): never
@@ -30,12 +44,11 @@ class Response
     }
 
     /**
-     * Api Response Message
+     * Generates a JSON response message.
      *
-     * @param HttpCode $httpCode
-     * @param string $message
-     *
-     * @return never
+     * @param HttpCode $httpCode The HTTP status code object.
+     * @param string $message The message to be included in the JSON response. Default is an empty string.
+     * @return never This method does not return a value as it terminates the script execution.
      */
     final static function jsonMessage(HttpCode $httpCode, string $message = ''): never
     {
@@ -52,13 +65,12 @@ class Response
     }
 
     /**
-     * Text Response
+     * Generates a plain text response message.
      *
-     * @param HttpCode $httpCode
-     * @param string $text
-     * @param bool $htmlEntities
-     *
-     * @return never
+     * @param HttpCode $httpCode The HTTP status code object.
+     * @param string $text The text message to be included in the response. Default is an empty string.
+     * @param bool $htmlEntities Determine whether to encode HTML entities in the text message. Default is false.
+     * @return never This method does not return a value as it terminates the script execution.
      */
     final static function text(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never
     {

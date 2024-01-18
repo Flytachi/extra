@@ -3,19 +3,30 @@
 namespace Extra\Src\Process\Job;
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Conductor\ConductorInterface;
-use Extra\Src\Process\Conductor\Json\Conductor;
-use Extra\Src\Process\Dispatcher\Dispatcher;
-use Extra\Src\Process\Dispatcher\DispatcherInterface;
+use Extra\Src\Process\Core\Conductor\ConductorInterface;
+use Extra\Src\Process\Core\Conductor\Json\Conductor;
+use Extra\Src\Process\Core\Dispatcher\Dispatcher;
+use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
+
 
 /**
- *  Warframe collection
+ * Class Job
  *
- *  Job
+ * `Job` is an abstract class extending `Dispatcher`. It's designed to run tasks that take a long time, either in the foreground or background.
+ * It provides a rich life cycle for jobs, including initialization, running, and termination, and interrupt processing.
  *
- *  @version 1.0
- *  @author itachi
- *  @package Extra\Src
+ * The methods provided by `Job` include:
+ *
+ * - `start(mixed $data = null): int`: Start the task (sync) provided by the data argument, returns the process ID of the task.
+ * - `dispatch(mixed $data = null): int`: Dispatch the task in the background, returns the process ID of the task.
+ * - `asClose(): void`: Defines what job has to do when it is asked to close.
+ * - `asTermination(): void`: Defines what job has to do when it is asked to terminate.
+ * - `asInterrupt(): void`: Defines what job has to do when it gets interrupted.
+ *
+ * The class also defines preparatory (`startRun()`) and tear-down (`endRun()`) routines to be executed when the job starts and ends, respectively.
+ *
+ * @version 1.8
+ * @author Flytachi
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {

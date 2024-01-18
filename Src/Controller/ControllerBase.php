@@ -2,24 +2,25 @@
 
 namespace Extra\Src\Controller;
 
-use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\Method;
-use Extra\Src\Error\ExtraException;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Route\Route;
 use ReflectionClass;
 
 /**
- *  Warframe collection
+ * Class ControllerBase
  *
- *  ControllerBase - controller for web requests
+ * `ControllerBase` is an abstract class serving as the base for all controllers in the application.
+ * It provides basic methods that can be inherited by child controller classes.
  *
- *  ! The default repository must be specified in the class
- *  * Example: public 'Repository' $repo;
+ * The methods provided by `ControllerBase` include:
  *
- *  @version 12.0
- *  @author itachi
- *  @package Extra\Src
+ * - `__construct(): void`: Constructor that initializes specific services.
+ * - `method(Method ...$allowMethods): void`: Allows certain HTTP methods for the request.
+ * - `render(string $content, mixed $data = null): void`: Renders a view with the given content and data.
+ *
+ * @version 12.0
+ * @author Flytachi
  */
 abstract class ControllerBase
 {

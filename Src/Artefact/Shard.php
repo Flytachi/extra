@@ -2,8 +2,23 @@
 
 namespace Extra\Src\Artefact;
 
-use Extra\Src\CDO\CDO;
+use Extra\Src\Artefact\CDO\CDO;
 
+/**
+ * Class Shard
+ *
+ * `Shard` is a class that represents the necessary details for a database connection.
+ * It holds the details such as the driver, host, port, database, username, password,
+ * charset and schema.
+ *
+ * These details can be passed to the PDO instance for connecting to the database.
+ *
+ * It also provides the `connect()` method to establish the connection with the database and `connection()`
+ * which returns an instance of `CDO` representing the connection to the database.
+ *
+ * @version 3.1
+ * @author Flytachi
+ */
 class Shard
 {
     private ?CDO $cdo = null;

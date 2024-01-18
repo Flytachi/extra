@@ -3,7 +3,7 @@
 namespace Extra\Core\Command\mariadb;
 
 use Console\Core;
-use Extra\Src\CDO\CDO;
+use Extra\Src\Artefact\CDO\CDO;
 use Warframe;
 
 class __Seed

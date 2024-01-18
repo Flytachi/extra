@@ -3,21 +3,29 @@
 namespace Extra\Src\Process\Kube;
 
 
-use Extra\Src\Enum\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Conductor\ConductorInterface;
-use Extra\Src\Process\Conductor\Json\Conductor;
-use Extra\Src\Process\Dispatcher\Dispatcher;
-use Extra\Src\Process\Dispatcher\DispatcherInterface;
+use Extra\Src\Process\Core\Conductor\ConductorInterface;
+use Extra\Src\Process\Core\Conductor\Json\Conductor;
+use Extra\Src\Process\Core\Dispatcher\Dispatcher;
+use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
 
 /**
- *  Warframe collection
+ * Class Kube
  *
- *  Kube
+ * `Kube` is an abstract class extending `Dispatcher`. It is designed to manage tasks with the ability to use multi-threading.
+ * Different threads can be run depending on certain conditions and each thread can potentially generate child processes.
  *
- *  @version 1.1
- *  @author itachi
- *  @package Extra\Src\Process
+ * The methods provided by `Kube` include:
+ *
+ * - `start(mixed $data = null): int`: Starts execution by running tasks in the main process. Returns the PID of the main process.
+ * - `thread(callable $function): void`: Starts a new child process with the specified function.
+ * - `threadProc(mixed $data = null): void`: Starts a new child process with the provided data to process.
+ * - `wait(?callable $callableEndChild = null): void`: Waits for child processes to finish their tasks and optionally runs the provided callable.
+ *
+ * Each process can respond to certain signals like (Close, Termination, Interrupt) defined in respective protected `as` prefixed methods.
+ *
+ * @version 1.1
+ * @author Flytachi
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
 {

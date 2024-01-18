@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Error;
 
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\HttpCode;
 
 interface ErrorInterface extends \Throwable
 {

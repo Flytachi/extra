@@ -1,11 +1,5 @@
 <?php
 
-function isAdmin(): bool
-{
-    if (isset($_SESSION['is_admin']) and $_SESSION['is_admin'] === 1) return true;
-    else return false;
-}
-
 function arrayToRequest(array $param = null): ?string
 {
     if ($param == null) return null;

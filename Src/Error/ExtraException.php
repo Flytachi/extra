@@ -2,10 +2,27 @@
 
 namespace Extra\Src\Error;
 
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 
+/**
+ * Class ExtraException
+ *
+ * `ExtraException` is an abstract class that extends the base Exception class and provides additional
+ * functionality, including error handling and debugging information. It uses different responses for error display: plain text and JSON format.
+ *
+ * The methods provided by `ExtraException` include:
+ *
+ * - `__toString(): string`: Converts the `ExtraException` to a string and sends the error report.
+ * - `debugApi(): array`: Provides the API debug information.
+ * - `getThrowableText(): string`: Generates the plain text for the exception message.
+ * - `getThrowableJson(): string`: Generates the JSON representation of the exception.
+ * - `forThrow(array|string &$message, Throwable $throwable): void`: Constructs and collects the exception stack trace.
+ *
+ * @version 2.0
+ * @author Flytachi
+ */
 abstract class ExtraException extends \Exception implements ErrorInterface
 {
     protected string $handle = 'Warframe';
