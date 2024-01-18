@@ -57,7 +57,6 @@ class Warframe
      *
      * @param bool $isConsole Whether the application is running in a console environment. Default is false.
      * @return void
-     * @throws BaseError
      */
     public final static function init(bool $isConsole = false): void
     {
@@ -71,14 +70,14 @@ class Warframe
 
             if (!$isConsole) {
                 if (!is_writable(PATH_STORAGE))
-                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage\" folder does not have write access");
+                    BaseError::throw(HttpCode::NOT_IMPLEMENTED, "The \"storage\" folder does not have write access");
                 if (!is_writable(PATH_LOG))
-                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/logs\" folder does not have write access");
+                    BaseError::throw(HttpCode::NOT_IMPLEMENTED, "The \"storage/logs\" folder does not have write access");
                 if (!is_writable(PATH_CACHE))
-                    BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR, "The \"storage/cache\" folder does not have write access");
+                    BaseError::throw(HttpCode::NOT_IMPLEMENTED, "The \"storage/cache\" folder does not have write access");
             }
         } catch (\Throwable $exception) {
-            BaseError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            BaseError::throw(HttpCode::NOT_IMPLEMENTED,
                 $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
             );
         }
