@@ -108,6 +108,13 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             $this->conductor->recordRemove(static::class, $this->pid);
     }
 
+    /**
+     * Executes the given function in a separate child process using fork.
+     *
+     * @param callable $function The function to be executed in the child process.
+     *
+     * @return void
+     */
     protected function thread(callable $function): void
     {
         try {
@@ -133,6 +140,12 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
         }
     }
 
+    /**
+     * Executes the code in a separate thread by forking the process.
+     *
+     * @param mixed $data The data to be passed to the thread. Default is null.
+     * @return void
+     */
     protected function threadProc(mixed $data = null): void
     {
         try {

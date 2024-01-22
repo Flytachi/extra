@@ -40,13 +40,10 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     }
 
     /**
-     * Start Job (sync)
+     * Starts the process by creating a new instance and running the necessary methods.
      *
-     * Running a task
-     *
-     * @param mixed|null $data
-     *
-     * @return int pid
+     * @param mixed $data The data to be passed to the `run` method. Defaults to null if not provided.
+     * @return int The process ID of the started process.
      */
     public final static function start(mixed $data = null): int
     {
@@ -64,6 +61,14 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
         return $process->pid;
     }
 
+    /**
+     * Starts the run process.
+     *
+     * This method sets the current process ID, registers signal handlers for SIGHUP, SIGINT, and SIGTERM,
+     * sets the process title for CLI, and adds the current class to the conductor's record.
+     *
+     * @return void
+     */
     private function startRun(): void
     {
         $this->pid = getmypid();
@@ -77,6 +82,16 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
         }
     }
 
+    /**
+     * Ends the execution of the run method.
+     *
+     * This method is responsible for performing any necessary clean-up tasks
+     * after the run method finishes executing. If the PHP SAPI (Server Application
+     * Programming Interface) is 'cli' (Command Line Interface), it records the
+     * removal of the class and its process ID ($pid) to the conductor.
+     *
+     * @return void
+     */
     private function endRun(): void
     {
         if (PHP_SAPI === 'cli')
@@ -84,10 +99,10 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     }
 
     /**
-     * Dispatch script
+     * Dispatches the given data to the `runnable` method and returns the result.
      *
-     * @param mixed|null $data
-     * @return int
+     * @param mixed $data The data to be dispatched. Defaults to null if not provided.
+     * @return int The result of the `runnable` method.
      */
     public final static function dispatch(mixed $data = null): int
     {
