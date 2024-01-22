@@ -16,6 +16,7 @@ RUN apk add --no-cache \
     php82-pcntl \
     php82-posix \
     php82-mbstring \
+    php82-simplexml \
     php82-fpm \
     php82-curl \
     php82-pdo \
