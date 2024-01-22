@@ -4,7 +4,7 @@ namespace Extra\Src\Process\Job;
 
 use Extra\Src\Log\Log;
 
-trait JobSig
+trait JobHandler
 {
     /**
      * Signs an interrupt and terminates the execution of the current script.

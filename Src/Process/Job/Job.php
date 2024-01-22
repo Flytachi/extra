@@ -28,7 +28,7 @@ use Extra\Src\Process\PosixSignal;
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {
-    use JobSig, PosixSignal;
+    use JobHandler, PosixSignal;
     protected string $conductorClassName = ConductorEmpty::class;
     private Conductor $conductor;
     /** @var int $pid System process id */

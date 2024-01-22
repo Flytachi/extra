@@ -4,7 +4,7 @@ namespace Extra\Src\Process\Kube;
 
 use Extra\Src\Log\Log;
 
-trait KubeSig
+trait KubeHandler
 {
     /**
      * Sends an interrupt signal to all child processes and terminates the current process.

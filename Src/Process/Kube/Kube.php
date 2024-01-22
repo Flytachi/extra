@@ -35,7 +35,7 @@ use Extra\Src\Process\PosixSignal;
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
 {
-    use KubeSig, PosixSignal;
+    use KubeHandler, PosixSignal;
 
     protected string $conductorClassName = ConductorEmpty::class;
     private Conductor $conductor;
@@ -115,7 +115,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
      *
      * @return void
      */
-    protected function thread(callable $function): void
+    protected final function thread(callable $function): void
     {
         try {
             $pid = pcntl_fork();
@@ -146,7 +146,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
      * @param mixed $data The data to be passed to the thread. Default is null.
      * @return void
      */
-    protected function threadProc(mixed $data = null): void
+    protected final function threadProc(mixed $data = null): void
     {
         try {
             $pid = pcntl_fork();
