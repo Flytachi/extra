@@ -3,35 +3,34 @@
 namespace Extra\Src\Process\Job;
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Core\Conductor\ConductorInterface;
-use Extra\Src\Process\Core\Conductor\Json\Conductor;
+use Extra\Src\Process\Core\Conductor\ConductorEmpty;
+use Extra\Src\Process\Core\Conductor\Conductor;
 use Extra\Src\Process\Core\Dispatcher\Dispatcher;
 use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
-
+use Extra\Src\Process\PosixSignal;
 
 /**
  * Class Job
  *
- * `Job` is an abstract class extending `Dispatcher`. It's designed to run tasks that take a long time, either in the foreground or background.
- * It provides a rich life cycle for jobs, including initialization, running, and termination, and interrupt processing.
+ * `Job` is an abstract class extending `Dispatcher`. It's designed to run tasks with methods to start, dispatch, and signal handling.
+ * It implements interfaces `JobInterface` and `DispatcherInterface` and uses traits `JobSig` and `PosixSignal`.
+ * It also has a ConductorClass instance to manage job tasks. Each task will run in its process with `pid`.
  *
  * The methods provided by `Job` include:
  *
- * - `start(mixed $data = null): int`: Start the task (sync) provided by the data argument, returns the process ID of the task.
- * - `dispatch(mixed $data = null): int`: Dispatch the task in the background, returns the process ID of the task.
- * - `asClose(): void`: Defines what job has to do when it is asked to close.
- * - `asTermination(): void`: Defines what job has to do when it is asked to terminate.
- * - `asInterrupt(): void`: Defines what job has to do when it gets interrupted.
+ * - `start(mixed $data = null): int`: Start the task (sync). Running a task provided by the data argument, returns the process ID of the task.
+ * - `dispatch(mixed $data = null): int`: Dispatch the task. Same as `start()`.
  *
- * The class also defines preparatory (`startRun()`) and tear-down (`endRun()`) routines to be executed when the job starts and ends, respectively.
+ * The class also defines preparatory (`startRun()`) and tear-down (`endRun()`) private routines to manage the conductor and signal handling.
  *
- * @version 1.8
+ * @version 2.5
  * @author Flytachi
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {
-    protected string $conductorClassName = Conductor::class;
-    private ConductorInterface $conductor;
+    use JobSig, PosixSignal;
+    protected string $conductorClassName = ConductorEmpty::class;
+    private Conductor $conductor;
     /** @var int $pid System process id */
     protected int $pid;
 
@@ -93,52 +92,6 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     public final static function dispatch(mixed $data = null): int
     {
         return self::runnable($data);
-    }
-
-    /**
-     * @return never
-     */
-    private function signClose(): never
-    {
-        $this->asClose();
-        $this->endRun();
-        exit(1);
-    }
-
-    /**
-     * @return never
-     */
-    private function signInterrupt(): never
-    {
-        $this->asInterrupt();
-        $this->endRun();
-        exit();
-    }
-
-
-    /**
-     * @return never
-     */
-    private function signTermination(): never
-    {
-        $this->asTermination();
-        $this->endRun();
-        exit(1);
-    }
-
-    protected function asClose(): void
-    {
-        Log::critical(static::class . ' CLOSE TERMINAL');
-    }
-
-    protected function asTermination(): void
-    {
-        Log::critical(static::class . ' TERMINATION');
-    }
-
-    protected function asInterrupt(): void
-    {
-        Log::alert(static::class . ' INTERRUPTED');
     }
 
 }

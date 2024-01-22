@@ -4,51 +4,56 @@ namespace Extra\Src\Process\Kube;
 
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Core\Conductor\ConductorInterface;
-use Extra\Src\Process\Core\Conductor\Json\Conductor;
+use Extra\Src\Process\Core\Conductor\ConductorEmpty;
+use Extra\Src\Process\Core\Conductor\Conductor;
 use Extra\Src\Process\Core\Dispatcher\Dispatcher;
 use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
+use Extra\Src\Process\PosixSignal;
 
 /**
  * Class Kube
  *
- * `Kube` is an abstract class extending `Dispatcher`. It is designed to manage tasks with the ability to use multi-threading.
- * Different threads can be run depending on certain conditions and each thread can potentially generate child processes.
+ * `Kube` is an abstract class extending `Dispatcher`. It's designed to run tasks with methods for thread management,
+ * process handling, and signal handling.
+ * It implements interfaces `KubeInterface` and `DispatcherInterface` and uses traits `KubeSig` and `PosixSignal`.
+ *
+ * It also has a ConductorClass instance to manage job tasks. Each task runs in its process with `pid`.
+ * Child processes spawned through threads are tracked in `childrenPid`.
  *
  * The methods provided by `Kube` include:
  *
- * - `start(mixed $data = null): int`: Starts execution by running tasks in the main process. Returns the PID of the main process.
- * - `thread(callable $function): void`: Starts a new child process with the specified function.
- * - `threadProc(mixed $data = null): void`: Starts a new child process with the provided data to process.
- * - `wait(?callable $callableEndChild = null): void`: Waits for child processes to finish their tasks and optionally runs the provided callable.
+ * - `start(mixed $data = null): int`: Starts the process with the given data.
+ * - `thread(callable $function): void`: Creates a new thread for the provided function.
+ * - `threadProc(mixed $data = null): void`: Creates new process for the provided data.
+ * - `__construct()`: Constructor that checks and creates the cache directory if not exists.
  *
- * Each process can respond to certain signals like (Close, Termination, Interrupt) defined in respective protected `as` prefixed methods.
+ * Additionally, `startRun()`,`endRun()` are private methods to manage processes and signal
+ * handling which get called during the start and end stages of a process.
  *
- * @version 1.1
+ * @version 1.0
  * @author Flytachi
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
 {
-    protected string $conductorClassName = Conductor::class;
-    private ConductorInterface $conductor;
+    use KubeSig, PosixSignal;
+
+    protected string $conductorClassName = ConductorEmpty::class;
+    private Conductor $conductor;
     /** @var int $pid Main system process id */
     protected int $pid;
     /** @var array<int> $childrenPid Children process ids */
     protected array $childrenPid = [];
 
-    /**
-     * Queue
-     */
     private function __construct()
     {
         if (!is_dir(PATH_CACHE)) mkdir(PATH_CACHE, 0777, true);
     }
 
     /**
-     * Start run script
+     * Starts the process with the given data.
      *
-     * @param mixed|null $data
-     * @return int
+     * @param mixed $data The data to be processed. Default is null.
+     * @return int The process ID of the started process.
      */
     public final static function start(mixed $data = null): int
     {
@@ -67,7 +72,12 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     }
 
     /**
-     * Father Process Prepare Start
+     * Starts the run process.
+     *
+     * This method sets the process ID (pid) to the current process.
+     * If the current SAPI is CLI, it registers signal handlers for SIGHUP, SIGINT, and SIGTERM signals.
+     * It also sets the process title to the basename of the PATH_ROOT concatenated with the class name and 'Father'.
+     * Finally, it adds the current class and pid to the conductor's record.
      *
      * @return void
      */
@@ -85,7 +95,10 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     }
 
     /**
-     * Father Process Prepare End
+     * Ends the execution of the current process.
+     *
+     * This method is called to end the execution of the current process. If the PHP server SAPI is "cli",
+     * it will remove the record of the current class and process ID from the conductor.
      *
      * @return void
      */
@@ -145,9 +158,15 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
         }
     }
 
+    public function proc(int $pid, mixed $data = null): void
+    {
+        Log::info("PROC {$pid} running");
+    }
 
     /**
-     * @param null|callable $callableEndChild
+     * Waits for child processes to finish execution.
+     *
+     * @param callable|null $callableEndChild Optional. A callback function that will be called with the child process ID and status after it finishes execution. Default is null.
      * @return void
      */
     public final function wait(?callable $callableEndChild = null): void
@@ -161,106 +180,14 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     }
 
     /**
-     * Dispatch script
+     * Dispatches the given data to the runnable method.
      *
-     * @param mixed|null $data
-     * @return int
+     * @param mixed $data The data to be dispatched. Default is null.
+     * @return int The result returned by the runnable method.
      */
     public final static function dispatch(mixed $data = null): int
     {
         return self::runnable($data);
-    }
-
-    /**
-     * @return never
-     */
-    private function signClose(): never
-    {
-        // Parent
-        if (getmypid() === $this->pid) {
-            foreach ($this->childrenPid as $childPid) {
-                posix_kill($childPid, SIGHUP);
-                pcntl_waitpid($childPid, $status);
-            }
-            $this->asClose();
-            $this->endRun();
-        }
-        // Child
-        else $this->asProcClose();
-        exit(1);
-    }
-
-    /**
-     * @return never
-     */
-    private function signInterrupt(): never
-    {
-        // Parent
-        if (getmypid() === $this->pid) {
-            foreach ($this->childrenPid as $childPid) {
-                posix_kill($childPid, SIGINT);
-                pcntl_waitpid($childPid, $status);
-            }
-            $this->asInterrupt();
-            $this->endRun();
-        }
-        // Child
-        else $this->asProcInterrupt();
-        exit();
-    }
-
-    /**
-     * @return never
-     */
-    private function signTermination(): never
-    {
-        // Parent
-        if (getmypid() === $this->pid) {
-            foreach ($this->childrenPid as $childPid) {
-                posix_kill($childPid, SIGTERM);
-                pcntl_waitpid($childPid, $status);
-            }
-            $this->asTermination();
-            $this->endRun();
-        }
-        // Child
-        else $this->asProcTermination();
-        exit(1);
-    }
-
-    protected function asClose(): void
-    {
-        Log::critical("[{$this->pid}] " . static::class . ' CLOSE');
-    }
-
-    protected function asTermination(): void
-    {
-        Log::critical("[{$this->pid}] " . static::class . ' TERMINATION');
-    }
-
-    protected function asInterrupt(): void
-    {
-        Log::alert("[{$this->pid}] " . static::class . ' INTERRUPTED');
-    }
-
-    protected function asProcClose(): void
-    {
-        Log::critical('[' . getmypid() . '] ' . static::class . ' CLOSE CHILD');
-    }
-
-    protected function asProcTermination(): void
-    {
-        Log::critical('[' . getmypid() . '] ' . static::class . ' TERMINATION CHILD');
-    }
-
-    protected function asProcInterrupt(): void
-    {
-        Log::alert('[' . getmypid() . '] ' . static::class . ' INTERRUPTED CHILD');
-    }
-
-    public function proc(int $pid, mixed $data = null): void
-    {
-        Log::info("PROC {$pid} running");
     }
 
 }

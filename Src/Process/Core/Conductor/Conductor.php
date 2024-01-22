@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Process\Core\Conductor;
 
-interface ConductorInterface
+interface Conductor
 {
     public function recordAdd(string $className, int $pid): void;
     public function recordRemove(string $className, int $pid): void;

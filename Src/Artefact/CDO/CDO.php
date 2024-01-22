@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Artefact\CDO;
 
-use Extra\Src\Artefact\Shard;
+use Extra\Src\Artefact\Mechanism\Shard;
 use Extra\Src\Artefact\Type\Cluster;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;

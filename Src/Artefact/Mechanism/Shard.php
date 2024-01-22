@@ -1,6 +1,6 @@
 <?php
 
-namespace Extra\Src\Artefact;
+namespace Extra\Src\Artefact\Mechanism;
 
 use Extra\Src\Artefact\CDO\CDO;
 

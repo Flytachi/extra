@@ -3,7 +3,10 @@
 namespace Extra\Src\Artefact;
 
 use Extra\Src\Artefact\CDO\CDO;
+use Extra\Src\Artefact\Mechanism\Shard;
+use Extra\Src\Artefact\Mechanism\ShardRedis;
 use Extra\Src\HttpCode;
+use Redis;
 
 /**
  * Class Aegis
@@ -28,7 +31,10 @@ use Extra\Src\HttpCode;
  */
 class Aegis
 {
+    /* @var array<string, Shard> */
     private static array $shards = [];
+    /* @var array<string, ShardRedis> */
+    private static array $shardRedis = [];
 
     /**
      * @param string $keyName
@@ -52,14 +58,38 @@ class Aegis
         return self::$shards[$keyName];
     }
 
-    public final static function connectByKey(string $keyName): void
-    {
-        self::getShard($keyName)->connect();
-    }
-
     public final static function db(?string $keyName = null): CDO
     {
         $shard = ($keyName) ? self::getShard($keyName) : reset(self::$shards);
+        return $shard->connection();
+    }
+
+
+    /**
+     * @param string $keyName
+     * @param ShardRedis $shard
+     */
+    public static function raiseRedis(string $keyName, ShardRedis $shard): void
+    {
+        if (array_key_exists($keyName, self::$shardRedis))
+            ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR,"A shard redis with the key \"{$keyName}\" already exists!");
+        self::$shardRedis[$keyName] = $shard;
+    }
+
+    /**
+     * @param string $keyName
+     * @return ShardRedis
+     */
+    public static function getShardRedis(string $keyName): ShardRedis
+    {
+        if (!array_key_exists($keyName, self::$shardRedis))
+            ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR,"ShardRedis with key \"{$keyName}\" not found!");
+        return self::$shardRedis[$keyName];
+    }
+
+    public final static function store(?string $keyName = null): Redis
+    {
+        $shard = ($keyName) ? self::getShardRedis($keyName) : reset(self::$shardRedis);
         return $shard->connection();
     }
 

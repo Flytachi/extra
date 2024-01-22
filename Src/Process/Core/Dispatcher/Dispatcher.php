@@ -20,7 +20,6 @@ use Extra\Src\Log\Log;
  */
 abstract class Dispatcher
 {
-
     /**
      * Runs a process in the background by executing a command with given class name and data.
      *
@@ -31,7 +30,7 @@ abstract class Dispatcher
     {
         try {
             if ($data) {
-                $fileName = uniqid("cast-cache-");
+                $fileName = uniqid("process-cache-");
                 $filePath = PATH_CACHE . '/' . $fileName;
                 $serializeData = serialize($data);
                 file_put_contents($filePath, $serializeData);
@@ -51,4 +50,5 @@ abstract class Dispatcher
         }
 
     }
+
 }
