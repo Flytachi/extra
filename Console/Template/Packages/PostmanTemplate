@@ -2,12 +2,12 @@
 
 namespace Controllers;
 
-use Extra\Src\Annotation\Postman\PostmanAuth;
-use Extra\Src\Annotation\Postman\PostmanEvent;
-use Extra\Src\Annotation\Postman\PostmanVariable;
-use Extra\Src\Annotation\Postman\Requests\PostmanItem;
 use Extra\Src\Controller\ApiBase;
-use Extra\Src\Enum\Method;
+use Extra\Src\Controller\Method;
+use Extra\Src\Unit\Postman\PostmanAuth;
+use Extra\Src\Unit\Postman\PostmanEvent;
+use Extra\Src\Unit\Postman\PostmanVariable;
+use Extra\Src\Unit\Postman\Requests\PostmanItem;
 
 class PostmanController extends ApiBase
 {
