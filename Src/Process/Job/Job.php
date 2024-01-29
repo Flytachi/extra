@@ -54,7 +54,7 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
             $process->startRun();
             $process->run($data);
         } catch (\Throwable $e) {
-            Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::error('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         } finally {
             $process->endRun();
         }

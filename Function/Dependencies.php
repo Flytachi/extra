@@ -2,7 +2,7 @@
 
 function env(?string $name = null, string|int|float|bool|null $default = null): array|string|bool|null
 {
-    return getenv($name) ?: $default;
+    return getenv($name) ?? $default;
 }
 
 function dd(mixed ...$value): never

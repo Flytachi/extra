@@ -9,6 +9,6 @@ class __className__ extends Job
 {
     public function run(mixed $data = null): void
     {
-        Log::info(self::class ." RUN");
+        Log::info('::' . static::class . ':: RUN');
     }
 }

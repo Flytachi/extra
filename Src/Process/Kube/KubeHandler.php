@@ -81,32 +81,32 @@ trait KubeHandler
 
     protected function asInterrupt(): void
     {
-        Log::alert("[{$this->pid}] " . static::class . ' INTERRUPTED');
+        Log::alert('::' . static::class . ":: [{$this->pid}] INTERRUPTED");
     }
 
     protected function asTermination(): void
     {
-        Log::critical("[{$this->pid}] " . static::class . ' TERMINATION');
+        Log::critical('::' . static::class . ":: [{$this->pid}] TERMINATION");
     }
 
     protected function asClose(): void
     {
-        Log::critical("[{$this->pid}] " . static::class . ' CLOSE');
+        Log::critical('::' . static::class . ":: [{$this->pid}] CLOSE");
     }
 
     protected function asProcInterrupt(): void
     {
-        Log::alert('[' . getmypid() . '] ' . static::class . ' INTERRUPTED CHILD');
+        Log::alert('::' . static::class . ':: [' . getmypid() . '] INTERRUPTED CHILD');
     }
 
     protected function asProcTermination(): void
     {
-        Log::critical('[' . getmypid() . '] ' . static::class . ' TERMINATION CHILD');
+        Log::critical('::' . static::class . ':: [' . getmypid() . '] TERMINATION CHILD');
     }
 
     protected function asProcClose(): void
     {
-        Log::critical('[' . getmypid() . '] ' . static::class . ' CLOSE CHILD');
+        Log::critical('::' . static::class . ':: [' . getmypid() . '] CLOSE CHILD');
     }
 
 }

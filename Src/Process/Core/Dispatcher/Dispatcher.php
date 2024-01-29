@@ -35,10 +35,10 @@ abstract class Dispatcher
                 $serializeData = serialize($data);
                 file_put_contents($filePath, $serializeData);
                 chmod($filePath, 0777);
-                Log::trace(static::class . ' serialized => ' . $serializeData);
+                Log::trace('::' . static::class . ':: serialized => ' . $serializeData);
             }
 
-            Log::trace(static::class . ' DISPATCH');
+            Log::trace('::' . static::class . ':: DISPATCH');
             return exec(sprintf(
                 "php ../extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
                 static::class,
@@ -46,7 +46,7 @@ abstract class Dispatcher
                 "/dev/null"
             ));
         } catch (\Throwable $err) {
-            DispatcherException::fatal($err->getMessage());
+            DispatcherException::fatal('::' . static::class . ':: ' . $err->getMessage());
         }
 
     }

@@ -51,16 +51,16 @@ trait JobHandler
 
     protected function asInterrupt(): void
     {
-        Log::alert(static::class . ' INTERRUPTED');
+        Log::alert('::' . static::class . ":: [{$this->pid}] INTERRUPTED");
     }
 
     protected function asTermination(): void
     {
-        Log::critical(static::class . ' TERMINATION');
+        Log::critical('::' . static::class . ":: [{$this->pid}] TERMINATION");
     }
 
     protected function asClose(): void
     {
-        Log::critical(static::class . ' CLOSE TERMINAL');
+        Log::critical('::' . static::class . ":: [{$this->pid}] CLOSE");
     }
 }

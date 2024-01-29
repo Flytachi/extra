@@ -63,7 +63,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             $process->startRun();
             $process->run($data);
         } catch (\Throwable $e) {
-            Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::error('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         } finally {
             $process->endRun();
         }
@@ -89,7 +89,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             pcntl_signal(SIGHUP, function () {$this->signClose();});
             pcntl_signal(SIGINT, function () {$this->signInterrupt();});
             pcntl_signal(SIGTERM, function () {$this->signTermination();});
-            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Father');
+            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Kube');
             $this->conductor->recordAdd(static::class, $this->pid);
         }
     }
@@ -109,17 +109,16 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     }
 
     /**
-     * Executes the given function in a separate child process using fork.
+     * Executes a function in a separate child process using forking.
      *
      * @param callable $function The function to be executed in the child process.
-     *
-     * @return void
+     * @return int The process ID of the child process.
      */
-    protected final function thread(callable $function): void
+    protected final function thread(callable $function): int
     {
         try {
             $pid = pcntl_fork();
-            if ($pid == -1) KubeException::fatal("[{$this->pid}] Error: Unable to fork process.");
+            if ($pid == -1) KubeException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) {
                 try {
@@ -128,29 +127,32 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
                         cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
                     $function();
                 } catch (\Throwable $exception) {
-                    Log::error("[$pid]: " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    Log::error('::' . static::class . ":: [$pid] " . $exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
                     exit(0);
                 }
             }
             // Parent process
-            else $this->childrenPid[] = $pid;
+            else {
+                $this->childrenPid[] = $pid;
+                return $pid;
+            }
         } catch (\Throwable $e) {
-            Log::critical($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::critical('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
     }
 
     /**
-     * Executes the code in a separate thread by forking the process.
+     * Executes the thread process by forking a new process and running the proc method.
      *
-     * @param mixed $data The data to be passed to the thread. Default is null.
-     * @return void
+     * @param mixed $data The data to be passed to the proc method. Default is null.
+     * @return int The PID (Process ID) of the child process if the process was successfully forked, otherwise null.
      */
-    protected final function threadProc(mixed $data = null): void
+    protected final function threadProc(mixed $data = null): int
     {
         try {
             $pid = pcntl_fork();
-            if ($pid == -1) KubeException::fatal("[{$this->pid}] Error: Unable to fork process.");
+            if ($pid == -1) KubeException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) {
                 try {
@@ -159,21 +161,32 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
                         cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
                     $this->proc(getmypid(), $data);
                 } catch (\Throwable $exception) {
-                    Log::error("[$pid]: " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    Log::error('::' . static::class . ":: [$pid] " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
                     exit(0);
                 }
             }
             // Parent process
-            else $this->childrenPid[] = $pid;
+            else {
+                $this->childrenPid[] = $pid;
+                return $pid;
+            }
         } catch (\Throwable $e) {
-            Log::critical($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::critical('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
     }
 
     public function proc(int $pid, mixed $data = null): void
     {
-        Log::info("PROC {$pid} running");
+        Log::info('::' . static::class . ":: [{$pid}] -proc- running");
+    }
+
+    public final function wait(int $pid, ?callable $callableEndChild = null): void
+    {
+        if (PHP_SAPI === 'cli') {
+            pcntl_waitpid($pid, $status);
+            if (!is_null($callableEndChild)) $callableEndChild($pid, $status);
+        }
     }
 
     /**
@@ -182,7 +195,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
      * @param callable|null $callableEndChild Optional. A callback function that will be called with the child process ID and status after it finishes execution. Default is null.
      * @return void
      */
-    public final function wait(?callable $callableEndChild = null): void
+    public final function waitAll(?callable $callableEndChild = null): void
     {
         if (PHP_SAPI === 'cli') {
             foreach ($this->childrenPid as $key => $pid) {

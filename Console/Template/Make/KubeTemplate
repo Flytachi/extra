@@ -1,0 +1,26 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Log\Log;
+use Extra\Src\Process\Kube\Kube;
+
+class __className__ extends Kube
+{
+    public function run(mixed $data = null): void
+    {
+        Log::info('::' . static::class . ':: START');
+
+        $pid = $this->threadProc();
+        $this->wait($pid, function ($pid, $status) {
+            Log::info('::' . static::class . ":: [$pid] PROC finally (status {$status})");
+        });
+
+        Log::info('::' . static::class . ':: END');
+    }
+
+    public function proc(int $pid, mixed $data = null): void
+    {
+        Log::info('::' . static::class . ":: [$pid] PROC running");
+    }
+}
