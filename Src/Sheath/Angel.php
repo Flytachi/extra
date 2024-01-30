@@ -138,4 +138,16 @@ class Angel
         $args[] = &$data;
         call_user_func_array("array_multisort", $args);
     }
+
+    /**
+     * Calculates the factorial of a given value.
+     *
+     * @param int $value The value for which to calculate the factorial.
+     * @return int The factorial of the given value.
+     */
+    public static function factorial(int $value): int
+    {
+        return $value < 2 ? 1
+            : $value * self::factorial($value - 1);
+    }
 }
