@@ -317,13 +317,16 @@ class BKB
     }
 
     /**
-     * Whether a value is within a range of values
+     * BETWEEN operator
      *
      * Parsed: $column BETWEEN $valueMin AND $valueMax
      *
+     * Note: The BETWEEN operator is used to select values within a range.
+     * The values can be numbers, text, or dates.
+     *
      * @param string $column name of the column in the table
-     * @param string|int|float $valueMin min value
-     * @param string|int|float $valueMax max value
+     * @param int|float|string $valueMin - minimum value
+     * @param int|float|string $valueMax - maximum value
      *
      * @return BKB
      */
@@ -338,13 +341,38 @@ class BKB
     }
 
     /**
-     * Whether a value is not within a range of values
+     * BETWEEN operator with column values
+     *
+     * Parsed: $value BETWEEN $column1 AND $column2
+     *
+     * Note: The BETWEEN operator is used to search for values that are within a specified range.
+     * The values can be numbers or dates.
+     *
+     * @param string|int|float $value value to be compared
+     * @param string $column1 name of the first column in the table
+     * @param string $column2 name of the second column in the table
+     *
+     * @return BKB
+     */
+    public static function betweenBy(string|int|float $value, string $column1, string $column2): BKB
+    {
+        $hash = self::inject($value);
+        return new self("{$value} BETWEEN {$column1} AND {$column2}", [
+            $hash => $value,
+        ]);
+    }
+
+    /**
+     * NOT between operator
      *
      * Parsed: $column NOT BETWEEN $valueMin AND $valueMax
      *
+     * Note: This operator returns true if the operand on the left
+     * is NOT within the range of the operands on the right.
+     *
      * @param string $column name of the column in the table
-     * @param string|int|float $valueMin min value
-     * @param string|int|float $valueMax max value
+     * @param int|float|string $valueMin minimum value
+     * @param int|float|string $valueMax maximum value
      *
      * @return BKB
      */
@@ -355,6 +383,27 @@ class BKB
         return new self("{$column} NOT BETWEEN {$hashMin} AND {$hashMax}", [
             $hashMin => $valueMin,
             $hashMax => $valueMax,
+        ]);
+    }
+
+    /**
+     * NOT-BETWEEN operator
+     *
+     * Parsed: $value NOT BETWEEN $column1 AND $column2
+     *
+     * Note: The NOT-BETWEEN operator checks whether a value is not within a specified range.
+     *
+     * @param string|int|float $value The value to check if not between the columns
+     * @param string $column1 The first column for the comparison
+     * @param string $column2 The second column for the comparison
+     *
+     * @return BKB
+     */
+    public static function betweenNotBy(string|int|float $value, string $column1, string $column2): BKB
+    {
+        $hash = self::inject($value);
+        return new self("{$value} NOT BETWEEN {$column1} AND {$column2}", [
+            $hash => $value,
         ]);
     }
 
