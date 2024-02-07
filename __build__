@@ -40,7 +40,7 @@ if (PHP_VERSION_ID >= 80200) {
         if (!file_exists($filePath)) {
             $fr = fopen($filePath, 'w');
             if ("$ROOT/app/defines.php" === $filePath) {
-                $key = md5(uniqid(rand(), 1))  . '-' . sha1(uniqid(rand(), 1));
+                $key = md5(uniqid(rand(), 1))  . '-' . md5(basename(PATH_ROOT)) . '-' . sha1(uniqid(rand(), 1));
                 $template = str_replace("__extra_key__", $key, file_get_contents($template));
                 fwrite($fr, $template);
             } else fwrite($fr, file_get_contents($template));

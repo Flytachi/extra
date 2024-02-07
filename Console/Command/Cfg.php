@@ -42,8 +42,30 @@ class Cfg extends Cmd
 
     private function keyArg(): void
     {
-//        if (in_array('g', $this->args['flags'])) $this->keyGenerage();
-//        if (in_array('s', $this->args['flags'])) $this->keyShow();
+        if (in_array('g', $this->args['flags'])) $this->keyGenerate();
+        if (in_array('s', $this->args['flags'])) $this->keyShow();
+    }
+
+    private function keyGenerate(): void
+    {
+        self::printLabel('NEW EXTRA KEY', 34);
+        self::printSplit('OLD: ' . EXTRA_KEY, 34);
+
+        $pathDefines = PATH_APP . '/defines.php';
+        $defines = file_get_contents($pathDefines);
+        $newKey = md5(uniqid(rand(), 1))  . '-' . md5(basename(PATH_ROOT)) . '-' . sha1(uniqid(rand(), 1));
+        $newDefines = str_replace(EXTRA_KEY, $newKey, $defines);
+        file_put_contents($pathDefines, $newDefines);
+
+        self::printSplit('NEW: ' . $newKey, 34);
+        self::printLabel('NEW EXTRA KEY', 34);
+    }
+
+    private function keyShow(): void
+    {
+        self::printLabel('EXTRA KEY', 34);
+        self::printSplit(EXTRA_KEY, 34);
+        self::printLabel('EXTRA KEY', 34);
     }
 
     private function envArg(): void
@@ -107,9 +129,17 @@ class Cfg extends Cmd
 
         self::printLabel("extra cfg [args...] -[flags...]", $cl);
         self::printMessage("args - command", $cl);
+        self::print("key - project unique key", $cl);
         self::print("env - project configuration file", $cl);
         self::print("docker - create docker configuration file", $cl);
         self::print("postman - create postman collection api controller", $cl);
+
+        // key
+        self::printLabel("key", $cl);
+        self::printMessage("flags - selection additional to be action", $cl);
+        self::print("g - (re)generate project unique key", $cl);
+        self::print("s - show project unique key", $cl);
+        self::printLabel("key", $cl);
 
         // env
         self::printLabel("env", $cl);
