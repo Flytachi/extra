@@ -62,7 +62,7 @@ class ShardRedis
                 if($this->password) $this->store->auth($this->password);
                 $this->store->select($this->databaseIndex);
             } catch (\Exception $exception) {
-                ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
+                ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Redis (' . $exception->getMessage() . ')');
             }
         }
     }
