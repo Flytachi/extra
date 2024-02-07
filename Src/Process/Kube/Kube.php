@@ -30,7 +30,7 @@ use Extra\Src\Process\PosixSignal;
  * Additionally, `startRun()`,`endRun()` are private methods to manage processes and signal
  * handling which get called during the start and end stages of a process.
  *
- * @version 1.0
+ * @version 1.2
  * @author Flytachi
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
@@ -125,9 +125,13 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
                     $pid = getmypid();
                     if (PHP_SAPI === 'cli')
                         cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
-                    $function();
+                    try {
+                        $function();
+                    } catch (\Throwable $exception) {
+                        Log::error('::' . static::class . ":: [$pid] Thread: " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    }
                 } catch (\Throwable $exception) {
-                    Log::error('::' . static::class . ":: [$pid] " . $exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    Log::error('::' . static::class . ":: [$pid] Thread: " . $exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
                     exit(0);
                 }
@@ -139,6 +143,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             }
         } catch (\Throwable $e) {
             Log::critical('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return 0;
         }
     }
 
@@ -159,9 +164,13 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
                     $pid = getmypid();
                     if (PHP_SAPI === 'cli')
                         cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
-                    $this->proc(getmypid(), $data);
+                    try {
+                        $this->proc($pid, $data);
+                    } catch (\Throwable $exception) {
+                        Log::error('::' . static::class . ":: [$pid] Thread(proc): " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    }
                 } catch (\Throwable $exception) {
-                    Log::error('::' . static::class . ":: [$pid] " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    Log::error('::' . static::class . ":: [$pid] Thread(proc): " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
                     exit(0);
                 }
@@ -173,6 +182,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             }
         } catch (\Throwable $e) {
             Log::critical('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return 0;
         }
     }
 

@@ -29,6 +29,7 @@ class Cfg extends Cmd
     {
         if (array_key_exists(1, $this->args['arguments'])) {
             switch ($this->args['arguments'][1]) {
+                case 'key': $this->keyArg(); break;
                 case 'env': $this->envArg(); break;
                 case 'docker': $this->dockerArg(); break;
                 case 'postman': $this->postmanArg(); break;
@@ -37,6 +38,12 @@ class Cfg extends Cmd
                     break;
             }
         }
+    }
+
+    private function keyArg(): void
+    {
+//        if (in_array('g', $this->args['flags'])) $this->keyGenerage();
+//        if (in_array('s', $this->args['flags'])) $this->keyShow();
     }
 
     private function envArg(): void
@@ -108,7 +115,7 @@ class Cfg extends Cmd
         self::printLabel("env", $cl);
         self::printMessage("flags - selection additional to be action", $cl);
         self::print("i - create configuration file", $cl);
-        self::print("l - show configuration file", $cl);
+        self::print("s - show configuration file", $cl);
         self::printLabel("env", $cl);
 
         self::printTitle("Cfg Help", $cl);

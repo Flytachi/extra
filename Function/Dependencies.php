@@ -1,8 +1,9 @@
 <?php
 
-function env(?string $name = null, string|int|float|bool|null $default = null): array|string|bool|null
+function env(?string $name = null, string|int|float|bool|null $default = null): array|string|null
 {
-    return getenv($name) ?? $default;
+    $value = getenv($name);
+    return $value !== false ? $value : $default;
 }
 
 function dd(mixed ...$value): never

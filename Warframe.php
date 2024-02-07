@@ -91,6 +91,9 @@ class Warframe
             ini_set('display_startup_errors', 1);
             set_error_handler('\Extra\Warframe::warningHandler');
         }
+
+        // composer
+        if (COMPOSER_LOADING) require dirname(__DIR__, 2) . '/vendor/autoload.php';
     }
 
     /**
