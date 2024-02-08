@@ -10,15 +10,6 @@ function arrayToRequest(array $param = null): ?string
     }
 }
 
-function isActiveLink(array|string $link, string $class = 'active'): void
-{
-    if (is_array($link)) {
-        if (in_array($_SERVER['REQUEST_URI'], $link)) echo $class; 
-    } else {
-        if($_SERVER['REQUEST_URI'] == $link) echo $class;
-    }
-}
-
 function import(string $path): void
 {
     include PATH_RESOURCE . "/$path.php";

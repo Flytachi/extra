@@ -68,6 +68,22 @@ class Angel
     }
 
     /**
+     * Determines whether the given string represents a valid date and time.
+     *
+     * @param string $dataTime The string to validate as a date and time.
+     * @return bool True if the string is a valid date and time, false otherwise.
+     */
+    public static function isDateTime(string $dataTime): bool
+    {
+        try {
+            new DateTime($dataTime);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
      * Check if the given value is a positive integer.
      *
      * @param mixed $value The value to be checked.

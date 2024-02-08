@@ -21,6 +21,7 @@ namespace Extra\Src\Repo;
  * - `having(string $context): Repository`: Sets a "HAVING" clause.
  * - `orderBy(string $context): Repository`: Sets an "ORDER BY" clause.
  * - `limit(int $limit, int $offset = 0): Repository`: Sets a "LIMIT" clause, with an optional offset.
+ * - `forBy(string $context): Repository`: Sets an "FOR" clause.
  *
  * @version 1.0
  * @author Flytachi
@@ -160,6 +161,16 @@ trait RepositoryORMTrait
         if ($offset < 0) $this->Throwable(new \TypeError('offset < 0'));
         $this->CRD_SQL['limit'] = $limit;
         $this->CRD_SQL['offset'] = $offset;
+        return $this;
+    }
+
+    /**
+     * @param string $context
+     * @return Repository
+     */
+    final public function forBy(string $context): Repository
+    {
+        $this->CRD_SQL['for'] = $context;
         return $this;
     }
 

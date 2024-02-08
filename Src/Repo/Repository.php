@@ -88,6 +88,7 @@ class Repository
             if(array_key_exists('order',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
             if(array_key_exists('limit',  $this->CRD_SQL)) $sql .= ' LIMIT ' . trim($this->CRD_SQL['limit']);
             if(array_key_exists('offset', $this->CRD_SQL)) $sql .= ' OFFSET ' . trim($this->CRD_SQL['offset']);
+            if(array_key_exists('for', $this->CRD_SQL)) $sql .= ' FOR ' . trim($this->CRD_SQL['for']);
             Log::trace('Repository build:'. $sql);
             return $sql;
         } catch (Throwable $th) {
