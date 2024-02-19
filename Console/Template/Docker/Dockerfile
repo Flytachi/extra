@@ -12,6 +12,7 @@ RUN touch /run/php8.2-fpm.pid
 RUN apk add --no-cache \
     php82 \
     php82-common \
+    php82-phar \
     php82-openssl \
     php82-pcntl \
     php82-posix \
@@ -21,6 +22,7 @@ RUN apk add --no-cache \
     php82-curl \
     php82-pdo \
     nginx \
+    curl \
     runit
 
 #  =>  PostgreSql
@@ -37,6 +39,9 @@ COPY . /var/www/html
 COPY ./docker/php-fpm.conf /etc/php82/php-fpm.d/www.conf
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 
+# => Composer install
+#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+#RUN composer update --ignore-platform-req=ext-sockets --no-plugins --no-scripts --no-interaction
 
 RUN mkdir -p /etc/service/php-fpm  \
     && echo -e "#!/bin/sh\nexec php-fpm82 -F --allow-to-run-as-root" > /etc/service/php-fpm/run \

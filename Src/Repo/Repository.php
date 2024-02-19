@@ -167,6 +167,23 @@ class Repository
         }
     }
 
+    /**
+     * Calculate the total size of a table relation in bytes.
+     *
+     * @return int The size of the relation in bytes.
+     */
+    final public function relationSize(): int
+    {
+        try {
+            $stmt = $this->db()->prepare("SELECT pg_total_relation_size('" . ((($this->schema) ? $this->schema . '.' : '') . $this::$table) . "')");
+            // Bind
+            $stmt->execute();
+            return $stmt->fetchColumn();
+        } catch (Throwable $th) {
+            $this->Throwable($th);
+        }
+    }
+
     public function insert(ModelInterface $model): mixed
     {
         if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
