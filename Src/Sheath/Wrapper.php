@@ -18,7 +18,7 @@ use TypeError;
  * - `urlToArray(string $url): array`: Converts the URL query string to an associative array.
  * - `arrayToUrl(array $get): string`: Converts an associative array of parameters to a URL query string.
  *
- * @version 2.0
+ * @version 2.1
  * @author Flytachi
  */
 class Wrapper
@@ -138,10 +138,16 @@ class Wrapper
 
     private static function init(Repository $repo): void
     {
+        $countBody = '*';
         $sql = $repo->buildSql();
         if (str_contains($sql, 'LIMIT')) $sql = strstr($sql, 'LIMIT' ,true);
         if (str_contains($sql, 'ORDER')) $sql = strstr($sql, 'ORDER' ,true);
-        $sql = 'SELECT COUNT(*) '. strstr($sql, 'FROM');
+        if (str_contains($sql, 'GROUP BY')) {
+            $countBody = trim(str_replace('GROUP BY', 'DISTINCT', strstr($sql, 'GROUP BY' ,false)));
+            $sql = strstr($sql, 'GROUP BY' ,true);
+        }
+
+        $sql = 'SELECT COUNT(' . $countBody . ') '. strstr($sql, 'FROM');
         self::$limitPage = $repo->getSql('limit');
         self::$currentPage = (self::$limitPage + $repo->getSql('offset')) / self::$limitPage;
 
