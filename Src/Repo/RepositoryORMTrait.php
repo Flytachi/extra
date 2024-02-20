@@ -2,8 +2,30 @@
 
 namespace Extra\Src\Repo;
 
-use Extra\Src\CDO\BKB;
-
+/**
+ * Trait RepositoryORMTrait
+ *
+ * `RepositoryORMTrait` is a trait that provides a set of methods for building selectable SQL query chunks in a Repository.
+ * SQL parameters are stored as array and can be used to construct a full SQL statement.
+ *
+ * The trait provides these methods:
+ *
+ * - `select(string $option): Repository`: Sets the column(s) to select.
+ * - `as(string $alias): Repository`: Sets an alias for the table.
+ * - `join(Repository $repository, string $on): Repository`: Sets a "JOIN" clause.
+ * - `joinLeft(Repository $repository, string $on): Repository`: Sets a "LEFT JOIN" clause.
+ * - `joinRight(Repository $repository, string $on): Repository`: Sets a "RIGHT JOIN" clause.
+ * - `where(BKB $bkb): Repository`: Sets a "WHERE" clause using a `BKB` instance.
+ * - `union(Repository $repository): Repository`: Sets a "UNION" clause with another `Repository` instance's SQL.
+ * - `groupBy(string $context): Repository`: Sets a "GROUP BY" clause.
+ * - `having(string $context): Repository`: Sets a "HAVING" clause.
+ * - `orderBy(string $context): Repository`: Sets an "ORDER BY" clause.
+ * - `limit(int $limit, int $offset = 0): Repository`: Sets a "LIMIT" clause, with an optional offset.
+ * - `forBy(string $context): Repository`: Sets an "FOR" clause.
+ *
+ * @version 1.0
+ * @author Flytachi
+ */
 trait RepositoryORMTrait
 {
     /**
@@ -74,10 +96,12 @@ trait RepositoryORMTrait
      */
     final public function where(BKB $bkb): Repository
     {
-        $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
-        if (array_key_exists('binds', $this->CRD_SQL)) {
-            $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
-        } else $this->CRD_SQL['binds'] = $bkb->getCache();
+        if ($bkb->getQuery()){
+            $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
+            if (array_key_exists('binds', $this->CRD_SQL)) {
+                $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
+            } else $this->CRD_SQL['binds'] = $bkb->getCache();
+        }
         return $this;
     }
 
@@ -137,6 +161,16 @@ trait RepositoryORMTrait
         if ($offset < 0) $this->Throwable(new \TypeError('offset < 0'));
         $this->CRD_SQL['limit'] = $limit;
         $this->CRD_SQL['offset'] = $offset;
+        return $this;
+    }
+
+    /**
+     * @param string $context
+     * @return Repository
+     */
+    final public function forBy(string $context): Repository
+    {
+        $this->CRD_SQL['for'] = $context;
         return $this;
     }
 

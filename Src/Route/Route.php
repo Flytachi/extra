@@ -3,8 +3,8 @@
 namespace Extra\Src\Route;
 
 use ArgumentCountError;
-use Extra\Src\Enum\HttpCode;
 use Extra\Src\Error\ExtraException;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 use ReflectionException;
@@ -12,18 +12,34 @@ use ReflectionMethod;
 use TypeError;
 
 /**
- *  Warframe collection
+ * Class Route
  *
- *  Route - routing system
+ * `Route` is the class responsible for routing in the system. It uses static methods to process URL routes,
+ * groups, options, and performs URL redirections as needed.
  *
- * 	@version 19.0
- * 	@author itachi
- * 	@package Extra\Src
+ * The methods provided by `Route` include:
+ *
+ * - `group(string $prefix, string $folder): void`: Used to define a grouping of routes with a common prefix and an associated folder.
+ * - `inGroup(string &$url): string|null`: Used to check if a provided URL path has any group specified by the `group` function.
+ * - `start(): void`: Begins the routing process.
+ * - `changePostSize(): void`: Checks the posted request size and throws an exception if it's too large.
+ * - `route(): never`: Resolves the routes and directs to the account controller.
+ * - `imitation(string $controllerName, string $actionName, array|string|null $params): void`: Simulates opening the specific controller with the specified method.
+ *
+ * @version 19.0
+ * @author Flytachi
  */
 class Route
 {
     private static array $groups = [];
 
+    /**
+     * Add a group to the routing
+     *
+     * @param string $prefix The group prefix
+     * @param string $folder The folder to associate with the group
+     * @return void
+     */
     public static function group(string $prefix, string $folder): void
     {
         self::$groups[$prefix] = $folder;
@@ -47,7 +63,7 @@ class Route
     }
 
     /**
-     * Start routing system
+     * This method starts the application by setting the headers for the incoming request and routing it to the appropriate controller and action.
      *
      * @return void
      */
@@ -69,7 +85,7 @@ class Route
     }
 
     /**
-     * Routing
+     * This method handles the routing of incoming requests to the appropriate controller and action.
      *
      * @return never
      */
@@ -107,12 +123,11 @@ class Route
 
 
     /**
-     * Start imitation controller
+     * This method imitates the execution of a controller action.
      *
-     * @param string $controllerName controller name
-     * @param string $actionName controller public method
-     * @param array|string|null $params method params
-     *
+     * @param string $controllerName The name of the controller class.
+     * @param string $actionName The name of the action method.
+     * @param array|string|null $params The parameters to pass to the action method (optional).
      * @return void
      */
     private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
@@ -172,10 +187,10 @@ class Route
     }
 
     /**
-     * Redirect
+     * This method redirects the user to a specified URL or to the previous page.
      *
-     * @param ?string $url /url address
-     * @param ?array $param get parameters
+     * @param string|null $url The URL to redirect to. Default is null.
+     * @param array|null $param The parameters to append to the URL. Default is null.
      *
      * @return never
      */

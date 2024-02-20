@@ -1,4 +1,0 @@
-<?php
-
-// include main file
-require_once '../app/bootstrap.php';

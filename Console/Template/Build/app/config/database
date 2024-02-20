@@ -4,7 +4,7 @@
  */
 
 use Extra\Src\Artefact\Aegis;
-use Extra\Src\Artefact\Shard;
+use Extra\Src\Artefact\Mechanism\Shard;
 
 /* Example
 

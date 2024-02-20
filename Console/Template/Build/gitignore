@@ -7,4 +7,5 @@
 
 ## App ----
 /.env
+/vendor
 /app/pid.json

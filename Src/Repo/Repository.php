@@ -3,29 +3,38 @@
 namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
-use Extra\Src\Artefact\ArtefactError;
-use Extra\Src\CDO\BKB;
-use Extra\Src\CDO\CDO;
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\Artefact\CDO\CDO;
+use Extra\Src\Artefact\Type\Cluster;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Model\ModelBase;
 use Extra\Src\Model\ModelInterface;
-use Extra\Src\Type\Cluster;
-use Extra\Warframe;
 use PDO;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionProperty;
 use Throwable;
 
 /**
- *  Warframe collection
+ * Class Repository
  *
- *  Repository - a class for working with tables in a database
+ * The `Repository` class is designed to represent the data layer in your application
+ * providing a unified way to perform CRUD operations. It abstracts the interactions
+ * with your database using the provided model's properties to construct queries.
  *
- *  @version 11.1
- *  @author itachi
- *  @package Extra\Src
+ * The Repository methods include:
+ *
+ * - `__construct(string $table_As = '')`: Initializes a new instance of the Repository with an optional alias for the table.
+ * - `db(): CDO`: Returns the `CDO` instance representing the database connection.
+ * - `cleanCache(): void`: Clears the cached SQL parameters.
+ * - `buildSql(): string`: Constructs a SQL select statement using the cached parameters.
+ * - `getSql(string $param = null): string|array|null`: Returns a specific SQL parameter or the constructed SQL if no parameter is specified.
+ * - `findColumn(int $column = 0): mixed`: Fetches a column's value from the first matching row of the select statement.
+ * - `find(?string $modelClassName = null): mixed`: Fetches the first matching row as an object of the provided model class.
+ * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
+ * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
+ *
+ * @version 11.1
+ * @author Flytachi
  */
 class Repository
 {
@@ -79,6 +88,7 @@ class Repository
             if(array_key_exists('order',  $this->CRD_SQL)) $sql .= ' ' . trim($this->CRD_SQL['order']);
             if(array_key_exists('limit',  $this->CRD_SQL)) $sql .= ' LIMIT ' . trim($this->CRD_SQL['limit']);
             if(array_key_exists('offset', $this->CRD_SQL)) $sql .= ' OFFSET ' . trim($this->CRD_SQL['offset']);
+            if(array_key_exists('for', $this->CRD_SQL)) $sql .= ' FOR ' . trim($this->CRD_SQL['for']);
             Log::trace('Repository build:'. $sql);
             return $sql;
         } catch (Throwable $th) {
@@ -152,6 +162,23 @@ class Repository
             }
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_CLASS, $modelClassName ?: $this->modelClassName);
+        } catch (Throwable $th) {
+            $this->Throwable($th);
+        }
+    }
+
+    /**
+     * Calculate the total size of a table relation in bytes.
+     *
+     * @return int The size of the relation in bytes.
+     */
+    final public function relationSize(): int
+    {
+        try {
+            $stmt = $this->db()->prepare("SELECT pg_total_relation_size('" . ((($this->schema) ? $this->schema . '.' : '') . $this::$table) . "')");
+            // Bind
+            $stmt->execute();
+            return $stmt->fetchColumn();
         } catch (Throwable $th) {
             $this->Throwable($th);
         }

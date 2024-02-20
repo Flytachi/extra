@@ -2,6 +2,26 @@
 
 namespace Extra\Src\Log;
 
+/**
+ * Class Log
+ *
+ * `Log` is a class derived from `LoggerBase` that provides a simple logging interface. It offers different logging levels for more granularity in logging messages.
+ *
+ * The methods provided by `Log` include:
+ *
+ * - `trace(string $message): void`: Logs a trace message.
+ * - `debug(string $message): void`: Logs a debug message.
+ * - `info(string $message): void`: Logs an informational message.
+ * - `notice(string $message): void`: Logs a notice.
+ * - `warning(string $message): void`: Logs a warning message.
+ * - `error(string $message): void`: Logs an error message.
+ * - `critical(string $message): void`: Logs a critical message.
+ * - `alert(string $message): void`: Logs an alert message.
+ * - `emergency(string $message): void`: Logs an emergency message.
+ *
+ * @version 2.0
+ * @author Flytachi
+ */
 class Log extends LoggerBase implements LoggerInterface
 {
     protected static string $handle = 'frame';

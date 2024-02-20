@@ -2,15 +2,98 @@
 
 namespace Extra\Src\Request;
 
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use ReflectionProperty;
 
+
+/**
+ * Class RequestObject
+ *
+ * The `RequestObject` is an abstract class providing methods to process and validate HTTP requests data.
+ * It provides an interface to easily interact with and validate data from different types of HTTP requests.
+ *
+ * The methods provided by `RequestObject` include:
+ *
+ * - `validation(): void`: Abstract method, should be implemented in derived classes and provide custom validation logic for request data.
+ * - `get(): static`: Returns an instance of the class with data from a `GET` request.
+ * - `post(): static`: Returns an instance of the class with data from a `POST` request.
+ * - `json(): static`: Returns an instance of the class with data from a `JSON` request.
+ * - `form(): static`: Returns an instance of the class with data from a `FORM` request.
+ * - `files(): static`: Returns an instance of the class with data from a `FILES` request.
+ * - `request(string $dataType = 'get'): static`: Allows for requesting specific data types ('get', 'post', 'json', 'form', 'files'). It returns a `RequestObject` instance with the requested data.
+ * - `valid(string $field, callable $validateFunc = null, string $message = null): static`: Validates a specific field in the request data by checking its existence and optionally verifies it further using a callable `validateFunc` function.
+ *
+ * @version 1.0
+ * @author Flytachi
+ */
 abstract class RequestObject
 {
     protected function validation(): void
     {}
 
+    /**
+     * Retrieves data using the "get" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved data.
+     */
+    public final static function get(): static
+    {
+        return new static(Request::get(false)->getData());
+    }
+
+    /**
+     * Retrieves data using the "post" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved data.
+     */
+    public final static function post(): static
+    {
+        return new static(Request::post(false)->getData());
+    }
+
+    /**
+     * Retrieves data using the "json" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved data.
+     */
+    public final static function json(): static
+    {
+        return new static(Request::json(false)->getData());
+    }
+
+    /**
+     * Retrieves data using the "json" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved data.
+     */
+    public final static function form(): static
+    {
+        return new static(Request::json(false)->getData());
+    }
+
+    /**
+     * Retrieves files using the "files" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved files data.
+     */
+    public final static function files(): static
+    {
+        return new static(Request::files(false)->getData());
+    }
+
+    /**
+     * Sends a request to the server and returns the response data.
+     *
+     * @param string $dataType The type of data to send in the request. Possible values are 'get', 'post', 'json', 'form', 'files'. Defaults to 'get'.
+     *
+     * @return static The response data.
+     */
     public final static function request(string $dataType = 'get'): static
     {
         if (!in_array($dataType, ['get', 'post', 'json', 'form', 'files']))

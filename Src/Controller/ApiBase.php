@@ -2,21 +2,31 @@
 
 namespace Extra\Src\Controller;
 
-use Extra\Src\Enum\HttpCode;
-use Extra\Src\Enum\Method;
+use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 use Extra\Src\Route\Response;
 use ReflectionClass;
 
 /**
- *  Warframe collection
+ * Class ApiBase
  *
- *  ApiBase - api controller
+ * `ApiBase` is an abstract class serving as the base for all API controllers in the application.
+ * It provides basic methods for handling API requests that can be inherited by child controller classes.
  *
- *  @version 9.2
- *  @author itachi
- *  @package Extra\Src
+ * The methods provided by `ApiBase` include:
+ *
+ * - `__construct(): void`: Constructor that initializes specific services and authorizes HEADER data and CORS.
+ * - `method(Method ...$allowMethods): void`: Allows certain HTTP methods for the request.
+ * - `getBearerToken(): string|null`: Extracts the Bearer token from the Authorization header, if present.
+ * - `getBasicToken(): string|null`: Extracts the Basic token from the Authorization header and decodes it, if present.
+ * - `response(HttpCode $httpCode, mixed $data = null): void`: Sends a json response with provided HTTP code and data.
+ * - `responseOk(mixed $data = null): void`: Sends a json response with HTTP code 200.
+ * - `responseMessage(HttpCode $httpCode, string $message = ''): void`: Sends a json response with a message and provided HTTP code.
+ * - `textResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): void`: Sends a text response with provided HTTP code and text.
+ *
+ * @version 9.3
+ * @author Flytachi
  */
 abstract class ApiBase
 {

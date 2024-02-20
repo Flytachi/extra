@@ -13,14 +13,15 @@ class Make extends Cmd
     {
         self::printTitle("Make", 32);
         $this->templatePath = dirname(__DIR__) . '/Template/Make';
+        array_shift($this->args['arguments']);
 
-        if (!array_key_exists(1, $this->args['arguments'])) {
-            self::printMessage("Enter a name for the template");
+        if (count($this->args['arguments']) == 0) {
+            self::printMessage("Enter the names of the generated templates");
             self::print("Example: extra make example");
             self::print("Help: extra make [--help or -h]");
         } elseif (!count($this->args['flags'])) {
             self::printMessage("Specify template types");
-            self::print("Example: extra make -acsrm example");
+            self::print("Example: extra make -asrm example");
             self::print("Help: extra make [--help or -h]");
         } else $this->resolution();
 
@@ -29,20 +30,24 @@ class Make extends Cmd
 
     private function resolution(): void
     {
-        if (in_array('a', $this->args['flags']))
-            $this->createApiController($this->args['arguments'][1]);
-        if (in_array('c', $this->args['flags']))
-            $this->createController($this->args['arguments'][1]);
-        if (in_array('s', $this->args['flags']))
-            $this->createService($this->args['arguments'][1]);
-        if (in_array('r', $this->args['flags']))
-            $this->createRepository($this->args['arguments'][1]);
-        if (in_array('m', $this->args['flags']))
-            $this->createModel($this->args['arguments'][1]);
-        if (in_array('q', $this->args['flags']))
-            $this->createRequest($this->args['arguments'][1]);
-        if (in_array('j', $this->args['flags']))
-            $this->createJob($this->args['arguments'][1]);
+        foreach ($this->args['arguments'] as $templateName) {
+            if (in_array('a', $this->args['flags']))
+                $this->createApiController($templateName);
+            if (in_array('c', $this->args['flags']))
+                $this->createController($templateName);
+            if (in_array('s', $this->args['flags']))
+                $this->createService($templateName);
+            if (in_array('r', $this->args['flags']))
+                $this->createRepository($templateName);
+            if (in_array('m', $this->args['flags']))
+                $this->createModel($templateName);
+            if (in_array('q', $this->args['flags']))
+                $this->createRequest($templateName);
+            if (in_array('j', $this->args['flags']))
+                $this->createJob($templateName);
+            if (in_array('k', $this->args['flags']))
+                $this->createKube($templateName);
+        }
     }
 
     private function createApiController(string $name): void
@@ -137,6 +142,19 @@ class Make extends Cmd
         $this->createFile($name, $path, $code, 'job');
     }
 
+    private function createKube(string $name): void
+    {
+        $name = $this->ucWord($name) . 'Kube';
+        $templatePath = $this->templatePath . '/KubeTemplate';
+        $path = $this->getPath('Jobs');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'kube');
+    }
+
 
     private function createFile(string $fName, string $path, string $code = "", ?string $prefix = null): void
     {
@@ -172,7 +190,7 @@ class Make extends Cmd
         self::printTitle("Make Help", $cl);
 
         self::printLabel("extra make [args...] -[flags...] --[options...]", $cl);
-        self::printMessage("args - template name", $cl);
+        self::printMessage("args - names of generated templates", $cl);
         self::printMessage("flags - selection of templates to be created", $cl);
         self::print("a - Template ApiBase, prefix Controller", $cl);
         self::print("c - Template ControllerBase, prefix Controller", $cl);
@@ -181,6 +199,7 @@ class Make extends Cmd
         self::print("m - Template ModelBase, prefix Model", $cl);
         self::print("q - Template RequestObject, prefix Request", $cl);
         self::print("j - Template Job, prefix Job", $cl);
+        self::print("k - Template Kube, prefix Kube", $cl);
         self::printMessage("options - additional option", $cl);
         self::print("folder - folder where template will be added (recursive creation is used)", $cl);
 

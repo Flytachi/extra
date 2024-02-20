@@ -3,24 +3,34 @@
 namespace Extra\Src\Process\Job;
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Conductor\ConductorInterface;
-use Extra\Src\Process\Conductor\Json\Conductor;
-use Extra\Src\Process\Dispatcher\Dispatcher;
-use Extra\Src\Process\Dispatcher\DispatcherInterface;
+use Extra\Src\Process\Core\Conductor\ConductorEmpty;
+use Extra\Src\Process\Core\Conductor\Conductor;
+use Extra\Src\Process\Core\Dispatcher\Dispatcher;
+use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
+use Extra\Src\Process\PosixSignal;
 
 /**
- *  Warframe collection
+ * Class Job
  *
- *  Job
+ * `Job` is an abstract class extending `Dispatcher`. It's designed to run tasks with methods to start, dispatch, and signal handling.
+ * It implements interfaces `JobInterface` and `DispatcherInterface` and uses traits `JobSig` and `PosixSignal`.
+ * It also has a ConductorClass instance to manage job tasks. Each task will run in its process with `pid`.
  *
- *  @version 1.0
- *  @author itachi
- *  @package Extra\Src
+ * The methods provided by `Job` include:
+ *
+ * - `start(mixed $data = null): int`: Start the task (sync). Running a task provided by the data argument, returns the process ID of the task.
+ * - `dispatch(mixed $data = null): int`: Dispatch the task. Same as `start()`.
+ *
+ * The class also defines preparatory (`startRun()`) and tear-down (`endRun()`) private routines to manage the conductor and signal handling.
+ *
+ * @version 2.5
+ * @author Flytachi
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
 {
-    protected string $conductorClassName = Conductor::class;
-    private ConductorInterface $conductor;
+    use JobHandler, PosixSignal;
+    protected string $conductorClassName = ConductorEmpty::class;
+    private Conductor $conductor;
     /** @var int $pid System process id */
     protected int $pid;
 
@@ -30,13 +40,10 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     }
 
     /**
-     * Start Job (sync)
+     * Starts the process by creating a new instance and running the necessary methods.
      *
-     * Running a task
-     *
-     * @param mixed|null $data
-     *
-     * @return int pid
+     * @param mixed $data The data to be passed to the `run` method. Defaults to null if not provided.
+     * @return int The process ID of the started process.
      */
     public final static function start(mixed $data = null): int
     {
@@ -47,13 +54,21 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
             $process->startRun();
             $process->run($data);
         } catch (\Throwable $e) {
-            Log::error($e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::error('::' . static::class . ':: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         } finally {
             $process->endRun();
         }
         return $process->pid;
     }
 
+    /**
+     * Starts the run process.
+     *
+     * This method sets the current process ID, registers signal handlers for SIGHUP, SIGINT, and SIGTERM,
+     * sets the process title for CLI, and adds the current class to the conductor's record.
+     *
+     * @return void
+     */
     private function startRun(): void
     {
         $this->pid = getmypid();
@@ -67,6 +82,16 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
         }
     }
 
+    /**
+     * Ends the execution of the run method.
+     *
+     * This method is responsible for performing any necessary clean-up tasks
+     * after the run method finishes executing. If the PHP SAPI (Server Application
+     * Programming Interface) is 'cli' (Command Line Interface), it records the
+     * removal of the class and its process ID ($pid) to the conductor.
+     *
+     * @return void
+     */
     private function endRun(): void
     {
         if (PHP_SAPI === 'cli')
@@ -74,60 +99,14 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
     }
 
     /**
-     * Dispatch script
+     * Dispatches the given data to the `runnable` method and returns the result.
      *
-     * @param mixed|null $data
-     * @return int
+     * @param mixed $data The data to be dispatched. Defaults to null if not provided.
+     * @return int The result of the `runnable` method.
      */
     public final static function dispatch(mixed $data = null): int
     {
         return self::runnable($data);
-    }
-
-    /**
-     * @return never
-     */
-    private function signClose(): never
-    {
-        $this->asClose();
-        $this->endRun();
-        exit(1);
-    }
-
-    /**
-     * @return never
-     */
-    private function signInterrupt(): never
-    {
-        $this->asInterrupt();
-        $this->endRun();
-        exit();
-    }
-
-
-    /**
-     * @return never
-     */
-    private function signTermination(): never
-    {
-        $this->asTermination();
-        $this->endRun();
-        exit(1);
-    }
-
-    protected function asClose(): void
-    {
-        Log::critical(static::class . ' CLOSE TERMINAL');
-    }
-
-    protected function asTermination(): void
-    {
-        Log::critical(static::class . ' TERMINATION');
-    }
-
-    protected function asInterrupt(): void
-    {
-        Log::alert(static::class . ' INTERRUPTED');
     }
 
 }

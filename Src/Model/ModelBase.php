@@ -3,19 +3,23 @@
 namespace Extra\Src\Model;
 
 use Attribute;
-use Extra\Src\Enum\HttpCode;
+use Extra\Src\HttpCode;
 use TypeError;
 
 /**
- *  Warframe collection
- * 
- *  ModelBase - private mode
- *  
- *  All property is private, required getters and setters
- * 
- *  @version 16.0
- *  @author itachi
- *  @package Extra\Src
+ * Class ModelBase
+ *
+ * `ModelBase` is a base class for models in the application. It extends the stdClass and provides the base functionality
+ * for transforming and presenting models.
+ *
+ * The methods provided by `ModelBase` include:
+ *
+ * - `__toString(): string`: Converts model data to JSON format.
+ * - `__construct(): void`: Default constructor of the model.
+ * - `arrayToObject(?array $data = null): void`: A static function that creates a model instance from an associative array of data.
+ *
+ * @version 16.0
+ * @author Flytachi
  */
 #[Attribute]
 class ModelBase extends \stdClass
@@ -30,45 +34,34 @@ class ModelBase extends \stdClass
     /**
      * Model constructor
      */
-    function __construct(?array $data = null)
-    {
-        $this->reConstruct($data);
-    }
+    function __construct() {}
 
     /**
-     * Construct Array data to Model data
-     * 
-     * @param ?array $data
-     * 
-     * @return void
-     * 
-     * @throws TypeError error data property or property setter
+     * Convert an array to an object.
+     *
+     * @param array|null $data The array containing the data to convert.
+     * @throws TypeError If a key in the array does not exist as a property in the instance.
      */
-    public final function reConstruct(?array $data = null): void
+    public static function arrayToObject(?array $data = null): void
     {
-        try {
-            $properties = $this->getProperties();
-            if ($data) {
+        if ($data) {
+            try {
+                $instance = new static();
+                $properties = get_object_vars($instance); // retrieve properties of the instance
+
                 foreach ($data as $key => $value) {
-                    if (!array_key_exists($key, $properties)) throw new TypeError("Not key '" . $key . "' in " . get_class($this));
-                    $this->{$key} = $value;
+                    if (!array_key_exists($key, $properties))
+                        throw new TypeError("Not key '" . $key . "' in " . get_class($instance));
+                    $instance->{$key} = $value;
                     unset($properties[$key]);
                 }
                 foreach ($properties as $property => $type) {
-                    if (gettype($this->{$property})) unset($properties[$property]);
+                    if (isset($instance->{$property})) unset($properties[$property]);
                 }
+            } catch (\Throwable $exception) {
+                ModelError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
-        } catch (\Throwable $exception) {
-            ModelError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
         }
     }
 
-    private function getProperties(): array
-    {
-        $reflection = new \ReflectionClass($this);
-        $property = [];
-        foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty)
-            $property[$reflectionProperty->getName()] = (string) $reflectionProperty->getType();
-        return $property;
-    }
 }
