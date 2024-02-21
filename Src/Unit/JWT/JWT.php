@@ -36,10 +36,10 @@ class JWT {
                 'alg' => $algorithm
             ];
 
-            if ($notBeforeInMinutes)
+            if (!is_null($notBeforeInMinutes))
                 $payload['nbf'] = time() + ($notBeforeInMinutes * 60);
 
-            if ($expireTimeInMinutes) {
+            if (!is_null($expireTimeInMinutes)) {
                 $payload['iat'] = time();
                 $payload['exp'] = time() + ($expireTimeInMinutes * 60);
             }
