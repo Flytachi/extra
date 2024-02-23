@@ -5,7 +5,6 @@ namespace Extra\Src\Controller;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Route\Route;
-use ReflectionClass;
 
 /**
  * Class ControllerBase
@@ -38,12 +37,6 @@ abstract class ControllerBase
     {
         // session start
         session_start();
-
-        $reflect = new ReflectionClass($this);
-        foreach ($reflect->getProperties() as $property) {
-            if (strrpos($property->getType(), 'Service'))
-                $this->{$property->getName()} = new ($property->getType()->getName());
-        }
     }
 
     /**

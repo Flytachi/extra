@@ -3,7 +3,6 @@
 namespace Extra\Src\Service;
 
 use Extra\Src\Log\Log;
-use ReflectionClass;
 
 /**
  * Class Service

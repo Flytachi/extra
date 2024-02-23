@@ -6,7 +6,6 @@ use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Request\Request;
 use Extra\Src\Route\Response;
-use ReflectionClass;
 
 /**
  * Class ApiBase
@@ -25,7 +24,7 @@ use ReflectionClass;
  * - `responseMessage(HttpCode $httpCode, string $message = ''): void`: Sends a json response with a message and provided HTTP code.
  * - `textResponse(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): void`: Sends a text response with provided HTTP code and text.
  *
- * @version 9.3
+ * @version 9.5
  * @author Flytachi
  */
 abstract class ApiBase
@@ -42,12 +41,6 @@ abstract class ApiBase
     {
         $this->AuthorizationCORS();
         $this->AuthorizationHeader();
-
-        $reflect = new ReflectionClass($this);
-        foreach ($reflect->getProperties() as $property) {
-            if (strrpos($property->getType(), 'Service'))
-                $this->{$property->getName()} = new ($property->getType()->getName());
-        }
     }
 
     /**
