@@ -14,9 +14,7 @@ Aegis::raise("db", new Shard(
     env('DB_PORT'),
     env('DB_NAME'),
     env('DB_USER'),
-    env('DB_PASS'),
-    env('DB_CHARSET'),
-    env('DB_SCHEMA')
+    env('DB_PASS')
 ));
 
 */
