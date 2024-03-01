@@ -43,7 +43,7 @@ use Extra\Src\Log\Log;
  *  @method  self         request(string $method, string $url, null|array $params = null)
  *  @method  self         body(array $body, string $type = 'json')
  *
- *  @version 2.0
+ *  @version 2.1
  *  @author Flytachi
  */
 class Blink
@@ -227,15 +227,8 @@ class Blink
 
             Log::trace("Blink Send Request: " . $info['url']);
             $response = curl_exec($this->curl);
-            if (!$response) {
-                if ($this->maxRetry == 1) BlinkError::throw(HttpCode::INTERNAL_SERVER_ERROR, curl_error($this->curl));
-                else {
-                    --$this->maxRetry;
-                    continue;
-                }
-            };
-
             $info = curl_getinfo($this->curl);
+
             if ($isThrowable) {
                 if ($info['http_code'] == 0 || 400 <= $info['http_code']) {
                     if ($this->maxRetry > 1 && 500 <= $info['http_code']) {
