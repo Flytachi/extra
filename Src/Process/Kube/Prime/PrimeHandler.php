@@ -21,7 +21,7 @@ trait PrimeHandler
     public static function stmThreadList(): array
     {
         $files = glob(static::$STM_THREADS_PATH . '/*.json');
-        foreach ($files as $key => $path) $files[$key] = basename($path, '.json');
+        foreach ($files as $key => $path) $files[$key] = (int) basename($path, '.json');
         return $files;
     }
 
