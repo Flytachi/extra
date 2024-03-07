@@ -18,10 +18,16 @@ trait PrimeHandler
         }
     }
 
-    public static function stmThreadQty(): int
+    public static function stmThreadList(): array
     {
         $files = glob(static::$STM_THREADS_PATH . '/*.json');
-        return count($files);
+        foreach ($files as $key => $path) $files[$key] = basename($path, '.json');
+        return $files;
+    }
+
+    public static function stmThreadQty(): int
+    {
+        return count(glob(static::$STM_THREADS_PATH . '/*.json'));
     }
 
     public static function stmStart(): int
