@@ -9,6 +9,7 @@ use Extra\Src\Process\Core\Conductor\Conductor;
 use Extra\Src\Process\Core\Dispatcher\Dispatcher;
 use Extra\Src\Process\Core\Dispatcher\DispatcherInterface;
 use Extra\Src\Process\PosixSignal;
+use Extra\Src\Process\ProcessException;
 
 /**
  * Class Kube
@@ -30,7 +31,7 @@ use Extra\Src\Process\PosixSignal;
  * Additionally, `startRun()`,`endRun()` are private methods to manage processes and signal
  * handling which get called during the start and end stages of a process.
  *
- * @version 1.2
+ * @version 1.4
  * @author Flytachi
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
@@ -41,6 +42,8 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     private Conductor $conductor;
     /** @var int $pid Main system process id */
     protected int $pid;
+    /** @var bool $childrenPidSave Children process ids on/off */
+    protected bool $childrenPidSave = true;
     /** @var array<int> $childrenPid Children process ids */
     protected array $childrenPid = [];
 
@@ -118,27 +121,26 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     {
         try {
             $pid = pcntl_fork();
-            if ($pid == -1) KubeException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
+            if ($pid == -1) ProcessException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) {
                 try {
                     $pid = getmypid();
-                    if (PHP_SAPI === 'cli')
-                        cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
-                    try {
-                        $function();
-                    } catch (\Throwable $exception) {
-                        Log::error('::' . static::class . ":: [$pid] Thread: " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    $this->threadStartRun($pid);
+                    try { $function(); }
+                    catch (\Throwable $exception) {
+                        Log::error('::' . static::class . ":: [$pid] Thread: Logic => " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                     }
                 } catch (\Throwable $exception) {
-                    Log::error('::' . static::class . ":: [$pid] Thread: " . $exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    Log::error('::' . static::class . ":: [$pid] Thread: " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
+                    $this->threadEndRun($pid);
                     exit(0);
                 }
             }
             // Parent process
             else {
-                $this->childrenPid[] = $pid;
+                if ($this->childrenPidSave) $this->childrenPid[] = $pid;
                 return $pid;
             }
         } catch (\Throwable $e) {
@@ -157,27 +159,26 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     {
         try {
             $pid = pcntl_fork();
-            if ($pid == -1) KubeException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
+            if ($pid == -1) ProcessException::fatal('::' . static::class . ":: [{$this->pid}] Error: Unable to fork process.");
             // Child process
             elseif ($pid == 0) {
                 try {
                     $pid = getmypid();
-                    if (PHP_SAPI === 'cli')
-                        cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Child');
-                    try {
-                        $this->proc($pid, $data);
-                    } catch (\Throwable $exception) {
-                        Log::error('::' . static::class . ":: [$pid] Thread(proc): " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
+                    $this->threadStartRun($pid);
+                    try { $this->proc($pid, $data); }
+                    catch (\Throwable $exception) {
+                        Log::error('::' . static::class . ":: [$pid] Thread(proc): Logic => " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                     }
                 } catch (\Throwable $exception) {
                     Log::error('::' . static::class . ":: [$pid] Thread(proc): " .$exception->getMessage() . "\n" . $exception->getTraceAsString());
                 } finally {
+                    $this->threadEndRun($pid);
                     exit(0);
                 }
             }
             // Parent process
             else {
-                $this->childrenPid[] = $pid;
+                if ($this->childrenPidSave) $this->childrenPid[] = $pid;
                 return $pid;
             }
         } catch (\Throwable $e) {
@@ -185,6 +186,14 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             return 0;
         }
     }
+
+    protected function threadStartRun(int $pid): void
+    {
+        if (PHP_SAPI === 'cli')
+            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' thread');
+    }
+
+    protected function threadEndRun(int $pid): void {}
 
     public function proc(int $pid, mixed $data = null): void
     {

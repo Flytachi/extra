@@ -3,6 +3,7 @@
 namespace Extra\Src\Process\Core\Dispatcher;
 
 use Extra\Src\Log\Log;
+use Extra\Src\Process\ProcessException;
 
 /**
  * Class Dispatcher
@@ -46,7 +47,7 @@ abstract class Dispatcher
                 "/dev/null"
             ));
         } catch (\Throwable $err) {
-            DispatcherException::fatal('::' . static::class . ':: ' . $err->getMessage());
+            ProcessException::fatal('::' . static::class . ':: ' . $err->getMessage());
         }
 
     }

@@ -29,8 +29,8 @@ class Shard
     private string $database;
     private string $username;
     private string $password;
-    private string|null $charset;
-    private string|null $schema;
+    private ?string $schema;
+    private ?string $charset;
 
     /**
      * @param string $driver
@@ -39,8 +39,8 @@ class Shard
      * @param string $database
      * @param string $username
      * @param string $password
-     * @param string|null $charset
      * @param string|null $schema
+     * @param string|null $charset
      */
     public function __construct(
         string $driver,
@@ -49,8 +49,8 @@ class Shard
         string $database,
         string $username,
         string $password,
-        ?string $charset = null,
-        ?string $schema = null)
+        ?string $schema = null,
+        ?string $charset = null)
     {
         $this->driver = $driver;
         $this->host = $host;
@@ -58,8 +58,8 @@ class Shard
         $this->database = $database;
         $this->username = $username;
         $this->password = $password;
-        $this->charset = $charset;
         $this->schema = $schema;
+        $this->charset = $charset;
     }
 
     public function getDNS(): string

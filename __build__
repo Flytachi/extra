@@ -3,11 +3,7 @@
 // Версия PHP 8.2
 if (PHP_VERSION_ID >= 80200) {
 
-    if (is_dir(__DIR__ . '/.git')) {
-        echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": rm -R " .
-            __DIR__ .
-            "/.git \n";
-    }
+    if (is_dir(__DIR__ . '/.git')) exec("rm -Rf \"" . __DIR__ . "/.git\"");
 
     $ROOT = dirname(__DIR__, 2);
 
@@ -47,6 +43,9 @@ if (PHP_VERSION_ID >= 80200) {
             fclose($fr);
         }
     }
+
+    if (is_dir(__DIR__ . '/.git'))
+        echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": rm -Rf " . __DIR__ . "/.git \n";
 
     echo "\033[32m"." BUILDING SUCCESS.\n";
 

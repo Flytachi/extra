@@ -4,14 +4,11 @@ namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\CDO\CDO;
-use Extra\Src\Artefact\Type\Cluster;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Model\ModelBase;
 use Extra\Src\Model\ModelInterface;
 use PDO;
-use ReflectionClass;
-use ReflectionException;
 use Throwable;
 
 /**
@@ -33,7 +30,7 @@ use Throwable;
  * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
  * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
  *
- * @version 11.1
+ * @version 11.3
  * @author Flytachi
  */
 class Repository
@@ -211,29 +208,21 @@ class Repository
         RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,  static::class  . ': ' . $error->getMessage());
     }
 
-    /**
-     * @throws ReflectionException
-     */
     private function prepareSelect(): string
     {
         if (array_key_exists('option', $this->CRD_SQL)) {
             $this->modelClassName = ModelBase::class;
             return $this->CRD_SQL['option'];
         } else {
-            $values = [];
-            if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
-            else $prefix = '';
-
             if (
                 $this->modelClassName === \stdClass::class || $this->modelClassName === ModelBase::class
             ) return '*';
             else {
-                $reflection = new ReflectionClass($this->modelClassName);
-
-                foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-                    $values[] = $prefix.Cluster::meta($reflectionProperty);
-                }
-
+                $values = [];
+                if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
+                else $prefix = '';
+                foreach (get_class_vars($this->modelClassName) as $name => $val)
+                    $values[] = $prefix . $name;
                 return implode(', ', $values);
             }
 

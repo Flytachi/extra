@@ -3,7 +3,6 @@
 namespace Extra\Src\Artefact\CDO;
 
 use Extra\Src\Artefact\Mechanism\Shard;
-use Extra\Src\Artefact\Type\Cluster;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Model\ModelInterface;
@@ -32,7 +31,7 @@ use PDOException;
  * Note: This class requires a `Shard` object to establish connections, and a BKB (Bucket)
  * object to specify conditions for updating and deleting records.
  *
- * @version 11.0
+ * @version 11.3
  * @author Flytachi
  */
 class CDO extends PDO
@@ -68,25 +67,11 @@ class CDO extends PDO
      */
     final public function insert(string $table, ModelInterface|array $model): mixed
     {
-        if ($model instanceof ModelInterface) {
-            $transform = Cluster::transform($model);
-
-            $data = $model = $transform['data'];
-            foreach ($data as $key => $value) if (is_null($value)) unset($data[$key]);
-            $col = implode(",", array_keys($data));
-            $val = '';
-            foreach (array_keys($data) as $colValue) {
-                if(array_key_exists($colValue, $transform['wrapper']))
-                    $val .= sprintf($transform['wrapper'][$colValue], ':' . $colValue) . ',';
-                else $val .= ':' . $colValue . ', ';
-            }
-            $val = rtrim($val, " ,");
-        } else {
-            $data = $model;
-            foreach ($data as $key => $value) if (is_null($value)) unset($data[$key]);
-            $col = implode(",", array_keys($data));
-            $val = ":".implode(",:", array_keys($data));
-        }
+        if ($model instanceof ModelInterface) $model = (array) $model;
+        $data = $model;
+        foreach ($data as $key => $value) if (is_null($value)) unset($data[$key]);
+        $col = implode(",", array_keys($data));
+        $val = ":".implode(",:", array_keys($data));
 
         try {
             $query = "INSERT INTO $table ($col) VALUES ($val) RETURNING " . array_key_first($model);
@@ -124,23 +109,11 @@ class CDO extends PDO
      */
     final public function update(string $table, ModelInterface|array $model, BKB $bkb): int|string
     {
-        if ($model instanceof ModelInterface) {
-            $transform = Cluster::transform($model);
-            $data = $transform['data'];
-            $set = '';
-            foreach ($data as $key => $value) {
-                $data[":S_$key"] = $value; unset($data[$key]);
-                if(array_key_exists($key, $transform['wrapper']))
-                    $set .= ",$key=" . sprintf($transform['wrapper'][$key], ':S_' . $key);
-                else $set .= ",$key=:S_$key";
-            }
-        } else {
-            $data = $model;
-            $set = "";
-            foreach ($data as $key => $value) {
-                $data[":S_$key"] = $value; unset($data[$key]);
-                $set .= ",$key=:S_$key";
-            }
+        $data = (array) $model;
+        $set = "";
+        foreach ($data as $key => $value) {
+            $data[":S_$key"] = $value; unset($data[$key]);
+            $set .= ",$key=:S_$key";
         }
 
         // Send
