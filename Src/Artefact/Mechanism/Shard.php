@@ -16,7 +16,7 @@ use Extra\Src\Artefact\CDO\CDO;
  * It also provides the `connect()` method to establish the connection with the database and `connection()`
  * which returns an instance of `CDO` representing the connection to the database.
  *
- * @version 3.1
+ * @version 3.2
  * @author Flytachi
  */
 class Shard
@@ -31,6 +31,7 @@ class Shard
     private string $password;
     private ?string $schema;
     private ?string $charset;
+    private bool $isPersistent = false;
 
     /**
      * @param string $driver
@@ -41,6 +42,7 @@ class Shard
      * @param string $password
      * @param string|null $schema
      * @param string|null $charset
+     * @param bool $attrPersistent
      */
     public function __construct(
         string $driver,
@@ -50,8 +52,9 @@ class Shard
         string $username,
         string $password,
         ?string $schema = null,
-        ?string $charset = null)
-    {
+        ?string $charset = null,
+        bool $attrPersistent = false
+    ) {
         $this->driver = $driver;
         $this->host = $host;
         $this->port = $port;
@@ -60,6 +63,7 @@ class Shard
         $this->password = $password;
         $this->schema = $schema;
         $this->charset = $charset;
+        $this->isPersistent = $attrPersistent;
     }
 
     public function getDNS(): string
@@ -115,6 +119,11 @@ class Shard
     public function getSchema(): ?string
     {
         return $this->schema;
+    }
+
+    public function getPersistentStatus(): bool
+    {
+        return $this->isPersistent;
     }
 
     public final function connect(): void
