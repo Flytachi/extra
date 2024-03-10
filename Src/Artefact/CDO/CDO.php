@@ -31,7 +31,7 @@ use PDOException;
  * Note: This class requires a `Shard` object to establish connections, and a BKB (Bucket)
  * object to specify conditions for updating and deleting records.
  *
- * @version 11.3
+ * @version 11.4
  * @author Flytachi
  */
 class CDO extends PDO
@@ -50,6 +50,7 @@ class CDO extends PDO
             parent::__construct($shard->getDNS(), $shard->getUsername(), $shard->getPassword());
             $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->SetAttribute(PDO::ATTR_EMULATE_PREPARES, False);
+            $this->setAttribute(PDO::ATTR_PERSISTENT, $shard->getPersistentStatus());
             if ($debug) $this->SetAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             Log::trace('CDO connection:' . $shard->getDNS());
         } catch (PDOException $e) {

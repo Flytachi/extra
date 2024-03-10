@@ -1,17 +1,13 @@
 version: '3.8'
 
-networks:
-  network:
-
 services:
   server:
+    network_mode: bridge
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8000:80"
-    networks:
-      - network
     volumes:
       - ./:/var/www/html/
 #  composer:
