@@ -67,6 +67,12 @@ class ShardRedis
         }
     }
 
+    public final function reconnect(): void
+    {
+        $this->store = null;
+        $this->connect();
+    }
+
     /**
      * @return Redis
      */

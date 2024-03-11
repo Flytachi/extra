@@ -122,6 +122,12 @@ class Shard
         if (is_null($this->cdo)) $this->cdo = new CDO($this, env('DEBUG', false));
     }
 
+    public final function reconnect(): void
+    {
+        $this->cdo = null;
+        $this->connect();
+    }
+
     /**
      * @return CDO
      */
