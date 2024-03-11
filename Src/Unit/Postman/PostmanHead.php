@@ -32,7 +32,7 @@ class PostmanHead implements Postman
             foreach ($this->params as $itemName => $itemValue) {
                 $arrayData['request']['url']['query'][] = [
                     'key' => $itemName,
-                    'value' => $itemValue
+                    'value' => (string) $itemValue
                 ];
             }
         }
