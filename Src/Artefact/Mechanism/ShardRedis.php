@@ -62,13 +62,14 @@ class ShardRedis
                 if($this->password) $this->store->auth($this->password);
                 $this->store->select($this->databaseIndex);
             } catch (\Exception $exception) {
-                ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Redis (' . $exception->getMessage() . ')');
+                ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Redis {$this->host}:{$this->port} (" . $exception->getMessage() . ')');
             }
         }
     }
 
     public final function reconnect(): void
     {
+        $this->store->close();
         $this->store = null;
         $this->connect();
     }
