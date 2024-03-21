@@ -12,13 +12,13 @@ use TypeError;
  *
  * The methods provided by `Wrapper` include:
  *
- * - `paginator(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array`: Generates the pagination links for a repository resultset.
- * - `paginatorDecoration(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array`: Creates a decoration for the paginator.
+ * - `paginator(Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array`: Generates the pagination links for a repository results.
+ * - `paginatorDecoration(Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array`: Creates a decoration for the paginator.
  * - `panel(Repository $repo): string`: Builds the pagination panel.
  * - `urlToArray(string $url): array`: Converts the URL query string to an associative array.
  * - `arrayToUrl(array $get): string`: Converts an associative array of parameters to a URL query string.
  *
- * @version 2.1
+ * @version 2.2
  * @author Flytachi
  */
 class Wrapper
@@ -40,7 +40,7 @@ class Wrapper
      * @param Repository $repo The repository to paginate the results from.
      * @param int|null $limit The maximum number of items per page. If null, the repository's default limit will be used.
      * @param int $page The current page number.
-     * @param string $func The name of the repository method to fetch the data. Default is 'findAll'.
+     * @param string|null $modelClassName The name of the model.
      *
      * @return array The paginated results as an associative array, with the following keys:
      * - pagination: An array containing information about the pagination, including:
@@ -54,7 +54,7 @@ class Wrapper
      *
      * @throws TypeError If the limit is not set and the repository does not have a default limit.
      */
-    final static function paginator(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array
+    final static function paginator(Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array
     {
         if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
         else {
@@ -70,7 +70,7 @@ class Wrapper
                 'totalItem' => self::$totalItem,
                 'totalPage' => self::$totalPages,
             ],
-            'list' => $repo->{$func}(),
+            'list' => $repo->findAll($modelClassName),
         ];
     }
 
@@ -80,18 +80,18 @@ class Wrapper
      * @param Repository $repo The repository object to be paginated.
      * @param int|null $limit The limit of the pagination. If null, the limit is retrieved from the repository object.
      * @param int $page The current page of the pagination.
-     * @param string $func The name of the function to be called on the repository object to retrieve the data for the table.
+     * @param string|null $modelClassName The name of the model.
      * @return array An array containing the decorated pagination result, with a 'table' key for the table data and a 'panel' key for the panel data.
      * @throws TypeError if the limit is null and the repository object does not have a 'limit' property set.
      */
-    final static function paginatorDecoration(Repository $repo, ?int $limit = null, int $page = 1, string $func = 'findAll'): array
+    final static function paginatorDecoration(Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array
     {
         if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
         else {
             if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         }
         return array(
-            'table' => $repo->{$func}(),
+            'table' => $repo->findAll($modelClassName),
             'panel' => Wrapper::panel($repo)
         );
     }

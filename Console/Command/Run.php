@@ -49,7 +49,7 @@ class Run extends Cmd
             fclose($connection);
         } else {
             self::printMessage("Starting the server to 'http://" . $host . ':' . $port . "'", 32);
-            exec("php -S {$host}:{$port} -t public/");
+            exec("php -S {$host}:{$port} -t " . PATH_PUBLIC);
         }
     }
 
@@ -70,8 +70,6 @@ class Run extends Cmd
 
         // serve
         self::printLabel("serve", $cl);
-        // self::printMessage("flags - selection addition for running", $cl);
-        // self::print("d - start to background", $cl);
         self::printMessage("options - selection for action", $cl);
         self::print("host - hostname (default " . self::HOST . ")", $cl);
         self::print("port - port (default " . self::PORT . ")", $cl);

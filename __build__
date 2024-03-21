@@ -3,7 +3,12 @@
 // Версия PHP 8.2
 if (PHP_VERSION_ID >= 80200) {
 
-    if (is_dir(__DIR__ . '/.git')) exec("rm -Rf \"" . __DIR__ . "/.git\"");
+    $gitPath = __DIR__ . DIRECTORY_SEPARATOR .  '.git';
+    if (is_dir($gitPath)) {
+        if (PHP_OS === 'Windows') exec(sprintf("rd /s /q %s", escapeshellarg($gitPath)));
+        else exec(sprintf("rm -Rf %s", escapeshellarg(__DIR__ . DIRECTORY_SEPARATOR .  '.git')));
+        clearstatcache();
+    }
 
     $ROOT = dirname(__DIR__, 2);
 
@@ -44,8 +49,8 @@ if (PHP_VERSION_ID >= 80200) {
         }
     }
 
-    if (is_dir(__DIR__ . '/.git'))
-        echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": rm -Rf " . __DIR__ . "/.git \n";
+    if (is_dir($gitPath))
+        echo "\033[33m"." *** WARNING *** Please delete the folder \".git\": " . sprintf("rm -Rf %s", escapeshellarg(__DIR__ . DIRECTORY_SEPARATOR .  '.git')) . "\n";
 
     echo "\033[32m"." BUILDING SUCCESS.\n";
 

@@ -23,7 +23,7 @@ namespace Extra\Src\Repo;
  * - `limit(int $limit, int $offset = 0): Repository`: Sets a "LIMIT" clause, with an optional offset.
  * - `forBy(string $context): Repository`: Sets an "FOR" clause.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
 trait RepositoryORMTrait
@@ -55,7 +55,8 @@ trait RepositoryORMTrait
      */
     final public function join(Repository $repository, string $on): Repository
     {
-        $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
+        $context = (($repository->schema) ? $repository->schema . '.' : '') . $repository::$table
+            . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
             $this->CRD_SQL['join'] .= ' JOIN ' . $context;
         } else $this->CRD_SQL['join'] = 'JOIN ' . $context;
@@ -69,7 +70,8 @@ trait RepositoryORMTrait
      */
     final public function joinLeft(Repository $repository, string $on): Repository
     {
-        $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
+        $context = (($repository->schema) ? $repository->schema . '.' : '') . $repository::$table
+            . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
             $this->CRD_SQL['join'] .= ' LEFT JOIN ' . $context;
         } else $this->CRD_SQL['join'] = 'LEFT JOIN ' . $context;
@@ -83,7 +85,8 @@ trait RepositoryORMTrait
      */
     final public function joinRight(Repository $repository, string $on): Repository
     {
-        $context = $repository::$table . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
+        $context = (($repository->schema) ? $repository->schema . '.' : '') . $repository::$table
+            . ' ' . $repository->getSql('as') . " ON(" . $on . ")";
         if (array_key_exists('join', $this->CRD_SQL)) {
             $this->CRD_SQL['join'] .= ' RIGHT JOIN ' . $context;
         } else $this->CRD_SQL['join'] = 'RIGHT JOIN ' . $context;

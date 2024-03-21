@@ -2,11 +2,14 @@
 
 namespace Extra\Src\Route;
 
-use ArgumentCountError;
+use Extra\Src\Artefact\ArtefactError;
+use Extra\Src\Artefact\CDO\CDOError;
 use Extra\Src\Error\ExtraException;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
+use Extra\Src\Repo\RepositoryError;
 use Extra\Src\Request\Request;
+use Extra\Src\Sheath\SheathException;
 use ReflectionException;
 use ReflectionMethod;
 use TypeError;
@@ -26,7 +29,7 @@ use TypeError;
  * - `route(): never`: Resolves the routes and directs to the account controller.
  * - `imitation(string $controllerName, string $actionName, array|string|null $params): void`: Simulates opening the specific controller with the specified method.
  *
- * @version 19.0
+ * @version 19.7
  * @author Flytachi
  */
 class Route
@@ -81,7 +84,7 @@ class Route
     final static function changePostSize(): void
     {
         if($_SERVER['REQUEST_METHOD'] === "POST" && intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0)
-            RouteError::throw(HttpCode::REQUEST_ENTITY_TOO_LARGE, 'PHP discarded POST data because of request exceeding post_max_size.');
+            RouteError::throw(HttpCode::REQUEST_ENTITY_TOO_LARGE, 'PHP discarded POST data because of request exceeding post_max_size');
     }
 
     /**
@@ -132,35 +135,52 @@ class Route
      */
     private static function imitation(string $controllerName, string $actionName, array|string|null $params): void
     {
-        if (!method_exists($controllerName, $actionName))
-            RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function was not found or is not a public method');
-
         try {
             $reflectionMethod = new ReflectionMethod($controllerName, $actionName);
 
-            if ($reflectionMethod->isStatic())
-                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is static method');
-            if ($reflectionMethod->isPrivate())
-                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is private method');
-            if ($reflectionMethod->isProtected())
-                RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is protected method');
+            if (env('DEBUG')) {
+                if ($reflectionMethod->isStatic())
+                    RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is static method');
+                if ($reflectionMethod->isPrivate())
+                    RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is private method');
+                if ($reflectionMethod->isProtected())
+                    RouteError::throw(HttpCode::NOT_FOUND, 'The "' . $actionName . '" function is protected method');
+            } else {
+                if (!$reflectionMethod->isPublic() || $reflectionMethod->isStatic())
+                    RouteError::throw(HttpCode::NOT_FOUND,  $_SERVER['REQUEST_URI'] . ' url not found');
+            }
 
             if (!is_array($params) && !is_null($params)) $params = [$params];
-
             Log::trace("Route imitation:" . $controllerName);
             try {
                 $reflectionMethod->invokeArgs(new $controllerName(), $params ?? []);
-            } catch (ReflectionException|ArgumentCountError|TypeError $exception) {
-                RouteError::throw(HttpCode::BAD_REQUEST,
-                    $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
+            } catch (TypeError $exception) {
+                RouteError::throw(HttpCode::BAD_REQUEST, (env('DEBUG'))
+                    ? $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
+                    : 'Invalid argument data'
                 );
             }
 
+        } catch (ReflectionException $exception) {
+            RouteError::throw(HttpCode::NOT_FOUND,(env('DEBUG'))
+                ? $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
+                : $_SERVER['REQUEST_URI'] . ' url not found',
+                $exception
+            );
+        } catch (CDOError|RepositoryError|ArtefactError|SheathException $exception) {
+            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, (env('DEBUG'))
+                ? $exception->getMessage()
+                : 'Server error',
+                $exception
+            );
         } catch (ExtraException $exception) {
             $code = HttpCode::tryFrom((int) $exception->getCode());
             RouteError::throw($code ?: HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
         } catch (\Throwable $exception) {
-            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
+            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, (env('DEBUG'))
+                ? $exception->getMessage()
+                : 'Server error'
+            );
         }
     }
 

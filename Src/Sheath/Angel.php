@@ -13,76 +13,15 @@ use Exception;
  *
  * The methods provided by `Angel` include:
  *
- * - `dateConvertTo(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string`: Converts a given datetime from a default timezone (UTC) to a destination timezone.
- * - `dateConvertToUTC(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string`: Converts a given datetime from source timezone to UTC.
  * - `isIntPositive(mixed $value): bool`: Checks if a value is positive integer.
  * - `transKirilToLatin(string $strKiril): string`: Transliterates a Cyrillic string to a Latin string.
  * - `mapArrayByColumnValue(array $array, string|int $column): array`: Maps an array by a specified column value.
  *
- * @version 1.0
+ * @version 1.2
  * @author Flytachi
  */
-class Angel
+abstract class Angel
 {
-    /**
-     * Converts a given date and time to the specified time zone and format.
-     *
-     * @param string $dataTime The date and time to be converted. Should be in a format supported by the DateTime class.
-     * @param string $timeZone The time zone to which the date and time should be converted. Should be a valid time zone supported by the DateTimeZone class.
-     * @param string $format Optional. The format to apply to the converted date and time. Defaults to 'Y-m-d H:i:s'.
-     *
-     * @return string The converted date and time in the specified format.
-     */
-    public static function dateConvertTo(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
-    {
-        try {
-            $date = new DateTime($dataTime, new DateTimeZone(env('TIME_ZONE', 'UTC')));
-            $date->setTimezone(new DateTimeZone($timeZone));
-            return $date->format($format);
-        } catch (Exception $e) {
-            if (env('DEBUG', false)) dd($e);
-            else return '';
-        }
-    }
-
-    /**
-     * Convert a date-time to UTC timezone and format it.
-     *
-     * @param string $dataTime The date-time to be converted. Must be in a valid format.
-     * @param string $timeZone The timezone of the input date-time.
-     * @param string $format The desired format of the output date-time. Default is 'Y-m-d H:i:s'.
-     *
-     * @return string The converted date-time in the specified format. If an error occurs during conversion and the environment variable DEBUG is set to true, the error will be dumped
-     * and an empty string will be returned otherwise.
-     */
-    public static function dateConvertToUTC(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string
-    {
-        try {
-            $date = new DateTime($dataTime, new DateTimeZone($timeZone));
-            $date->setTimezone(new DateTimeZone(env('TIME_ZONE', 'UTC')));
-            return $date->format($format);
-        } catch (Exception $e) {
-            if (env('DEBUG', false)) dd($e);
-            else return '';
-        }
-    }
-
-    /**
-     * Determines whether the given string represents a valid date and time.
-     *
-     * @param string $dataTime The string to validate as a date and time.
-     * @return bool True if the string is a valid date and time, false otherwise.
-     */
-    public static function isDateTime(string $dataTime): bool
-    {
-        try {
-            new DateTime($dataTime);
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
     /**
      * Check if the given value is a positive integer.
      *

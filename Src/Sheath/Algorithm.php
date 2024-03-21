@@ -17,10 +17,10 @@ namespace Extra\Src\Sheath;
  * - `weightedCalculateProbabilities(array $values, array $weights, bool $isCombine = false): array`: Calculates the probabilities of elements based on their weights.
  * - `binarySearch(array $arr, int|float $value): int`: Performs a binary search on the array for a given value and returns the corresponding index.
  *
- * @version 2.1
+ * @version 2.2
  * @author Flytachi
  */
-class Algorithm
+abstract class Algorithm
 {
     /** @var string */
     private static string $alphabet;
