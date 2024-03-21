@@ -98,11 +98,15 @@ class Process extends Cmd
         self::printLabel("extra process [args...] -[flags...] --[options...]", $cl);
         self::printMessage("args - command", $cl);
         self::print("run - process starting", $cl);
+
+        // run
+        self::printLabel("run", $cl);
         self::printMessage("flags - additional args for running", $cl);
         self::print("d - start process in background", $cl);
         self::printMessage("options - data for running", $cl);
         self::print("class-name - class name, with namespaces(example 'Jobs\ExampleJob')", $cl);
         self::print("class-cache - name cache file used in process (serializable)", $cl);
+        self::printLabel("run", $cl);
 
         self::printTitle("Process Help", $cl);
     }

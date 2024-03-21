@@ -2,7 +2,6 @@
 
 namespace Extra\Src\Route;
 
-use ArgumentCountError;
 use Extra\Src\Artefact\ArtefactError;
 use Extra\Src\Artefact\CDO\CDOError;
 use Extra\Src\Error\ExtraException;
@@ -10,6 +9,7 @@ use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Repo\RepositoryError;
 use Extra\Src\Request\Request;
+use Extra\Src\Sheath\SheathException;
 use ReflectionException;
 use ReflectionMethod;
 use TypeError;
@@ -164,12 +164,14 @@ class Route
         } catch (ReflectionException $exception) {
             RouteError::throw(HttpCode::NOT_FOUND,(env('DEBUG'))
                 ? $exception->getMessage() . ' in ' . $exception->getFile() . '(' . $exception->getLine() . ')'
-                : $_SERVER['REQUEST_URI'] . ' url not found'
+                : $_SERVER['REQUEST_URI'] . ' url not found',
+                $exception
             );
-        } catch (CDOError|RepositoryError|ArtefactError $exception) {
+        } catch (CDOError|RepositoryError|ArtefactError|SheathException $exception) {
             RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, (env('DEBUG'))
                 ? $exception->getMessage()
-                : 'Server error'
+                : 'Server error',
+                $exception
             );
         } catch (ExtraException $exception) {
             $code = HttpCode::tryFrom((int) $exception->getCode());

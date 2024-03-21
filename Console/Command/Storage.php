@@ -170,14 +170,23 @@ class Storage extends Cmd
         self::printLabel("extra storage [args...] -[flags...]", $cl);
         self::printMessage("args - command", $cl);
         self::print("init - create storage folders", $cl);
+        self::print("clean - clean storage folders", $cl);
 
         // init
         self::printLabel("init", $cl);
         self::printMessage("flags - selection of folder to be action", $cl);
-        self::print("s - folder storage", $cl);
-        self::print("c - folder cache", $cl);
-        self::print("l - folder logs", $cl);
+        self::print("s - create folder storage", $cl);
+        self::print("c - create folder storage/cache", $cl);
+        self::print("l - create folder storage/logs", $cl);
         self::printLabel("init", $cl);
+
+        // clean
+        self::printLabel("clean", $cl);
+        self::printMessage("flags - selection of folder to be action", $cl);
+        self::print("s - clean folder storage", $cl);
+        self::print("c - clean folder storage/cache", $cl);
+        self::print("l - clean folder storage/logs", $cl);
+        self::printLabel("clean", $cl);
 
         self::printTitle("Storage Help", $cl);
     }

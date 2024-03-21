@@ -119,7 +119,7 @@ class Db extends Cmd
         self::printMessage("options - Additional parameters", $cl);
         self::print("shard - specifies the Aegis key to connect to (default is 'db')", $cl);
         self::print("name - name for the generated template", $cl);
-        self::printLabel("env", $cl);
+        self::printLabel("skeleton", $cl);
 
         self::printTitle("Db Help", $cl);
     }
