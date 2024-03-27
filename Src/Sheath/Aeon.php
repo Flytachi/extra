@@ -135,7 +135,7 @@ abstract class Aeon
      * @param int $microseconds The number of microseconds to sleep.
      * @return void
      */
-    public final static function sleepMl(int $microseconds): void
+    public final static function sleepMc(int $microseconds): void
     {
         usleep($microseconds);
     }
