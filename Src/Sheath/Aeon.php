@@ -2,6 +2,7 @@
 
 namespace Extra\Src\Sheath;
 
+use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Extra\Src\HttpCode;
@@ -17,11 +18,13 @@ use Extra\Src\HttpCode;
  * - `dateConvertTo(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string`: Converts a given datetime from a default timezone (UTC) to a destination timezone.
  * - `dateConvertToUTC(string $dataTime, string $timeZone, string $format = 'Y-m-d H:i:s'): string`: Converts a given datetime from source timezone to UTC.
  * - `now(string $datetime = 'now'): DateTime`: Get the current date and time.
+ * - `diff(string $datetime, string $datetimeTarget): DateInterval|false`: Returns the difference between two datetime strings as a DateInterval object.
+ * - `interval(string $datetime): DateInterval|false`: Creates a DateInterval object from a given datetime string.
  * - `sleepMl(int $microseconds): void`: sleep microseconds.
  * - `sleepSc(int $seconds): void`: sleep seconds.
  * - `sleepMn(int $minutes): void`: sleep minutes.
  *
- * @version 1.0
+ * @version 1.2
  * @author Flytachi
  */
 abstract class Aeon
@@ -49,7 +52,7 @@ abstract class Aeon
      * @param string $timeZone The timezone to convert the date and time to.
      * @return DateTime The converted date and time in the specified timezone.
      */
-    public static function dateConvertTo(string $dataTime, string $timeZone): \DateTime
+    public static function dateConvertTo(string $dataTime, string $timeZone): DateTime
     {
         try {
             $date = new DateTime($dataTime, new DateTimeZone(env('TIME_ZONE', 'UTC')));
@@ -67,7 +70,7 @@ abstract class Aeon
      * @param string $timeZone The timezone of the original date and time.
      * @return DateTime The converted date and time in the current timezone.
      */
-    public static function dateConvertToCurrent(string $dataTime, string $timeZone): \DateTime
+    public static function dateConvertToCurrent(string $dataTime, string $timeZone): DateTime
     {
         try {
             $date = new DateTime($dataTime, new DateTimeZone($timeZone));
@@ -84,10 +87,43 @@ abstract class Aeon
      * @param string $datetime The date and time string to be used as the base. Defaults to 'now'.
      * @return DateTime A DateTime object representing the current date and time.
      */
-    public final static function now(string $datetime = 'now'): \DateTime
+    public final static function now(string $datetime = 'now'): DateTime
     {
         try {
             return new \DateTime($datetime);
+        } catch (\Throwable $exception) {
+            SheathException::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Aeon: ' . $exception->getMessage());
+        }
+    }
+
+    /**
+     * Returns the difference between two datetime strings as a DateInterval object.
+     *
+     * @param string $datetime The first datetime string.
+     * @param string $datetimeTarget The second datetime string.
+     *
+     * @return DateInterval|false Returns the difference between two datetime strings as a DateInterval object,
+     *                          or false if an error occurs during the calculation.
+     */
+    public final static function diff(string $datetime, string $datetimeTarget): DateInterval|false
+    {
+        try {
+            return self::now($datetime)->diff(self::now($datetimeTarget));
+        } catch (\Throwable $exception) {
+            SheathException::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Aeon: ' . $exception->getMessage());
+        }
+    }
+
+    /**
+     * Creates a DateInterval object from a given datetime string.
+     *
+     * @param string $datetime The datetime string to create a DateInterval from.
+     * @return DateInterval|false The created DateInterval object if successful, false otherwise.
+     */
+    public final static function interval(string $datetime): DateInterval|false
+    {
+        try {
+            return DateInterval::createFromDateString($datetime);
         } catch (\Throwable $exception) {
             SheathException::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Aeon: ' . $exception->getMessage());
         }
@@ -99,7 +135,7 @@ abstract class Aeon
      * @param int $microseconds The number of microseconds to sleep.
      * @return void
      */
-    public final static function sleepMl(int $microseconds): void
+    public final static function sleepMc(int $microseconds): void
     {
         usleep($microseconds);
     }

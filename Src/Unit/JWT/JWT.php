@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Unit\JWT;
 
-class JWT {
+abstract class JWT {
     private static string $secretKey = '';
     private static string $RSAPublicKeyPath = '';
     private static array $algorithms = [

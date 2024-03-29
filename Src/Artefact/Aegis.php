@@ -29,7 +29,7 @@ use Redis;
  * @version 3.2
  * @author Flytachi
  */
-class Aegis
+abstract class Aegis
 {
     /* @var array<string, Shard> */
     private static array $shards = [];

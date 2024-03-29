@@ -14,10 +14,10 @@ use Extra\Src\HttpCode;
  * - `read(string $path, string $delimiter = ',', int $rowLength = 1000): array`: Reads a CSV file and returns its contents as an array of associative arrays.
  * - `write(string $path, array $data): void`: Writes an array of data to a CSV file. If the file already exists, it throws an error.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
-class CSV
+abstract class CSV
 {
     /**
      * Read a CSV file and return its contents as an array of associative arrays.

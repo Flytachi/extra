@@ -21,7 +21,7 @@ use TypeError;
  * @version 2.2
  * @author Flytachi
  */
-class Wrapper
+abstract class Wrapper
 {
     private static int $maxList = 10;
     private static int $prevElement = 1;

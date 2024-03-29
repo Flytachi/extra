@@ -16,10 +16,10 @@ use SimpleXMLElement;
  * - `stringToArray(string $xmlString): array`: Converts an XML string to an associative array.
  * - `arrayToXml(array $data): string`: Converts an array to an XML string format.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
-class XML
+abstract class XML
 {
     /**
      * Reads content of an XML file and returns it as an array.
