@@ -43,7 +43,7 @@ use Extra\Src\Log\Log;
  *  @method  self         request(string $method, string $url, null|array $params = null)
  *  @method  self         body(array $body, string $type = 'json')
  *
- *  @version 2.1
+ *  @version 2.2
  *  @author Flytachi
  */
 class Blink
@@ -235,7 +235,7 @@ class Blink
                         --$this->maxRetry;
                         continue;
                     }
-                    BlinkError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Blink Request '{$info['url']}' status => {$info['http_code']}");
+                    BlinkError::throw(HttpCode::FAILED_DEPENDENCY, "Blink Request '{$info['url']}' status => {$info['http_code']}");
                 }
             }
 

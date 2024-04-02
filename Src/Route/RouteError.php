@@ -9,4 +9,10 @@ class RouteError extends ExtraException
 {
     use ErrorLogTrait;
     protected string $handle = 'Route';
+
+    public function __toString(): string
+    {
+        die(parent::__toString());
+    }
+
 }

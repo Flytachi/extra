@@ -57,7 +57,7 @@ abstract class CSV
      */
     public static function write(string $path, array $data): void
     {
-        $file = fopen($path, 'w+');
+        $file = fopen(basename($path, '.csv') . '.csv', 'w+');
         foreach ($data as $line) fputcsv($file, (array) $line);
         fclose($file);
     }

@@ -48,7 +48,7 @@ abstract class JSON
     {
         $json = json_encode($data, JSON_PRETTY_PRINT);
 
-        if (false === file_put_contents($path, $json))
+        if (false === file_put_contents(basename($path, '.json') . '.json', $json))
             throw new FileException('Error writing JSON file');
     }
 

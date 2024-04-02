@@ -16,7 +16,7 @@ use SimpleXMLElement;
  * - `stringToArray(string $xmlString): array`: Converts an XML string to an associative array.
  * - `arrayToXml(array $data): string`: Converts an array to an XML string format.
  *
- * @version 1.1
+ * @version 1.2
  * @author Flytachi
  */
 abstract class XML
@@ -46,13 +46,13 @@ abstract class XML
     public static function write(string $filePath, array $content, string $rootElement = 'root'): void
     {
         try {
-            $xml = new SimpleXMLElement('<?xml version="1.0"?><' . $rootElement . '></' . $rootElement . '>');
+            $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>');
         } catch (\Exception $exception) {
             throw new FileException($exception->getMessage());
         }
 
         self::convertArrayToXml($content, $xml);
-        if (false === $xml->asXML($filePath))
+        if (false === $xml->asXML(basename($filePath, '.xml') . '.xml'))
             throw new FileException('Error writing XML file');
     }
 
@@ -77,13 +77,15 @@ abstract class XML
      * @return string The array in XML format.
      * @throws FileException
      */
-    public static function arrayToXml(array $data, string $rootElement = 'root'): string
+    public static function arrayToXml(array $data, string $rootElement = 'root', array $attrs = []): string
     {
         try {
-            $xml = new SimpleXMLElement('<?xml version="1.0"?><' . $rootElement . '></' . $rootElement . '>');
+            $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>');
         } catch (\Exception $exception) {
             throw new FileException($exception->getMessage());
         }
+        foreach ($attrs as $attr => $value)
+            $xml->addAttribute($attr, $value);
         self::convertArrayToXml($data, $xml);
         return $xml->asXML();
     }
@@ -92,9 +94,9 @@ abstract class XML
     {
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $newNode = $xml->addChild($key);
+                $newNode = $xml->addChild((is_numeric($key) ? 'item.' . $key : $key));
                 self::convertArrayToXml($value, $newNode);
-            } else $xml->addChild($key, htmlspecialchars($value));
+            } else $xml->addChild((is_numeric($key) ? 'item.' . $key : $key), htmlspecialchars($value));
         }
     }
 }
