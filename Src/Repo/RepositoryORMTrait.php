@@ -23,7 +23,7 @@ namespace Extra\Src\Repo;
  * - `limit(int $limit, int $offset = 0): Repository`: Sets a "LIMIT" clause, with an optional offset.
  * - `forBy(string $context): Repository`: Sets an "FOR" clause.
  *
- * @version 1.1
+ * @version 1.2
  * @author Flytachi
  */
 trait RepositoryORMTrait
@@ -139,7 +139,7 @@ trait RepositoryORMTrait
      */
     final public function having(string $context): Repository
     {
-        $this->CRD_SQL['group'] = 'HAVING ' . $context;
+        $this->CRD_SQL['having'] = 'HAVING ' . $context;
         return $this;
     }
 
