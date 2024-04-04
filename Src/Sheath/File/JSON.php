@@ -12,7 +12,7 @@ namespace Extra\Src\Sheath\File;
  * - `read(string $path): array`: Reads a JSON file and returns its contents as an associative array.
  * - `write(string $path, array $data): void`: Writes an array of data to a JSON file.
  *
- * @version 1.1
+ * @version 1.2
  * @author Flytachi
  */
 abstract class JSON
@@ -26,6 +26,9 @@ abstract class JSON
      */
     public static function read(string $path): array
     {
+        $info = pathinfo($path);
+        if ($info['extension'] != 'json') $path .= '.json';
+
         if (!file_exists($path) || !is_readable($path))
             throw new FileException('File does not exist or is not readable');
 
@@ -46,9 +49,11 @@ abstract class JSON
      */
     public static function write(string $path, array $data): void
     {
+        $info = pathinfo($path);
+        if ($info['extension'] != 'json') $path .= '.json';
         $json = json_encode($data, JSON_PRETTY_PRINT);
 
-        if (false === file_put_contents(basename($path, '.json') . '.json', $json))
+        if (false === file_put_contents($path, $json))
             throw new FileException('Error writing JSON file');
     }
 

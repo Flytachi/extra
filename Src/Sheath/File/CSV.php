@@ -14,7 +14,7 @@ use Extra\Src\HttpCode;
  * - `read(string $path, string $delimiter = ',', int $rowLength = 1000): array`: Reads a CSV file and returns its contents as an array of associative arrays.
  * - `write(string $path, array $data): void`: Writes an array of data to a CSV file. If the file already exists, it throws an error.
  *
- * @version 1.1
+ * @version 1.2
  * @author Flytachi
  */
 abstract class CSV
@@ -30,6 +30,9 @@ abstract class CSV
      */
     public static function read(string $path, string $delimiter = ',', int $rowLength = 1000): array
     {
+        $info = pathinfo($path);
+        if ($info['extension'] != 'csv') $path .= '.csv';
+
         if(!file_exists($path) || !is_readable($path))
             throw new FileException('File does not exist or is not readable');
 
@@ -57,7 +60,10 @@ abstract class CSV
      */
     public static function write(string $path, array $data): void
     {
-        $file = fopen(basename($path, '.csv') . '.csv', 'w+');
+        $info = pathinfo($path);
+        if ($info['extension'] != 'csv') $path .= '.csv';
+
+        $file = fopen($path, 'w+');
         foreach ($data as $line) fputcsv($file, (array) $line);
         fclose($file);
     }
