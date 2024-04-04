@@ -20,9 +20,10 @@ use Extra\Src\HttpCode;
  * - `now(string $datetime = 'now'): DateTime`: Get the current date and time.
  * - `diff(string $datetime, string $datetimeTarget): DateInterval|false`: Returns the difference between two datetime strings as a DateInterval object.
  * - `interval(string $datetime): DateInterval|false`: Creates a DateInterval object from a given datetime string.
- * - `sleepMl(int $microseconds): void`: sleep microseconds.
- * - `sleepSc(int $seconds): void`: sleep seconds.
- * - `sleepMn(int $minutes): void`: sleep minutes.
+ * - `sleepMic(int $microseconds): void`: sleep microseconds.
+ * - `sleepMil(int $milliseconds): void`: sleep milliseconds.
+ * - `sleepSec(int $seconds): void`: sleep seconds.
+ * - `sleepMin(int $minutes): void`: sleep minutes.
  *
  * @version 1.2
  * @author Flytachi
@@ -135,9 +136,20 @@ abstract class Aeon
      * @param int $microseconds The number of microseconds to sleep.
      * @return void
      */
-    public final static function sleepMc(int $microseconds): void
+    public final static function sleepMic(int $microseconds): void
     {
         usleep($microseconds);
+    }
+
+    /**
+     * Sleeps for the given number of milliseconds.
+     *
+     * @param int $milliseconds The number of milliseconds to sleep.
+     * @return void
+     */
+    public final static function sleepMil(int $milliseconds): void
+    {
+        usleep($milliseconds * 1000);
     }
 
     /**
@@ -146,7 +158,7 @@ abstract class Aeon
      * @param int $seconds The number of seconds to sleep.
      * @return void
      */
-    public final static function sleepSc(int $seconds): void
+    public final static function sleepSec(int $seconds): void
     {
         sleep($seconds);
     }
@@ -157,7 +169,7 @@ abstract class Aeon
      * @param int $minutes The number of minutes to sleep.
      * @return void
      */
-    public final static function sleepMn(int $minutes): void
+    public final static function sleepMin(int $minutes): void
     {
         sleep($minutes*60);
     }

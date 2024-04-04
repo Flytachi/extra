@@ -8,7 +8,7 @@ use Extra\Src\Process\Kube\Kube;
 /**
  * Class KubePrime
  *
- * @version 1.0
+ * @version 1.5
  * @author Flytachi
  */
 abstract class KubePrime extends Kube
@@ -36,5 +36,17 @@ abstract class KubePrime extends Kube
     protected function threadEndRun(int $pid): void
     {
         $this->stmThreadAfter($pid);
+    }
+
+    protected final function streaming(callable $complianceCallable, ?callable $negationCallable = null): void
+    {
+        while (true) {
+            if ($this->stmThreadCount() < $this->balancer) {
+                $complianceCallable();
+            } else {
+                if ($negationCallable !== null) $negationCallable();
+            }
+            usleep( ($this->balancer < 1000 ? 1_000_000 / $this->balancer : 1000) );
+        }
     }
 }
