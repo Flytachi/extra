@@ -11,17 +11,17 @@ class ResponseFile
 {
     final static function json(string|array $jsonData, string $fileName, bool $isAttachment = false): never
     {
-        if (is_array($jsonData)) $fileBody = json_encode($jsonData);
+        if (is_array($jsonData)) $jsonData = json_encode($jsonData);
 
         header('Content-Type: application/json');
         header('Content-Disposition: ' . ($isAttachment ? 'attachment' : 'inline') . '; filename=' . basename($fileName, '.json') . '.json');
         header('Expires: 0');
         header('Pragma: public');
         header('Cache-Control: must-revalidate');
-        header('Content-Length: ' . strlen($fileBody));
+        header('Content-Length: ' . strlen($jsonData));
 
-        Log::trace($_SERVER['REQUEST_URI'] . '[200] => ' . $fileName .  ' => ' . $fileBody);
-        file_put_contents('php://output', $fileBody);
+        Log::trace($_SERVER['REQUEST_URI'] . '[200] => ' . $fileName .  ' => ' . $jsonData);
+        file_put_contents('php://output', $jsonData);
         die;
     }
 

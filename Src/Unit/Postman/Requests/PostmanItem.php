@@ -78,7 +78,8 @@ class PostmanItem implements Postman
                         $folder = implode('/', $folders);
 
                         // params
-                        $path = [$folder, lcfirst($apiUrl), $apiMethod->name];
+                        $path = ($folder) ? [$folder] : [];
+                        $path = [...$path, lcfirst($apiUrl), $apiMethod->name];
                         $variables = [];
                         foreach ($apiMethod->getParameters() as $parameter) {
                             $variables[] = [
