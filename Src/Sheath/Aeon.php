@@ -25,7 +25,7 @@ use Extra\Src\HttpCode;
  * - `sleepSec(int $seconds): void`: sleep seconds.
  * - `sleepMin(int $minutes): void`: sleep minutes.
  *
- * @version 1.2
+ * @version 1.3
  * @author Flytachi
  */
 abstract class Aeon
@@ -39,6 +39,7 @@ abstract class Aeon
     public static function isDateTime(string $dataTime): bool
     {
         try {
+            if(trim($dataTime) === '') return false;
             new DateTime($dataTime);
             return true;
         } catch (\Throwable $e) {
