@@ -16,7 +16,7 @@ use Extra\Src\Artefact\CDO\CDO;
  * It also provides the `connect()` method to establish the connection with the database and `connection()`
  * which returns an instance of `CDO` representing the connection to the database.
  *
- * @version 3.2
+ * @version 3.3
  * @author Flytachi
  */
 class Shard
@@ -131,9 +131,14 @@ class Shard
         if (is_null($this->cdo)) $this->cdo = new CDO($this, env('DEBUG', false));
     }
 
-    public final function reconnect(): void
+    public final function disconnect(): void
     {
         $this->cdo = null;
+    }
+
+    public final function reconnect(): void
+    {
+        $this->disconnect();
         $this->connect();
     }
 
