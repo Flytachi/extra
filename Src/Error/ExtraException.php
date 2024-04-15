@@ -72,6 +72,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         header_remove("X-Powered-By");
 
         if (env('DEBUG', false)) {
+//            dd($this);
             $tColor = match ((int)($this->code / 100)) {
                 1 => "00ffff",
                 2 => "00ff00",
@@ -81,16 +82,33 @@ abstract class ExtraException extends \Exception implements ErrorInterface
                 default => "dddddd",
             };
 
-            $message = "";
+            $message = [];
             $this->forThrow($message, $this);
 
-            return "<pre style=\"background-color: black; color: #{$tColor}; border-style: solid; border-color: #ff0000; border-width: medium; padding:7px; padding-top:13px\">"
-                . "<strong style=\"font-size:16px; color: #ffffff;\"> Warframe Debug Message | " . $this->handle . "</strong><hr>"
-                . "\t <strong style=\"font-size:14px;\">" . $this->message . "</strong>"
-                . $message
-                . "<hr></pre>";
-        }
-        else {
+            $result  = '<body style="background-color: #0a0f1f">';
+            $result .= '<div style="border: 2px solid #' . $tColor . ';border-radius: 7px;padding: 10px;background-color: black;">';
+            $result .=    '<div style="display: flex;justify-content: space-between;margin-top: 8px;margin-bottom: 17px">';
+            $result .=        '<span style="float: left;font-size: 1.2rem; color: #ffffff;">';
+            $result .=            '<span style="color: #' . $tColor . ';font-weight: bold;">[' . $this->code . '] Warframe Debug Message:</span> ' . $this->handle;
+            $result .=        '</span>';
+            $result .=        '<span style="float: right;font-style: italic;">';
+            $result .=            '<span style="color: #adadad">' . date(DATE_ATOM) . '</span> ';
+            $result .=            '<span style="color: #00ffff">' . env('TIME_ZONE', 'UTC') . '</span>';
+            $result .=        '</span>';
+            $result .=    '</div>';
+            $result .=    '<hr style="border: 1px solid #999999;">';
+            $result .=    '<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
+            foreach ($message as $msg)
+                $result .=  '<span style="color: #f1f1f1;">' . print_r($msg, true) . '</span><br>';
+            $result .=      '<span style="color: #fd2929;font-size: 1.2rem;font-weight: bold;">DETAIL</span><br>';
+            $result .=      '<span style="color: #fa5151;">' . print_r($this, true) . '</span><br>';
+            $result .=    '</pre>';
+            $result .=    '<hr style="border: 1px solid #999999;">';
+            $result .=    '<span style="color: #9e9e9e;font-weight: bold;">Memory ' . bytes(memory_get_usage(), 'MiB') . '</span>';
+            $result .= '</div>';
+            $result .= '</body>';
+            return $result;
+        } else {
             $page = PATH_RESOURCE . "/exception/{$this->code}.php";
             if (file_exists($page)) include $page;
             else {
