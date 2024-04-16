@@ -3,9 +3,9 @@
 namespace Extra\Src\Artefact\CDO;
 
 use Extra\Src\Artefact\Mechanism\Shard;
+use Extra\Src\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Model\ModelInterface;
 use Extra\Src\Repo\BKB;
 use PDO;
 use PDOException;

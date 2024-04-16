@@ -7,21 +7,21 @@ use Extra\Src\Error\Error;
 use Extra\Src\HttpCode;
 
 /**
- * Class Warframe
+ * Class Extra
  *
- * `Warframe` is a helper class to manage application-level tasks such as autoload, initialization and configurations loading.
+ * `Extra` is a helper class to manage application-level tasks such as autoload, initialization and configurations loading.
  *
- * The methods provided by `Warframe` include:
+ * The methods provided by `Extra` include:
  *
  * - `autoload(): void`: Handles automatic class file loading based on namespaces.
  * - `init(bool $isConsole = false): void`: Initializes the application, defines constants, loads functions, and checks directory write access.
  * - `warningHandler($severity, $message, $file, $line): void`: Error handler for managing PHP warnings.
  * - `loadFunction(): void`: Loads all available functions from the Function directory.
  *
- * @version 4.2
+ * @version 4.5
  * @author Flytachi
  */
-class Warframe
+class Extra
 {
     /**
      * Registers an autoloader function and loads the specified class file when needed.
@@ -60,7 +60,7 @@ class Warframe
      */
     public final static function init(bool $isConsole = false): void
     {
-        define('WARFRAME_STARTUP_TIME', microtime(true));
+        define('EXTRA_STARTUP_TIME', microtime(true));
         require dirname(__DIR__) . '/defines.php';
         self::loadFunction();
         self::autoload();
@@ -89,11 +89,11 @@ class Warframe
             ini_set('error_reporting', E_ALL);
             ini_set('display_errors', 1);
             ini_set('display_startup_errors', 1);
-            set_error_handler('\Extra\Warframe::warningHandler');
+            set_error_handler('\Extra\Extra::warningHandler');
         }
 
         // composer
-        if (COMPOSER_LOADING) require dirname(__DIR__, 2) . '/vendor/autoload.php';
+        if (COMPOSER_LOADING) include dirname(__DIR__, 2) . '/vendor/autoload.php';
     }
 
     /**

@@ -5,7 +5,7 @@ namespace Extra\Src\Sheath;
 use GdImage;
 
 /**
- *  Warframe collection 
+ *  Extra collection
  *  
  *  Image - to work with images
  * 

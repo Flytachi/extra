@@ -41,6 +41,8 @@ class Make extends Cmd
                 $this->createRepository($templateName);
             if (in_array('m', $this->args['flags']))
                 $this->createModel($templateName);
+            if (in_array('d', $this->args['flags']))
+                $this->createDto($templateName);
             if (in_array('q', $this->args['flags']))
                 $this->createRequest($templateName);
             if (in_array('j', $this->args['flags']))
@@ -107,7 +109,7 @@ class Make extends Cmd
     {
         $name = $this->ucWord($name) . 'Model';
         $templatePath = $this->templatePath . '/ModelTemplate';
-        $path = $this->getPath('Models');
+        $path = $this->getPath('Entity/Models');
 
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
@@ -116,11 +118,24 @@ class Make extends Cmd
         $this->createFile($name, $path, $code, 'model');
     }
 
+    private function createDto(string $name): void
+    {
+        $name = $this->ucWord($name) . 'Dto';
+        $templatePath = $this->templatePath . '/DtoTemplate';
+        $path = $this->getPath('Entity/Dto');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'dto');
+    }
+
     private function createRequest(string $name): void
     {
         $name = $this->ucWord($name) . 'Request';
         $templatePath = $this->templatePath . '/RequestTemplate';
-        $path = $this->getPath('Requests');
+        $path = $this->getPath('Entity/Requests');
 
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
@@ -194,10 +209,14 @@ class Make extends Cmd
         self::printMessage("flags - selection of templates to be created", $cl);
         self::print("a - Template ApiBase, prefix Controller", $cl);
         self::print("c - Template ControllerBase, prefix Controller", $cl);
+        self::print("", $cl);
+        self::print("m - Template ModelBase, prefix Model", $cl);
+        self::print("d - Template DtoObject, prefix Dto", $cl);
+        self::print("q - Template RequestObject, prefix Request", $cl);
+        self::print("", $cl);
         self::print("s - Template Service, prefix Service", $cl);
         self::print("r - Template Repository, prefix Repository", $cl);
-        self::print("m - Template ModelBase, prefix Model", $cl);
-        self::print("q - Template RequestObject, prefix Request", $cl);
+        self::print("", $cl);
         self::print("j - Template Job, prefix Job", $cl);
         self::print("k - Template Kube, prefix Kube", $cl);
         self::printMessage("options - additional option", $cl);

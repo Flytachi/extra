@@ -1,0 +1,10 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Entity\Dto\DtoObject;
+
+class __className__ extends DtoObject
+{
+
+}

@@ -3,7 +3,7 @@
 namespace __namespace__;
 
 use Extra\Src\Repo\Repository;
-use Extra\Src\Model\ModelBase;
+use Extra\Src\Entity\Model\ModelBase;
 
 class __className__ extends Repository
 {

@@ -72,22 +72,22 @@ abstract class ControllerBase
     private function debugBar(string $content, mixed $data = null): void
     {
         ?>
-        <link rel="stylesheet" type="text/css" href="/static/warframe/css/debug.css"/>
-        <script type="text/javascript" src="/static/warframe/js/debug.js"></script>
-        <button id="warframe_debug-btn" onclick="WarframeDebugBar()"><em>Debug</em></button>
+        <link rel="stylesheet" type="text/css" href="/static/extra/css/debug.css"/>
+        <script type="text/javascript" src="/static/extra/js/debug.js"></script>
+        <button id="extra_debug-btn" onclick="ExtraDebugBar()"><em>Debug</em></button>
 
-        <div id="warframe_debug-bar">
-            <div id="warframe_debug-bar_body-indicator">
+        <div id="extra_debug-bar">
+            <div id="extra_debug-bar_body-indicator">
                 <?php $delta = round(microtime(true)-$_SERVER['REQUEST_TIME'], 3) ?>
                 <b>Memory:</b> <?= bytes(memory_get_usage(), 'MiB')  ?> /
                 <b>Time:</b> <?= ($delta < 0.001) ? 0.001 : $delta; ?> sec
             </div>
 
-            <div id="warframe_debug-bar_body-accordion-container">
+            <div id="extra_debug-bar_body-accordion-container">
 
                 <input type="checkbox" id="debug-item_general">
                 <label for="debug-item_general">GENERAL</label>
-                <div class="warframe_debug-accordion-body">
+                <div class="extra_debug-accordion-body">
                     <pre><?php print_r([
                             'sapi' => PHP_SAPI,
                             'controller' => get_class($this),
@@ -99,14 +99,14 @@ abstract class ControllerBase
 
                 <input type="checkbox" id="debug-item_server">
                 <label for="debug-item_server">SERVER</label>
-                <div class="warframe_debug-accordion-body">
+                <div class="extra_debug-accordion-body">
                     <pre><?php print_r($_SERVER) ?></pre>
                 </div>
 
                 <?php if($_SESSION): ?>
                     <input type="checkbox" id="debug-item_session">
                     <label for="debug-item_session">SESSION</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($_SESSION) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -114,7 +114,7 @@ abstract class ControllerBase
                 <?php if($data): ?>
                     <input type="checkbox" id="debug-item_data">
                     <label for="debug-item_data">DATA</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($data) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -122,7 +122,7 @@ abstract class ControllerBase
                 <?php if($_REQUEST): ?>
                     <input type="checkbox" id="debug-item_request">
                     <label for="debug-item_request">REQUEST</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($_REQUEST) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -130,7 +130,7 @@ abstract class ControllerBase
                 <?php if($_FILES): ?>
                     <input type="checkbox" id="debug-item_files">
                     <label for="debug-item_files">FILES</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($_FILES) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -138,7 +138,7 @@ abstract class ControllerBase
                 <?php if($_COOKIE): ?>
                     <input type="checkbox" id="debug-item_cookie">
                     <label for="debug-item_cookie">COOKIE</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($_COOKIE) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -146,7 +146,7 @@ abstract class ControllerBase
                 <?php if($_ENV): ?>
                     <input type="checkbox" id="debug-item_env">
                     <label for="debug-item_env">ENV</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($_ENV) ?></pre>
                     </div>
                 <?php endif; ?>
@@ -154,7 +154,7 @@ abstract class ControllerBase
                 <?php if($GLOBALS): ?>
                     <input type="checkbox" id="debug-item_globals">
                     <label for="debug-item_globals">GLOBALS</label>
-                    <div class="warframe_debug-accordion-body">
+                    <div class="extra_debug-accordion-body">
                         <pre><?php print_r($GLOBALS) ?></pre>
                     </div>
                 <?php endif; ?>

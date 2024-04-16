@@ -2,9 +2,9 @@
 
 namespace Extra\Src\Error;
 
+use Extra\Src\Entity\Request\Request;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Request\Request;
 
 /**
  * Class ExtraException
@@ -25,7 +25,7 @@ use Extra\Src\Request\Request;
  */
 abstract class ExtraException extends \Exception implements ErrorInterface
 {
-    protected string $handle = 'Warframe';
+    protected string $handle = 'Extra';
 
     public function __toString(): string
     {
@@ -89,7 +89,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             $result .= '<div style="border: 2px solid #' . $tColor . ';border-radius: 7px;padding: 10px;background-color: black;">';
             $result .=    '<div style="display: flex;justify-content: space-between;margin-top: 8px;margin-bottom: 17px">';
             $result .=        '<span style="float: left;font-size: 1.2rem; color: #ffffff;">';
-            $result .=            '<span style="color: #' . $tColor . ';font-weight: bold;">[' . $this->code . '] Warframe Debug Message:</span> ' . $this->handle;
+            $result .=            '<span style="color: #' . $tColor . ';font-weight: bold;">[' . $this->code . '] Extra Debug Message:</span> ' . $this->handle;
             $result .=        '</span>';
             $result .=        '<span style="float: right;font-style: italic;">';
             $result .=            '<span style="color: #adadad">' . date(DATE_ATOM) . '</span> ';

@@ -1,12 +1,14 @@
 #!/usr/bin/env php
 <?php
-pcntl_async_signals(true);
+
+if (extension_loaded('pcntl'))
+    pcntl_async_signals(true);
 
 // Version PHP 8.2
 if (PHP_VERSION_ID >= 80200) {
 
-    require 'app/Extra/Warframe.php';
-    Extra\Warframe::init(true);
+    require 'app/Extra/Extra.php';
+    Extra\Extra::init(true);
     new Extra\Console\Core($argv);
 
 } else {

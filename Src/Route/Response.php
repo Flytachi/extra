@@ -95,7 +95,7 @@ class Response
     private static function debugApi(): array
     {
         if (env('DEBUG', false)) {
-            $delta = round(microtime(true) - WARFRAME_STARTUP_TIME, 3);
+            $delta = round(microtime(true) - EXTRA_STARTUP_TIME, 3);
             return [
                 'debug' => [
                     'time' => ($delta < 0.001) ? 0.001 : $delta,

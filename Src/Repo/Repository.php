@@ -4,10 +4,10 @@ namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\CDO\CDO;
+use Extra\Src\Entity\Model\ModelBase;
+use Extra\Src\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Model\ModelBase;
-use Extra\Src\Model\ModelInterface;
 use PDO;
 use Throwable;
 

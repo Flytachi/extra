@@ -1,8 +1,9 @@
 <?php
 
-namespace Extra\Src\Model;
+namespace Extra\Src\Entity\Model;
 
 use Attribute;
+use Extra\Src\Entity\EntityError;
 use Extra\Src\HttpCode;
 use TypeError;
 
@@ -59,7 +60,7 @@ class ModelBase extends \stdClass
                     if (isset($instance->{$property})) unset($properties[$property]);
                 }
             } catch (\Throwable $exception) {
-                ModelError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
+                EntityError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
             }
         }
     }

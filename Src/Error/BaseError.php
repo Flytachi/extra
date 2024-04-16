@@ -2,9 +2,9 @@
 
 namespace Extra\Src\Error;
 
+use Extra\Src\Entity\Request\Request;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Request\Request;
 
 class BaseError extends ExtraException
 {
