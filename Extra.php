@@ -2,6 +2,7 @@
 
 namespace Extra;
 
+use DirectoryIterator;
 use Extra\Src\Error\BaseError;
 use Extra\Src\Error\Error;
 use Extra\Src\HttpCode;
@@ -31,8 +32,8 @@ class Extra
     public final static function autoload(): void
     {
         spl_autoload_register(function($class) {
-            $file = PATH_APP . '/' . str_replace("\\", '/', $class) . '.php';
-            if (file_exists($file)) require $file;
+            $file = PATH_APP . '/' . strtr($class, '\\', '/') . '.php';
+            require $file;
         });
         // Env
         if (is_readable(ENV_PATH)) {
@@ -66,7 +67,7 @@ class Extra
         self::autoload();
 
         try {
-            foreach (glob(dirname(__DIR__)."/Config/*.php") as $function) require $function;
+            self::loadConfig();
 
             if (!$isConsole) {
                 if (!is_writable(PATH_STORAGE))
@@ -93,7 +94,8 @@ class Extra
         }
 
         // composer
-        if (COMPOSER_LOADING) include dirname(__DIR__, 2) . '/vendor/autoload.php';
+        if (COMPOSER_LOADING && file_exists(PATH_ROOT . '/vendor/autoload.php'))
+            include PATH_ROOT . '/vendor/autoload.php';
     }
 
     /**
@@ -114,15 +116,31 @@ class Extra
     }
 
     /**
-     * Loads all function files from the "Function" directory.
-     *
-     * This method scans the "Function" directory and includes all PHP files found.
+     * Loads all PHP files in the directory PATH_APP/Extra/Function.
      *
      * @return void
      */
     public final static function loadFunction(): void
     {
-        foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
+        $directory = new DirectoryIterator(PATH_APP . '/Extra/Function');
+        foreach ($directory as $fileInfo) {
+            if ($fileInfo->isDot()) continue;
+            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
+        }
+    }
+
+    /**
+     * Loads configuration files from the "Config" directory.
+     *
+     * @return void
+     */
+    public final static function loadConfig(): void
+    {
+        $directory = new DirectoryIterator(PATH_APP . '/Config');
+        foreach ($directory as $fileInfo) {
+            if ($fileInfo->isDot()) continue;
+            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
+        }
     }
 
 }

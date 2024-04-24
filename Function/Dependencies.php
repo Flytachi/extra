@@ -23,7 +23,7 @@ function dd(mixed ...$values): never
     echo        '</span>';
     echo    '</div>';
     echo    '<hr style="border: 1px solid #999999;">';
-    echo    '<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
+    echo    '<pre style="margin:10px;white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
     $countValues = count($values); $i = 0;
     foreach ($values as $value) {
         echo match (gettype($value)) {

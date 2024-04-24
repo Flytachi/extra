@@ -72,7 +72,6 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         header_remove("X-Powered-By");
 
         if (env('DEBUG', false)) {
-//            dd($this);
             $tColor = match ((int)($this->code / 100)) {
                 1 => "00ffff",
                 2 => "00ff00",
@@ -97,7 +96,8 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             $result .=        '</span>';
             $result .=    '</div>';
             $result .=    '<hr style="border: 1px solid #999999;">';
-            $result .=    '<pre style="white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
+            $result .=    '<pre style="margin:10px; white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
+            $result .=      '<span style="color: #' . $tColor . ';font-size: 1.1rem;font-weight: bold;">' . $this->message . '</span><br>';
             foreach ($message as $msg)
                 $result .=  '<span style="color: #f1f1f1;">' . print_r($msg, true) . '</span><br>';
             $result .=      '<span style="color: #fd2929;font-size: 1.2rem;font-weight: bold;">DETAIL</span><br>';
