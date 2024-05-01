@@ -71,7 +71,7 @@ class Cfg extends Cmd
     private function envArg(): void
     {
         if (in_array('i', $this->args['flags'])) $this->envCreate();
-        if (in_array('l', $this->args['flags'])) $this->envShow();
+        if (in_array('s', $this->args['flags'])) $this->envShow();
     }
 
     private function envCreate(): void
@@ -89,9 +89,19 @@ class Cfg extends Cmd
 
     private function envShow(): void
     {
-        self::printLabel(ENV_PATH, 34);
-        self::printSplit(file_get_contents(ENV_PATH), 34);
-        self::printLabel(ENV_PATH, 34);
+        if (in_array('file', $this->args['options'])) {
+            if (!is_file(ENV_PATH)) {
+                self::printLabel(ENV_PATH, 34);
+                self::printSplit(file_get_contents(ENV_PATH), 34);
+                self::printLabel(ENV_PATH, 34);
+            } else
+                self::printMessage("File '" . ENV_PATH . "' does not exist.");
+        } else {
+            self::printLabel('ENVIRONMENT', 34);
+            foreach ($_ENV as $key => $value)
+                self::print("{$key} = {$value}", 34);
+            self::printLabel('ENVIRONMENT', 34);
+        }
     }
 
     private function dockerArg(): void
@@ -127,10 +137,10 @@ class Cfg extends Cmd
         $cl = 34;
         self::printTitle("Cfg Help", $cl);
 
-        self::printLabel("extra cfg [args...] -[flags...]", $cl);
+        self::printLabel("extra cfg [args...] -[flags...] --[options...]", $cl);
         self::printMessage("args - command", $cl);
         self::print("key - project unique key", $cl);
-        self::print("env - project configuration file", $cl);
+        self::print("env - project environment", $cl);
         self::print("docker - create docker configuration file", $cl);
         self::print("postman - create postman collection api controller", $cl);
 
@@ -146,6 +156,8 @@ class Cfg extends Cmd
         self::printMessage("flags - selection additional to be action", $cl);
         self::print("i - create configuration file", $cl);
         self::print("s - show configuration file", $cl);
+        self::printMessage("options - additional option to be action", $cl);
+        self::print("file - project environment file", $cl);
         self::printLabel("env", $cl);
 
         self::printTitle("Cfg Help", $cl);
