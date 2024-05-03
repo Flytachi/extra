@@ -25,11 +25,13 @@ use Extra\Src\Log\Log;
  * - `request(string $dataType = 'get'): static`: Allows for requesting specific data types ('get', 'post', 'json', 'form', 'files'). It returns a `RequestObject` instance with the requested data.
  * - `valid(string $field, callable $validateFunc = null, string $message = null): static`: Validates a specific field in the request data by checking its existence and optionally verifies it further using a callable `validateFunc` function.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
 abstract class RequestObject extends Entity
 {
+    protected HttpCode $catchHttpCode = HttpCode::BAD_REQUEST;
+
     protected function validation(): void
     {}
 

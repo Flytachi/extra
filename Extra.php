@@ -33,7 +33,7 @@ class Extra
     {
         spl_autoload_register(function($class) {
             $file = PATH_APP . '/' . strtr($class, '\\', '/') . '.php';
-            require $file;
+            if (file_exists($file)) require $file;
         });
         // Env
         if (is_readable(ENV_PATH)) {
