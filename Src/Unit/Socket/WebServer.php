@@ -1,44 +1,35 @@
 <?php
 
-namespace Extra\Src\Unit\Betta;
+namespace Extra\Src\Unit\Socket;
 
-class WebSocketServer 
+use Extra\Src\HttpCode;
+use Extra\Src\Log\Log;
+
+class WebServer
 {
-    /**
-     * 
-     * WebSocketServer
-     * 
-     * @version 3.0
-     */
-
-    protected string $IP;
-    protected int $PORT;
+    protected string $ip = 'localhost';
+    protected int $port = 7777;
     protected int $timeWorkLimit = 0;
-    protected bool $verbose = false;
-    protected bool $logging = false;
-
-    protected $connection;
-    protected array $connects = [];
     protected int $startTime;
-    protected $resource;
-
+    protected array $connects = [];
+    protected $connection;
 
     protected function handler($connect, $data): void
     {
-        $this->serverLog('Client send: ' . $data);
+        Log::info('Client send: ' . $data);
     }
 
     protected function handlerConnect($connect): void
     {
-        $this->serverLog('New connection accepted');
+        Log::info('New connection accepted');
     }
 
     protected function handlerDisconnect($connect): void
     {
-        $this->serverLog('Connection closing');
+        Log::info('Connection closing');
     }
 
-    public final function __construct() 
+    public final function __construct()
     {
         set_time_limit(0);
         ob_implicit_flush();
@@ -46,35 +37,27 @@ class WebSocketServer
 
     public final function start(): void
     {
-        if ($this->logging) {
-            if (!is_dir(PATH_LOG)) mkdir(PATH_LOG);
-            $this->resource = fopen(PATH_LOG . '/webSocket-' . str_replace("\\", "-", get_class($this)) . '.txt', 'a');
-        }
         $this->startServer();
     }
 
-    public final function __destruct() 
+    public final function __destruct()
     {
         if (is_resource($this->connection)) $this->stopServer();
-        if ($this->logging && $this->resource) fclose($this->resource);
     }
 
     public final function startServer(): void
     {
-        $this->serverLog('Starting the Web Server...');
-        $this->serverLog('Stream: tcp://' . $this->IP . ':' . $this->PORT);
-        $this->connection = stream_socket_server('tcp://' . $this->IP . ':' . $this->PORT, $errno, $errorStr);
-        
-        if (!$this->connection) {
-            $this->serverLog('Cannot start server: ' .$errorStr. '(' .$errno. ')');
-            die;
-        }
+        Log::trace('::' . static::class . ':: Starting the Web Server...');
+        Log::trace('::' . static::class . ':: Stream: tcp://' . $this->ip . ':' . $this->port);
+        $this->connection = stream_socket_server('tcp://' . $this->ip . ':' . $this->port, $errno, $errorStr);
 
-        $this->serverLog('Server is running...');
+        if (!$this->connection)
+            SocketError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'Cannot start server: ' .$errorStr. '(' .$errno. ')');
+
+        Log::trace('::' . static::class . ':: Server is running...');
         $this->startTime = time();
 
         while (true) {
-            // $this->serverLog('Wait...');
             $read = $this->connects;
             $read[] = $this->connection;
             $write = $except = null;
@@ -86,21 +69,21 @@ class WebSocketServer
                     try {
                         $this->handlerConnect($connect);
                     } catch (\Throwable $th) {
-                        $this->serverLog("WebSocketServer error 'handlerConnect':\n" . $th);
+                        Log::error('::' . static::class . ':: HandlerConnect ' . $th->getMessage());
                     }
                 }
                 unset($read[array_search($this->connection, $read)]);
             }
 
-            foreach ($read as $connect) { 
+            foreach ($read as $connect) {
                 $data = fread($connect, 100000);
                 $decoded = self::decode($data);
-                
+
                 if (false === $decoded || 'close' === $decoded['type']) {
                     try {
                         $this->handlerDisconnect($connect);
                     } catch (\Throwable $th) {
-                        $this->serverLog("WebSocketServer error 'handlerDisconnect':\n" . $th);
+                        Log::error('::' . static::class . ':: HandlerDisconnect ' . $th->getMessage());
                     }
                     fwrite($connect, self::encode('  Closed on client demand', 'close'));
                     fclose($connect);
@@ -111,14 +94,13 @@ class WebSocketServer
                 try {
                     $this->handler($connect, $decoded['payload']);
                 } catch (\Throwable $th) {
-                    $this->serverLog("WebSocketServer error 'handler':\n" . $th);
+                    Log::error('::' . static::class . ':: Handler ' . $th->getMessage());
                 }
             }
 
             if ($this->timeWorkLimit && time() - $this->startTime > $this->timeWorkLimit) {
-                $this->serverLog('Time limit. Stopping server.');
+                Log::error('::' . static::class . ':: Time limit. Stopping server');
                 $this->stopServer();
-                die;
             }
         }
     }
@@ -134,18 +116,22 @@ class WebSocketServer
                 }
             }
         }
+        Log::trace('::' . static::class . ':: Stopping server');
     }
 
-    public final function serverLog($message): void
-    {
-        $message = '[' . date('r') . '] ' . $message . PHP_EOL;
-        if ($this->verbose) echo $message;
-        if ($this->logging) fwrite($this->resource, $message);
-    }
-
-    public function send($connect, $data): void 
+    public function send($connect, $data): void
     {
         fwrite($connect, self::encode($data));
+    }
+
+    /**
+     * Отправляет сигнал всем в сети
+     */
+    public function sendAll($data): void
+    {
+        foreach ($this->connects as $conn) {
+            $this->send($conn, $data);
+        }
     }
 
     /**
@@ -227,12 +213,12 @@ class WebSocketServer
         $firstByteBinary = sprintf('%08b', ord($data[0]));
         $secondByteBinary = sprintf('%08b', ord($data[1]));
         $opcode = bindec(substr($firstByteBinary, 4, 4));
-        $isMasked = ($secondByteBinary[0] == '1') ? true : false;
+        $isMasked = $secondByteBinary[0] == '1';
         $payloadLength = ord($data[1]) & 127;
 
         // unmasked frame is received:
         if (!$isMasked) return array('type' => '', 'payload' => '', 'error' => 'protocol error (1002)');
-        
+
         switch ($opcode) {
             // text frame:
             case 1:
@@ -277,7 +263,7 @@ class WebSocketServer
         /**
          * We have to check for large frames here. socket_recv cuts at 1024 bytes
          * so if websocket-frame is > 1024 bytes we have to wait until whole
-         * data is transferd.
+         * data is transfer.
          */
         if (strlen($data) < $dataLength) return false;
 
@@ -300,8 +286,7 @@ class WebSocketServer
      */
     private function handshake($connect): false|array
     {
-        $info = array();
-
+        $info = [];
         $line = fgets($connect);
         $header = explode(' ', $line);
         $info['method'] = $header[0] ?? null;
@@ -321,50 +306,23 @@ class WebSocketServer
 
         if (empty($info['Sec-WebSocket-Key'])) return false;
 
-        $SecWebSocketAccept = 
+        $SecWebSocketAccept =
             base64_encode(pack('H*', sha1($info['Sec-WebSocket-Key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
         $upgrade = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
-                   "Upgrade: websocket\r\n" .
-                   "Connection: Upgrade\r\n" .
-                   "Sec-WebSocket-Accept:".$SecWebSocketAccept."\r\n\r\n";
+            "Upgrade: websocket\r\n" .
+            "Connection: Upgrade\r\n" .
+            "Sec-WebSocket-Accept:".$SecWebSocketAccept."\r\n\r\n";
         fwrite($connect, $upgrade);
 
         return $info;
     }
 
-    /**
-     * Отправляет сигнал всем в сети
-     */
-    public function sendAll($data): void
+    public final function statusConnection(): bool
     {
-        foreach ($this->connects as $conn) {
-            $this->send($conn, $data);
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public final function getIp(): string
-    {
-        return $this->IP;
-    }
-
-    /**
-     * @return int
-     */
-    public final function getPort(): int
-    {
-        return $this->PORT;
-    }
-
-    public final function statusConnection(): bool 
-    {
-        $fp = @fsockopen($this->IP, $this->PORT, $errCode, $errStr, 1);
+        $fp = @fsockopen($this->ip, $this->port, $errCode, $errStr, 1);
         if ($fp) {
             fclose($fp);
             return true;
         } else return false;
     }
-
 }
