@@ -23,7 +23,7 @@ use Extra\Src\Process\PosixSignal;
  *
  * The class also defines preparatory (`startRun()`) and tear-down (`endRun()`) private routines to manage the conductor and signal handling.
  *
- * @version 2.5
+ * @version 2.6
  * @author Flytachi
  */
 abstract class Job extends Dispatcher implements JobInterface, DispatcherInterface
@@ -77,7 +77,7 @@ abstract class Job extends Dispatcher implements JobInterface, DispatcherInterfa
             pcntl_signal(SIGHUP, function () {$this->signClose();});
             pcntl_signal(SIGINT, function () {$this->signInterrupt();});
             pcntl_signal(SIGTERM, function () {$this->signTermination();});
-            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class);
+            cli_set_process_title('extra job ' . static::class);
             $this->conductor->recordAdd(static::class, $this->pid);
         }
     }

@@ -47,6 +47,17 @@ abstract class RequestObject extends Entity
     }
 
     /**
+     * Retrieves data using the "json" method of the Request class and creates a new instance
+     * of the current class, using the retrieved data.
+     *
+     * @return static The new instance of the current class, with the retrieved data.
+     */
+    public final static function json(): static
+    {
+        return new static(Request::json(false)->getData());
+    }
+
+    /**
      * Retrieves data using the "post" method of the Request class and creates a new instance
      * of the current class, using the retrieved data.
      *
@@ -63,20 +74,9 @@ abstract class RequestObject extends Entity
      *
      * @return static The new instance of the current class, with the retrieved data.
      */
-    public final static function json(): static
-    {
-        return new static(Request::json(false)->getData());
-    }
-
-    /**
-     * Retrieves data using the "json" method of the Request class and creates a new instance
-     * of the current class, using the retrieved data.
-     *
-     * @return static The new instance of the current class, with the retrieved data.
-     */
     public final static function form(): static
     {
-        return new static(Request::json(false)->getData());
+        return new static(Request::post(false)->getData());
     }
 
     /**
