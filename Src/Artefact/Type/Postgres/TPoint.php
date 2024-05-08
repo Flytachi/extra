@@ -1,15 +1,13 @@
 <?php
 
-namespace Extra\Src\Artefact\Type\Mariadb;
+namespace Extra\Src\Artefact\Type\Postgres;
 
-use Attribute;
 use Extra\Src\Artefact\Type\Type;
 
-#[Attribute(Attribute::TARGET_PROPERTY)]
-class Point implements Type
+class TPoint implements Type
 {
-    private float|int $x;
-    private float|int $y;
+    public float|int $x;
+    public float|int $y;
 
     /**
      * @param float|int $x
@@ -31,7 +29,7 @@ class Point implements Type
     }
 
     /**
-     * @param Point $point
+     * @param static $point
      * @param string $unit (kilometers or miles)
      * @param int $round
      * @return float
@@ -65,31 +63,28 @@ class Point implements Type
         return $this->y;
     }
 
-    public static function parse(string|null|self $value): self|null
+    public static function parse(mixed $value): static|null
     {
-        if ($value instanceof self) return $value;
+        if ($value instanceof static) return $value;
         elseif (is_null($value)) return null;
         else {
-            $dataParsed = explode(' ', str_replace(['(','POINT',')'], '', $value));
+            $dataParsed = explode(' ', str_replace(['(',')'], '', $value));
             return new self($dataParsed[0], $dataParsed[1]);
         }
     }
 
-    public static function write(mixed $value): string
+    public static function selectionLabel(): string
     {
-        if ($value instanceof self) return "POINT({$value->x} $value->y)";
-        elseif (is_string($value)) return $value;
-        else throw new \TypeError(self::class . " data type error.");
+        return '%s';
     }
 
-    public static function read(): string
+    public static function prepairing(): string
     {
-        return 'AsText(%1$s) \'%1$s\'';
+        return "%s";
     }
 
-    public static function readLabel(): string
-    {
-        return "GeomFromText(%s)";
+    public function __toString() {
+        return "($this->x,$this->y)";
     }
 
 }

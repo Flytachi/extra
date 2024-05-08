@@ -3,6 +3,7 @@
 namespace Extra\Src\Artefact\CDO;
 
 use Extra\Src\Artefact\Mechanism\Shard;
+use Extra\Src\Artefact\Type\Type;
 use Extra\Src\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
@@ -78,19 +79,28 @@ class CDO extends PDO
             $query = "INSERT INTO $table ($col) VALUES ($val) RETURNING " . array_key_first($model);
             Log::trace('CDO insert:' . $query);
 
-            $stmt = $this->prepare($query);
+            $stmt = new CDOStatement($this->prepare($query));
             foreach ($data as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
                     case 'NULL'    :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
                     case 'boolean' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
                     case 'integer' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
                     case 'array'   :  $stmt->bindValue(':' . $keyVal, json_encode($paramVal)); break;
-                    case 'object'  :  $stmt->bindValue(':' . $keyVal, serialize($paramVal)); break;
+                    case 'object'  :
+                        if ($paramVal instanceof Type) {
+                            $stmt->updateStm($this->prepare(str_replace(':' . $keyVal,
+                                sprintf($paramVal::prepairing(), ':' . $keyVal),
+                                $query))
+                            );
+                            $stmt->bindValue(':' . $keyVal, (string) $paramVal);
+                        } else
+                            $stmt->bindValue(':' . $keyVal, serialize($paramVal));
+                        break;
                     default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
                 }
             }
-            $stmt->execute();
-            $result = $stmt->fetchColumn();
+            $stmt->getStmt()->execute();
+            $result = $stmt->getStmt()->fetchColumn();
             if (!$result)
                 CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $result . ')');
             return $result;
@@ -122,19 +132,29 @@ class CDO extends PDO
             $query = "UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . $bkb->getQuery();
             Log::trace('CDO update:' . $query);
 
-            $stmt = $this->prepare($query);
+            $stmt = new CDOStatement($this->prepare($query));
             foreach ([...$bkb->getCache(), ...$data] as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
                     case 'NULL'    :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
                     case 'boolean' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
                     case 'integer' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
                     case 'array'   :  $stmt->bindValue($keyVal, json_encode($paramVal)); break;
-                    case 'object'  :  $stmt->bindValue($keyVal, serialize($paramVal)); break;
+                    case 'object'  :
+                        if ($paramVal instanceof Type) {
+                            $stmt->updateStm($this->prepare(str_replace($keyVal,
+                                sprintf($paramVal::prepairing(), $keyVal),
+                                $query))
+                            );
+                            $stmt->bindValue($keyVal, (string) $paramVal);
+                        } else
+                            $stmt->bindValue($keyVal, serialize($paramVal));
+                        $stmt->bindValue($keyVal, serialize($paramVal));
+                        break;
                     default: $stmt->bindValue($keyVal, $paramVal); break;
                 }
             }
-            $stmt->execute();
-            $result = $stmt->rowCount();
+            $stmt->getStmt()->execute();
+            $result = $stmt->getStmt()->rowCount();
             if (!is_numeric($result))
                 CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $result . ')');
             return $result;

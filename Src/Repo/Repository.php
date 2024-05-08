@@ -219,10 +219,14 @@ class Repository
             ) return '*';
             else {
                 $values = [];
+                $selection = $this->modelClassName::selection();
                 if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
                 else $prefix = '';
-                foreach (get_class_vars($this->modelClassName) as $name => $val)
-                    $values[] = $prefix . $name;
+                foreach (get_class_vars($this->modelClassName) as $name => $val) {
+                    if (isset($selection[$name]))
+                        $values[] = sprintf($selection[$name]::selectionLabel(), $name);
+                    else $values[] = $prefix . $name;
+                }
                 return implode(', ', $values);
             }
 

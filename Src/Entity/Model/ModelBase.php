@@ -65,4 +65,9 @@ class ModelBase extends \stdClass
         }
     }
 
+    public static function selection(): array
+    {
+        return [];
+    }
+
 }
