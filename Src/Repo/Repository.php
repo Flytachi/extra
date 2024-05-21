@@ -30,7 +30,7 @@ use Throwable;
  * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
  * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
  *
- * @version 11.3
+ * @version 11.4
  * @author Flytachi
  */
 class Repository
@@ -115,6 +115,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchColumn($column);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -137,6 +138,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchObject($modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -158,6 +160,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchAll(PDO::FETCH_CLASS, $modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -187,6 +190,14 @@ class Repository
             static::class  . ': No write access');
 
         return $this->db()->insert(($this->schema ? $this->schema . '.' : '') . $this::$table, $model);
+    }
+
+    public function insertGroup(ModelInterface ...$models): void
+    {
+        if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            static::class  . ': No write access');
+
+        $this->db()->insertGroup(($this->schema ? $this->schema . '.' : '') . $this::$table, ...$models);
     }
 
     public function update(ModelInterface $model, BKB $bkb): int|string
