@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.20.0
 WORKDIR /var/www/html
 
 # Installing bash
@@ -34,6 +34,9 @@ RUN apk add --no-cache php82-mysqli php82-pdo_mysql php82-mysqlnd
 
 # clean
 RUN rm -rf /var/cache/apk/*
+
+# php configure
+RUN test -f /usr/bin/php || ln -s /usr/bin/php82 /usr/bin/php
 
 COPY . /var/www/html
 COPY ./docker/php-fpm.conf /etc/php82/php-fpm.d/www.conf
