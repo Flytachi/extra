@@ -3,10 +3,9 @@
 namespace __namespace__;
 
 use Extra\Src\Repo\Repository;
-use Extra\Src\Entity\Model\ModelBase;
 
 class __className__ extends Repository
 {
     public static string $table = '__tableName__';
-    protected string $modelClassName = ModelBase::class;
+    protected string $modelClassName = \Extra\Src\Entity\Model\ModelBase::class;
 }

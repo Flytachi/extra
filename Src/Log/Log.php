@@ -19,7 +19,7 @@ namespace Extra\Src\Log;
  * - `alert(string $message): void`: Logs an alert message.
  * - `emergency(string $message): void`: Logs an emergency message.
  *
- * @version 2.0
+ * @version 2.1
  * @author Flytachi
  */
 class Log extends LoggerBase implements LoggerInterface
@@ -56,7 +56,7 @@ class Log extends LoggerBase implements LoggerInterface
     public static function debug(string $message): void
     {
         if (env('DEBUG', false)) {
-            self::write(sprintf("[%s] %s | %s",
+            self::writeIsDebug(sprintf("[%s] %s | %s",
                 date(self::$dateFormat),
                 '[DEBUG]',
                 $message . PHP_EOL

@@ -13,13 +13,14 @@ namespace Extra\Src\Log;
  * - `write(string $message): void`: Writes a log message to the log file.
  * - `writeIsLevel(string $message, int $level): void`: Writes a log message if the current level equals the provided level.
  * - `writeIsNotLevel(string $message, int $level): void`: Writes a log message if the current level does not match the provided level.
+ * - `writeIsDebug(string $message): void`: Writes a log message if debug is on.
  * - `setType(LoggerType $type = LoggerType::STACK): void`: Sets the logger's type which can be STACK, DAILY, or MONTHLY.
  * - `setFormat(string $format = 'Y-m-d H:i:s P'): void`: Sets the date format used in log messages.
  * - `setLevel(int $level = 0): void`: Sets the log level (0 - no logging, 1 - default logging, 2 - trace logging).
  * - `setLifeTime(int $lifeTime = 0): void`: Sets the log lifetime.
  * - `prepareCallable(callable|null $prepareFunction = null): void`: Sets a callable to be used in preparing log messages.
  *
- * @version 1.0
+ * @version 1.2
  * @author Flytachi
  */
 abstract class LoggerBase {
@@ -80,6 +81,15 @@ abstract class LoggerBase {
     protected final static function writeIsNotLevel(string $message, int $level): void
     {
         if (static::$level !== $level) {
+            static::initial();
+            if (static::$resource !== false) fwrite(static::$resource, $message);
+            if (static::$prepareFunction != null) (static::$prepareFunction)($message);
+        }
+    }
+
+    protected final static function writeIsDebug(string $message): void
+    {
+        if (env('DEBUG')) {
             static::initial();
             if (static::$resource !== false) fwrite(static::$resource, $message);
             if (static::$prepareFunction != null) (static::$prepareFunction)($message);
