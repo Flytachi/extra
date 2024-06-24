@@ -18,7 +18,7 @@ use TypeError;
  * - `urlToArray(string $url): array`: Converts the URL query string to an associative array.
  * - `arrayToUrl(array $get): string`: Converts an associative array of parameters to a URL query string.
  *
- * @version 2.2
+ * @version 2.3
  * @author Flytachi
  */
 abstract class Wrapper
@@ -37,7 +37,7 @@ abstract class Wrapper
     /**
      * Paginate the results of a repository query.
      *
-     * @param Repository $repo The repository to paginate the results from.
+     * @param array|Repository $repo The repository to paginate the results from.
      * @param int|null $limit The maximum number of items per page. If null, the repository's default limit will be used.
      * @param int $page The current page number.
      * @param string|null $modelClassName The name of the model.
@@ -54,24 +54,45 @@ abstract class Wrapper
      *
      * @throws TypeError If the limit is not set and the repository does not have a default limit.
      */
-    final static function paginator(Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array
+    final static function paginator(array|Repository $repo, ?int $limit = null, int $page = 1, ?string $modelClassName = null): array
     {
-        if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
-        else {
-            if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+        if ($repo instanceof Repository) {
+            if (!is_null($limit)) $repo->limit($limit, $limit * ($page - 1));
+            else {
+                if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
+            }
+            self::init($repo);
+            return [
+                'pagination' => [
+                    'current' => self::$currentPage,
+                    'previous' => self::$currentPage - 1,
+                    'next' => (self::$totalPages > self::$currentPage) ? self::$currentPage + 1 : 0,
+                    'perPage' => self::$limitPage,
+                    'totalItem' => self::$totalItem,
+                    'totalPage' => self::$totalPages,
+                ],
+                'list' => $repo->findAll($modelClassName),
+            ];
+        } else {
+            if (is_null($limit)) throw new TypeError("Not value 'Limit'!");
+            $totalItem = count($repo);
+            $totalPage = ceil($totalItem / $limit);
+            $offset = $limit * ($page - 1);
+
+            return [
+                'pagination' => [
+                    'current' => $page,
+                    'previous' => $page - 1,
+                    'next' => ($totalPage > $page) ? $page + 1 : 0,
+                    'perPage' => $limit,
+                    'totalItem' => $totalItem,
+                    'totalPage' => ceil(
+                        $totalItem / $limit
+                    ),
+                ],
+                'list' => array_splice($repo, $offset, $limit),
+            ];
         }
-        self::init($repo);
-        return [
-            'pagination' => [
-                'current' => self::$currentPage,
-                'previous' => self::$currentPage - 1,
-                'next' => (self::$totalPages > self::$currentPage) ? self::$currentPage + 1 : 0,
-                'perPage' => self::$limitPage,
-                'totalItem' => self::$totalItem,
-                'totalPage' => self::$totalPages,
-            ],
-            'list' => $repo->findAll($modelClassName),
-        ];
     }
 
     /**
