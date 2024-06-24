@@ -16,7 +16,7 @@ use SimpleXMLElement;
  * - `stringToArray(string $xmlString): array`: Converts an XML string to an associative array.
  * - `arrayToXml(array $data): string`: Converts an array to an XML string format.
  *
- * @version 1.3
+ * @version 1.4
  * @author Flytachi
  */
 abstract class XML
@@ -31,7 +31,7 @@ abstract class XML
     public static function read(string $filePath): array
     {
         $info = pathinfo($filePath);
-        if ($info['extension'] != 'xml') $filePath .= '.xml';
+        if (!isset($info['extension']) || $info['extension'] != 'xml') $filePath .= '.xml';
 
         if (!file_exists($filePath) || !is_readable($filePath))
             throw new FileException("File does not exist or is not readable");
@@ -49,7 +49,7 @@ abstract class XML
     public static function write(string $filePath, array $content, string $rootElement = 'root'): void
     {
         $info = pathinfo($filePath);
-        if ($info['extension'] != 'xml') $filePath .= '.xml';
+        if (!isset($info['extension']) || $info['extension'] != 'xml') $filePath .= '.xml';
 
         try {
             $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>');
