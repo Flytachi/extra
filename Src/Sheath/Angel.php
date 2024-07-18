@@ -23,6 +23,28 @@ use Exception;
 abstract class Angel
 {
     /**
+     * Determines if a given value is a valid URL.
+     *
+     * @param mixed $value The value to check if it is a valid URL.
+     * @return bool True if the given value is a valid URL, false otherwise.
+     */
+    public static function isUrl(mixed $value): bool
+    {
+        return (bool) filter_var($value, FILTER_VALIDATE_URL);
+    }
+
+    /**
+     * Checks if a given value is a valid email address.
+     *
+     * @param mixed $value The value to check if it is a valid email address.
+     * @return bool True if the given value is a valid email address, false otherwise.
+     */
+    public static function isEmail(mixed $value): bool
+    {
+        return (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
      * Check if the given value is a positive integer.
      *
      * @param mixed $value The value to be checked.

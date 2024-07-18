@@ -4,10 +4,10 @@ namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\CDO\CDO;
+use Extra\Src\Entity\Model\ModelBase;
+use Extra\Src\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Model\ModelBase;
-use Extra\Src\Model\ModelInterface;
 use PDO;
 use Throwable;
 
@@ -30,7 +30,7 @@ use Throwable;
  * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
  * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
  *
- * @version 11.3
+ * @version 11.4
  * @author Flytachi
  */
 class Repository
@@ -115,6 +115,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchColumn($column);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -137,6 +138,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchObject($modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -158,6 +160,7 @@ class Repository
                     $stmt->bindValue($hash, $value);
             }
             $stmt->execute();
+            $this->cleanCache();
             return $stmt->fetchAll(PDO::FETCH_CLASS, $modelClassName ?: $this->modelClassName);
         } catch (Throwable $th) {
             $this->Throwable($th);
@@ -187,6 +190,14 @@ class Repository
             static::class  . ': No write access');
 
         return $this->db()->insert(($this->schema ? $this->schema . '.' : '') . $this::$table, $model);
+    }
+
+    public function insertGroup(ModelInterface ...$models): void
+    {
+        if ($this->isReadonly) RepositoryError::throw(HttpCode::INTERNAL_SERVER_ERROR,
+            static::class  . ': No write access');
+
+        $this->db()->insertGroup(($this->schema ? $this->schema . '.' : '') . $this::$table, ...$models);
     }
 
     public function update(ModelInterface $model, BKB $bkb): int|string
@@ -219,10 +230,14 @@ class Repository
             ) return '*';
             else {
                 $values = [];
+                $selection = $this->modelClassName::selection();
                 if (array_key_exists('as', $this->CRD_SQL)) $prefix = $this->CRD_SQL['as'] . '.';
                 else $prefix = '';
-                foreach (get_class_vars($this->modelClassName) as $name => $val)
-                    $values[] = $prefix . $name;
+                foreach (get_class_vars($this->modelClassName) as $name => $val) {
+                    if (isset($selection[$name]))
+                        $values[] = sprintf($selection[$name]::selectionLabel(), $name);
+                    else $values[] = $prefix . $name;
+                }
                 return implode(', ', $values);
             }
 

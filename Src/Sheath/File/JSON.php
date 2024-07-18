@@ -12,7 +12,7 @@ namespace Extra\Src\Sheath\File;
  * - `read(string $path): array`: Reads a JSON file and returns its contents as an associative array.
  * - `write(string $path, array $data): void`: Writes an array of data to a JSON file.
  *
- * @version 1.1
+ * @version 1.3
  * @author Flytachi
  */
 abstract class JSON

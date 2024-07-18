@@ -31,7 +31,7 @@ use Extra\Src\Process\ProcessException;
  * Additionally, `startRun()`,`endRun()` are private methods to manage processes and signal
  * handling which get called during the start and end stages of a process.
  *
- * @version 1.4
+ * @version 1.5
  * @author Flytachi
  */
 abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInterface
@@ -92,7 +92,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
             pcntl_signal(SIGHUP, function () {$this->signClose();});
             pcntl_signal(SIGINT, function () {$this->signInterrupt();});
             pcntl_signal(SIGTERM, function () {$this->signTermination();});
-            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' Kube');
+            cli_set_process_title('extra kube-process ' . static::class);
             $this->conductor->recordAdd(static::class, $this->pid);
         }
     }
@@ -190,7 +190,7 @@ abstract class Kube extends Dispatcher implements KubeInterface, DispatcherInter
     protected function threadStartRun(int $pid): void
     {
         if (PHP_SAPI === 'cli')
-            cli_set_process_title(basename(PATH_ROOT) . ' ' . static::class . ' thread');
+            cli_set_process_title('extra kube-thread ' . static::class);
     }
 
     protected function threadEndRun(int $pid): void {}

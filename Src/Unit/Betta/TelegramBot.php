@@ -3,9 +3,8 @@
 namespace Extra\Src\Unit\Betta;
 
 use Extra\Src\Controller\ControllerBase;
-use Extra\Src\METHOD;
+use Extra\Src\Controller\Method;
 use Extra\Src\Route\Route;
-use Extra\Src\Warframe;
 
 abstract class TelegramBot extends ControllerBase
 {
@@ -67,8 +66,8 @@ abstract class TelegramBot extends ControllerBase
 
     public function receiver(): void
     {
-        $this->method(METHOD::POST);
-        self::$token = Warframe::$cfg['TELEGRAM']['TOKEN'];
+        $this->method(Method::POST);
+        self::$token = env('TELEGRAM_TOKEN');
         $data = $this->receiverConstruct();
         if ($this->debug) $this->saveMessageToJson('message', $data);
         if(array_key_exists('message', $data)) $this->receiverDownloads($data['message']);
@@ -77,9 +76,8 @@ abstract class TelegramBot extends ControllerBase
 
     public final function connection()
     {
-        $this->method(METHOD::GET);
-        Route::isAuthAdmin();
-        $token = Warframe::$cfg['TELEGRAM']['TOKEN'];
+        $this->method(Method::GET);
+        $token = env('TELEGRAM_TOKEN');
         if (!$token) Route::ApiResponseError(503);
 
         $curl = curl_init();

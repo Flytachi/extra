@@ -2,26 +2,27 @@
 
 namespace Extra;
 
+use DirectoryIterator;
 use Extra\Src\Error\BaseError;
 use Extra\Src\Error\Error;
 use Extra\Src\HttpCode;
 
 /**
- * Class Warframe
+ * Class Extra
  *
- * `Warframe` is a helper class to manage application-level tasks such as autoload, initialization and configurations loading.
+ * `Extra` is a helper class to manage application-level tasks such as autoload, initialization and configurations loading.
  *
- * The methods provided by `Warframe` include:
+ * The methods provided by `Extra` include:
  *
  * - `autoload(): void`: Handles automatic class file loading based on namespaces.
  * - `init(bool $isConsole = false): void`: Initializes the application, defines constants, loads functions, and checks directory write access.
  * - `warningHandler($severity, $message, $file, $line): void`: Error handler for managing PHP warnings.
  * - `loadFunction(): void`: Loads all available functions from the Function directory.
  *
- * @version 4.2
+ * @version 4.6
  * @author Flytachi
  */
-class Warframe
+class Extra
 {
     /**
      * Registers an autoloader function and loads the specified class file when needed.
@@ -31,7 +32,7 @@ class Warframe
     public final static function autoload(): void
     {
         spl_autoload_register(function($class) {
-            $file = PATH_APP . '/' . str_replace("\\", '/', $class) . '.php';
+            $file = PATH_APP . '/' . strtr($class, '\\', '/') . '.php';
             if (file_exists($file)) require $file;
         });
         // Env
@@ -60,13 +61,13 @@ class Warframe
      */
     public final static function init(bool $isConsole = false): void
     {
-        define('WARFRAME_STARTUP_TIME', microtime(true));
+        define('EXTRA_STARTUP_TIME', microtime(true));
         require dirname(__DIR__) . '/defines.php';
         self::loadFunction();
         self::autoload();
 
         try {
-            foreach (glob(dirname(__DIR__)."/Config/*.php") as $function) require $function;
+            self::loadConfig();
 
             if (!$isConsole) {
                 if (!is_writable(PATH_STORAGE))
@@ -89,11 +90,12 @@ class Warframe
             ini_set('error_reporting', E_ALL);
             ini_set('display_errors', 1);
             ini_set('display_startup_errors', 1);
-            set_error_handler('\Extra\Warframe::warningHandler');
+            set_error_handler('\Extra\Extra::warningHandler');
         }
 
         // composer
-        if (COMPOSER_LOADING) require dirname(__DIR__, 2) . '/vendor/autoload.php';
+        if (COMPOSER_LOADING && file_exists(PATH_ROOT . '/vendor/autoload.php'))
+            include PATH_ROOT . '/vendor/autoload.php';
     }
 
     /**
@@ -114,15 +116,31 @@ class Warframe
     }
 
     /**
-     * Loads all function files from the "Function" directory.
-     *
-     * This method scans the "Function" directory and includes all PHP files found.
+     * Loads all PHP files in the directory PATH_APP/Extra/Function.
      *
      * @return void
      */
     public final static function loadFunction(): void
     {
-        foreach (glob(dirname(__FILE__)."/Function/*") as $function) require $function;
+        $directory = new DirectoryIterator(PATH_APP . '/Extra/Function');
+        foreach ($directory as $fileInfo) {
+            if ($fileInfo->isDot()) continue;
+            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
+        }
+    }
+
+    /**
+     * Loads configuration files from the "Config" directory.
+     *
+     * @return void
+     */
+    public final static function loadConfig(): void
+    {
+        $directory = new DirectoryIterator(PATH_APP . '/Config');
+        foreach ($directory as $fileInfo) {
+            if ($fileInfo->isDot()) continue;
+            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
+        }
     }
 
 }

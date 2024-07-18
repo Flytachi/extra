@@ -6,7 +6,46 @@ function env(?string $name = null, string|int|float|bool|null $default = null): 
     return $value !== false ? $value : $default;
 }
 
-function dd(mixed ...$value): never
+function dd(mixed ...$values): never
+{
+    $backtrace = debug_backtrace();
+    $line = $backtrace[0]['line'];
+    $file = str_replace(PATH_ROOT, '', $backtrace[0]['file']);
+    echo '<body style="background-color: #0a0f1f">';
+    echo '<div style="border: 2px solid #3e006f;border-radius: 7px;padding: 10px;background-color: black;">';
+    echo    '<div style="display: flex;justify-content: space-between;margin-top: 8px;margin-bottom: 17px">';
+    echo        '<span style="float: left;font-size: 1.2rem; color: #ffffff;">';
+    echo            '<span style="color: #7f00e0;font-weight: bold;">DUMP and DIE:</span> ' . $file . ' (' . $line . ')';
+    echo        '</span>';
+    echo        '<span style="float: right;font-style: italic;">';
+    echo            '<span style="color: #adadad">' . date(DATE_ATOM) . '</span> ';
+    echo            '<span style="color: #00ffff">' . env('TIME_ZONE', 'UTC') . '</span>';
+    echo        '</span>';
+    echo    '</div>';
+    echo    '<hr style="border: 1px solid #999999;">';
+    echo    '<pre style="margin:10px;white-space: pre-wrap; white-space: -moz-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;">';
+    $countValues = count($values); $i = 0;
+    foreach ($values as $value) {
+        echo match (gettype($value)) {
+            'NULL'               => '<span style="color: #999999;">null</span>',
+            'boolean'            => '<span style="color: #00ff00;">' . var_export($value, true) . '</span>',
+            'integer', 'double'  => '<span style="color: #00ffff;">' . var_export($value, true) . '</span>',
+            'object'             => '<span style="color: #ff7033;">' . print_r($value, true) . '</span>',
+            'array'              => '<span style="color: #cb71ff;">' . print_r($value, true) . '</span>',
+            'string'             => '<span style="color: #e4ff6c;">' . var_export($value, true) . '</span>',
+            default              => '<span style="color: #fa5151;">' . var_export($value, true) . '</span>'
+        };
+        if ($countValues > ++$i) echo '<hr style="border: 1px dashed rgb(68,68,68);">';
+    }
+    echo    '</pre>';
+    echo    '<hr style="border: 1px solid #999999;">';
+    echo    '<span style="color: #9e9e9e;font-weight: bold;">Memory ' . bytes(memory_get_usage(), 'MiB') . '</span>';
+    echo '</div>';
+    echo '</body>';
+    die();
+}
+
+function dump(mixed ...$value): never
 {
     echo '<pre style="background-color: black; color: #00ff00; border-style: solid;',
         'border-color: #ff0000; border-width: medium;',

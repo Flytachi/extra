@@ -1,7 +1,8 @@
 <?php
 
-namespace Extra\Src\Request;
+namespace Extra\Src\Entity\Request;
 
+use Extra\Src\Entity\EntityError;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 
@@ -105,7 +106,7 @@ class Request
      */
     public static function get(bool $required = true): self
     {
-        if ($required && !$_GET) RequestError::throw(HttpCode::BAD_REQUEST, "There is no GET data in the request.");
+        if ($required && !$_GET) EntityError::throw(HttpCode::BAD_REQUEST, "There is no GET data in the request.");
         return new self($_GET);
     }
 
@@ -118,7 +119,7 @@ class Request
      */
     public static function post(bool $required = true): self
     {
-        if ($required && !$_POST) RequestError::throw(HttpCode::BAD_REQUEST, "There is no POST data in the request.");
+        if ($required && !$_POST) EntityError::throw(HttpCode::BAD_REQUEST, "There is no POST data in the request.");
         return new self($_POST);
     }
 
@@ -131,7 +132,7 @@ class Request
      */
     public static function form(bool $required = true): self
     {
-        if ($required && !$_POST) RequestError::throw(HttpCode::BAD_REQUEST, "There is no POST data in the request.");
+        if ($required && !$_POST) EntityError::throw(HttpCode::BAD_REQUEST, "There is no POST data in the request.");
         return new self($_POST);
     }
 
@@ -145,7 +146,7 @@ class Request
     public static function json(bool $required = true): self
     {
         $data = file_get_contents('php://input');
-        if ($required && !$data) RequestError::throw(HttpCode::BAD_REQUEST, "There is no JSON data in the request.");
+        if ($required && !$data) EntityError::throw(HttpCode::BAD_REQUEST, "There is no JSON data in the request.");
         return new self(json_decode($data, true) ?? []);
     }
 
@@ -156,7 +157,7 @@ class Request
      */
     public static function files(): self
     {
-        if (!$_FILES) RequestError::throw(HttpCode::BAD_REQUEST, "There is no FILE data in the request.");
+        if (!$_FILES) EntityError::throw(HttpCode::BAD_REQUEST, "There is no FILE data in the request.");
         $data = [];
         foreach ($_FILES as $fileName => $fileData) {
             $data[$fileName] = [];
@@ -190,13 +191,13 @@ class Request
         Log::trace(self::class . ' valid: ' . $field);
         try {
             if(!array_key_exists($field, $this->data))
-                RequestError::throw(HttpCode::BAD_REQUEST,"Field \"{$field}\" not found!");
+                EntityError::throw(HttpCode::BAD_REQUEST,"Field \"{$field}\" not found!");
             if ($validateFunc !== null) {
                 if (!$validateFunc($this->data[$field]))
-                    RequestError::throw(HttpCode::BAD_REQUEST, "{$field} - " . ($message ?? "field has the wrong data type!"));
+                    EntityError::throw(HttpCode::BAD_REQUEST, "{$field} - " . ($message ?? "field has the wrong data type!"));
             }
         } catch (\Throwable $exception) {
-            RequestError::throw(HttpCode::BAD_REQUEST, $exception->getMessage());
+            EntityError::throw(HttpCode::BAD_REQUEST, $exception->getMessage());
         }
         return $this;
     }

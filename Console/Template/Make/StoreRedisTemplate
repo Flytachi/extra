@@ -1,0 +1,15 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Artefact\Redis\Store;
+
+class __className__ extends Store
+{
+    protected static string $shardKey = '__dbIndexName__';
+
+    public static function main(): \Redis
+    {
+        return self::init(0);
+    }
+}

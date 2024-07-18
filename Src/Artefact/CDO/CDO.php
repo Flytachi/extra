@@ -3,9 +3,10 @@
 namespace Extra\Src\Artefact\CDO;
 
 use Extra\Src\Artefact\Mechanism\Shard;
+use Extra\Src\Artefact\Type\Type;
+use Extra\Src\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Model\ModelInterface;
 use Extra\Src\Repo\BKB;
 use PDO;
 use PDOException;
@@ -31,7 +32,7 @@ use PDOException;
  * Note: This class requires a `Shard` object to establish connections, and a BKB (Bucket)
  * object to specify conditions for updating and deleting records.
  *
- * @version 11.4
+ * @version 11.5
  * @author Flytachi
  */
 class CDO extends PDO
@@ -78,24 +79,89 @@ class CDO extends PDO
             $query = "INSERT INTO $table ($col) VALUES ($val) RETURNING " . array_key_first($model);
             Log::trace('CDO insert:' . $query);
 
-            $stmt = $this->prepare($query);
+            $stmt = new CDOStatement($this->prepare($query));
             foreach ($data as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
                     case 'NULL'    :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
                     case 'boolean' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
                     case 'integer' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
                     case 'array'   :  $stmt->bindValue(':' . $keyVal, json_encode($paramVal)); break;
-                    case 'object'  :  $stmt->bindValue(':' . $keyVal, serialize($paramVal)); break;
+                    case 'object'  :
+                        if ($paramVal instanceof Type) {
+                            $stmt->updateStm($this->prepare(str_replace(':' . $keyVal,
+                                sprintf($paramVal::prepairing(), ':' . $keyVal),
+                                $query))
+                            );
+                            $stmt->bindValue(':' . $keyVal, (string) $paramVal);
+                        } else
+                            $stmt->bindValue(':' . $keyVal, serialize($paramVal));
+                        break;
                     default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
                 }
             }
-            $stmt->execute();
-            $result = $stmt->fetchColumn();
+            $stmt->getStmt()->execute();
+            $result = $stmt->getStmt()->fetchColumn();
             if (!$result)
                 CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $result . ')');
             return $result;
         } catch (PDOException $ex) {
             CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a record in the database (' . $ex->getMessage() . ')');
+        }
+    }
+
+    /**
+     * Create an entries in the database
+     *
+     * @param string $table table name in database
+     * @param array<ModelInterface|array> $models model or array data
+     */
+    final public function insertGroup(string $table, ModelInterface|array ...$models): void
+    {
+        $data = [];
+        $prefix = 0;
+        $val = '';
+        foreach ($models as $model) {
+            if ($model instanceof ModelInterface) $model = (array) $model;
+            $items = $model;
+            $newKeys = array_map(function ($oldKey) use ($prefix) {
+                return $oldKey . '_' . $prefix;
+            }, array_keys($items));
+            $items = array_combine($newKeys, array_values($items));
+            foreach ($items as $key => $value) if (is_null($value)) unset($items[$key]);
+            $col = implode(",", array_keys($model));
+            $val .= '(:' . implode(",:", array_keys($items)) . '),';
+            ++$prefix;
+            $data = array_merge($data, $items);
+        }
+
+        try {
+            $query = "INSERT INTO $table ($col) VALUES " . rtrim($val, ',');
+
+            Log::trace('CDO insert group:' . $query);
+
+            $stmt = new CDOStatement($this->prepare($query));
+            foreach ($data as $keyVal => $paramVal) {
+                switch (gettype($paramVal)) {
+                    case 'NULL'    :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_NULL); break;
+                    case 'boolean' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_BOOL); break;
+                    case 'integer' :  $stmt->bindValue(':' . $keyVal, $paramVal, PDO::PARAM_INT); break;
+                    case 'array'   :  $stmt->bindValue(':' . $keyVal, json_encode($paramVal)); break;
+                    case 'object'  :
+                        if ($paramVal instanceof Type) {
+                            $stmt->updateStm($this->prepare(str_replace(':' . $keyVal,
+                                sprintf($paramVal::prepairing(), ':' . $keyVal),
+                                $query))
+                            );
+                            $stmt->bindValue(':' . $keyVal, (string) $paramVal);
+                        } else
+                            $stmt->bindValue(':' . $keyVal, serialize($paramVal));
+                        break;
+                    default: $stmt->bindValue(':' . $keyVal, $paramVal); break;
+                }
+            }
+            $stmt->getStmt()->execute();
+        } catch (PDOException $ex) {
+            CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when creating a records in the database (' . $ex->getMessage() . ')');
         }
     }
 
@@ -122,19 +188,29 @@ class CDO extends PDO
             $query = "UPDATE $table SET ". ltrim($set, ", ") ." WHERE " . $bkb->getQuery();
             Log::trace('CDO update:' . $query);
 
-            $stmt = $this->prepare($query);
+            $stmt = new CDOStatement($this->prepare($query));
             foreach ([...$bkb->getCache(), ...$data] as $keyVal => $paramVal) {
                 switch (gettype($paramVal)) {
                     case 'NULL'    :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_NULL); break;
                     case 'boolean' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_BOOL); break;
                     case 'integer' :  $stmt->bindValue($keyVal, $paramVal, PDO::PARAM_INT); break;
                     case 'array'   :  $stmt->bindValue($keyVal, json_encode($paramVal)); break;
-                    case 'object'  :  $stmt->bindValue($keyVal, serialize($paramVal)); break;
+                    case 'object'  :
+                        if ($paramVal instanceof Type) {
+                            $stmt->updateStm($this->prepare(str_replace($keyVal,
+                                sprintf($paramVal::prepairing(), $keyVal),
+                                $query))
+                            );
+                            $stmt->bindValue($keyVal, (string) $paramVal);
+                        } else
+                            $stmt->bindValue($keyVal, serialize($paramVal));
+                        $stmt->bindValue($keyVal, serialize($paramVal));
+                        break;
                     default: $stmt->bindValue($keyVal, $paramVal); break;
                 }
             }
-            $stmt->execute();
-            $result = $stmt->rowCount();
+            $stmt->getStmt()->execute();
+            $result = $stmt->getStmt()->rowCount();
             if (!is_numeric($result))
                 CDOError::throw(HttpCode::INTERNAL_SERVER_ERROR, 'CDO: Error when changing a record in the database (' . $result . ')');
             return $result;

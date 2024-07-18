@@ -43,7 +43,7 @@ use Extra\Src\Log\Log;
  *  @method  self         request(string $method, string $url, null|array $params = null)
  *  @method  self         body(array $body, string $type = 'json')
  *
- *  @version 2.1
+ *  @version 2.2
  *  @author Flytachi
  */
 class Blink
@@ -78,7 +78,7 @@ class Blink
             self::setOption(CURLOPT_RETURNTRANSFER, true);
             self::setOption(CURLOPT_ENCODING, '');
             self::setOption(CURLOPT_MAXREDIRS, 10);
-            self::setOption(CURLOPT_TIMEOUT, 0);
+            self::setOption(CURLOPT_TIMEOUT, 10);
             self::setOption(CURLOPT_FOLLOWLOCATION, true);
             self::setOption(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         }
@@ -228,15 +228,15 @@ class Blink
             Log::trace("Blink Send Request: " . $info['url']);
             $response = curl_exec($this->curl);
             $info = curl_getinfo($this->curl);
+            if ($info['http_code'] === 0) $info['http_code'] = 504;
 
-            if ($isThrowable) {
-                if ($info['http_code'] == 0 || 400 <= $info['http_code']) {
-                    if ($this->maxRetry > 1 && 500 <= $info['http_code']) {
-                        --$this->maxRetry;
-                        continue;
-                    }
-                    BlinkError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Blink Request '{$info['url']}' status => {$info['http_code']}");
+            if ($info['http_code'] >= 400) {
+                if ($this->maxRetry > 1 && $info['http_code'] == 504) {
+                    --$this->maxRetry;
+                    continue;
                 }
+                if ($isThrowable)
+                    BlinkError::throw(HttpCode::FAILED_DEPENDENCY, "Blink Request '{$info['url']}' status => {$info['http_code']}");
             }
 
             Log::trace("Blink Response: status => " . $info['http_code'] . " response => " . $response);

@@ -39,17 +39,20 @@ abstract class Dispatcher
                 Log::trace('::' . static::class . ':: serialized => ' . $serializeData);
             }
 
-            Log::trace('::' . static::class . ':: DISPATCH');
-            return exec(sprintf(
-                "php ../extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
+            Log::trace('::' . static::class . ':: DISPATCH ' . static::class);
+            $selfDirectory = getcwd();
+            chdir(PATH_ROOT);
+            $pid = exec(sprintf(
+                "php extra process run --class-name='%s' %s > %s 2>&1 & echo $!",
                 static::class,
                 ($data ? "--class-cache='{$fileName}'" : ''),
                 "/dev/null"
             ));
+            chdir($selfDirectory);
+            return $pid;
         } catch (\Throwable $err) {
             ProcessException::fatal('::' . static::class . ':: ' . $err->getMessage());
         }
-
     }
 
 }

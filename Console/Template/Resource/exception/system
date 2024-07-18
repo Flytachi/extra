@@ -9,9 +9,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= $_error ?></title>
     </head>
-    <body>
+    <body style="background-color: #0a0f1f;color: #ffffff">
         <center>
-            <strong style="font-size:20px"><em>Warframe</em></strong>
+            <strong style="font-size:20px"><em>Extra</em></strong>
             <hr width="50%">
             <h1><?= $_error ?></h1>
         </center>

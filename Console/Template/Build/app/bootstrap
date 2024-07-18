@@ -1,10 +1,9 @@
 <?php
 /**
- * Initialise Extra File
- * Warframe Framework Web
+ * Extra Framework Web
  */
 
-require 'Extra/Warframe.php';
+require 'Extra/Extra.php';
 
-Extra\Warframe::init();
+Extra\Extra::init();
 Extra\Src\Route\Route::start();

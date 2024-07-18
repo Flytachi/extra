@@ -1,0 +1,35 @@
+<?php
+
+namespace __namespace__;
+
+use Extra\Src\Log\Log;
+use Extra\Src\Process\Socket\Web\PDU\Msg;
+use Extra\Src\Process\Socket\Web\PDU\Resource;
+use Extra\Src\Process\Socket\Web\WebSocketServer;
+
+class __className__ extends WebSocketServer
+{
+    protected string $ip = '127.0.0.1';
+    protected int $port = 7000;
+
+    public function run(mixed $data = null): void
+    {
+        Log::info('::' . static::class . ':: START');
+        $this->socketStart(10);
+    }
+
+    protected function handle(Resource &$resource, Msg $msg): void
+    {
+        parent::handle($resource, $msg);
+    }
+
+    protected function handleConnect(Resource &$resource): void
+    {
+        parent::handleConnect($resource);
+    }
+
+    protected function handleDisconnect(Resource &$resource): void
+    {
+        parent::handleDisconnect($resource);
+    }
+}

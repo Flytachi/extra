@@ -37,21 +37,25 @@ class Process extends Cmd
 
     private function runArg(): void
     {
-        if (
-            array_key_exists('class-name', $this->args['options'])
-            && $this->args['options']['class-name']
-        ) {
-            $class = $this->args['options']['class-name'];
-            if (class_exists($class)) {
+        if (extension_loaded('pcntl') && pcntl_async_signals()) {
 
-                if (
-                    array_key_exists(0, $this->args['flags'])
-                    && $this->args['flags'][0] == 'd'
-                ) $this->runnableToBack($class);
-                else $this->runnable($class);
+            if (
+                array_key_exists('class-name', $this->args['options'])
+                && $this->args['options']['class-name']
+            ) {
+                $class = $this->args['options']['class-name'];
+                if (class_exists($class)) {
 
-            } else self::printMessage("The specified class '{$class}' was not found");
-        } else self::printMessage("class-name option not specified");
+                    if (
+                        array_key_exists(0, $this->args['flags'])
+                        && $this->args['flags'][0] == 'd'
+                    ) $this->runnableToBack($class);
+                    else $this->runnable($class);
+
+                } else self::printMessage("The specified class '{$class}' was not found");
+            } else self::printMessage("class-name option not specified");
+
+        } else self::printMessage("Asynchronous pcntl signals are not enabled", 31);
     }
 
     private function runnable(string $class): void

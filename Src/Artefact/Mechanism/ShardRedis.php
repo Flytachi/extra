@@ -67,10 +67,21 @@ class ShardRedis
         }
     }
 
+    public final function disconnect(): void
+    {
+        if ($this->store !== null) {
+            try {
+                $this->store->close();
+                $this->store = null;
+            } catch (\Exception $exception) {
+                ArtefactError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Redis {$this->host}:{$this->port} (" . $exception->getMessage() . ')');
+            }
+        }
+    }
+
     public final function reconnect(): void
     {
-        $this->store->close();
-        $this->store = null;
+        $this->disconnect();
         $this->connect();
     }
 

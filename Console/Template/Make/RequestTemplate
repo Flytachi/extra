@@ -2,7 +2,7 @@
 
 namespace __namespace__;
 
-use Extra\Src\Request\RequestObject;
+use Extra\Src\Entity\Request\RequestObject;
 
 class __className__ extends RequestObject
 {

@@ -2,8 +2,8 @@
 
 namespace __namespace__;
 
-use Extra\Src\Model\ModelBase;
-use Extra\Src\Model\ModelInterface;
+use Extra\Src\Entity\Model\ModelBase;
+use Extra\Src\Entity\Model\ModelInterface;
 
 class __className__ extends ModelBase implements ModelInterface
 {

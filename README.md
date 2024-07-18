@@ -1,4 +1,4 @@
-# Warframe Extra Framework
+# Extra Framework
 
 Author: Flytachi
 
