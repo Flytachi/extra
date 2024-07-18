@@ -55,11 +55,12 @@ abstract class Algorithm
      * Randomly selects one of the elements based on their weight.
      * Optimized for a large number of elements.
      *
-     * @param array $values index array of elements
+     * @template Item
+     * @param array<Item> $values index array of elements
      * @param array<int|float> $weights index array of corresponding weights
-     * @return mixed selected item
+     * @return Item selected item
      */
-    public static function weightedRandomLite(array $values, array $weights): mixed
+    public static function weightedRandomLite(array $values, array $weights)
     {
         $totalWeight = array_sum($weights);
         $randomValue = mt_rand() / mt_getrandmax() * $totalWeight;
@@ -76,11 +77,12 @@ abstract class Algorithm
      *
      * ! WARNING !:thousandths of a decimal point (0.001)
      *
-     * @param array $values index array of elements
+     * @template Item
+     * @param array<Item> $values index array of elements
      * @param array<int|float> $weights index array of corresponding weights (range )
-     * @return mixed selected item
+     * @return Item selected item
      */
-    public static function weightedRandom(array $values, array $weights): mixed
+    public static function weightedRandom(array $values, array $weights)
     {
         $cum_weights = array();
         $total = 0;

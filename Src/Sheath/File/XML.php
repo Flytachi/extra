@@ -30,9 +30,6 @@ abstract class XML
      */
     public static function read(string $filePath): array
     {
-        $info = pathinfo($filePath);
-        if (!isset($info['extension']) || $info['extension'] != 'xml') $filePath .= '.xml';
-
         if (!file_exists($filePath) || !is_readable($filePath))
             throw new FileException("File does not exist or is not readable");
         return json_decode(json_encode(simplexml_load_file($filePath)), true);
@@ -48,9 +45,6 @@ abstract class XML
      */
     public static function write(string $filePath, array $content, string $rootElement = 'root'): void
     {
-        $info = pathinfo($filePath);
-        if (!isset($info['extension']) || $info['extension'] != 'xml') $filePath .= '.xml';
-
         try {
             $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>');
         } catch (\Exception $exception) {

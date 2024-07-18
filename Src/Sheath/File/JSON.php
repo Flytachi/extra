@@ -26,9 +26,6 @@ abstract class JSON
      */
     public static function read(string $path): array
     {
-        $info = pathinfo($path);
-        if (!isset($info['extension']) || $info['extension'] != 'json') $path .= '.json';
-
         if (!file_exists($path) || !is_readable($path))
             throw new FileException('File does not exist or is not readable');
 
@@ -49,8 +46,6 @@ abstract class JSON
      */
     public static function write(string $path, array $data): void
     {
-        $info = pathinfo($path);
-        if (!isset($info['extension']) || $info['extension'] != 'json') $path .= '.json';
         $json = json_encode($data, JSON_PRETTY_PRINT);
 
         if (false === file_put_contents($path, $json))

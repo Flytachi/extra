@@ -30,9 +30,6 @@ abstract class CSV
      */
     public static function read(string $path, string $delimiter = ',', int $rowLength = 1000): array
     {
-        $info = pathinfo($path);
-        if (!isset($info['extension']) || $info['extension'] != 'csv') $path .= '.csv';
-
         if(!file_exists($path) || !is_readable($path))
             throw new FileException('File does not exist or is not readable');
 
@@ -56,14 +53,14 @@ abstract class CSV
      *
      * @param string $path The path to the CSV file.
      * @param array $data The data to be written to the CSV file.
+     * @param array|null $head The head data to be written to the CSV file
      * @return void
      */
-    public static function write(string $path, array $data): void
+    public static function write(string $path, array $data, ?array $head = null): void
     {
-        $info = pathinfo($path);
-        if (!isset($info['extension']) || $info['extension'] != 'csv') $path .= '.csv';
-
         $file = fopen($path, 'w+');
+        if ($head != null) fputcsv($file, $head);
+        else fputcsv($file, array_keys($data[0]));
         foreach ($data as $line) fputcsv($file, (array) $line);
         fclose($file);
     }

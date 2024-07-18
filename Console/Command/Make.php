@@ -39,6 +39,8 @@ class Make extends Cmd
                 $this->createService($templateName);
             if (in_array('r', $this->args['flags']))
                 $this->createRepository($templateName);
+            if (in_array('t', $this->args['flags']))
+                $this->createStore($templateName);
             if (in_array('m', $this->args['flags']))
                 $this->createModel($templateName);
             if (in_array('d', $this->args['flags']))
@@ -49,6 +51,8 @@ class Make extends Cmd
                 $this->createJob($templateName);
             if (in_array('k', $this->args['flags']))
                 $this->createKube($templateName);
+            if (in_array('w', $this->args['flags']))
+                $this->createWebSocket($templateName);
         }
     }
 
@@ -95,7 +99,7 @@ class Make extends Cmd
     {
         $name = $this->ucWord($name) . 'Repository';
         $templatePath = $this->templatePath . '/RepositoryTemplate';
-        $path = $this->getPath('Repositories');
+        $path = $this->getPath('Providers/Repositories');
 
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
@@ -103,6 +107,20 @@ class Make extends Cmd
         $code = str_replace("__tableName__", strtolower(str_replace('Repository', 's', $name)), $code);
 
         $this->createFile($name, $path, $code, 'repository');
+    }
+
+    private function createStore(string $name): void
+    {
+        $name = $this->ucWord($name) . 'Store';
+        $templatePath = $this->templatePath . '/StoreRedisTemplate';
+        $path = $this->getPath('Providers/RStores');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+        $code = str_replace("__dbIndexName__", strtolower(str_replace('Store', '', $name)), $code);
+
+        $this->createFile($name, $path, $code, 'store');
     }
 
     private function createModel(string $name): void
@@ -148,7 +166,7 @@ class Make extends Cmd
     {
         $name = $this->ucWord($name) . 'Job';
         $templatePath = $this->templatePath . '/JobTemplate';
-        $path = $this->getPath('Jobs');
+        $path = $this->getPath('Threads/Jobs');
 
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
@@ -161,13 +179,26 @@ class Make extends Cmd
     {
         $name = $this->ucWord($name) . 'Kube';
         $templatePath = $this->templatePath . '/KubeTemplate';
-        $path = $this->getPath('Jobs');
+        $path = $this->getPath('Threads/Kube');
 
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
         $code = str_replace("__className__", $name, $code);
 
         $this->createFile($name, $path, $code, 'kube');
+    }
+
+    private function createWebSocket(string $name): void
+    {
+        $name = $this->ucWord($name) . 'WebSocket';
+        $templatePath = $this->templatePath . '/WebSocketTemplate';
+        $path = $this->getPath('Threads/Socket');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'socket');
     }
 
 
@@ -216,12 +247,15 @@ class Make extends Cmd
         self::print("", $cl);
         self::print("s - Template Service, prefix Service", $cl);
         self::print("r - Template Repository, prefix Repository", $cl);
+        self::print("t - Template Store, prefix Store", $cl);
         self::print("", $cl);
         self::print("j - Template Job, prefix Job", $cl);
         self::print("k - Template Kube, prefix Kube", $cl);
+        self::print("w - Template WebSocket, prefix WebSocket", $cl);
         self::printMessage("options - additional option", $cl);
         self::print("folder - folder where template will be added (recursive creation is used)", $cl);
 
         self::printTitle("Make Help", $cl);
     }
+
 }
