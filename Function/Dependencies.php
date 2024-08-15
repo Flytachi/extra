@@ -88,3 +88,15 @@ function bytes($bytes, $force_unit = NULL, $format = NULL, $si = TRUE): string
     return sprintf($format, $bytes / pow($mod, $power), $units[$power]);
 }
 
+function callableName(callable $callable): string
+{
+    return match (true) {
+        is_string($callable) && strpos($callable, '::') => '[static] ' . $callable,
+        is_string($callable) => '[function] ' . $callable,
+        is_array($callable) && is_object($callable[0]) => '[method] ' . get_class($callable[0])  . '->' . $callable[1],
+        is_array($callable) => '[static] ' . $callable[0]  . '::' . $callable[1],
+        $callable instanceof Closure => '[closure]',
+        is_object($callable) => '[invokable] ' . get_class((object) $callable),
+        default => '[unknown]'
+    };
+}
