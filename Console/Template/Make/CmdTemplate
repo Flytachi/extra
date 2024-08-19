@@ -1,0 +1,15 @@
+<?php
+
+namespace Command;
+
+use Extra\Console\Inc\CmdCustom;
+
+class __className__ extends CmdCustom
+{
+
+    public function handle(): void
+    {
+        self::print(self::class , 32);
+        self::printMessage('Script called', 32);
+    }
+}

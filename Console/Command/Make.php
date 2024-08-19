@@ -53,6 +53,8 @@ class Make extends Cmd
                 $this->createKube($templateName);
             if (in_array('w', $this->args['flags']))
                 $this->createWebSocket($templateName);
+            if (in_array('n', $this->args['flags']))
+                $this->createCmd($templateName);
         }
     }
 
@@ -201,6 +203,18 @@ class Make extends Cmd
         $this->createFile($name, $path, $code, 'socket');
     }
 
+    private function createCmd(string $name): void
+    {
+        $name = $this->ucWord($name);
+        $templatePath = $this->templatePath . '/CmdTemplate';
+        $path = $this->getPath('Command');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'cmd');
+    }
+
 
     private function createFile(string $fName, string $path, string $code = "", ?string $prefix = null): void
     {
@@ -252,6 +266,8 @@ class Make extends Cmd
         self::print("j - Template Job, prefix Job", $cl);
         self::print("k - Template Kube, prefix Kube", $cl);
         self::print("w - Template WebSocket, prefix WebSocket", $cl);
+        self::print("", $cl);
+        self::print("n - Template CustomCmd, dont prefix", $cl);
         self::printMessage("options - additional option", $cl);
         self::print("folder - folder where template will be added (recursive creation is used)", $cl);
 
