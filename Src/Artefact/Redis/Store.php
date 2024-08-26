@@ -7,7 +7,7 @@ use Extra\Src\Artefact\Aegis;
 /**
  * It is an abstract class for processing data storage operations in Redis.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
 abstract class Store
@@ -17,7 +17,7 @@ abstract class Store
 
     protected static function init(?int $dbIndex = null): \Redis
     {
-        if ($dbIndex !== null) Aegis::store(self::$shardKey)->select($dbIndex);
-        return Aegis::store(self::$shardKey);
+        if ($dbIndex !== null) Aegis::store(static::$shardKey)->select($dbIndex);
+        return Aegis::store(static::$shardKey);
     }
 }
