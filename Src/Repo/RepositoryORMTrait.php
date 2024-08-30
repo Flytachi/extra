@@ -23,7 +23,7 @@ namespace Extra\Src\Repo;
  * - `limit(int $limit, int $offset = 0): Repository`: Sets a "LIMIT" clause, with an optional offset.
  * - `forBy(string $context): Repository`: Sets an "FOR" clause.
  *
- * @version 1.2
+ * @version 1.3
  * @author Flytachi
  */
 trait RepositoryORMTrait
@@ -94,16 +94,18 @@ trait RepositoryORMTrait
     }
 
     /**
-     * @param BKB $bkb
+     * @param null|BKB $bkb
      * @return Repository
      */
-    final public function where(BKB $bkb): Repository
+    final public function where(?BKB $bkb): Repository
     {
-        if ($bkb->getQuery()){
-            $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
-            if (array_key_exists('binds', $this->CRD_SQL)) {
-                $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
-            } else $this->CRD_SQL['binds'] = $bkb->getCache();
+        if (!is_null($bkb)) {
+            if ($bkb->getQuery()){
+                $this->CRD_SQL['where'] = 'WHERE ' . $bkb->getQuery();
+                if (array_key_exists('binds', $this->CRD_SQL)) {
+                    $this->CRD_SQL['binds'] = [...$this->CRD_SQL['binds'], ...$bkb->getCache()];
+                } else $this->CRD_SQL['binds'] = $bkb->getCache();
+            }
         }
         return $this;
     }
