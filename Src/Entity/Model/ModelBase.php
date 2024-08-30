@@ -19,7 +19,7 @@ use TypeError;
  * - `__construct(): void`: Default constructor of the model.
  * - `arrayToObject(?array $data = null): void`: A static function that creates a model instance from an associative array of data.
  *
- * @version 16.0
+ * @version 16.1
  * @author Flytachi
  */
 #[Attribute]
@@ -36,34 +36,6 @@ class ModelBase extends \stdClass
      * Model constructor
      */
     function __construct() {}
-
-    /**
-     * Convert an array to an object.
-     *
-     * @param array|null $data The array containing the data to convert.
-     * @throws TypeError If a key in the array does not exist as a property in the instance.
-     */
-    public static function arrayToObject(?array $data = null): void
-    {
-        if ($data) {
-            try {
-                $instance = new static();
-                $properties = get_object_vars($instance); // retrieve properties of the instance
-
-                foreach ($data as $key => $value) {
-                    if (!array_key_exists($key, $properties))
-                        throw new TypeError("Not key '" . $key . "' in " . get_class($instance));
-                    $instance->{$key} = $value;
-                    unset($properties[$key]);
-                }
-                foreach ($properties as $property => $type) {
-                    if (isset($instance->{$property})) unset($properties[$property]);
-                }
-            } catch (\Throwable $exception) {
-                EntityError::throw(HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage());
-            }
-        }
-    }
 
     public static function selection(): array
     {
