@@ -1,0 +1,42 @@
+<?php
+
+namespace Extra\Src\Factory\Router\Common;
+
+use Extra\Src\Controller\ApiBase;
+use Extra\Src\Controller\ControllerBase;
+use Extra\Src\Factory\Router\RouteError;
+use Extra\Src\HttpCode;
+
+trait RouterDependence
+{
+    protected final static function splitUrlAndParams(string $url): array
+    {
+        $parsedUrl = parse_url($url);
+        $urlWithoutParams = $parsedUrl['path'];
+        $params = [];
+        if (isset($parsedUrl['query'])) parse_str($parsedUrl['query'], $params);
+
+        return [
+            'url' => $urlWithoutParams,
+            'params' => $params
+        ];
+    }
+
+    /**
+     * @param array{class: class-string<ApiBase>|class-string<ControllerBase>, method: string} $action
+     * @param array<int, string> $params
+     * @param string $stringUrl
+     * @return mixed
+     */
+    protected final static function callNodeAction(array $action, array $params = [], string $stringUrl = ''): mixed
+    {
+        $controller = new $action['class']();
+        $methods = get_class_methods($controller);
+
+        if (!in_array($action['method'], $methods)) RouteError::throw(HttpCode::NOT_FOUND,
+            "{$stringUrl} url not found");
+
+        return call_user_func_array([$controller, $action['method']], $params);
+    }
+
+}

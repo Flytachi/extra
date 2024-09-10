@@ -3,9 +3,9 @@
 namespace Extra\Src\Controller;
 
 use Extra\Src\Entity\Request\Request;
+use Extra\Src\Factory\Response\Response;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Route\Response;
 
 /**
  * Class ApiBase

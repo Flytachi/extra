@@ -2,9 +2,9 @@
 
 namespace Extra\Src\Controller;
 
+use Extra\Src\Factory\Router\Router;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
-use Extra\Src\Route\Route;
 
 /**
  * Class ControllerBase
@@ -188,7 +188,7 @@ abstract class ControllerBase
     protected function prepareAuth(bool $redirect = false): void
     {
         if ($redirect) {
-            if (empty($_SESSION['id'])) Route::redirect('auth/login');
+            if (empty($_SESSION['id'])) Router::redirect('auth/login');
         } else {
             if (empty($_SESSION['id'])) ControllerError::throw(HttpCode::LOCKED, 'You are not authorized');
         }

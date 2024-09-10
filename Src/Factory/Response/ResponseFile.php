@@ -1,8 +1,7 @@
 <?php
 
-namespace Extra\Src\Route;
+namespace Extra\Src\Factory\Response;
 
-use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Sheath\File\XML;
 
