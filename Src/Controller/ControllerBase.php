@@ -2,6 +2,7 @@
 
 namespace Extra\Src\Controller;
 
+use Extra\Src\Controller\Common\ControllerInterface;
 use Extra\Src\Factory\Router\Router;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
@@ -21,7 +22,7 @@ use Extra\Src\Log\Log;
  * @version 12.0
  * @author Flytachi
  */
-abstract class ControllerBase
+abstract class ControllerBase implements ControllerInterface
 {
     /** @var string $template the path to the template */
     public string $template = 'template.php';

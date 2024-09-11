@@ -33,8 +33,8 @@ trait RouterDependence
         $controller = new $action['class']();
         $methods = get_class_methods($controller);
 
-        if (!in_array($action['method'], $methods)) RouteError::throw(HttpCode::NOT_FOUND,
-            "{$stringUrl} url not found");
+        if (!in_array($action['method'], $methods)) RouteError::throw(HttpCode::BAD_GATEWAY,
+            "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found");
 
         return call_user_func_array([$controller, $action['method']], $params);
     }

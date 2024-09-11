@@ -88,7 +88,6 @@ trait RouterRequest
      */
     public static function request(string $route, string $class, string $classMethod = 'index', ?Method $method = null): void
     {
-        if (!isset(self::$root)) self::$root = new RouteNode;
         if (!is_subclass_of($class, ApiBase::class) && !is_subclass_of($class, ControllerBase::class)) {
             throw new \InvalidArgumentException("Class must be a subclass of ApiBase or ControllerBase");
         }

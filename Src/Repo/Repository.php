@@ -38,7 +38,7 @@ class Repository
     use RepositoryORMTrait;
     /** @var string $shardKey Aegis shard key (default => 'db') */
     protected static string $shardKey = 'db';
-    /** @var string $modelClassName model class name (default => ModelBase::class) */
+    /** @var class-string $modelClassName model class name (default => ModelBase::class) */
     protected string $modelClassName = ModelBase::class;
     /** @var bool $isReadonly readonly status (block writing permission) */
     protected bool $isReadonly = false;

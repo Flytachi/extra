@@ -17,7 +17,7 @@ use Extra\Src\Log\Log;
  * - `jsonMessage(HttpCode $httpCode, string $message = ''): never`: Sends a JSON response with a status code and a message.
  * - `text(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never`: Sends a plain text response with a status code. If the `$htmlEntities` flag gets set to true, the `$text` will be escaped using `htmlentities`.
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
 class Response
@@ -96,13 +96,15 @@ class Response
     {
         if (env('DEBUG', false)) {
             $delta = round(microtime(true) - EXTRA_STARTUP_TIME, 3);
+            $memory = memory_get_usage();
+
             return [
                 'debug' => [
                     'time' => ($delta < 0.001) ? 0.001 : $delta,
                     'date' => date(DATE_ATOM),
                     'timezone' => env('TIME_ZONE', 'UTC'),
                     'sapi' => PHP_SAPI,
-                    'memory' => bytes(memory_get_usage(), 'MiB'),
+                    'memory' => bytes($memory, ($memory >= 1048576 ? 'MiB' : 'KiB')),
                 ]
             ];
         } else return [];

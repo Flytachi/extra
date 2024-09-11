@@ -2,6 +2,7 @@
 
 namespace Extra\Src\Controller;
 
+use Extra\Src\Controller\Common\ControllerInterface;
 use Extra\Src\Entity\Request\Request;
 use Extra\Src\Factory\Response\Response;
 use Extra\Src\HttpCode;
@@ -27,7 +28,7 @@ use Extra\Src\Log\Log;
  * @version 9.5
  * @author Flytachi
  */
-abstract class ApiBase
+abstract class ApiBase implements ControllerInterface
 {
     /** @var bool $isSecure check request header data */
     protected bool $isSecure = false;

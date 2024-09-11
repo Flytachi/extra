@@ -100,3 +100,24 @@ function callableName(callable $callable): string
         default => '[unknown]'
     };
 }
+
+function scanFindAllFile(string $rootDir, ?string $extension = null): array
+{
+    $files = [];
+
+    // Получаем все файлы и директории
+    $items = glob($rootDir . '/*');
+
+    foreach ($items as $item) {
+        if (is_dir($item)) {
+            // Рекурсивный вызов для поддиректорий
+            $files = array_merge($files, scanFindAllFile($item));
+        } else {
+            if ($extension != null && pathinfo($item, PATHINFO_EXTENSION) === 'php') {
+                $files[] = $item;
+            } elseif($extension == null) $files[] = $item;
+        }
+    }
+
+    return $files;
+}

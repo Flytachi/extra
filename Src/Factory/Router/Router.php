@@ -7,6 +7,7 @@ use Extra\Src\Artefact\CDO\CDOError;
 use Extra\Src\Controller\Method;
 use Extra\Src\Entity\Request\Request;
 use Extra\Src\Error\ExtraException;
+use Extra\Src\Factory\Mapping\Mapping;
 use Extra\Src\Factory\Router\Common\RouteNode;
 use Extra\Src\Factory\Router\Common\RouterDependence;
 use Extra\Src\Factory\Router\Common\RouterInterface;
@@ -40,10 +41,18 @@ abstract class Router implements RouterInterface
     private static RouteNode $root;
     private static ?string $groupPrefix = null;
 
-    public final static function run(): void
+    public final static function run(string $routePath): void
     {
         Request::setHeaders();
+        self::$root = new RouteNode;
+        self::importMapping($routePath);
         self::route();
+    }
+
+    private static function importMapping(string $routePath): void
+    {
+        if (!file_exists($routePath)) Mapping::scanning();
+        require $routePath;
     }
 
     private static function route(): void

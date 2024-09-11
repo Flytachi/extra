@@ -20,7 +20,7 @@ use Extra\Src\Log\Log;
  * - `getThrowableJson(): string`: Generates the JSON representation of the exception.
  * - `forThrow(array|string &$message, Throwable $throwable): void`: Constructs and collects the exception stack trace.
  *
- * @version 2.0
+ * @version 2.1
  * @author Flytachi
  */
 abstract class ExtraException extends \Exception implements ErrorInterface
@@ -51,13 +51,14 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             $this->forThrow($message, $this);
 
             $delta = round(microtime(true)-$_SERVER['REQUEST_TIME'], 3);
+            $memory = memory_get_usage();
             return [
                 'debug' => [
                     'time' => ($delta < 0.001) ? 0.001 : $delta,
                     'date' => date(DATE_ATOM),
                     'timezone' => env('TIME_ZONE', 'UTC'),
                     'sapi' => PHP_SAPI,
-                    'memory' => bytes(memory_get_usage(), 'MiB'),
+                    'memory' => bytes($memory, ($memory >= 1048576 ? 'MiB' : 'KiB')),
                 ],
                 'exception' => $message
             ];

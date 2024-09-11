@@ -9,6 +9,7 @@ define('PATH_APP', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app');
 define('PATH_PUBLIC', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'public');
 define('PATH_STORAGE', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage');
 define('ENV_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env');
+define('ROUTE_FILE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app/routes.php');
 
 // Storage
 const PATH_CACHE = PATH_STORAGE . DIRECTORY_SEPARATOR . 'cache';
