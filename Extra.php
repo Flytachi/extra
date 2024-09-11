@@ -19,7 +19,7 @@ use Extra\Src\HttpCode;
  * - `warningHandler($severity, $message, $file, $line): void`: Error handler for managing PHP warnings.
  * - `loadFunction(): void`: Loads all available functions from the Function directory.
  *
- * @version 4.7
+ * @version 5.0
  * @author Flytachi
  */
 class Extra

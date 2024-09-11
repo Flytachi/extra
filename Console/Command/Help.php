@@ -24,7 +24,7 @@ class Help extends Cmd
     public function list(): void
     {
         self::printTitle("Extra Help", 34);
-        self::print("Extra Version: 4.7", 34);
+        self::print("Extra Version: 5.0", 34);
         self::print("PHP Version: " . PHP_VERSION, 34);
         self::print("OS: " . PHP_OS_FAMILY . DIRECTORY_SEPARATOR . PHP_OS, 34);
         self::print("SAPI: " . PHP_SAPI, 34);
