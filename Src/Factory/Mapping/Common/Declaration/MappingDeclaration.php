@@ -4,19 +4,19 @@ namespace Extra\Src\Factory\Mapping\Common\Declaration;
 
 class MappingDeclaration
 {
-    private string $name;
+    private string $title;
     /**
      * @var array<MappingDeclarationGroup|MappingDeclarationItem>
      */
     private array $children = [];
 
     /**
-     * @param string $name
+     * @param string $title
      * @param MappingDeclarationGroup[]|MappingDeclarationGroup|MappingDeclarationItem[]|MappingDeclarationItem $children
      */
-    public function __construct(string $name, array $children = [])
+    public function __construct(string $title, array $children = [])
     {
-        $this->name = $name;
+        $this->title = $title;
         $this->children = $children;
     }
 
@@ -35,9 +35,14 @@ class MappingDeclaration
 
     public function getMettaData(): string
     {
-        $mettaData = "// " . $this->name . PHP_EOL;
+        $mettaData = "// " . $this->title . PHP_EOL;
         foreach ($this->children as $child) $mettaData .= $child->getMettaData();
         return $mettaData;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 
 }

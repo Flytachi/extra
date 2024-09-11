@@ -41,7 +41,7 @@ abstract class Router implements RouterInterface
     private static RouteNode $root;
     private static ?string $groupPrefix = null;
 
-    public final static function run(string $routePath): void
+    public final static function run(false|string $routePath): void
     {
         Request::setHeaders();
         self::$root = new RouteNode;
@@ -49,10 +49,13 @@ abstract class Router implements RouterInterface
         self::route();
     }
 
-    private static function importMapping(string $routePath): void
+    private static function importMapping(false|string $routePath): void
     {
-        if (!file_exists($routePath)) Mapping::scanning();
-        require $routePath;
+        if ($routePath === false) Mapping::scanning(false);
+        else {
+            if (!file_exists($routePath)) Mapping::scanning();
+            require $routePath;
+        }
     }
 
     private static function route(): void

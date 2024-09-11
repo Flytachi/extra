@@ -28,10 +28,11 @@ use ReflectionMethod;
  */
 class Mapping
 {
-    public static function scanning(): void
+    public static function scanning(bool $cashing = true): void
     {
         $declarations = self::scanningDeclaration();
-        self::routeInit($declarations);
+        if ($cashing) self::routeInit($declarations);
+        else self::routeExecute($declarations);
     }
 
     /**
@@ -84,6 +85,7 @@ class Mapping
                     /** @var MappingRequestInterface $mappingGroup */
                     $mappingGroup = $annotation->newInstance();
                     $declarationGroup = new MappingDeclarationGroup($mappingGroup->getUrl());
+                    $declaration->setTitle($mappingGroup->getTitle());
                 }
             }
 
@@ -104,7 +106,8 @@ class Mapping
                             $mapping = $annotation->newInstance();
                             $declarationItem = new MappingDeclarationItem(
                                 $mapping->getCallback(), $mapping->getUrl(),
-                                $reflectionClass->getName(), $reflectionMethod->getName()
+                                $reflectionClass->getName(), $reflectionMethod->getName(),
+                                $mapping->getTitle()
                             );
                             if ($declarationGroup != null) $declarationGroup->push($declarationItem);
                             else $declaration->push($declarationItem);
@@ -133,7 +136,6 @@ class Mapping
             . PHP_EOL . " */" . PHP_EOL . PHP_EOL;
         $mettaData .= "use " . Router::class . ";" . PHP_EOL . PHP_EOL;
 
-
         foreach ($declarations as $declaration) $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
         $mettaData = trim($mettaData);
 
@@ -145,6 +147,18 @@ class Mapping
         } else {
             MappingError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Не удалось");
         }
+    }
+
+    /**
+     * @param array<MappingDeclaration> $declarations
+     * @return void
+     */
+    private static function routeExecute(array $declarations): void
+    {
+        $mettaData = "use " . Router::class . ";" . PHP_EOL;
+        foreach ($declarations as $declaration) $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
+        $mettaData = trim($mettaData);
+        eval($mettaData);
     }
 
 }
