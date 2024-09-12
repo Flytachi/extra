@@ -1,11 +1,8 @@
 <?php
 
-namespace Extra\Src\Entity\Model;
+namespace Extra\Src\Factory\Entity\Model;
 
 use Attribute;
-use Extra\Src\Entity\EntityError;
-use Extra\Src\HttpCode;
-use TypeError;
 
 /**
  * Class ModelBase

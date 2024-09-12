@@ -5,8 +5,8 @@ namespace Extra\Src\Factory\Router;
 use Extra\Src\Artefact\ArtefactError;
 use Extra\Src\Artefact\CDO\CDOError;
 use Extra\Src\Controller\Method;
-use Extra\Src\Entity\Request\Request;
 use Extra\Src\Error\ExtraException;
+use Extra\Src\Factory\Entity\Request\Request;
 use Extra\Src\Factory\Mapping\Mapping;
 use Extra\Src\Factory\Router\Common\RouteNode;
 use Extra\Src\Factory\Router\Common\RouterDependence;
@@ -60,7 +60,7 @@ abstract class Router implements RouterInterface
 
     private static function route(): void
     {
-        Log::trace("Route uri:" . $_SERVER['REQUEST_URI']);
+        Log::debug('Route: ' . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . ' IP: ' . $_SERVER['REMOTE_ADDR']);
         $data = self::splitUrlAndParams($_SERVER['REQUEST_URI']);
         $_GET = $data['params'];
 

@@ -6,4 +6,7 @@
 require 'Extra/Extra.php';
 
 Extra\Extra::init();
-Extra\Src\Factory\Router\Router::run(ROUTE_FILE_PATH);
+Extra\Src\Factory\Router\Router::run(
+//    ROUTE_PATH
+    false
+);

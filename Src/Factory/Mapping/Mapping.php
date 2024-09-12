@@ -140,7 +140,7 @@ class Mapping
         $mettaData = trim($mettaData);
 
         // write
-        $file = fopen(ROUTE_FILE_PATH, 'w');
+        $file = fopen(ROUTE_PATH, 'w');
         if ($file) {
             fwrite($file, $mettaData);
             fclose($file);

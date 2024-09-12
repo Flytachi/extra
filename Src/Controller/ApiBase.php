@@ -3,7 +3,7 @@
 namespace Extra\Src\Controller;
 
 use Extra\Src\Controller\Common\ControllerInterface;
-use Extra\Src\Entity\Request\Request;
+use Extra\Src\Factory\Entity\Request\Request;
 use Extra\Src\Factory\Response\Response;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
@@ -30,9 +30,6 @@ use Extra\Src\Log\Log;
  */
 abstract class ApiBase implements ControllerInterface
 {
-    /** @var bool $isSecure check request header data */
-    protected bool $isSecure = false;
-
     /**
      * Constructor
      *
@@ -40,58 +37,6 @@ abstract class ApiBase implements ControllerInterface
      */
     function __construct()
     {
-        $this->AuthorizationCORS();
-        $this->AuthorizationHeader();
-    }
-
-    /**
-     * Authorization CORS
-     *
-     * @return void
-     */
-    private function AuthorizationCORS(): void
-    {
-        Log::trace('Api authorization: CORS');
-        if ($_SERVER['REQUEST_METHOD'] == Method::OPTIONS->name) $this->responseOk();
-    }
-
-    /**
-     * Authorization Header
-     *
-     * @return void
-     */
-    private function AuthorizationHeader(): void
-    {
-        Log::trace('Api authorization: Header');
-        if ($this->isSecure && !Request::getHeader('Authorization'))
-            ControllerError::throw(HttpCode::BAD_REQUEST, 'The request is missing header data.');
-    }
-
-
-    /**
-     * Bearer Token
-     *
-     * @return string|null
-     */
-    final protected function getBearerToken(): string|null
-    {
-        if ($auth = Request::getHeader('Authorization')) {
-            if (preg_match('/Bearer\s(\S+)/', $auth, $matches)) return $matches[1];
-            else return null;
-        } else return null;
-    }
-
-    /**
-     * Basic Token
-     *
-     * @return string|null
-     */
-    final protected function getBasicToken(): string|null
-    {
-        if ($auth = Request::getHeader('Authorization')) {
-            if (preg_match('/Basic\s(\S+)/', $auth, $matches)) return base64_decode($matches[1]);
-            else return null;
-        } else return null;
     }
 
     /**

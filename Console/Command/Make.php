@@ -60,6 +60,7 @@ class Make extends Cmd
 
     private function createApiController(string $name): void
     {
+        $shortName = $name;
         $name = $this->ucWord($name) . 'Controller';
         $templatePath = $this->templatePath . '/ApiTemplate';
         $path = $this->getPath('Controllers');
@@ -67,12 +68,14 @@ class Make extends Cmd
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
         $code = str_replace("__className__", $name, $code);
+        $code = str_replace("__shortName__", lcfirst($shortName), $code);
 
         $this->createFile($name, $path, $code, 'api');
     }
 
     private function createController(string $name): void
     {
+        $shortName = $name;
         $name = $this->ucWord($name) . 'Controller';
         $templatePath = $this->templatePath . '/ControllerTemplate';
         $path = $this->getPath('Controllers');
@@ -80,6 +83,7 @@ class Make extends Cmd
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
         $code = str_replace("__className__", $name, $code);
+        $code = str_replace("__shortName__", lcfirst($shortName), $code);
 
         $this->createFile($name, $path, $code, 'controller');
     }

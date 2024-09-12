@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Error;
 
-use Extra\Src\Entity\Request\Request;
+use Extra\Src\Factory\Entity\Request\Request;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 

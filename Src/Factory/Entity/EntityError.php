@@ -1,6 +1,6 @@
 <?php
 
-namespace Extra\Src\Entity;
+namespace Extra\Src\Factory\Entity;
 
 use Extra\Src\Error\ErrorLogTrait;
 use Extra\Src\Error\ExtraException;

@@ -4,7 +4,7 @@ namespace Extra\Src\Artefact\CDO;
 
 use Extra\Src\Artefact\Mechanism\Shard;
 use Extra\Src\Artefact\Type\Type;
-use Extra\Src\Entity\Model\ModelInterface;
+use Extra\Src\Factory\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use Extra\Src\Repo\BKB;

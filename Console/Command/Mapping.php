@@ -35,10 +35,10 @@ class Mapping extends Cmd
     private function showArg(): void
     {
         try {
-            if (file_exists(ROUTE_FILE_PATH))
-                self::printMessage("File: ". ROUTE_FILE_PATH, 32);
+            if (file_exists(ROUTE_PATH))
+                self::printMessage("File: ". ROUTE_PATH, 32);
             else
-                self::printMessage(basename(ROUTE_FILE_PATH) . " is not build.");
+                self::printMessage(basename(ROUTE_PATH) . " is not build.");
             $declarations = \Extra\Src\Factory\Mapping\Mapping::scanningDeclaration();
             foreach ($declarations as $declaration)
                 self::printSplit($declaration->getMettaData(), 34);
@@ -55,7 +55,7 @@ class Mapping extends Cmd
     private function buildIsNotExistArg(): void
     {
         try {
-            if (!file_exists(ROUTE_FILE_PATH)) {
+            if (!file_exists(ROUTE_PATH)) {
                 \Extra\Src\Factory\Mapping\Mapping::scanning();
                 self::printMessage("Mapping build success.", 32);
             }
@@ -88,11 +88,11 @@ class Mapping extends Cmd
     private function cleanArg(): void
     {
         try {
-            if (file_exists(ROUTE_FILE_PATH)) {
-                unlink(ROUTE_FILE_PATH);
+            if (file_exists(ROUTE_PATH)) {
+                unlink(ROUTE_PATH);
                 self::printMessage("Mapping clean success.", 32);
             }
-            else self::printMessage(basename(ROUTE_FILE_PATH) . " is not exists.");
+            else self::printMessage(basename(ROUTE_PATH) . " is not exists.");
         } catch (\Throwable $e) {
             self::printMessage("Mapping clean failed", 31);
             if (env('DEBUG')) {

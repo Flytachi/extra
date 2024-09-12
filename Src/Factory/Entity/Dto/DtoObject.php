@@ -1,8 +1,8 @@
 <?php
 
-namespace Extra\Src\Entity\Dto;
+namespace Extra\Src\Factory\Entity\Dto;
 
-use Extra\Src\Entity\Entity;
+use Extra\Src\Factory\Entity\Entity;
 
 
 /**

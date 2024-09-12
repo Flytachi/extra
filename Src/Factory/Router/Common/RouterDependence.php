@@ -36,7 +36,14 @@ trait RouterDependence
         if (!in_array($action['method'], $methods)) RouteError::throw(HttpCode::BAD_GATEWAY,
             "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found");
 
-        return call_user_func_array([$controller, $action['method']], $params);
+        try {
+            return call_user_func_array([$controller, $action['method']], $params);
+        } catch (\TypeError $exception) {
+            $temp = $controller::class . "::" . $action['method'] . '():';
+            if (str_starts_with($exception->getMessage(), $temp)) RouteError::throw(
+                HttpCode::BAD_REQUEST, str_replace($temp . " ", '', $exception->getMessage()));
+            else throw $exception;
+        }
     }
 
 }

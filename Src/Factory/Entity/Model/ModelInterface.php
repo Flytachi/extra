@@ -1,6 +1,6 @@
 <?php
 
-namespace Extra\Src\Entity\Model;
+namespace Extra\Src\Factory\Entity\Model;
 
 interface ModelInterface
 {

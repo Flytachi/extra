@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Service;
 
-use Extra\Src\Entity\Model\ModelInterface;
+use Extra\Src\Factory\Entity\Model\ModelInterface;
 use Extra\Src\Repo\BKB;
 use Extra\Src\Repo\Repository;
 

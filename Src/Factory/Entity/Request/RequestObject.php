@@ -1,9 +1,9 @@
 <?php
 
-namespace Extra\Src\Entity\Request;
+namespace Extra\Src\Factory\Entity\Request;
 
-use Extra\Src\Entity\Entity;
-use Extra\Src\Entity\EntityError;
+use Extra\Src\Factory\Entity\Entity;
+use Extra\Src\Factory\Entity\EntityError;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 

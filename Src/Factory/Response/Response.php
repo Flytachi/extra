@@ -17,7 +17,7 @@ use Extra\Src\Log\Log;
  * - `jsonMessage(HttpCode $httpCode, string $message = ''): never`: Sends a JSON response with a status code and a message.
  * - `text(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never`: Sends a plain text response with a status code. If the `$htmlEntities` flag gets set to true, the `$text` will be escaped using `htmlentities`.
  *
- * @version 1.1
+ * @version 1.2
  * @author Flytachi
  */
 class Response
@@ -33,7 +33,7 @@ class Response
     {
         self::setHeaders($httpCode, 'application/json');
 
-        Log::trace($_SERVER['REQUEST_URI'] . '[' . $httpCode->value .  '] => ' . json_encode($data));
+        Log::trace($_SERVER['REQUEST_METHOD'] . ' [' . $httpCode->value . '] ' . $_SERVER['REQUEST_URI'] . ' => ' . json_encode($data));
         echo json_encode([
             'statusCode' => $httpCode->value,
             'statusDescription' => $httpCode->message(),
@@ -54,7 +54,7 @@ class Response
     {
         self::setHeaders($httpCode, 'application/json');
 
-        Log::trace($_SERVER['REQUEST_URI'] . '[' . $httpCode->value . '] => ' . $message);
+        Log::trace($_SERVER['REQUEST_METHOD'] . ' [' . $httpCode->value . '] ' . $_SERVER['REQUEST_URI'] . ' => ' . $message);
         echo json_encode([
             'statusCode' => $httpCode->value,
             'statusDescription' => $httpCode->message(),
@@ -76,7 +76,7 @@ class Response
     {
         self::setHeaders($httpCode, 'text/plain');
 
-        Log::trace($_SERVER['REQUEST_URI'] . '[' . $httpCode->value . '] => ' . $text);
+        Log::trace($_SERVER['REQUEST_METHOD'] . ' [' . $httpCode->value . '] ' . $_SERVER['REQUEST_URI'] . ' => ' . $text);
         echo ($htmlEntities) ? htmlentities($text) : $text;
         die;
     }
