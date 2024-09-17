@@ -26,8 +26,19 @@ class MappingDeclarationItem
         $this->classTitle = $classTitle;
     }
 
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
     public function getMettaData(): string
     {
         return "Router::{$this->method}('{$this->url}', {$this->className}::class, '{$this->classMethod}'); // {$this->classTitle}" . PHP_EOL;
     }
+
 }

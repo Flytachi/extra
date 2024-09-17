@@ -15,6 +15,7 @@ use Extra\Src\Factory\Mapping\Common\Declaration\MappingDeclarationItem;
 use Extra\Src\Factory\Mapping\Common\MappingRequestInterface;
 use Extra\Src\Factory\Router\Router;
 use Extra\Src\HttpCode;
+use Extra\Src\Log\Log;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -30,15 +31,15 @@ class Mapping
 {
     public static function scanning(bool $cashing = true): void
     {
-        $declarations = self::scanningDeclaration();
-        if ($cashing) self::routeInit($declarations);
-        else self::routeExecute($declarations);
+        $declaration = self::scanningDeclaration();
+        if ($cashing) self::routeInit($declaration);
+        else self::routeExecute($declaration);
     }
 
     /**
-     * @return MappingDeclaration[]
+     * @return MappingDeclaration
      */
-    public static function scanningDeclaration(): array
+    public static function scanningDeclaration(): MappingDeclaration
     {
         $resources = scanFindAllFile(PATH_APP . "/Controllers");
         $reflectionClasses = self::scanReflectionFilter($resources);
@@ -63,18 +64,20 @@ class Mapping
 
     /**
      * @param array<ReflectionClass> $reflectionClasses
-     * @return array<MappingDeclaration>
+     * @return MappingDeclaration
      */
-    private static function scanDeclarationFilter(array $reflectionClasses): array
+    private static function scanDeclarationFilter(array $reflectionClasses): MappingDeclaration
     {
-        $declarations = [];
+        $declaration = new MappingDeclaration();
+
         foreach ($reflectionClasses as $reflectionClass) {
-            $declaration = new MappingDeclaration(lcfirst(str_replace('Controller', '', $reflectionClass->getShortName())));
             $declarationGroup = null;
 
             // group annotation
-            foreach ($reflectionClass->getAttributes() as $annotation) {
-                if (in_array($annotation->getName(), [
+            $groupAnnotation = $reflectionClass->getAttributes(RequestMapping::class);
+            if (isset($groupAnnotation[0])) {
+                $groupAnnotation = $groupAnnotation[0];
+                if (in_array($groupAnnotation->getName(), [
                     DeleteMapping::class,
                     GetMapping::class,
                     PatchMapping::class,
@@ -83,9 +86,8 @@ class Mapping
                     RequestMapping::class,
                 ])) {
                     /** @var MappingRequestInterface $mappingGroup */
-                    $mappingGroup = $annotation->newInstance();
-                    $declarationGroup = new MappingDeclarationGroup($mappingGroup->getUrl());
-                    $declaration->setTitle($mappingGroup->getTitle());
+                    $mappingGroup = $groupAnnotation->newInstance();
+                    $declarationGroup = new MappingDeclarationGroup($mappingGroup->getTitle(), $mappingGroup->getUrl());
                 }
             }
 
@@ -117,17 +119,16 @@ class Mapping
             }
 
             if ($declarationGroup != null) $declaration->push($declarationGroup);
-            if (!empty($declaration->getChildren())) $declarations[] = $declaration;
         }
 
-        return $declarations;
+        return $declaration;
     }
 
     /**
-     * @param array<MappingDeclaration> $declarations
+     * @param MappingDeclaration $declaration
      * @return void
      */
-    private static function routeInit(array $declarations): void
+    private static function routeInit(MappingDeclaration $declaration): void
     {
         $mettaData = "<?php" . PHP_EOL . PHP_EOL;
         $mettaData .= "/**" . PHP_EOL . " * Router configurations"
@@ -136,7 +137,7 @@ class Mapping
             . PHP_EOL . " */" . PHP_EOL . PHP_EOL;
         $mettaData .= "use " . Router::class . ";" . PHP_EOL . PHP_EOL;
 
-        foreach ($declarations as $declaration) $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
+        $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
         $mettaData = trim($mettaData);
 
         // write
@@ -150,13 +151,13 @@ class Mapping
     }
 
     /**
-     * @param array<MappingDeclaration> $declarations
+     * @param MappingDeclaration $declaration
      * @return void
      */
-    private static function routeExecute(array $declarations): void
+    private static function routeExecute(MappingDeclaration $declaration): void
     {
         $mettaData = "use " . Router::class . ";" . PHP_EOL;
-        foreach ($declarations as $declaration) $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
+        $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
         $mettaData = trim($mettaData);
         eval($mettaData);
     }

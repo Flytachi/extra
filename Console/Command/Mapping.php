@@ -39,9 +39,8 @@ class Mapping extends Cmd
                 self::printMessage("File: ". ROUTE_PATH, 32);
             else
                 self::printMessage(basename(ROUTE_PATH) . " is not build.");
-            $declarations = \Extra\Src\Factory\Mapping\Mapping::scanningDeclaration();
-            foreach ($declarations as $declaration)
-                self::printSplit($declaration->getMettaData(), 34);
+            $declaration = \Extra\Src\Factory\Mapping\Mapping::scanningDeclaration();
+            self::printSplit($declaration->getMettaData(), 34);
         } catch (\Throwable $e) {
             self::printMessage("Mapping clean failed", 31);
             if (env('DEBUG')) {

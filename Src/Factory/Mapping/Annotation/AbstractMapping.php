@@ -28,7 +28,7 @@ abstract class AbstractMapping implements MappingRequestInterface
 
     public function getUrl(): string
     {
-        return $this->url;
+        return trim($this->url, '/');
     }
 
     public function getTitle(): string

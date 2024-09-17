@@ -39,7 +39,7 @@ abstract class Router implements RouterInterface
 {
     use RouterDependence, RouterRequest;
     private static RouteNode $root;
-    private static ?string $groupPrefix = null;
+    private static array $groupPrefix = [];
 
     public final static function run(false|string $routePath): void
     {

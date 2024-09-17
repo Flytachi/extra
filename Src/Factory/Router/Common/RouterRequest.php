@@ -19,9 +19,9 @@ trait RouterRequest
     public static function group(array $attributes, callable $routes): void
     {
         $prefix = $attributes['prefix'] ?? '';
-        self::$groupPrefix = trim($prefix, '/');
+        if ($prefix) self::$groupPrefix[] = trim($prefix, '/');
         $routes();
-        self::$groupPrefix = null;
+        if ($prefix) array_pop(self::$groupPrefix);
     }
 
     /**
@@ -94,7 +94,7 @@ trait RouterRequest
 
         $node = self::$root;
         $route = trim($route, '/');
-        $fullRoute = trim((self::$groupPrefix ? self::$groupPrefix . '/' : '') . $route, '/');
+        $fullRoute = trim((!empty(self::$groupPrefix) ? implode('/', self::$groupPrefix) . '/' : '') . $route, '/');
         $parts = explode('/', $fullRoute);
 
         foreach ($parts as $part) {
