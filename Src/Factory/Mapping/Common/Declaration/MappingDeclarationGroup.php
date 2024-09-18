@@ -62,7 +62,7 @@ class MappingDeclarationGroup
             if ($child instanceof MappingDeclarationGroup
                 && $child->getPrefix() == $prefix) return $child;
         }
-        $newGroup = new MappingDeclarationGroup($prefix, $prefix);
+        $newGroup = new MappingDeclarationGroup(ucfirst($prefix), $prefix);
         $this->children[] = $newGroup;
         return $newGroup;
     }
@@ -81,6 +81,16 @@ class MappingDeclarationGroup
             . "Router::group(['prefix' => '{$this->prefix}'], function() {"
             . PHP_EOL . rtrim($childMettaData)
             . PHP_EOL . "});" . PHP_EOL;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
     }
 
 }

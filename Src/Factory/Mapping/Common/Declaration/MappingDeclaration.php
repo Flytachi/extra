@@ -52,7 +52,7 @@ class MappingDeclaration
     {
         if (isset($this->children[$prefix]) && $this->children[$prefix] instanceof MappingDeclarationGroup)
             return $this->children[$prefix];
-        $newGroup = new MappingDeclarationGroup($prefix, $prefix);
+        $newGroup = new MappingDeclarationGroup(ucfirst($prefix), $prefix);
         $this->children[$prefix] = $newGroup;
         return $newGroup;
     }
@@ -62,6 +62,11 @@ class MappingDeclaration
         $mettaData = "";
         foreach ($this->children as $child) $mettaData .= $child->getMettaData();
         return $mettaData;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
     }
 
 }

@@ -41,4 +41,14 @@ class MappingDeclarationItem
         return "Router::{$this->method}('{$this->url}', {$this->className}::class, '{$this->classMethod}'); // {$this->classTitle}" . PHP_EOL;
     }
 
+    public function getClassTitle(): string
+    {
+        return $this->classTitle;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
 }
