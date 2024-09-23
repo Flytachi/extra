@@ -77,43 +77,25 @@ class Mapping
             $groupAnnotation = $reflectionClass->getAttributes(RequestMapping::class);
             if (isset($groupAnnotation[0])) {
                 $groupAnnotation = $groupAnnotation[0];
-                if (in_array($groupAnnotation->getName(), [
-                    DeleteMapping::class,
-                    GetMapping::class,
-                    PatchMapping::class,
-                    PostMapping::class,
-                    PutMapping::class,
-                    RequestMapping::class,
-                ])) {
-                    /** @var MappingRequestInterface $mappingGroup */
-                    $mappingGroup = $groupAnnotation->newInstance();
-                    $declarationGroup = new MappingDeclarationGroup($mappingGroup->getTitle(), $mappingGroup->getUrl());
-                }
+                /** @var MappingRequestInterface $mappingGroup */
+                $mappingGroup = $groupAnnotation->newInstance();
+                $declarationGroup = new MappingDeclarationGroup($mappingGroup->getUrl());
             }
 
             // annotation
             foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
                 if ($reflectionMethod->name != '__construct') {
 
-                    foreach ($reflectionMethod->getAttributes() as $annotation) {
-                        if (in_array($annotation->getName(), [
-                            DeleteMapping::class,
-                            GetMapping::class,
-                            PatchMapping::class,
-                            PostMapping::class,
-                            PutMapping::class,
-                            RequestMapping::class,
-                        ])) {
-                            /** @var MappingRequestInterface $mapping */
-                            $mapping = $annotation->newInstance();
-                            $declarationItem = new MappingDeclarationItem(
-                                $mapping->getCallback(), $mapping->getUrl(),
-                                $reflectionClass->getName(), $reflectionMethod->getName(),
-                                $mapping->getTitle()
-                            );
-                            if ($declarationGroup != null) $declarationGroup->push($declarationItem);
-                            else $declaration->push($declarationItem);
-                        }
+                    foreach ($reflectionMethod->getAttributes(MappingRequestInterface::class, \ReflectionAttribute::IS_INSTANCEOF) as $annotation) {
+                        /** @var MappingRequestInterface $mapping */
+                        $mapping = $annotation->newInstance();
+                        $declarationItem = new MappingDeclarationItem(
+                            $mapping->getCallback(), $mapping->getUrl(),
+                            $reflectionClass->getName(), $reflectionMethod->getName()
+                        );
+                        if ($declarationGroup != null) $declarationGroup->push($declarationItem);
+                        else $declaration->push($declarationItem);
+
                     }
                 }
             }

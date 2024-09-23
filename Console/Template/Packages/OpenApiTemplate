@@ -1,0 +1,28 @@
+<?php
+
+namespace Controllers;
+
+use Extra\Src\Controller\ApiBase;
+use Extra\Src\Factory\Mapping\Annotation\RequestMapping;
+use Extra\Src\Factory\Mapping\OpenApi\Common\Specification\Schema\ServerObject;
+use Extra\Src\Factory\Mapping\OpenApi\OpenApi;
+use Extra\Src\Factory\Mapping\OpenApi\Schema\SplOperation;
+use Extra\Src\Factory\Response\ResponseFile;
+
+class OpenApiController extends ApiBase
+{
+    #[RequestMapping('/collection')]
+    #[SplOperation('Collection', 'Collection - OpenApi format 3.1.0 (json file)')]
+    public function index(): void
+    {
+        $project = basename(PATH_ROOT) . ' API';
+        $spl = OpenApi::generate();
+        $spl->info = [
+            'title' => $project,
+            'version' => '1.0.0',
+            'description' => "# **{$project}**\n\n**Update Collection:**\n" . $_SERVER['HTTP_HOST'] . '/api/postman/collection'
+        ];
+        $spl->servers[] = new ServerObject('http://localhost:8000', 'Dev Server');
+        ResponseFile::json(json_encode($spl), $spl->info['title'] . '.OpenApi-collection.json', true);
+    }
+}

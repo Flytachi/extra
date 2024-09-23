@@ -4,7 +4,6 @@ namespace Extra\Src\Factory\Mapping\Common\Declaration;
 
 class MappingDeclarationGroup
 {
-    private string $title;
     private string $prefix;
     /**
      * @var array<MappingDeclarationItem>
@@ -12,13 +11,11 @@ class MappingDeclarationGroup
     private array $children = [];
 
     /**
-     * @param string $title
      * @param string $prefix
      * @param MappingDeclarationItem[]|MappingDeclarationItem $children
      */
-    public function __construct(string $title, string $prefix, array $children = [])
+    public function __construct(string $prefix, array $children = [])
     {
-        $this->title = $title;
         $this->prefix = $prefix;
         $this->children = $children;
     }
@@ -62,7 +59,7 @@ class MappingDeclarationGroup
             if ($child instanceof MappingDeclarationGroup
                 && $child->getPrefix() == $prefix) return $child;
         }
-        $newGroup = new MappingDeclarationGroup(ucfirst($prefix), $prefix);
+        $newGroup = new MappingDeclarationGroup($prefix);
         $this->children[] = $newGroup;
         return $newGroup;
     }
@@ -77,15 +74,10 @@ class MappingDeclarationGroup
                 $childMettaData .= implode(PHP_EOL, $groupMettaData);
             } else $childMettaData .= "\t" . $child->getMettaData();
         }
-        return PHP_EOL . "// {$this->title}" . PHP_EOL
+        return PHP_EOL
             . "Router::group(['prefix' => '{$this->prefix}'], function() {"
             . PHP_EOL . rtrim($childMettaData)
             . PHP_EOL . "});" . PHP_EOL;
-    }
-
-    public function getTitle(): string
-    {
-        return $this->title;
     }
 
     public function getChildren(): array

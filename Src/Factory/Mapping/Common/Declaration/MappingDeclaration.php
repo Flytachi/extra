@@ -52,7 +52,7 @@ class MappingDeclaration
     {
         if (isset($this->children[$prefix]) && $this->children[$prefix] instanceof MappingDeclarationGroup)
             return $this->children[$prefix];
-        $newGroup = new MappingDeclarationGroup(ucfirst($prefix), $prefix);
+        $newGroup = new MappingDeclarationGroup($prefix);
         $this->children[$prefix] = $newGroup;
         return $newGroup;
     }

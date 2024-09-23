@@ -2,7 +2,9 @@
 
 namespace Extra\Src\Factory\Mapping\OpenApi\Common;
 
-interface Spl
+enum DataType
 {
-
+    case JSON;
+    case FORM;
+    case QUERY;
 }

@@ -8,17 +8,14 @@ use Extra\Src\Factory\Mapping\Common\MappingRequestInterface;
 abstract class AbstractMapping implements MappingRequestInterface
 {
     protected string $call = 'request';
-    protected string $title;
     protected string $url;
 
     /**
      * @param string $url HTTP URL
-     * @param string $title
      */
-    public function __construct(string $url, string $title = '')
+    public function __construct(string $url)
     {
         $this->url = $url;
-        $this->title = $title;
     }
 
     public function getCallback(): string
@@ -31,8 +28,4 @@ abstract class AbstractMapping implements MappingRequestInterface
         return trim($this->url, '/');
     }
 
-    public function getTitle(): string
-    {
-        return $this->title ?: $this->url;
-    }
 }
