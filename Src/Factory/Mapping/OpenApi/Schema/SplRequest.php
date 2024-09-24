@@ -32,7 +32,7 @@ class SplRequest implements Spl
                 elseif (is_string($this->data)) $this->setDataObject($path, $type);
                 break;
             case DataType::FORM:
-                $type = 'application/x-www-form-urlencoded';
+                $type = 'multipart/form-data';
                 if (is_array($this->data)) $this->setData($path, $type);
                 elseif (is_string($this->data)) $this->setDataObject($path, $type);
                 break;
@@ -41,7 +41,6 @@ class SplRequest implements Spl
                 elseif (is_string($this->data)) $this->setQueryDataObject($path);
                 break;
         }
-
     }
 
     private function setData(array &$path, string $type): void
@@ -50,7 +49,7 @@ class SplRequest implements Spl
         foreach ($this->data as $key => $value) {
             $properties[$key] = [
                 // 'type' => gettype($value),
-                'example' => $value
+                'default' => $value
             ];
         }
 
@@ -74,7 +73,7 @@ class SplRequest implements Spl
 //                    'type' => $property->getType()->getName(),
                 ];
                 if ($property->hasDefaultValue())
-                    $properties[$property->getName()]['example'] = $property->getDefaultValue();
+                    $properties[$property->getName()]['default'] = $property->getDefaultValue();
             }
         }
 
