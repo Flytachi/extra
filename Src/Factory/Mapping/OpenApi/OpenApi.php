@@ -42,7 +42,7 @@ class OpenApi
                 $fullUrl = '/' . trim($tagName . '/' . $child->getUrl(), '/');
                 if (!isset($spl->paths[$fullUrl])) $spl->paths[$fullUrl] = [];
 
-                $path = [];
+                $path = ['responses' => []];
                 if ($tagName != null) {
                     if (!isset($spl->tags[$tagName])) {
                         $tag = [];

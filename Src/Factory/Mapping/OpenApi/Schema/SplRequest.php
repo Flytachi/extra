@@ -70,10 +70,21 @@ class SplRequest implements Spl
         foreach ($reflection->getProperties() as $property) {
             if ($property->isPublic()) {
                 $properties[$property->getName()] = [
-//                    'type' => $property->getType()->getName(),
+                    'type' => match ($property->getType()->getName()) {
+                        'int' => 'integer',
+                        default => $property->getType()->getName()
+                    },
                 ];
                 if ($property->hasDefaultValue())
                     $properties[$property->getName()]['default'] = $property->getDefaultValue();
+
+                if ($properties[$property->getName()]['type'] === 'array') {
+                    if (empty($property->getDefaultValue())) {
+                        unset($properties[$property->getName()]['default']);
+                        if ($property->hasDefaultValue())
+                            $properties[$property->getName()]['example'] = $property->getDefaultValue();
+                    }
+                }
             }
         }
 

@@ -60,7 +60,7 @@ trait RequestHeaderTrait
      */
     final public static function getBearerToken(): string|null
     {
-        if ($auth = static::$headers['Authorization']) {
+        if ($auth = static::$headers['Authorization'] ?? '') {
             if (preg_match('/Bearer\s(\S+)/', $auth, $matches)) return $matches[1];
             else return null;
         } else return null;
@@ -73,7 +73,7 @@ trait RequestHeaderTrait
      */
     final public static function getBasicToken(): string|null
     {
-        if ($auth = static::$headers['Authorization']) {
+        if ($auth = static::$headers['Authorization'] ?? '') {
             if (preg_match('/Basic\s(\S+)/', $auth, $matches)) return base64_decode($matches[1]);
             else return null;
         } else return null;

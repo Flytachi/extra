@@ -13,7 +13,7 @@ abstract class AbstractMapping implements MappingRequestInterface
     /**
      * @param string $url HTTP URL
      */
-    public function __construct(string $url)
+    public function __construct(string $url = '')
     {
         $this->url = $url;
     }
