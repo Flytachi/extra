@@ -23,6 +23,6 @@ class OpenApiController extends ApiBase
             'description' => "# **{$project}**\n\n**Update Collection:**\n" . $_SERVER['HTTP_HOST'] . '/api/postman/collection'
         ];
         $spl->servers[] = new ServerObject('http://localhost:8000', 'Dev Server');
-        ResponseFile::json(json_encode($spl), $spl->info['title'] . '.OpenApi-collection.json', true);
+        ResponseFile::json(json_encode($spl), basename(PATH_ROOT) . '.openApi-collection.json', true);
     }
 }
