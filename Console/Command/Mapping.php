@@ -35,10 +35,6 @@ class Mapping extends Cmd
     private function showArg(): void
     {
         try {
-            if (file_exists(ROUTE_PATH))
-                self::printMessage("File: ". ROUTE_PATH, 32);
-            else
-                self::printMessage(basename(ROUTE_PATH) . " is not build.");
             $declaration = \Extra\Src\Factory\Mapping\Mapping::scanningDeclaration();
             self::printSplit($declaration->getMettaData(), 34);
         } catch (\Throwable $e) {
@@ -54,8 +50,8 @@ class Mapping extends Cmd
     private function buildIsNotExistArg(): void
     {
         try {
-            if (!file_exists(ROUTE_PATH)) {
-                \Extra\Src\Factory\Mapping\Mapping::scanning();
+            if (!file_exists(MAPPING_PATH)) {
+                \Extra\Src\Factory\Router\Router::generateMapping();
                 self::printMessage("Mapping build success.", 32);
             }
             else self::printMessage("Mapping already exist.", 32);
@@ -72,7 +68,7 @@ class Mapping extends Cmd
     private function buildArg(): void
     {
         try {
-            \Extra\Src\Factory\Mapping\Mapping::scanning();
+            \Extra\Src\Factory\Router\Router::generateMapping();
             self::printMessage("Mapping build success.", 32);
         } catch (\Throwable $e) {
             self::printMessage("Mapping build failed", 31);
@@ -87,11 +83,11 @@ class Mapping extends Cmd
     private function cleanArg(): void
     {
         try {
-            if (file_exists(ROUTE_PATH)) {
-                unlink(ROUTE_PATH);
+            if (file_exists(MAPPING_PATH)) {
+                unlink(MAPPING_PATH);
                 self::printMessage("Mapping clean success.", 32);
             }
-            else self::printMessage(basename(ROUTE_PATH) . " is not exists.");
+            else self::printMessage(basename(MAPPING_PATH) . " is not exists.");
         } catch (\Throwable $e) {
             self::printMessage("Mapping clean failed", 31);
             if (env('DEBUG')) {

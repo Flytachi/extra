@@ -38,24 +38,35 @@ use Extra\Src\Sheath\SheathException;
 abstract class Router implements RouterInterface
 {
     use RouterDependence, RouterRequest;
-    private static RouteNode $root;
+    private static array|RouteNode $root;
     private static array $groupPrefix = [];
 
-    public final static function run(false|string $routePath): void
+    public final static function run(): void
     {
         Request::setHeaders();
-        self::$root = new RouteNode;
-        self::importMapping($routePath);
+        self::importMappingSystem();
         self::route();
     }
 
-    private static function importMapping(false|string $routePath): void
+    public static function generateMapping(): void
     {
-        if ($routePath === false) Mapping::scanning(false);
-        else {
-            if (!file_exists($routePath)) Mapping::scanning();
-            require $routePath;
-        }
+        self::$root = new RouteNode;
+        Mapping::scanning();
+        $mapString = var_export(json_decode(json_encode(self::$root), true), true);
+        $fileData = "<?php" . PHP_EOL . PHP_EOL;
+        $fileData .= "/**" . PHP_EOL . " * Mapping configurations"
+            . PHP_EOL . " * - Created on: " . date(DATE_RFC822)
+            . PHP_EOL . " * - Version: 1.0"
+            . PHP_EOL . " */" . PHP_EOL . PHP_EOL
+            . "return {$mapString};";
+        file_put_contents(MAPPING_PATH, $fileData);
+    }
+
+    private static function importMappingSystem(): void
+    {
+        if (!file_exists(MAPPING_PATH))
+            self::generateMapping();
+        self::$root = require MAPPING_PATH;
     }
 
     private static function route(): void
@@ -102,22 +113,22 @@ abstract class Router implements RouterInterface
         $parts = explode('/', trim($url, '/'));
 
         foreach ($parts as $part) {
-            if (isset($node->children[$part])) {
-                $node = $node->children[$part];
+            if (isset($node['children'][$part])) {
+                $node = $node['children'][$part];
                 continue;
             }
-            if (isset($node->children['{param}'])) {
-                $node = $node->children['{param}'];
+            if (isset($node['children']['{param}'])) {
+                $node = $node['children']['{param}'];
                 $params[] = $part;
                 continue;
             }
             return null;
         }
 
-        if ($node->actions && isset($node->actions[$httpMethod]))
-            return ['action' => $node->actions[$httpMethod], 'params' => $params];
-        if ($node->defaultAction)
-            return ['action' => $node->defaultAction, 'params' => $params];
+        if ($node['actions'] && isset($node['actions'][$httpMethod]))
+            return ['action' => $node['actions'][$httpMethod], 'params' => $params];
+        if ($node['defaultAction'])
+            return ['action' => $node['defaultAction'], 'params' => $params];
         return null;
     }
 

@@ -29,11 +29,10 @@ use ReflectionMethod;
  */
 class Mapping
 {
-    public static function scanning(bool $cashing = true): void
+    public static function scanning(): void
     {
         $declaration = self::scanningDeclaration();
-        if ($cashing) self::routeInit($declaration);
-        else self::routeExecute($declaration);
+        self::routeExecute($declaration);
     }
 
     /**
@@ -104,32 +103,6 @@ class Mapping
         }
 
         return $declaration;
-    }
-
-    /**
-     * @param MappingDeclaration $declaration
-     * @return void
-     */
-    private static function routeInit(MappingDeclaration $declaration): void
-    {
-        $mettaData = "<?php" . PHP_EOL . PHP_EOL;
-        $mettaData .= "/**" . PHP_EOL . " * Router configurations"
-            . PHP_EOL . " * - Created on: " . date(DATE_RFC822)
-            . PHP_EOL . " * - Version: 1.0"
-            . PHP_EOL . " */" . PHP_EOL . PHP_EOL;
-        $mettaData .= "use " . Router::class . ";" . PHP_EOL . PHP_EOL;
-
-        $mettaData .= $declaration->getMettaData() . PHP_EOL . PHP_EOL;
-        $mettaData = trim($mettaData);
-
-        // write
-        $file = fopen(ROUTE_PATH, 'w');
-        if ($file) {
-            fwrite($file, $mettaData);
-            fclose($file);
-        } else {
-            MappingError::throw(HttpCode::INTERNAL_SERVER_ERROR, "Не удалось");
-        }
     }
 
     /**
