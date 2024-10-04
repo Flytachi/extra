@@ -7,5 +7,5 @@ use Extra\Src\Repo\Repository;
 class __className__ extends Repository
 {
     public static string $table = '__tableName__';
-    protected string $modelClassName = \Extra\Src\Entity\Model\ModelBase::class;
+    protected string $modelClassName = \Extra\Src\Factory\Entity\Model\ModelBase::class;
 }
