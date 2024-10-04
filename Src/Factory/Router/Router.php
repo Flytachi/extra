@@ -41,10 +41,10 @@ abstract class Router implements RouterInterface
     private static array|RouteNode $root;
     private static array $groupPrefix = [];
 
-    public final static function run(): void
+    public final static function run(bool $isDevelop = false): void
     {
         Request::setHeaders();
-        self::importMappingSystem();
+        self::importMappingSystem($isDevelop);
         self::route();
     }
 
@@ -62,11 +62,18 @@ abstract class Router implements RouterInterface
         file_put_contents(MAPPING_PATH, $fileData);
     }
 
-    private static function importMappingSystem(): void
+    private static function importMappingSystem(bool $isDevelop): void
     {
-        if (!file_exists(MAPPING_PATH))
-            self::generateMapping();
-        self::$root = require MAPPING_PATH;
+        if ($isDevelop) {
+            if (file_exists(MAPPING_PATH)) unlink(MAPPING_PATH);
+            self::$root = new RouteNode;
+            Mapping::scanning();
+            self::$root = json_decode(json_encode(self::$root), true);
+        } else {
+            if (!file_exists(MAPPING_PATH))
+                self::generateMapping();
+            self::$root = require MAPPING_PATH;
+        }
     }
 
     private static function route(): void
