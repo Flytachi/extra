@@ -30,7 +30,7 @@ use Throwable;
  * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
  * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
  *
- * @version 11.5
+ * @version 11.6
  * @author Flytachi
  */
 class Repository
@@ -63,6 +63,14 @@ class Repository
     final public function db(): CDO
     {
         return Aegis::db($this::$shardKey);
+    }
+
+    /**
+     * @return string
+     */
+    final public function getSchema(): string
+    {
+        return $this->schema;
     }
 
     final public function cleanCache(): void
