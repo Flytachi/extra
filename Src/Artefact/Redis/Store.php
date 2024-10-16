@@ -14,10 +14,14 @@ abstract class Store
 {
     /** @var string $shardKey Aegis shard redis key (default => 'store') */
     protected static string $shardKey = 'store';
+    protected static int $dbIndex = 0;
 
     protected static function init(?int $dbIndex = null): \Redis
     {
-        if ($dbIndex !== null) Aegis::store(static::$shardKey)->select($dbIndex);
+        if ($dbIndex !== null && $dbIndex != static::$dbIndex) {
+            Aegis::store(static::$shardKey)->select($dbIndex);
+            static::$dbIndex = $dbIndex;
+        }
         return Aegis::store(static::$shardKey);
     }
 }
