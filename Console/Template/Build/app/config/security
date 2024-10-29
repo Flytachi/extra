@@ -1,0 +1,12 @@
+<?php
+/**
+ * Security
+ */
+
+use Extra\Src\Factory\Response\Response;
+
+Response::initHeaders(
+    'Access-Control-Allow-Origin: *',
+    'Access-Control-Allow-Headers: *',
+    'Access-Control-Allow-Methods: *',
+);

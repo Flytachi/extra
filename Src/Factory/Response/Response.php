@@ -17,7 +17,7 @@ use Extra\Src\Log\Log;
  * - `jsonMessage(HttpCode $httpCode, string $message = ''): never`: Sends a JSON response with a status code and a message.
  * - `text(HttpCode $httpCode, string $text = '', bool $htmlEntities = false): never`: Sends a plain text response with a status code. If the `$htmlEntities` flag gets set to true, the `$text` will be escaped using `htmlentities`.
  *
- * @version 1.2
+ * @version 1.3
  * @author Flytachi
  */
 class Response
@@ -86,10 +86,12 @@ class Response
         header_remove("X-Powered-By");
         header("HTTP/1.1 {$httpCode->value} " . $httpCode->message());
         header("Status: {$httpCode->value} " . $httpCode->message());
-        header('Access-Control-Allow-Origin: *');
-        header("Access-Control-Allow-Headers: *");
-        header("Access-Control-Allow-Methods: *");
         header("Content-Type: {$contentType}");
+    }
+
+    public static function initHeaders(string ...$headers): void
+    {
+        foreach ($headers as $header) header($header);
     }
 
     private static function debugApi(): array

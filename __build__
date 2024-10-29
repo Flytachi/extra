@@ -27,6 +27,7 @@ if (PHP_VERSION_ID >= 80200) {
         "$ROOT/app/Config/database.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/database",
         "$ROOT/app/Config/functions.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/functions",
         "$ROOT/app/Config/logger.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/logger",
+        "$ROOT/app/Config/security.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/security",
 
         // public
         "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Console/Template/Build/public/htaccess",
