@@ -20,7 +20,7 @@ use Extra\Src\Log\Log;
  * - `getThrowableJson(): string`: Generates the JSON representation of the exception.
  * - `forThrow(array|string &$message, Throwable $throwable): void`: Constructs and collects the exception stack trace.
  *
- * @version 2.1
+ * @version 2.2
  * @author Flytachi
  */
 abstract class ExtraException extends \Exception implements ErrorInterface
@@ -34,8 +34,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         $statusGroup = (int)($this->code / 100);
         if ($statusGroup == 5) Log::error($logMessage);
         elseif ($statusGroup == 4) Log::warning($logMessage);
-        elseif ($statusGroup == 7) Log::critical($logMessage);
-        else Log::alert($logMessage);
+        else Log::critical($logMessage);
 
         if (PHP_SAPI === 'cli') return parent::__toString();
         else {
@@ -128,9 +127,6 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         header("HTTP/1.1 {$this->code} " . $status);
         header("Status: {$this->code} " . $status);
         header_remove("X-Powered-By");
-        header('Access-Control-Allow-Origin: *');
-        header("Access-Control-Allow-Headers: *");
-        header("Access-Control-Allow-Methods: *");
         header("Content-Type: application/json");
         $debug = $this->debugApi();
         return json_encode([
