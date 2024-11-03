@@ -32,7 +32,7 @@ use PDOException;
  * Note: This class requires a `Shard` object to establish connections, and a BKB (Bucket)
  * object to specify conditions for updating and deleting records.
  *
- * @version 11.5
+ * @version 11.6
  * @author Flytachi
  */
 class CDO extends PDO
@@ -123,12 +123,13 @@ class CDO extends PDO
         foreach ($models as $model) {
             if ($model instanceof ModelInterface) $model = (array) $model;
             $items = $model;
+            foreach ($items as $key => $value) if (is_null($value)) unset($items[$key]);
+            $col = implode(",", array_keys($items));
             $newKeys = array_map(function ($oldKey) use ($prefix) {
                 return $oldKey . '_' . $prefix;
             }, array_keys($items));
             $items = array_combine($newKeys, array_values($items));
             foreach ($items as $key => $value) if (is_null($value)) unset($items[$key]);
-            $col = implode(",", array_keys($model));
             $val .= '(:' . implode(",:", array_keys($items)) . '),';
             ++$prefix;
             $data = array_merge($data, $items);

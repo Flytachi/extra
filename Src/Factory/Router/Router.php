@@ -32,7 +32,7 @@ use Extra\Src\Sheath\SheathException;
  * @method static void patch(string $route, string $class, string $classMethod = 'index')
  * @method static void delete(string $route, string $class, string $classMethod = 'index')
  *
- * @version 1.0
+ * @version 1.1
  * @author Flytachi
  */
 abstract class Router implements RouterInterface
@@ -81,10 +81,6 @@ abstract class Router implements RouterInterface
         Log::debug('Route: ' . $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . ' IP: ' . $_SERVER['REMOTE_ADDR']);
         $data = self::splitUrlAndParams($_SERVER['REQUEST_URI']);
         $_GET = $data['params'];
-
-        // Imports
-        $funcPath = dirname(__DIR__, 2) . '/Config/functions.php';
-        if ( file_exists($funcPath) ) require $funcPath;
 
         $node =  self::scanNode($data['url'], $_SERVER['REQUEST_METHOD']);
         if (!$node) RouteError::throw(HttpCode::NOT_FOUND, "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found");

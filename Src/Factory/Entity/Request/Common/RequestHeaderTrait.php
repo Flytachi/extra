@@ -23,6 +23,7 @@ trait RequestHeaderTrait
             static::$headers = apache_request_headers();
             static::$headers = array_combine(array_map('ucwords', array_keys(apache_request_headers())), array_values(apache_request_headers()));
         }
+        if (file_exists(PATH_APP . '/Config/security.php')) include PATH_APP . '/Config/security.php';
         if ($_SERVER['REQUEST_METHOD'] == Method::OPTIONS->name) Response::text(HttpCode::NO_CONTENT);
     }
 

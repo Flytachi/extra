@@ -136,11 +136,9 @@ class Extra
      */
     public final static function loadConfig(): void
     {
-        $directory = new DirectoryIterator(PATH_APP . '/Config');
-        foreach ($directory as $fileInfo) {
-            if ($fileInfo->isDot()) continue;
-            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
-        }
+        require PATH_APP . '/Config/database.php';
+        require PATH_APP . '/Config/functions.php';
+        require PATH_APP . '/Config/logger.php';
     }
 
 }
