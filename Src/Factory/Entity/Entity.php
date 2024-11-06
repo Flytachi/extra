@@ -35,6 +35,7 @@ abstract class Entity
                     $valueType = in_array($valueType, ['integer', 'double', 'boolean'])
                         ? ($valueType === 'integer' ? 'int' : ($valueType === 'double' ? 'float' : 'bool'))
                         : $valueType;
+                    if ($valueType == 'object') $valueType = get_class($value);
 
                     $expectedTypes = $properties[$name]['types'];
                     if (!in_array($valueType, $expectedTypes))
