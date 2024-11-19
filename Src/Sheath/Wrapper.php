@@ -18,7 +18,7 @@ use TypeError;
  * - `urlToArray(string $url): array`: Converts the URL query string to an associative array.
  * - `arrayToUrl(array $get): string`: Converts an associative array of parameters to a URL query string.
  *
- * @version 2.3
+ * @version 2.4
  * @author Flytachi
  */
 abstract class Wrapper
@@ -111,6 +111,7 @@ abstract class Wrapper
         else {
             if (!$repo->getSql('limit')) throw new TypeError("Not value 'Limit'!");
         }
+        self::init($repo);
         return array(
             'table' => $repo->findAll($modelClassName),
             'panel' => Wrapper::panel($repo)
@@ -119,7 +120,6 @@ abstract class Wrapper
 
     final static function panel(Repository $repo): string
     {
-        self::init($repo);
         if (Wrapper::$totalPages <= 1) return '';
         Wrapper::$params = Wrapper::arrayToUrl($_GET);
 
