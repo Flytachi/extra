@@ -8,7 +8,7 @@ use Extra\Src\Thread\Kube\Kube;
 /**
  * Class KubePrime
  *
- * @version 1.6
+ * @version 1.7
  * @author Flytachi
  */
 abstract class KubePrime extends Kube
@@ -46,7 +46,7 @@ abstract class KubePrime extends Kube
             } else {
                 if ($negationCallable !== null) $negationCallable();
             }
-            usleep( ($this->balancer < 1000 ? 1_000_000 / $this->balancer : 1000) );
+            usleep( ($this->balancer < 1000 ? ceil(1_000_000 / $this->balancer) : 1000) );
         }
     }
 }
