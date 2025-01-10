@@ -19,7 +19,7 @@ use Extra\Src\HttpCode;
  * - `warningHandler($severity, $message, $file, $line): void`: Error handler for managing PHP warnings.
  * - `loadFunction(): void`: Loads all available functions from the Function directory.
  *
- * @version 4.6
+ * @version 5.0
  * @author Flytachi
  */
 class Extra
@@ -136,11 +136,9 @@ class Extra
      */
     public final static function loadConfig(): void
     {
-        $directory = new DirectoryIterator(PATH_APP . '/Config');
-        foreach ($directory as $fileInfo) {
-            if ($fileInfo->isDot()) continue;
-            if ($fileInfo->getExtension() === 'php') require $fileInfo->getPathname();
-        }
+        require PATH_APP . '/Config/database.php';
+        require PATH_APP . '/Config/functions.php';
+        require PATH_APP . '/Config/logger.php';
     }
 
 }

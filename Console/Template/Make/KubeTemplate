@@ -3,7 +3,7 @@
 namespace __namespace__;
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Kube\Kube;
+use Extra\Src\Thread\Kube\Kube;
 
 class __className__ extends Kube
 {

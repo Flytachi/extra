@@ -53,11 +53,14 @@ class Make extends Cmd
                 $this->createKube($templateName);
             if (in_array('w', $this->args['flags']))
                 $this->createWebSocket($templateName);
+            if (in_array('n', $this->args['flags']))
+                $this->createCmd($templateName);
         }
     }
 
     private function createApiController(string $name): void
     {
+        $shortName = $name;
         $name = $this->ucWord($name) . 'Controller';
         $templatePath = $this->templatePath . '/ApiTemplate';
         $path = $this->getPath('Controllers');
@@ -65,12 +68,14 @@ class Make extends Cmd
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
         $code = str_replace("__className__", $name, $code);
+        $code = str_replace("__shortName__", lcfirst($shortName), $code);
 
         $this->createFile($name, $path, $code, 'api');
     }
 
     private function createController(string $name): void
     {
+        $shortName = $name;
         $name = $this->ucWord($name) . 'Controller';
         $templatePath = $this->templatePath . '/ControllerTemplate';
         $path = $this->getPath('Controllers');
@@ -78,6 +83,7 @@ class Make extends Cmd
         $code = file_get_contents($templatePath);
         $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
         $code = str_replace("__className__", $name, $code);
+        $code = str_replace("__shortName__", lcfirst($shortName), $code);
 
         $this->createFile($name, $path, $code, 'controller');
     }
@@ -201,6 +207,18 @@ class Make extends Cmd
         $this->createFile($name, $path, $code, 'socket');
     }
 
+    private function createCmd(string $name): void
+    {
+        $name = $this->ucWord($name);
+        $templatePath = $this->templatePath . '/CmdTemplate';
+        $path = $this->getPath('Command');
+
+        $code = file_get_contents($templatePath);
+        $code = str_replace("__className__", $name, $code);
+
+        $this->createFile($name, $path, $code, 'cmd');
+    }
+
 
     private function createFile(string $fName, string $path, string $code = "", ?string $prefix = null): void
     {
@@ -252,6 +270,8 @@ class Make extends Cmd
         self::print("j - Template Job, prefix Job", $cl);
         self::print("k - Template Kube, prefix Kube", $cl);
         self::print("w - Template WebSocket, prefix WebSocket", $cl);
+        self::print("", $cl);
+        self::print("n - Template CustomCmd, dont prefix", $cl);
         self::printMessage("options - additional option", $cl);
         self::print("folder - folder where template will be added (recursive creation is used)", $cl);
 

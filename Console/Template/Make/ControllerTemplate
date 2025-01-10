@@ -3,10 +3,12 @@
 namespace __namespace__;
 
 use Extra\Src\Controller\ControllerBase;
+use Extra\Src\Factory\Mapping\Annotation\RequestMapping;
 
 class __className__ extends ControllerBase
 {
 
+    #[RequestMapping('/__shortName__')]
     public function index(): void
     {
         $this->responseOk();

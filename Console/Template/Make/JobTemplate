@@ -3,7 +3,7 @@
 namespace __namespace__;
 
 use Extra\Src\Log\Log;
-use Extra\Src\Process\Job\Job;
+use Extra\Src\Thread\Job\Job;
 
 class __className__ extends Job
 {

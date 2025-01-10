@@ -32,7 +32,7 @@ class Cfg extends Cmd
                 case 'key': $this->keyArg(); break;
                 case 'env': $this->envArg(); break;
                 case 'docker': $this->dockerArg(); break;
-                case 'postman': $this->postmanArg(); break;
+                case 'openapi': $this->openapiArg(); break;
                 default:
                     self::printMessage("Argument '{$this->args['arguments'][1]}' not found");
                     break;
@@ -112,24 +112,19 @@ class Cfg extends Cmd
         self::printMessage("File 'Dockerfile' is created.", 32);
     }
 
-    private function postmanArg(): void
-    {
-        $this->postmanCreate();
-    }
-
-    private function postmanCreate(): void
+    private function openapiArg(): void
     {
         if (!is_dir(PATH_APP . '/Controllers'))
             mkdir(PATH_APP . '/Controllers', 0777, true);
-        if (!file_exists(PATH_APP . '/Controllers/PostmanController.php')) {
+        if (!file_exists(PATH_APP . '/Controllers/OpenApiController.php')) {
 
-            $code = file_get_contents($this->templatePath . '/Packages/PostmanTemplate');
-            $fp = fopen(PATH_APP . '/Controllers/PostmanController.php', "x");
+            $code = file_get_contents($this->templatePath . '/Packages/OpenApiTemplate');
+            $fp = fopen(PATH_APP . '/Controllers/OpenApiController.php', "x");
             fwrite($fp, $code);
             fclose($fp);
-            self::printMessage("File 'PostmanController' is created.", 32);
+            self::printMessage("File 'OpenApiController' is created.", 32);
 
-        } else self::printMessage("File 'PostmanController' is already exist.");
+        } else self::printMessage("File 'OpenApiController' is already exist.");
     }
 
     public static function help(): void
@@ -142,7 +137,7 @@ class Cfg extends Cmd
         self::print("key - project unique key", $cl);
         self::print("env - project environment", $cl);
         self::print("docker - create docker configuration file", $cl);
-        self::print("postman - create postman collection api controller", $cl);
+        self::print("openapi - create openapi collection api controller", $cl);
 
         // key
         self::printLabel("key", $cl);

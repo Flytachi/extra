@@ -26,7 +26,7 @@ use Extra\Src\Sheath\Algorithm;
  * - `leq(string $column, int|float|string $value): BKB`: Less than or equal to operator.
  * - `nsEq(string $column, int|float|string $value): BKB`: NULL-safe equal to operator.
  *
- * @version 3.0
+ * @version 3.5
  * @author Flytachi
  */
 class BKB
@@ -412,11 +412,11 @@ class BKB
      *
      * Parsed: $BKBObject[0] AND $BKBObject[1] AND ...$BKBObject[n]
      *
-     * @param BKB ...$BKBObjects bkb objects
+     * @param null|BKB ...$BKBObjects bkb objects
      *
      * @return BKB
      */
-    public static function and(BKB ...$BKBObjects): BKB
+    public static function and(?BKB ...$BKBObjects): BKB
     {
         $data = self::logicalPrepare('AND', $BKBObjects);
         return new self($data['prepareData'], $data['cache']);
@@ -431,7 +431,7 @@ class BKB
      *
      * @return BKB
      */
-    public static function or(BKB ...$BKBObjects): BKB
+    public static function or(?BKB ...$BKBObjects): BKB
     {
         $data = self::logicalPrepare('OR', $BKBObjects);
         return new self($data['prepareData'], $data['cache']);
@@ -446,7 +446,7 @@ class BKB
      *
      * @return BKB
      */
-    public static function xor(BKB ...$BKBObjects): BKB
+    public static function xor(?BKB ...$BKBObjects): BKB
     {
         $data = self::logicalPrepare('XOR', $BKBObjects);
         return new self($data['prepareData'], $data['cache']);
@@ -497,6 +497,7 @@ class BKB
         $value = "";
         $cache = [];
         foreach ($BKBObjects as $BKBObject) {
+            if (is_null($BKBObject)) continue;
             if ($BKBObject->prepareData == '') continue;
             $cache = [...$cache, ...$BKBObject->cache];
             $value .= $BKBObject->prepareData . $prefix;

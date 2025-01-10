@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 // Версия PHP 8.2
+echo "\033[32m"." Extra 5.0\n";
+
 if (PHP_VERSION_ID >= 80200) {
 
     $gitPath = __DIR__ . DIRECTORY_SEPARATOR .  '.git';
@@ -22,11 +24,10 @@ if (PHP_VERSION_ID >= 80200) {
         "$ROOT/app/defines.php" => "$ROOT/app/Extra/Console/Template/Build/app/defines",
 
         // app -> config
-        "$ROOT/app/Config/constants.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/constants",
         "$ROOT/app/Config/database.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/database",
         "$ROOT/app/Config/functions.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/functions",
         "$ROOT/app/Config/logger.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/logger",
-        "$ROOT/app/Config/routes.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/routes",
+        "$ROOT/app/Config/security.php" => "$ROOT/app/Extra/Console/Template/Build/app/config/security",
 
         // public
         "$ROOT/public/.htaccess" => "$ROOT/app/Extra/Console/Template/Build/public/htaccess",

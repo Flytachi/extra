@@ -10,6 +10,8 @@ define('PATH_PUBLIC', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'public');
 define('PATH_STORAGE', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'storage');
 define('ENV_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env');
 
+const MAPPING_PATH = PATH_STORAGE . '/mapping.php';
+
 // Storage
 const PATH_CACHE = PATH_STORAGE . DIRECTORY_SEPARATOR . 'cache';
 const PATH_LOG = PATH_STORAGE . DIRECTORY_SEPARATOR . 'logs';

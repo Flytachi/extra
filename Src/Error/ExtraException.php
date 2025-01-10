@@ -2,7 +2,7 @@
 
 namespace Extra\Src\Error;
 
-use Extra\Src\Entity\Request\Request;
+use Extra\Src\Factory\Entity\Request\Request;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 
@@ -20,7 +20,7 @@ use Extra\Src\Log\Log;
  * - `getThrowableJson(): string`: Generates the JSON representation of the exception.
  * - `forThrow(array|string &$message, Throwable $throwable): void`: Constructs and collects the exception stack trace.
  *
- * @version 2.0
+ * @version 2.2
  * @author Flytachi
  */
 abstract class ExtraException extends \Exception implements ErrorInterface
@@ -34,8 +34,7 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         $statusGroup = (int)($this->code / 100);
         if ($statusGroup == 5) Log::error($logMessage);
         elseif ($statusGroup == 4) Log::warning($logMessage);
-        elseif ($statusGroup == 7) Log::critical($logMessage);
-        else Log::alert($logMessage);
+        else Log::critical($logMessage);
 
         if (PHP_SAPI === 'cli') return parent::__toString();
         else {
@@ -51,13 +50,14 @@ abstract class ExtraException extends \Exception implements ErrorInterface
             $this->forThrow($message, $this);
 
             $delta = round(microtime(true)-$_SERVER['REQUEST_TIME'], 3);
+            $memory = memory_get_usage();
             return [
                 'debug' => [
                     'time' => ($delta < 0.001) ? 0.001 : $delta,
                     'date' => date(DATE_ATOM),
                     'timezone' => env('TIME_ZONE', 'UTC'),
                     'sapi' => PHP_SAPI,
-                    'memory' => bytes(memory_get_usage(), 'MiB'),
+                    'memory' => bytes($memory, ($memory >= 1048576 ? 'MiB' : 'KiB')),
                 ],
                 'exception' => $message
             ];
@@ -127,9 +127,6 @@ abstract class ExtraException extends \Exception implements ErrorInterface
         header("HTTP/1.1 {$this->code} " . $status);
         header("Status: {$this->code} " . $status);
         header_remove("X-Powered-By");
-        header('Access-Control-Allow-Origin: *');
-        header("Access-Control-Allow-Headers: *");
-        header("Access-Control-Allow-Methods: *");
         header("Content-Type: application/json");
         $debug = $this->debugApi();
         return json_encode([

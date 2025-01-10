@@ -4,8 +4,8 @@ namespace Extra\Src\Repo;
 
 use Extra\Src\Artefact\Aegis;
 use Extra\Src\Artefact\CDO\CDO;
-use Extra\Src\Entity\Model\ModelBase;
-use Extra\Src\Entity\Model\ModelInterface;
+use Extra\Src\Factory\Entity\Model\ModelBase;
+use Extra\Src\Factory\Entity\Model\ModelInterface;
 use Extra\Src\HttpCode;
 use Extra\Src\Log\Log;
 use PDO;
@@ -30,7 +30,7 @@ use Throwable;
  * - `findAll(?string $modelClassName = null): array|false`: Fetches all matching rows as objects of the provided model class.
  * - `insert(ModelInterface $model): mixed`: Inserts a new row corresponding to the provided model into
  *
- * @version 11.4
+ * @version 11.6
  * @author Flytachi
  */
 class Repository
@@ -38,15 +38,14 @@ class Repository
     use RepositoryORMTrait;
     /** @var string $shardKey Aegis shard key (default => 'db') */
     protected static string $shardKey = 'db';
-    /** @var string $modelClassName model class name (default => ModelBase::class) */
+    /** @var class-string $modelClassName model class name (default => ModelBase::class) */
     protected string $modelClassName = ModelBase::class;
     /** @var bool $isReadonly readonly status (block writing permission) */
     protected bool $isReadonly = false;
-    public static string $table;
-    /** @var string $table name of the table in the database */
-
     /** @var string|null $schema schema in database */
-    private ?string $schema = null;
+    protected ?string $schema = null;
+    /** @var string $table name of the table in the database */
+    public static string $table;
     /** @var array $CRD_SQL sql parameters */
     private array $CRD_SQL = [];
 
@@ -54,7 +53,7 @@ class Repository
     {
         if ($table_As) $this->CRD_SQL['as'] = $table_As;
         $shard = Aegis::getShard($this::$shardKey);
-        $this->schema = $shard->getSchema();
+        if ($this->schema == null) $this->schema = $shard->getSchema();
         $shard->connect();
     }
 
@@ -64,6 +63,14 @@ class Repository
     final public function db(): CDO
     {
         return Aegis::db($this::$shardKey);
+    }
+
+    /**
+     * @return string
+     */
+    final public function getSchema(): string
+    {
+        return $this->schema;
     }
 
     final public function cleanCache(): void
