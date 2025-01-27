@@ -1,0 +1,9 @@
+## IDE support
+*.buildpath
+*.project
+/.settings
+/.idea
+/.vscode
+
+## App ----
+/vendor
