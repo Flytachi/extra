@@ -17,6 +17,7 @@
         "php": ">=8.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "@stable"
+        "phpunit/phpunit": "@stable",
+        "squizlabs/php_codesniffer": "@stable"
     }
 }
