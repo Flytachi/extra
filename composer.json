@@ -1,0 +1,22 @@
+{
+    "name": "flytachi/extra",
+    "description": "Extra Framework",
+    "license": "GPL-3.0-only",
+    "autoload": {
+        "psr-4": {
+            "Flytachi\\Extra\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Flytachi",
+            "email": "jasur.rakhmatov03@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "@stable"
+    }
+}
