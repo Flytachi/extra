@@ -4,8 +4,12 @@
     "license": "GPL-3.0-only",
     "autoload": {
         "psr-4": {
-            "Flytachi\\Extra\\": "src/"
-        }
+            "Flytachi\\Extra\\": "src/",
+            "App\\": "app/"
+        },
+        "files": [
+            "src/Function/Dependencies.php"
+        ]
     },
     "authors": [
         {
@@ -14,7 +18,9 @@
         }
     ],
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2",
+        "monolog/monolog": "@stable",
+        "vlucas/phpdotenv": "@stable"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",
