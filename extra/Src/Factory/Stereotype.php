@@ -13,7 +13,6 @@ abstract class Stereotype
 
     public function __construct()
     {
-        $this->logger = new Logger(static::class);
-        $this->logger->pushHandler(Extra::$loggerStreamHandler);
+        $this->logger = Extra::$logger->withName(static::class);
     }
 }

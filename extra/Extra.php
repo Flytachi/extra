@@ -6,7 +6,8 @@ namespace Flytachi\Extra;
 
 use Dotenv\Dotenv;
 use Flytachi\Extra\Src\Factory\ExtraConfig;
-use Monolog\Handler\AbstractProcessingHandler;
+use Flytachi\Extra\Src\Log\ExtraLogger;
+use Monolog\Logger;
 
 /**
  * Class Extra
@@ -16,6 +17,8 @@ use Monolog\Handler\AbstractProcessingHandler;
  */
 class Extra extends ExtraConfig
 {
+    public static Logger $logger;
+
     public static function init(
         ?string $pathRoot = null,
         ?string $pathApp = null,
@@ -25,7 +28,7 @@ class Extra extends ExtraConfig
         ?string $pathStorageCache = null,
         ?string $pathStorageLog = null,
         ?string $pathFileMapping = null,
-        ?AbstractProcessingHandler $loggerStreamHandler = null
+        ?Logger $logger = null
     ): void {
         define('EXTRA_STARTUP_TIME', microtime(true));
         parent::init(
@@ -36,10 +39,11 @@ class Extra extends ExtraConfig
             $pathStorage,
             $pathStorageCache,
             $pathStorageLog,
-            $pathFileMapping,
-            $loggerStreamHandler
+            $pathFileMapping
         );
-        Dotenv::createImmutable(self::$pathRoot)->load();
+
+        Dotenv::createImmutable(self::$pathRoot)
+            ->safeLoad();
 
         define('SERVER_SCHEME', (
                 $_SERVER['REQUEST_SCHEME'] ?? 'http') . "://" . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
@@ -49,6 +53,13 @@ class Extra extends ExtraConfig
             ini_set('error_reporting', E_ALL);
             ini_set('display_errors', 1);
             ini_set('display_startup_errors', 1);
+        }
+
+        // logger
+        if ($logger === null) {
+            self::$logger = new ExtraLogger(static::class);
+        } else {
+            self::$logger = $logger;
         }
     }
 }

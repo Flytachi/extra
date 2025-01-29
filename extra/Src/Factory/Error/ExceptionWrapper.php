@@ -30,7 +30,7 @@ class ExceptionWrapper
             'message' => $throwable->getMessage()
         ];
 
-        if ((bool) env('DEBUG', false)) {
+        if (env('DEBUG', false)) {
             $context['exception'] = [
                 'name' => $throwable::class,
                 'file' => $throwable->getFile(),
@@ -49,7 +49,7 @@ class ExceptionWrapper
             'message' => $throwable->getMessage()
         ];
 
-        if ((bool) env('DEBUG', false)) {
+        if (env('DEBUG', false)) {
             $context['exception'] = [
                 'name' => $throwable::class,
                 'file' => $throwable->getFile(),
@@ -63,7 +63,7 @@ class ExceptionWrapper
 
     public static function constructDefault(\Throwable $throwable): string
     {
-        if ((bool) env('DEBUG', false)) {
+        if (env('DEBUG', false)) {
             $tColor = match ((int)($throwable->getCode() / 100)) {
                 1 => "00ffff",
                 2 => "00ff00",

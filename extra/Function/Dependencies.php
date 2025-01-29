@@ -5,9 +5,26 @@ declare(strict_types=1);
 if (!function_exists('env')) {
     function env(?string $name = null, bool|int|float|string|null $default = null): bool|int|float|string|null
     {
-        return !isset($_ENV[$name])
-            ? ($default ?? null)
-            : $_ENV[$name];
+        if (!isset($_ENV[$name])) {
+            return $default ?? null;
+        }
+        $value = $_ENV[$name];
+        if (is_string($value)) {
+            if (strtolower($value) === 'true') {
+                return true;
+            } elseif (strtolower($value) === 'false') {
+                return false;
+            }
+
+            if (is_numeric($value)) {
+                if (str_contains($value, '.')) {
+                    return (float)$value;
+                }
+                // Иначе преобразуем в int
+                return (int)$value;
+            }
+        }
+        return $value;
     }
 }
 

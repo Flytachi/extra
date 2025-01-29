@@ -23,9 +23,7 @@ class Router
 
     final public static function run(bool $isDevelop = false): void
     {
-        self::$logger = new Logger(static::class);
-        self::$logger->pushHandler(Extra::$loggerStreamHandler);
-
+        self::$logger = Extra::$logger->withName(static::class);
         self::registrar($isDevelop);
         Header::setHeaders();
         self::route();

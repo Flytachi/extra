@@ -1,14 +1,11 @@
 <?php
 
-namespace Flytachi\Extra\Src\Factory;
+declare(strict_types=1);
 
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\AbstractProcessingHandler;
-use Monolog\Handler\StreamHandler;
+namespace Flytachi\Extra\Src\Factory;
 
 abstract class ExtraConfig
 {
-    public static AbstractProcessingHandler $loggerStreamHandler;
     public static string $pathRoot;
     public static string $pathEnv;
     public static string $pathApp;
@@ -27,7 +24,6 @@ abstract class ExtraConfig
      * @param string|null $pathStorageCache
      * @param string|null $pathStorageLog
      * @param string|null $pathFileMapping
-     * @param AbstractProcessingHandler|null $loggerStreamHandler
      * @return void
      */
     public static function init(
@@ -39,7 +35,6 @@ abstract class ExtraConfig
         ?string $pathStorageCache = null,
         ?string $pathStorageLog = null,
         ?string $pathFileMapping = null,
-        ?AbstractProcessingHandler $loggerStreamHandler = null,
     ): void {
         // root
         if ($pathRoot === null) {
@@ -89,14 +84,5 @@ abstract class ExtraConfig
         self::$pathStorageCache = $pathStorageCache;
         self::$pathStorageLog = $pathStorageLog;
         self::$pathFileMapping = $pathFileMapping;
-
-        // logger stream handler
-        if ($loggerStreamHandler === null) {
-            self::$loggerStreamHandler = new StreamHandler($pathStorageLog . '/frame.log');
-            self::$loggerStreamHandler->setFormatter(new LineFormatter(
-                dateFormat: "Y-m-d H:i:s P",
-                ignoreEmptyContextAndExtra: true
-            ));
-        }
     }
 }
