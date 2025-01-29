@@ -5,6 +5,12 @@
     "license": "MIT",
     "version": "0.1.0",
     "keywords": ["extra", "framework"],
+    "scripts": {
+        "post-create-project-cmd": [
+            "chmod -R 777 storage",
+            "@php -r \"file_exists('.env') || copy('extra/Template/Build/env', '.env');\""
+        ]
+    },
     "autoload": {
         "psr-4": {
             "Flytachi\\Extra\\": "extra/",
