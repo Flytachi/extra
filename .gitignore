@@ -9,8 +9,5 @@
 /.zed
 
 ## App ----
-/vendor
-/app
-/public
-/storage
 /.env
+/vendor

@@ -7,11 +7,11 @@
     "keywords": ["extra", "framework"],
     "autoload": {
         "psr-4": {
-            "Flytachi\\Extra\\": "src/",
+            "Flytachi\\Extra\\": "extra/",
             "App\\": "app/"
         },
         "files": [
-            "src/Function/Dependencies.php"
+            "extra/Function/Dependencies.php"
         ]
     },
     "authors": [
