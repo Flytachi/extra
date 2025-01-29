@@ -1,7 +1,8 @@
 {
     "name": "flytachi/extra",
     "description": "Extra Framework",
-    "license": "GPL-3.0-only",
+    "type": "project",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Flytachi\\Extra\\": "src/",
@@ -20,7 +21,8 @@
     "require": {
         "php": ">=8.2",
         "monolog/monolog": "@stable",
-        "vlucas/phpdotenv": "@stable"
+        "vlucas/phpdotenv": "@stable",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",

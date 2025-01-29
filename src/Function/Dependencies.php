@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 if (!function_exists('env')) {
-    function env(?string $name = null, string|int|float|bool|null $default = null): array|string|null
+    function env(?string $name = null, bool|int|float|string|null $default = null): bool|int|float|string|null
     {
         return !isset($_ENV[$name])
             ? ($default ?? null)
@@ -42,6 +44,14 @@ if (!function_exists('dd')) {
         $backtrace = debug_backtrace();
         $line = $backtrace[0]['line'];
         $file = $backtrace[0]['file'];
+
+        if (EXTRA_STARTUP_TIME !== null) {
+            $delta = round(microtime(true) - EXTRA_STARTUP_TIME, 3);
+            $delta = ($delta < 0.001) ? 0.001 : $delta;
+        } else {
+            $delta = null;
+        }
+
         echo '<body style="background-color: #0a0f1f">';
         echo '<div style="border: 2px solid #3e006f;border-radius: 7px;padding: 10px;background-color: black;">';
         echo    '<div style="display: flex;justify-content: space-between;margin-top: 8px;margin-bottom: 17px">';
@@ -74,8 +84,12 @@ if (!function_exists('dd')) {
         }
         echo    '</pre>';
         echo    '<hr style="border: 1px solid #999999;">';
-        echo    '<span style="color: #9e9e9e;font-weight: bold;">Memory '
-            . bytes(memory_get_usage(), 'MiB') . '</span>';
+        echo    '<div style="display: flex;justify-content: space-between;">';
+        echo        '<span style="float: left;color: #9e9e9e;font-weight: bold;">Memory '
+                            . bytes(memory_get_usage(), 'MiB') . '</span>';
+        echo        '<span style="float: right;color: #9e9e9e;font-style: italic;">Time '
+                            . $delta . '</span>';
+        echo    '</div>';
         echo '</div>';
         echo '</body>';
         die();

@@ -8,8 +8,7 @@ use Flytachi\Extra\Extra;
 use Flytachi\Extra\Factory\Mapping\Annotation\RequestMapping;
 use Flytachi\Extra\Factory\Mapping\Declaration\MappingDeclaration;
 use Flytachi\Extra\Factory\Mapping\Declaration\MappingDeclarationItem;
-use Flytachi\Extra\Factory\Routing\Router;
-use Flytachi\Extra\Stereotype\Common\ControllerInterface;
+use Flytachi\Extra\Stereotype\ControllerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -20,7 +19,7 @@ class Mapping
      */
     public static function scanningDeclaration(): MappingDeclaration
     {
-        $resources = scanFindAllFile(Extra::pathApp());
+        $resources = scanFindAllFile(Extra::$pathApp);
         $reflectionClasses = self::scanReflectionFilter($resources);
         return self::scanDeclarationFilter($reflectionClasses);
     }
@@ -36,11 +35,15 @@ class Mapping
             $className = 'App\\' . str_replace(
                 '.php',
                 '',
-                str_replace('/', '\\', str_replace(Extra::pathApp() . '/', '', $resource))
+                str_replace('/', '\\', str_replace(Extra::$pathApp . '/', '', $resource))
             );
-            $reflectionClass = new ReflectionClass($className);
-            if ($reflectionClass->implementsInterface(ControllerInterface::class)) {
-                $reflectionClasses[] = $reflectionClass;
+
+            try {
+                $reflectionClass = new ReflectionClass($className);
+                if ($reflectionClass->implementsInterface(ControllerInterface::class)) {
+                    $reflectionClasses[] = $reflectionClass;
+                }
+            } catch (\ReflectionException $ex) {
             }
         }
         return $reflectionClasses;

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Flytachi\Extra\Factory\Routing;
 
 use Flytachi\Extra\Extra;
+use Flytachi\Extra\Factory\Http\Header;
+use Flytachi\Extra\Factory\Http\Rendering;
 use Flytachi\Extra\Factory\Mapping\Mapping;
-use Flytachi\Extra\Unit\Method;
+use Flytachi\Extra\Stereotype\ControllerInterface;
+use Monolog\Logger;
 
 class Router
 {
@@ -16,15 +19,67 @@ class Router
      * @var array
      */
     private static array $routes = [];
-    private static string $pathMapping;
+    private static Logger $logger;
 
-
-    final public static function run(bool $isDevelop = false, ?string $pathMapping = null): void
+    final public static function run(bool $isDevelop = false): void
     {
-        self::setPaths($pathMapping);
+        self::$logger = new Logger(static::class);
+        self::$logger->pushHandler(Extra::$loggerStreamHandler);
+
         self::registrar($isDevelop);
-//        Request::setHeaders();
-//        self::route();
+        Header::setHeaders();
+        self::route();
+    }
+
+    private static function route(): void
+    {
+        self::$logger->debug(
+            'route: ' . $_SERVER['REQUEST_METHOD']
+            . ' ' . $_SERVER['REQUEST_URI']
+            . ' IP: ' . Header::getIpAddress()
+        );
+        $data = self::splitUrlAndParams($_SERVER['REQUEST_URI']);
+        $_GET = $data['params'];
+
+        $resolve =  self::resolve($data['url'], $_SERVER['REQUEST_METHOD']);
+        if (!$resolve) {
+            throw new RouterException("{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found");
+//            RouteError::throw(HttpCode::NOT_FOUND, "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found");
+        }
+
+        $render = new Rendering();
+        try {
+            $result = self::callResolveAction($resolve['action'], $resolve['params'], $resolve['url'] ?? '');
+            $render->setResource($result);
+        } catch (\Throwable $e) {
+            $render->setResource($e);
+        }
+
+        $render->render();
+
+        // original
+//        try {
+//            self::callResolveAction($resolve['action'], $resolve['params'], $resolve['url'] ?? '');
+//        } catch (\TypeError $exception) {
+//            RouteError::throw(HttpCode::BAD_REQUEST, (env('DEBUG'))
+//                ? $exception->getMessage()
+//                : 'Invalid data');
+//        } catch (CDOError | RepositoryError | ArtefactError | SheathException $exception) {
+//            RouteError::throw(
+//                HttpCode::INTERNAL_SERVER_ERROR,
+//                (env('DEBUG'))
+//                ? $exception->getMessage()
+//                : 'Server error',
+//                $exception
+//            );
+//        } catch (ExtraException | RouteError $exception) {
+//            $code = HttpCode::tryFrom((int) $exception->getCode());
+//            RouteError::throw($code ?: HttpCode::INTERNAL_SERVER_ERROR, $exception->getMessage(), $exception);
+//        } catch (\Throwable $exception) {
+//            RouteError::throw(HttpCode::INTERNAL_SERVER_ERROR, (env('DEBUG'))
+//                ? $exception->getMessage()
+//                : 'Server error');
+//        }
     }
 
     /**
@@ -68,30 +123,21 @@ class Router
         return null; // No action found for the route
     }
 
-    private static function setPaths(?string $pathMapping): void
-    {
-        if ($pathMapping === null) {
-            self::$pathMapping = Extra::pathStorage() . '/cache/mapping.php';
-        } else {
-            self::$pathMapping = $pathMapping;
-        }
-    }
-
     private static function registrar(bool $isDevelop): void
     {
         if ($isDevelop) {
-            if (file_exists(self::$pathMapping)) {
-                unlink(self::$pathMapping);
+            if (file_exists(Extra::$pathFileMapping)) {
+                unlink(Extra::$pathFileMapping);
             }
             $declaration = Mapping::scanningDeclaration();
             foreach ($declaration->getChildren() as $item) {
                 self::request($item->getUrl(), $item->getClassName(), $item->getClassMethod(), $item->getMethod());
             }
         } else {
-            if (!file_exists(self::$pathMapping)) {
+            if (!file_exists(Extra::$pathFileMapping)) {
                 self::generateMappingRoutes();
             } else {
-                self::$routes = require self::$pathMapping;
+                self::$routes = require Extra::$pathFileMapping;
             }
         }
     }
@@ -107,8 +153,8 @@ class Router
      * @param string $classMethod The method within the controller class to call (defaults to 'index').
      * @param string|null $method The HTTP method for the route (e.g., 'GET', 'POST', ...).
      * If null, the route will be treated as a default action.
-     * @throws RoutingException If the route is already registered with the same HTTP method or as a default action.
      * @return void
+     * @throws RouterException If the route is already registered with the same HTTP method or as a default action.
      */
     private static function request(
         string $route,
@@ -135,12 +181,12 @@ class Router
         // Register the route with the specified HTTP method or as a default action
         if ($method !== null) {
             if (isset($node['actions'][$method])) {
-                throw new RoutingException("Route '$route' with method '$method' is already registered.");
+                throw new RouterException("Route '$route' with method '$method' is already registered.");
             }
             $node['actions'][$method] = ['class' => $class, 'method' => $classMethod];
         } else {
             if (isset($node['defaultAction'])) {
-                throw new RoutingException("Route '$route' (default) is already registered.");
+                throw new RouterException("Route '$route' (default) is already registered.");
             }
             $node['defaultAction'] = ['class' => $class, 'method' => $classMethod];
         }
@@ -159,6 +205,62 @@ class Router
             . PHP_EOL . " * - Version: 1.5"
             . PHP_EOL . " */" . PHP_EOL . PHP_EOL
             . "return {$mapString};";
-        file_put_contents(self::$pathMapping, $fileData);
+        file_put_contents(Extra::$pathFileMapping, $fileData);
+    }
+
+
+    final protected static function splitUrlAndParams(string $url): array
+    {
+        $parsedUrl = parse_url($url);
+        $urlWithoutParams = $parsedUrl['path'];
+        $params = [];
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $params);
+        }
+
+        return [
+            'url' => $urlWithoutParams,
+            'params' => $params
+        ];
+    }
+
+    /**
+     * @param array{class: class-string<ControllerInterface>, method: string} $action
+     * @param array<int, string> $params
+     * @param string $stringUrl
+     * @return mixed
+     * @throws RouterException
+     */
+    final protected static function callResolveAction(array $action, array $params = [], string $stringUrl = ''): mixed
+    {
+        $controller = new $action['class']();
+        $methods = get_class_methods($controller);
+
+        if (!in_array($action['method'], $methods)) {
+            throw new RouterException(
+                "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found"
+            );
+//            RouteError::throw(
+//                HttpCode::BAD_GATEWAY,
+//                "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found"
+//            );
+        }
+
+        try {
+            return call_user_func_array([$controller, $action['method']], $params);
+        } catch (\TypeError $exception) {
+            $temp = $controller::class . "::" . $action['method'] . '():';
+            if (str_starts_with($exception->getMessage(), $temp)) {
+                throw new RouterException(
+                    str_replace($temp . " ", '', $exception->getMessage())
+                );
+//                RouteError::throw(
+//                    HttpCode::BAD_REQUEST,
+//                    str_replace($temp . " ", '', $exception->getMessage())
+//                );
+            } else {
+                throw $exception;
+            }
+        }
     }
 }

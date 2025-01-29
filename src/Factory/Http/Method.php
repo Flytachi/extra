@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Flytachi\Extra\Unit;
+namespace Flytachi\Extra\Factory\Http;
 
 enum Method
 {

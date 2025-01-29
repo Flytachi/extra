@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Flytachi\Extra\Factory\Mapping;
+namespace Flytachi\Extra\Factory\Routing;
 
 use Flytachi\Extra\Factory\Error\ExtraException;
 
-class MappingException extends ExtraException
+class RouterException extends ExtraException
 {
 }

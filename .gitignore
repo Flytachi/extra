@@ -4,6 +4,9 @@
 /.settings
 /.idea
 /.vscode
+/.fleet
+/.nova
+/.zed
 
 ## App ----
 /vendor
