@@ -43,7 +43,7 @@ abstract class ExtraConfig
     ): void {
         // root
         if ($pathRoot === null) {
-            $pathRoot = dirname(__DIR__, 2);
+            $pathRoot = dirname(__DIR__, 3);
         }
 
         // app
