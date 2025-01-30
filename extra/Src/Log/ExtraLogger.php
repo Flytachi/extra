@@ -23,6 +23,7 @@ class ExtraLogger extends \Monolog\Logger
         $loggerStreamHandler = new StreamHandler(Extra::$pathStorageLog . '/frame.log');
         $loggerStreamHandler->setFormatter(new LineFormatter(
             dateFormat: "Y-m-d H:i:s P",
+            allowInlineLineBreaks: true,
             ignoreEmptyContextAndExtra: true
         ));
 

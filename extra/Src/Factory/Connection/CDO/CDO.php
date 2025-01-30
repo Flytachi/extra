@@ -6,11 +6,11 @@ namespace Flytachi\Extra\Src\Factory\Connection\CDO;
 
 use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Factory\Connection\Qb;
-use Flytachi\Extra\Src\Factory\Entity\ModelInterface;
 use Flytachi\Extra\Src\Factory\Connection\Config\Common\DbConfigInterface;
 use Monolog\Logger;
 use PDO;
 use PDOException;
+use stdClass;
 
 class CDO extends PDO
 {
@@ -46,14 +46,14 @@ class CDO extends PDO
      * Create an entry in the database
      *
      * @param string $table table name in database
-     * @param ModelInterface|array $model model or array data
+     * @param object|array $model model or array data
      *
      * @return mixed
      * @throws CDOException
      */
-    final public function insert(string $table, ModelInterface|array $model): mixed
+    final public function insert(string $table, object|array $model): mixed
     {
-        if ($model instanceof ModelInterface) {
+        if (is_object($model)) {
             $model = (array) $model;
         }
         $data = $model;
@@ -116,16 +116,16 @@ class CDO extends PDO
      * Create an entries in the database
      *
      * @param string $table table name in database
-     * @param array<ModelInterface|array> $models model or array data
+     * @param array<object|array> $models model or array data
      * @throws CDOException
      */
-    final public function insertGroup(string $table, ModelInterface|array ...$models): void
+    final public function insertGroup(string $table, object|array ...$models): void
     {
         $data = [];
         $prefix = 0;
         $val = '';
         foreach ($models as $model) {
-            if ($model instanceof ModelInterface) {
+            if (is_object($model)) {
                 $model = (array) $model;
             }
             $items = $model;
@@ -196,13 +196,13 @@ class CDO extends PDO
      * Update an entry in the database
      *
      * @param string $table table name in database
-     * @param ModelInterface|array $model data
+     * @param object|array $model data
      * @param Qb $qb QlObject
      *
      * @return int|string
      * @throws CDOException
      */
-    final public function update(string $table, ModelInterface|array $model, Qb $qb): int|string
+    final public function update(string $table, object|array $model, Qb $qb): int|string
     {
         $data = (array) $model;
         $set = "";

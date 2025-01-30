@@ -18,4 +18,5 @@ interface DbConfigInterface
     public function disconnect(): void;
     public function reconnect(): void;
     public function connection(): CDO;
+    public function getSchema(): ?string;
 }

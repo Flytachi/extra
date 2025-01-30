@@ -8,7 +8,7 @@ use Flytachi\Extra\Src\Factory\Http\Header;
 use Flytachi\Extra\Src\Factory\Http\HttpCode;
 use Flytachi\Extra\Src\Unit\File\XML;
 
-class Response implements ResponseInterface
+abstract class ResponseBase implements ResponseInterface
 {
     protected mixed $content;
     protected HttpCode $httpCode;
@@ -38,12 +38,12 @@ class Response implements ResponseInterface
         };
     }
 
-    protected function constructJson(mixed $content): string
+    final protected function constructJson(mixed $content): string
     {
         return json_encode($content);
     }
 
-    protected function constructXml(mixed $content): string
+    final protected function constructXml(mixed $content): string
     {
         if (is_array($content)) {
             return XML::arrayToXml($content);
@@ -56,7 +56,7 @@ class Response implements ResponseInterface
         }
     }
 
-    protected function constructDefault(mixed $content): string
+    final protected function constructDefault(mixed $content): string
     {
         if (is_string($content) || is_numeric($content) || is_bool($content) || is_null($content)) {
             return (string) $content;

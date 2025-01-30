@@ -69,4 +69,9 @@ abstract class BaseDbConfig implements DbConfigInterface
         $this->connect();
         return $this->cdo;
     }
+
+    public function getSchema(): ?string
+    {
+        return null;
+    }
 }

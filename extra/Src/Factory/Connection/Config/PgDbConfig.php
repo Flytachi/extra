@@ -29,4 +29,9 @@ abstract class PgDbConfig extends BaseDbConfig
     {
         return 'pgsql';
     }
+
+    public function getSchema(): ?string
+    {
+        return $this->schema;
+    }
 }

@@ -6,7 +6,7 @@ namespace Flytachi\Extra\Src\Factory\Entity;
 
 use Flytachi\Extra\Src\Factory\Http\HttpCode;
 
-class Request extends \stdClass implements RequestInterface
+class RequestDefault extends \stdClass implements RequestInterface
 {
     /**
      * Retrieves the GET data from the request.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flytachi\Extra\Src\Factory\Connection\CDO;
 
+use PDO;
 use PDOStatement;
 
 class CDOStatement
