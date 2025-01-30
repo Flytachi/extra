@@ -6,6 +6,7 @@ namespace Flytachi\Extra\Src\Factory\Routing;
 
 use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Factory\Http\Header;
+use Flytachi\Extra\Src\Factory\Http\HttpCode;
 use Flytachi\Extra\Src\Factory\Http\Rendering;
 use Flytachi\Extra\Src\Factory\Mapping\Mapping;
 use Flytachi\Extra\Src\Stereotype\ControllerInterface;
@@ -39,14 +40,16 @@ class Router
         $data = self::splitUrlAndParams($_SERVER['REQUEST_URI']);
         $_GET = $data['params'];
 
-        $resolve =  self::resolve($data['url'], $_SERVER['REQUEST_METHOD']);
-        if (!$resolve) {
-            throw new RouterException("{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found");
-//            RouteError::throw(HttpCode::NOT_FOUND, "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found");
-        }
-
         $render = new Rendering();
         try {
+            $resolve =  self::resolve($data['url'], $_SERVER['REQUEST_METHOD']);
+            if (!$resolve) {
+                throw new RouterException(
+                    "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found",
+                    HttpCode::NOT_FOUND->value
+                );
+            }
+
             $result = self::callResolveAction($resolve['action'], $resolve['params'], $resolve['url'] ?? '');
             $render->setResource($result);
         } catch (\Throwable $e) {

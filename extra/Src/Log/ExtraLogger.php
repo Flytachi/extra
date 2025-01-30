@@ -26,7 +26,7 @@ class ExtraLogger extends \Monolog\Logger
             ignoreEmptyContextAndExtra: true
         ));
 
-        $allowedLevels = env('LOG_LEVEL');
+        $allowedLevels = env('LOGGER_LEVEL_ALLOW');
         if ($allowedLevels === null) {
             $allowedLevels = 'DEBUG,INFO,NOTICE,WARNING,ERROR,CRITICAL,ALERT,EMERGENCY';
         }
