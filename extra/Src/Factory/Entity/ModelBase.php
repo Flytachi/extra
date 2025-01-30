@@ -8,10 +8,9 @@ class ModelBase extends \stdClass implements ModelInterface
 {
     final public function __toString(): string
     {
-        $data = [];
-        foreach (get_object_vars($this) as $key => $value) {
-            $data[$key] = $value;
-        }
+        $data = array_map(function ($value) {
+            return $value;
+        }, get_object_vars($this));
         return json_encode($data);
     }
 

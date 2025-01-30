@@ -11,7 +11,12 @@ class ExceptionWrapper
 {
     public static function wrapHeader(): array
     {
-        return ['Content-Type' => Header::getHeader('Accept')];
+        $accept = Header::getHeader('Accept');
+        if (str_contains($accept, 'text/html')) {
+            return ['Content-Type' => 'text/html; charset=utf-8'];
+        } else {
+            return ['Content-Type' => $accept];
+        }
     }
 
     public static function wrapBody(\Throwable $throwable): string
