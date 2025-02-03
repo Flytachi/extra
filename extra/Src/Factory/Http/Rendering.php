@@ -39,7 +39,7 @@ class Rendering
 
     public function render(): never
     {
-        Extra::$logger->withName(self::class)->debug(sprintf(
+        Extra::$logger->withName("Rendering")->debug(sprintf(
             "HTTP [%d] %s -> %s",
             $this->httpCode->value,
             $this->httpCode->message(),

@@ -27,7 +27,7 @@ class CDO extends PDO
      */
     public function __construct(DbConfigInterface $config, bool $debug = false)
     {
-        self::$logger = Extra::$logger->withName(static::class);
+        self::$logger = Extra::$logger->withName("CDO");
         try {
             parent::__construct($config->getDNS(), $config->getUsername(), $config->getPassword());
             $this->SetAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
