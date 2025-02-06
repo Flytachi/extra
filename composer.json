@@ -4,20 +4,20 @@
     "type": "project",
     "license": "MIT",
     "version": "0.2.0",
-    "keywords": ["extra", "framework"],
+    "keywords": ["Extra","extra","framework"],
     "scripts": {
         "post-create-project-cmd": [
             "chmod -R 777 storage",
-            "@php -r \"file_exists('.env') || copy('extra/Template/Build/env', '.env');\""
+            "@php extra cfg env -i"
         ]
     },
     "autoload": {
         "psr-4": {
-            "Flytachi\\Extra\\": "extra/",
+            "Flytachi\\Extra\\": "Extra/",
             "App\\": "app/"
         },
         "files": [
-            "extra/Function/Dependencies.php"
+            "./Extra/Function/Dependencies.php"
         ]
     },
     "authors": [
@@ -32,10 +32,11 @@
         "vlucas/phpdotenv": "@stable",
         "ext-simplexml": "*",
         "ext-pdo": "*",
-        "ext-openssl": "*"
+        "ext-openssl": "*",
+        "ext-pcntl": "*",
+        "ext-redis": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "@stable",
         "squizlabs/php_codesniffer": "@stable"
     }
 }

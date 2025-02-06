@@ -1,0 +1,15 @@
+<?php
+
+namespace __namespace__;
+
+use Flytachi\Extra\Src\Factory\Mapping\Annotation\RequestMapping;
+use Flytachi\Extra\Src\Stereotype\Controller;
+
+class __className__ extends Controller
+{
+    #[RequestMapping('/__shortName__')]
+    public function index(): void
+    {
+        dd();
+    }
+}

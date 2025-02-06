@@ -1,0 +1,9 @@
+<?php
+
+namespace __namespace__;
+
+use Flytachi\Extra\Src\Stereotype\Service;
+
+class __className__ extends Service
+{
+}

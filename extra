@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+if (extension_loaded('pcntl'))
+    pcntl_async_signals(true);
+
+// Version PHP 8.2
+if (PHP_VERSION_ID >= 80200) {
+
+    require './vendor/autoload.php';
+    \Flytachi\Extra\Extra::init();
+    new \Flytachi\Extra\Console\Core($argv);
+
+} else {
+    echo "\033[33m"." Please use PHP version 8.2 or higher.\n";
+    echo "\033[34m"." Current PHP version => " . PHP_VERSION . "\n";
+}
