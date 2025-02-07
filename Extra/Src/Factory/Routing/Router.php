@@ -10,7 +10,7 @@ use Flytachi\Extra\Src\Factory\Http\HttpCode;
 use Flytachi\Extra\Src\Factory\Http\Rendering;
 use Flytachi\Extra\Src\Factory\Mapping\Mapping;
 use Flytachi\Extra\Src\Stereotype\ControllerInterface;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Router
 {
@@ -20,7 +20,7 @@ class Router
      * @var array
      */
     private static array $routes = [];
-    private static Logger $logger;
+    private static LoggerInterface $logger;
 
     final public static function run(bool $isDevelop = false): void
     {

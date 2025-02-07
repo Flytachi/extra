@@ -7,7 +7,7 @@ namespace Flytachi\Extra;
 use Dotenv\Dotenv;
 use Flytachi\Extra\Src\Factory\ExtraConfig;
 use Flytachi\Extra\Src\Log\ExtraLogger;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Extra
@@ -17,7 +17,7 @@ use Monolog\Logger;
  */
 class Extra extends ExtraConfig
 {
-    public static Logger $logger;
+    public static LoggerInterface $logger;
 
     public static function init(
         ?string $pathRoot = null,
@@ -28,7 +28,7 @@ class Extra extends ExtraConfig
         ?string $pathStorageCache = null,
         ?string $pathStorageLog = null,
         ?string $pathFileMapping = null,
-        ?Logger $logger = null
+        ?LoggerInterface $logger = null
     ): void {
         define('EXTRA_STARTUP_TIME', microtime(true));
         parent::init(

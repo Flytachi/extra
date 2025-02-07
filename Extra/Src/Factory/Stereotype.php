@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Flytachi\Extra\Src\Factory;
 
 use Flytachi\Extra\Extra;
-use Monolog\Logger;
+use Psr\Log\LoggerAwareTrait;
 
 abstract class Stereotype
 {
-    protected Logger $logger;
+    use LoggerAwareTrait;
 
     public function __construct()
     {
-        $this->logger = Extra::$logger->withName(static::class);
+        self::setLogger(Extra::$logger->withName(static::class));
     }
 }

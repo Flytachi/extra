@@ -7,14 +7,13 @@ namespace Flytachi\Extra\Src\Factory\Connection\CDO;
 use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Factory\Connection\Qb;
 use Flytachi\Extra\Src\Factory\Connection\Config\Common\DbConfigInterface;
-use Monolog\Logger;
 use PDO;
 use PDOException;
-use stdClass;
+use Psr\Log\LoggerInterface;
 
 class CDO extends PDO
 {
-    private static Logger $logger;
+    private static LoggerInterface $logger;
 
     /**
      * Constructor

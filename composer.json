@@ -28,13 +28,15 @@
     ],
     "require": {
         "php": ">=8.3",
+        "psr/log": "@stable",
         "monolog/monolog": "@stable",
         "vlucas/phpdotenv": "@stable",
         "ext-simplexml": "*",
         "ext-pdo": "*",
         "ext-openssl": "*",
         "ext-pcntl": "*",
-        "ext-redis": "*"
+        "ext-redis": "*",
+        "ext-posix": "*"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable"
