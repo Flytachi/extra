@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flytachi\Extra\Src\Thread;
 
+use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Thread\Conductors\Conductor;
 use Flytachi\Extra\Src\Thread\Conductors\ConductorEmpty;
 use Flytachi\Extra\Src\Thread\Dispatcher\Dispatcher;
@@ -11,7 +12,7 @@ use Flytachi\Extra\Src\Thread\Dispatcher\DispatcherInterface;
 use Flytachi\Extra\Src\Thread\Traits\ProcessHandler;
 use Flytachi\Extra\Src\Thread\Traits\Thread;
 
-abstract class Process extends Dispatcher implements DispatcherInterface
+abstract class ProcessThread extends Dispatcher implements DispatcherInterface
 {
     use ProcessHandler;
     use Thread;
@@ -52,6 +53,7 @@ abstract class Process extends Dispatcher implements DispatcherInterface
     private function startRun(): void
     {
         $this->pid = getmypid();
+        static::$logger = Extra::$logger->withName("[{$this->pid}] " . static::class);
 
         if (PHP_SAPI === 'cli') {
             pcntl_signal(SIGHUP, function () {
@@ -63,7 +65,7 @@ abstract class Process extends Dispatcher implements DispatcherInterface
             pcntl_signal(SIGTERM, function () {
                 $this->signTermination();
             });
-            cli_set_process_title('extra process' . static::class);
+            cli_set_process_title('extra process ' . static::class);
             $this->conductor->recordAdd(static::class, $this->pid);
         }
     }
@@ -117,7 +119,7 @@ abstract class Process extends Dispatcher implements DispatcherInterface
     /**
      * @throws ThreadException
      */
-    public static function dispatch(mixed $data = null): int
+    final public static function dispatch(mixed $data = null): int
     {
         return self::runnable($data);
     }

@@ -84,31 +84,31 @@ trait ProcessHandler
 
     protected function asInterrupt(): void
     {
-        static::$logger->alert("[{$this->pid}] INTERRUPTED");
+        static::$logger->alert("INTERRUPTED");
     }
 
     protected function asTermination(): void
     {
-        static::$logger->alert("[{$this->pid}] TERMINATION");
+        static::$logger->critical("TERMINATION");
     }
 
     protected function asClose(): void
     {
-        static::$logger->alert("[{$this->pid}] CLOSE");
+        static::$logger->alert("CLOSE");
     }
 
     protected function asChildInterrupt(): void
     {
-        static::$logger->alert("[" . getmypid() . "] INTERRUPTED CHILD");
+        static::$logger->alert("INTERRUPTED CHILD");
     }
 
     protected function asChildTermination(): void
     {
-        static::$logger->alert("[" . getmypid() . "] TERMINATION CHILD");
+        static::$logger->critical("TERMINATION CHILD");
     }
 
     protected function asChildClose(): void
     {
-        static::$logger->alert("[" . getmypid() . "] CLOSE CHILD");
+        static::$logger->alert("CLOSE CHILD");
     }
 }

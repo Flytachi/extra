@@ -31,7 +31,8 @@ abstract class Dispatcher
         if (!is_dir(Extra::$pathStorageCache)) {
             mkdir(Extra::$pathStorageCache, 0777, true);
         }
-        static::$logger = Extra::$logger->withName(static::class);
+        set_time_limit(0);
+        ob_implicit_flush();
     }
 
     /**

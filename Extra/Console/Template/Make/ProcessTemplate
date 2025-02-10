@@ -1,0 +1,23 @@
+<?php
+
+namespace __namespace__;
+
+use Flytachi\Extra\Src\Stereotype\Process;
+
+class __className__ extends Process
+{
+    public function run(mixed $data = null): void
+    {
+        self::$logger->info('START');
+        $pid = $this->threadProc();
+        $this->wait($pid, function ($pid, $status) {
+            static::$logger->info("PROC finally (status {$status})");
+        });
+        self::$logger->info('END');
+    }
+
+    public function proc(mixed $data = null): void
+    {
+        static::$logger->info("PROC running");
+    }
+}

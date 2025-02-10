@@ -9,7 +9,7 @@ use Flytachi\Extra\Src\Factory\Error\ExceptionWrapper;
 use Flytachi\Extra\Src\Factory\Error\ExtraThrowable;
 use Flytachi\Extra\Src\Factory\Http\Response\ResponseInterface;
 
-class Rendering
+final class Rendering
 {
     private HttpCode $httpCode;
     private array $header = [];

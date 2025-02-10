@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
  * @version 1.0
  * @author Flytachi
  */
-class Extra extends ExtraConfig
+final class Extra extends ExtraConfig
 {
     public static LoggerInterface $logger;
 

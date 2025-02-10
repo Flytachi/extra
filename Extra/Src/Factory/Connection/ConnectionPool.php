@@ -9,7 +9,7 @@ use Flytachi\Extra\Src\Factory\Connection\Config\Common\DbConfigInterface;
 use Flytachi\Extra\Src\Factory\Connection\Config\Common\RedisConfigInterface;
 use Redis;
 
-abstract class ConnectionPool
+final class ConnectionPool
 {
     /* @var array<string, DbConfigInterface> */
     private static array $dbConfig = [];

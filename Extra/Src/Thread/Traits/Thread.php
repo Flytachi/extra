@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flytachi\Extra\Src\Thread\Traits;
 
+use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Thread\ThreadException;
 
 trait Thread
@@ -22,23 +23,23 @@ trait Thread
                 if ($pid == 0) {
                     // Child process
                     try {
-                        $pid = getmypid();
-                        $this->threadStartRun($pid);
+                        $this->pid = getmypid();
+                        $this->threadStartRun();
                         try {
                             $function();
                         } catch (\Throwable $exception) {
                             static::$logger->error(
-                                "[$pid] Thread Logic => " . $exception->getMessage()
+                                "[$this->pid] Thread Logic => " . $exception->getMessage()
                                 . "\n" . $exception->getTraceAsString()
                             );
                         }
                     } catch (\Throwable $exception) {
                         static::$logger->error(
-                            "[$pid] Thread: " . $exception->getMessage()
+                            "[$this->pid] Thread: " . $exception->getMessage()
                             . "\n" . $exception->getTraceAsString()
                         );
                     } finally {
-                        $this->threadEndRun($pid);
+                        $this->threadEndRun();
                         exit(0);
                     }
                 } else {
@@ -71,23 +72,23 @@ trait Thread
                 if ($pid == 0) {
                     // Child process
                     try {
-                        $pid = getmypid();
-                        $this->threadStartRun($pid);
+                        $this->pid = getmypid();
+                        $this->threadStartRun();
                         try {
-                            $this->proc($pid, $data);
+                            $this->proc($data);
                         } catch (\Throwable $exception) {
                             static::$logger->error(
-                                "[$pid] Thread(proc) Logic => " . $exception->getMessage()
+                                "[$this->pid] Thread(proc) Logic => " . $exception->getMessage()
                                 . "\n" . $exception->getTraceAsString()
                             );
                         }
                     } catch (\Throwable $exception) {
                         static::$logger->error(
-                            "[$pid] Thread(proc): " . $exception->getMessage()
+                            "[$this->pid] Thread(proc): " . $exception->getMessage()
                             . "\n" . $exception->getTraceAsString()
                         );
                     } finally {
-                        $this->threadEndRun($pid);
+                        $this->threadEndRun();
                         exit(0);
                     }
                 } else {
@@ -106,19 +107,20 @@ trait Thread
         }
     }
 
-    protected function threadStartRun(int $pid): void
+    protected function threadStartRun(): void
     {
+        static::$logger = Extra::$logger->withName("[{$this->pid}] " . static::class);
         if (PHP_SAPI === 'cli') {
             cli_set_process_title('extra kube-thread ' . static::class);
         }
     }
 
-    protected function threadEndRun(int $pid): void
+    protected function threadEndRun(): void
     {
     }
 
-    public function proc(int $pid, mixed $data = null): void
+    public function proc(mixed $data = null): void
     {
-        static::$logger->info("[{$pid}] -proc- running");
+        static::$logger->info("-proc- running");
     }
 }

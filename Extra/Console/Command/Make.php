@@ -64,8 +64,8 @@ class Make extends Cmd
             if (in_array('j', $this->args['flags'])) {
                 $this->createJob($templateName);
             }
-            if (in_array('k', $this->args['flags'])) {
-                $this->createKube($templateName);
+            if (in_array('p', $this->args['flags'])) {
+                $this->createProcess($templateName);
             }
             if (in_array('w', $this->args['flags'])) {
                 $this->createWebSocket($templateName);
@@ -151,45 +151,33 @@ class Make extends Cmd
         $this->createFile($info['className'], $info['path'], $code, 'request');
     }
 
-//    private function createJob(string $name): void
-//    {
-//        $name = $this->ucWord($name) . 'Job';
-//        $templatePath = $this->templatePath . '/JobTemplate';
-//        $path = $this->getPath('Threads/Jobs');
-//
-//        $code = file_get_contents($templatePath);
-//        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
-//        $code = str_replace("__className__", $name, $code);
-//
-//        $this->createFile($name, $path, $code, 'job');
-//    }
-//
-//    private function createKube(string $name): void
-//    {
-//        $name = $this->ucWord($name) . 'Kube';
-//        $templatePath = $this->templatePath . '/KubeTemplate';
-//        $path = $this->getPath('Threads/Kube');
-//
-//        $code = file_get_contents($templatePath);
-//        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
-//        $code = str_replace("__className__", $name, $code);
-//
-//        $this->createFile($name, $path, $code, 'kube');
-//    }
-//
-//    private function createWebSocket(string $name): void
-//    {
-//        $name = $this->ucWord($name) . 'WebSocket';
-//        $templatePath = $this->templatePath . '/WebSocketTemplate';
-//        $path = $this->getPath('Threads/Socket');
-//
-//        $code = file_get_contents($templatePath);
-//        $code = str_replace("__namespace__", str_replace('/', '\\', trim($path, " \t\n\r\0\x0B/")), $code);
-//        $code = str_replace("__className__", $name, $code);
-//
-//        $this->createFile($name, $path, $code, 'socket');
-//    }
-//
+    private function createJob(string $name): void
+    {
+        $info = $this->getInfo($name, 'Job', 'JobTemplate');
+        $code = file_get_contents($info['template']);
+        $code = str_replace("__namespace__", $info['namespace'], $code);
+        $code = str_replace("__className__", $info['className'], $code);
+        $this->createFile($info['className'], $info['path'], $code, 'job');
+    }
+
+    private function createProcess(string $name): void
+    {
+        $info = $this->getInfo($name, 'Process', 'ProcessTemplate');
+        $code = file_get_contents($info['template']);
+        $code = str_replace("__namespace__", $info['namespace'], $code);
+        $code = str_replace("__className__", $info['className'], $code);
+        $this->createFile($info['className'], $info['path'], $code, 'process');
+    }
+
+    private function createWebSocket(string $name): void
+    {
+        $info = $this->getInfo($name, 'WebSocket', 'WebSocketTemplate');
+        $code = file_get_contents($info['template']);
+        $code = str_replace("__namespace__", $info['namespace'], $code);
+        $code = str_replace("__className__", $info['className'], $code);
+        $this->createFile($info['className'], $info['path'], $code, 'websocket');
+    }
+
     private function createCmd(string $name): void
     {
         $info = $this->getInfo($name, 'Cmd', 'CmdTemplate');
@@ -241,7 +229,6 @@ class Make extends Cmd
     {
         $cl = 34;
         self::printTitle("Make Help", $cl);
-
         self::printLabel("extra make [args...] -[flags...] --[options...]", $cl);
         self::printMessage("args - names of generated templates", $cl);
         self::printMessage("flags - selection of templates to be created", $cl);
@@ -257,7 +244,7 @@ class Make extends Cmd
         self::print("t - Template Store, prefix Store", $cl);
         self::print("", $cl);
         self::print("j - Template Job, prefix Job", $cl);
-        self::print("k - Template Kube, prefix Kube", $cl);
+        self::print("p - Template Process, prefix Process", $cl);
         self::print("w - Template WebSocket, prefix WebSocket", $cl);
         self::print("", $cl);
         self::print("n - Template CustomCmd, dont prefix", $cl);

@@ -15,7 +15,7 @@ use Flytachi\Extra\Src\Unit\Algorithm;
  * @version 4.0
  * @author Flytachi
  */
-class Qb
+final class Qb
 {
     private string $query;
     private array $cache;

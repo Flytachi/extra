@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Flytachi\Extra\Src\Thread\Traits;
+namespace Flytachi\Extra\Src\Thread\Socket\Web;
 
-trait ProcessEasyHandler
+trait SocketWebServerHandler
 {
     /**
      * Signs an interrupt and terminates the execution of the current script.
@@ -51,16 +51,19 @@ trait ProcessEasyHandler
 
     protected function asInterrupt(): void
     {
+        $this->socketClose();
         static::$logger->alert("INTERRUPTED");
     }
 
     protected function asTermination(): void
     {
+        $this->socketClose();
         static::$logger->critical("TERMINATION");
     }
 
     protected function asClose(): void
     {
+        $this->socketClose();
         static::$logger->alert("CLOSE");
     }
 }
