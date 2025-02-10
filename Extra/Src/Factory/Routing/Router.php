@@ -241,24 +241,19 @@ class Router
             throw new RouterException(
                 "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found"
             );
-//            RouteError::throw(
-//                HttpCode::BAD_GATEWAY,
-//                "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found"
-//            );
         }
 
         try {
-            return call_user_func_array([$controller, $action['method']], $params);
+            return call_user_func_array([$controller, $action['method']], [
+                ...$params,
+                'middleware' => 'router'
+            ]);
         } catch (\TypeError $exception) {
             $temp = $controller::class . "::" . $action['method'] . '():';
             if (str_starts_with($exception->getMessage(), $temp)) {
                 throw new RouterException(
                     str_replace($temp . " ", '', $exception->getMessage())
                 );
-//                RouteError::throw(
-//                    HttpCode::BAD_REQUEST,
-//                    str_replace($temp . " ", '', $exception->getMessage())
-//                );
             } else {
                 throw $exception;
             }

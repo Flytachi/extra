@@ -27,7 +27,7 @@ namespace Flytachi\Extra\Src\Unit;
  * @version 2.2
  * @author Flytachi
  */
-abstract class Algorithm
+final class Algorithm
 {
     /** @var string */
     private static string $alphabet;

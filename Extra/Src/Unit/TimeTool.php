@@ -32,7 +32,7 @@ use DateTimeZone;
  * @version 2.0
  * @author Flytachi
  */
-abstract class TimeTool
+final class TimeTool
 {
     /**
      * Checks whether the given string is a valid date and time.

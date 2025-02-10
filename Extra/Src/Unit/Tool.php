@@ -23,7 +23,7 @@ use Exception;
  * @version 2.0
  * @author Flytachi
  */
-abstract class Tool
+final class Tool
 {
     /**
      * Determines if a given value is a valid URL.
