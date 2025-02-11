@@ -50,7 +50,7 @@ class Mapping extends Cmd
         try {
             $declaration = \Flytachi\Extra\Src\Factory\Mapping\Mapping::scanningDeclaration();
             foreach ($declaration->getChildren() as $item) {
-                $method = str_pad($item->getMethod(), 7);
+                $method = str_pad($item->getMethod() ?: '?', 7);
                 $url = str_pad($item->getUrl(), 50);
                 $classMethod = $item->getClassName() . '->' . $item->getClassMethod();
                 self::printSplit(sprintf("%s /%s %s()", $method, $url, $classMethod), 34);

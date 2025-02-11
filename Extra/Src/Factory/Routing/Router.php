@@ -7,8 +7,11 @@ namespace Flytachi\Extra\Src\Factory\Routing;
 use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Factory\Http\Header;
 use Flytachi\Extra\Src\Factory\Http\HttpCode;
+use Flytachi\Extra\Src\Factory\Http\Method;
 use Flytachi\Extra\Src\Factory\Http\Rendering;
 use Flytachi\Extra\Src\Factory\Mapping\Mapping;
+use Flytachi\Extra\Src\Factory\Middleware\Cors\AccessControl;
+use Flytachi\Extra\Src\Factory\Middleware\Cors\AccessControlMiddleware;
 use Flytachi\Extra\Src\Stereotype\ControllerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -41,8 +44,10 @@ class Router
 
         $render = new Rendering();
         try {
+            // registration
             self::registrar($isDevelop);
-            $resolve =  self::resolve($data['url'], $_SERVER['REQUEST_METHOD']);
+
+            $resolve = self::resolveActions($data['url']);
             if (!$resolve) {
                 throw new RouterException(
                     "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found",
@@ -50,6 +55,18 @@ class Router
                 );
             }
 
+            // options
+            if ($_SERVER['REQUEST_METHOD'] == Method::OPTIONS->name) {
+                AccessControl::processed($resolve['options']);
+            }
+
+            $resolve = self::resolveActionSelect($resolve, $_SERVER['REQUEST_METHOD']);
+            if (!$resolve) {
+                throw new RouterException(
+                    "{$_SERVER['REQUEST_METHOD']} '{$data['url']}' url not found",
+                    HttpCode::NOT_FOUND->value
+                );
+            }
             $result = self::callResolveAction($resolve['action'], $resolve['params'], $resolve['url'] ?? '');
             $render->setResource($result);
         } catch (\Throwable $e) {
@@ -59,9 +76,6 @@ class Router
         $render->render();
 
         // original
-//        try {
-//            self::callResolveAction($resolve['action'], $resolve['params'], $resolve['url'] ?? '');
-//        } catch (\TypeError $exception) {
 //            RouteError::throw(HttpCode::BAD_REQUEST, (env('DEBUG'))
 //                ? $exception->getMessage()
 //                : 'Invalid data');
@@ -81,6 +95,53 @@ class Router
 //                ? $exception->getMessage()
 //                : 'Server error');
 //        }
+    }
+
+    /**
+     * Resolves a given URL and HTTP method to a registered route.
+     *
+     * This method searches the registered routes for a match to the provided URL and HTTP method.
+     * If a match is found, it returns an array containing the associated controller action and any dynamic parameters.
+     * If no match is found, it returns null.
+     *
+     * @param string $url The requested URL to resolve.
+     * @return array|null Returns an array with the action and
+     * parameters if a route is found, or null if no route matches.
+     */
+    final public static function resolveActions(string $url): ?array
+    {
+        $node = self::$routes;
+        $params = [];
+        $parts = explode('/', trim($url, '/'));
+
+        // Traverse the route tree to find a match
+        foreach ($parts as $part) {
+            if (isset($node[$part])) {
+                $node = $node[$part];
+            } elseif (isset($node['{param}'])) {
+                $node = $node['{param}'];
+                $params[] = $part;
+            } else {
+                return null; // No matching route found
+            }
+        }
+
+        return ['options' => $node, 'params' => $params];
+    }
+
+    final public static function resolveActionSelect(array $resolve, string $httpMethod): ?array
+    {
+        if (isset($resolve['options']['actions'][$httpMethod])) {
+            return [
+                'action' => $resolve['options']['actions'][$httpMethod],
+                'params' => $resolve['params']
+            ];
+        }
+        if (isset($resolve['options']['defaultAction'])) {
+            return ['action' => $resolve['options']['defaultAction'], 'params' => $resolve['params']];
+        }
+
+        return null;
     }
 
     /**
@@ -132,7 +193,13 @@ class Router
             }
             $declaration = Mapping::scanningDeclaration();
             foreach ($declaration->getChildren() as $item) {
-                self::request($item->getUrl(), $item->getClassName(), $item->getClassMethod(), $item->getMethod());
+                self::request(
+                    $item->getUrl(),
+                    $item->getClassName(),
+                    $item->getClassMethod(),
+                    $item->getMiddlewareClassNames(),
+                    $item->getMethod()
+                );
             }
         } else {
             if (!file_exists(Extra::$pathFileMapping)) {
@@ -152,6 +219,7 @@ class Router
      * @param string $route The URL route pattern (e.g., "/user/{id}").
      * @param string $class The controller class to handle the route.
      * @param string $classMethod The method within the controller class to call (defaults to 'index').
+     * @param array $middlewares
      * @param string|null $method The HTTP method for the route (e.g., 'GET', 'POST', ...).
      * If null, the route will be treated as a default action.
      * @return void
@@ -161,7 +229,8 @@ class Router
         string $route,
         string $class,
         string $classMethod = 'index',
-        ?string $method = null
+        array $middlewares = [],
+        ?string $method = null,
     ): void {
         // Normalize the URL by trimming slashes
         $route = trim($route, '/');
@@ -179,17 +248,26 @@ class Router
             $node = &$node[$key];
         }
 
+        // Register middlewares
+        if (!empty($middlewares)) {
+            $duplicates = array_diff_assoc($middlewares, array_unique($middlewares));
+            if (!empty($duplicates)) {
+                $duplicatesList = implode(', ', $duplicates);
+                throw new RouterException("Duplicate Middleware found: [{$duplicatesList}].");
+            }
+        }
+
         // Register the route with the specified HTTP method or as a default action
         if (!empty($method)) {
             if (isset($node['actions'][$method])) {
                 throw new RouterException("Route '$route' with method '$method' is already registered.");
             }
-            $node['actions'][$method] = ['class' => $class, 'method' => $classMethod];
+            $node['actions'][$method] = ['class' => $class, 'method' => $classMethod, 'middlewares' => $middlewares];
         } else {
             if (isset($node['defaultAction'])) {
                 throw new RouterException("Route '$route' (default) is already registered.");
             }
-            $node['defaultAction'] = ['class' => $class, 'method' => $classMethod];
+            $node['defaultAction'] = ['class' => $class, 'method' => $classMethod, 'middlewares' => $middlewares];
         }
     }
 
@@ -197,7 +275,13 @@ class Router
     {
         $declaration = Mapping::scanningDeclaration();
         foreach ($declaration->getChildren() as $item) {
-            self::request($item->getUrl(), $item->getClassName(), $item->getClassMethod(), $item->getMethod());
+            self::request(
+                $item->getUrl(),
+                $item->getClassName(),
+                $item->getClassMethod(),
+                $item->getMiddlewareClassNames(),
+                $item->getMethod()
+            );
         }
         $mapString = var_export(json_decode(json_encode(self::$routes), true), true);
         $fileData = "<?php" . PHP_EOL . PHP_EOL;
@@ -242,12 +326,23 @@ class Router
                 "{$_SERVER['REQUEST_METHOD']} '{$stringUrl}' url realization '{$action['method']}' not found"
             );
         }
-
         try {
-            return call_user_func_array([$controller, $action['method']], [
-                ...$params,
-                'middleware' => 'router'
-            ]);
+            $middlewares = [];
+            foreach ($action['middlewares'] as $middlewareName) {
+                $middleware = new $middlewareName();
+                if ($middleware instanceof AccessControlMiddleware) {
+                    $middleware->using();
+                }
+                $middleware->optionBefore();
+                $middlewares[] = $middleware;
+            }
+
+            $result = call_user_func_array([$controller, $action['method']], $params);
+
+            foreach ($middlewares as $middleware) {
+                $middleware->optionAfter();
+            }
+            return $result;
         } catch (\TypeError $exception) {
             $temp = $controller::class . "::" . $action['method'] . '():';
             if (str_starts_with($exception->getMessage(), $temp)) {

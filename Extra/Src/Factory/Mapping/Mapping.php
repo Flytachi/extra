@@ -8,6 +8,7 @@ use Flytachi\Extra\Extra;
 use Flytachi\Extra\Src\Factory\Mapping\Annotation\RequestMapping;
 use Flytachi\Extra\Src\Factory\Mapping\Declaration\MappingDeclaration;
 use Flytachi\Extra\Src\Factory\Mapping\Declaration\MappingDeclarationItem;
+use Flytachi\Extra\Src\Factory\Middleware\MiddlewareInterface;
 use Flytachi\Extra\Src\Stereotype\ControllerInterface;
 use ReflectionClass;
 use ReflectionMethod;
@@ -68,17 +69,36 @@ class Mapping
                 $mappingClass = null;
             }
 
+            // class middleware annotations
+            $middlewaresClass = [];
+            $groupAnnotationMiddleware = $reflectionClass->getAttributes(
+                MiddlewareInterface::class,
+                \ReflectionAttribute::IS_INSTANCEOF
+            );
+            foreach ($groupAnnotationMiddleware as $annotationMiddleware) {
+                $middlewaresClass[] = $annotationMiddleware->getName();
+            }
+
             // method annotation
             foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
                 if ($reflectionMethod->name != '__construct') {
-                    foreach (
-                        $reflectionMethod->getAttributes(
-                            MappingRequestInterface::class,
-                            \ReflectionAttribute::IS_INSTANCEOF
-                        ) as $annotation
-                    ) {
+                    $annotations = $reflectionMethod->getAttributes(
+                        MappingRequestInterface::class,
+                        \ReflectionAttribute::IS_INSTANCEOF
+                    );
+                    foreach ($annotations as $annotation) {
                         /** @var MappingRequestInterface $mapping */
                         $mapping = $annotation->newInstance();
+
+                        // method middleware annotations
+                        $middlewares = [];
+                        $annotationMiddlewares = $reflectionMethod->getAttributes(
+                            MiddlewareInterface::class,
+                            \ReflectionAttribute::IS_INSTANCEOF
+                        );
+                        foreach ($annotationMiddlewares as $annotationMiddleware) {
+                            $middlewares[] = $annotationMiddleware->getName();
+                        }
                         $declarationItem = new MappingDeclarationItem(
                             $mapping->getCallback() ?: '',
                             ($mappingClass != null
@@ -86,7 +106,8 @@ class Mapping
                                 : $mapping->getUrl()
                             ),
                             $reflectionClass->getName(),
-                            $reflectionMethod->getName()
+                            $reflectionMethod->getName(),
+                            [...$middlewaresClass, ...$middlewares]
                         );
                         $declaration->push($declarationItem);
                     }

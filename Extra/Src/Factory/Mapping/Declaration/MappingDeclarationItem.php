@@ -12,19 +12,27 @@ class MappingDeclarationItem
     private string $url;
     private string $className;
     private string $classMethod;
+    private array $middlewareClassNames;
 
     /**
      * @param string $method
      * @param string $url
      * @param string $className
      * @param string $classMethod
+     * @param array $middlewareClassNames
      */
-    public function __construct(string $method, string $url, string $className, string $classMethod)
-    {
+    public function __construct(
+        string $method,
+        string $url,
+        string $className,
+        string $classMethod,
+        array $middlewareClassNames = []
+    ) {
         $this->method = $method;
         $this->url = $url;
         $this->className = $className;
         $this->classMethod = $classMethod;
+        $this->middlewareClassNames = $middlewareClassNames;
     }
 
     public function getUrl(): string
@@ -45,6 +53,11 @@ class MappingDeclarationItem
     public function getMethod(): string
     {
         return $this->method;
+    }
+
+    public function getMiddlewareClassNames(): array
+    {
+        return $this->middlewareClassNames;
     }
 
 //    /**
