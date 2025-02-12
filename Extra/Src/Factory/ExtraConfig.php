@@ -10,6 +10,7 @@ abstract class ExtraConfig
     public static string $pathEnv;
     public static string $pathApp;
     public static string $pathPublic;
+    public static string $pathResource;
     public static string $pathStorage;
     public static string $pathStorageCache;
     public static string $pathStorageLog;
@@ -20,6 +21,7 @@ abstract class ExtraConfig
      * @param string|null $pathApp
      * @param string|null $pathEnv
      * @param string|null $pathPublic
+     * @param string|null $pathResource
      * @param string|null $pathStorage
      * @param string|null $pathStorageCache
      * @param string|null $pathStorageLog
@@ -31,10 +33,11 @@ abstract class ExtraConfig
         ?string $pathApp = null,
         ?string $pathEnv = null,
         ?string $pathPublic = null,
+        ?string $pathResource = null,
         ?string $pathStorage = null,
         ?string $pathStorageCache = null,
         ?string $pathStorageLog = null,
-        ?string $pathFileMapping = null,
+        ?string $pathFileMapping = null
     ): void {
         // root
         if ($pathRoot === null) {
@@ -54,6 +57,11 @@ abstract class ExtraConfig
         // public
         if ($pathPublic === null) {
             $pathPublic = $pathRoot . '/public';
+        }
+
+        // resource
+        if ($pathStorageLog === null) {
+            $pathResource = $pathRoot . '/resources';
         }
 
         // storage
@@ -80,6 +88,7 @@ abstract class ExtraConfig
         self::$pathApp = $pathApp;
         self::$pathEnv = $pathEnv;
         self::$pathPublic = $pathPublic;
+        self::$pathResource = $pathResource;
         self::$pathStorage = $pathStorage;
         self::$pathStorageCache = $pathStorageCache;
         self::$pathStorageLog = $pathStorageLog;

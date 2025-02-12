@@ -8,6 +8,7 @@ use DateTimeZone;
 use Flytachi\Extra\Extra;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FilterHandler;
+use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
 
 class ExtraLogger extends \Monolog\Logger
@@ -20,9 +21,13 @@ class ExtraLogger extends \Monolog\Logger
     ) {
         parent::__construct($name, $handlers, $processors, $timezone);
 
-        $loggerStreamHandler = new StreamHandler(Extra::$pathStorageLog . '/frame.log');
+        $loggerStreamHandler = new RotatingFileHandler(
+            Extra::$pathStorageLog . '/frame.log',
+            maxFiles: env('LOGGER_MAX_FILES', 0),
+            dateFormat: env('LOGGER_FILE_DATE_FORMAT', 'Y-m-d')
+        );
         $loggerStreamHandler->setFormatter(new LineFormatter(
-            dateFormat: "Y-m-d H:i:s P",
+            dateFormat: env('LOGGER_LINE_DATE_FORMAT', 'Y-m-d H:i:s P'),
             allowInlineLineBreaks: true,
             ignoreEmptyContextAndExtra: true
         ));
