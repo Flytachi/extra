@@ -26,5 +26,4 @@ readonly class Msg
     {
         return "[{$this->type}:{$this->payload}]";
     }
-
 }

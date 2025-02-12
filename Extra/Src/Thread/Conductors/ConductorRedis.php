@@ -17,7 +17,6 @@ use Flytachi\Extra\Src\Factory\Connection\ConnectionPool;
  */
 class ConductorRedis implements Conductor
 {
-
     public function recordAdd(string $className, int $pid): void
     {
         ConnectionPool::store('process-conductor')->set((string) $pid, $className);

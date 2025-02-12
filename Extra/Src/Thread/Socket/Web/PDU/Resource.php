@@ -36,5 +36,4 @@ class Resource
     {
         return (string) $this->connect;
     }
-
 }

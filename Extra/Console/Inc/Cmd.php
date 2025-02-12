@@ -9,7 +9,7 @@ abstract class Cmd extends Printer implements CmdInterface
     public static string $title = "extra command title";
     protected array $args;
 
-    public final function __construct(array $args)
+    final public function __construct(array $args)
     {
         $this->args = $args;
         try {
@@ -21,13 +21,14 @@ abstract class Cmd extends Printer implements CmdInterface
         }
     }
 
-    public final static function script(array $args): void
+    final public static function script(array $args): void
     {
         new static($args);
     }
 
     protected function init(): void
-    {}
+    {
+    }
 
     private function isHelp(): void
     {
@@ -39,5 +40,4 @@ abstract class Cmd extends Printer implements CmdInterface
             die();
         }
     }
-
 }
