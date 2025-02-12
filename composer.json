@@ -3,7 +3,7 @@
     "description": "Extra Framework",
     "type": "project",
     "license": "MIT",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "keywords": ["Extra","extra","framework"],
     "scripts": {
         "post-create-project-cmd": [
