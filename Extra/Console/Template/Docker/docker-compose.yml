@@ -8,11 +8,3 @@ services:
       - "8000:80"
     volumes:
       - ./:/var/www/html/
-#  composer:
-#    image: composer/composer:latest
-#    working_dir: /var/www/html/
-#    command: update --ignore-platform-req=ext-sockets --no-plugins --no-scripts --no-interaction
-#    volumes:
-#      - .:/var/www/html/
-#    depends_on:
-#      - "server"

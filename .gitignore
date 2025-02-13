@@ -7,6 +7,7 @@
 /.fleet
 /.nova
 /.zed
+/phpcs.xml.dist
 
 ## App ----
 /.env

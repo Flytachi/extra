@@ -57,7 +57,7 @@ class Mapping extends Cmd
             }
         } catch (\Throwable $e) {
             self::printMessage("Mapping clean failed", 31);
-            if (env('DEBUG')) {
+            if (env('DEBUG', false)) {
                 self::printTitle($e->getMessage(), 31);
                 self::printSplit($e->getTraceAsString(), 31);
                 self::printTitle($e->getMessage(), 31);
@@ -76,7 +76,7 @@ class Mapping extends Cmd
             }
         } catch (\Throwable $e) {
             self::printMessage("Mapping build failed", 31);
-            if (env('DEBUG')) {
+            if (env('DEBUG', false)) {
                 self::printTitle($e->getMessage(), 31);
                 self::printSplit($e->getTraceAsString(), 31);
                 self::printTitle($e->getMessage(), 31);
@@ -91,7 +91,7 @@ class Mapping extends Cmd
             self::printMessage("Mapping build success.", 32);
         } catch (\Throwable $e) {
             self::printMessage("Mapping build failed", 31);
-            if (env('DEBUG')) {
+            if (env('DEBUG', false)) {
                 self::printTitle($e->getMessage(), 31);
                 self::printSplit($e->getTraceAsString(), 31);
                 self::printTitle($e->getMessage(), 31);
@@ -110,7 +110,7 @@ class Mapping extends Cmd
             }
         } catch (\Throwable $e) {
             self::printMessage("Mapping clean failed", 31);
-            if (env('DEBUG')) {
+            if (env('DEBUG', false)) {
                 self::printTitle($e->getMessage(), 31);
                 self::printSplit($e->getTraceAsString(), 31);
                 self::printTitle($e->getMessage(), 31);

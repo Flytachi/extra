@@ -107,6 +107,28 @@ class Cfg extends Cmd
         } else {
             self::printMessage("File '.env' is already exist.");
         }
+
+        $this->phpstormMetta();
+    }
+
+    private function phpstormMetta(): void
+    {
+        try {
+            if (is_dir(Extra::$pathRoot . '/vendor')) {
+                $metaPath = Extra::$pathRoot . '/vendor/.phpstorm.meta';
+                if (!is_dir($metaPath)) {
+                    mkdir($metaPath, 0777, true);
+                }
+                $metaPath = $metaPath . '/.phpstorm.meta.php';
+                if (!file_exists($metaPath)) {
+                    copy(
+                        $this->templatePath . '/Build/phpstormMeta',
+                        $metaPath
+                    );
+                }
+            }
+        } catch (\Throwable) {
+        }
     }
 
     private function envShow(): void
