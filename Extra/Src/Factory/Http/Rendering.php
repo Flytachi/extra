@@ -74,7 +74,7 @@ final class Rendering
                 "HTTP [%d] %s -> %s",
                 $this->httpCode->value,
                 $this->httpCode->message(),
-                mb_substr($this->body, 0, 3000)
+                ($this->body) ? mb_substr($this->body, 0, 3000) : ''
             ));
             echo $this->body;
         }

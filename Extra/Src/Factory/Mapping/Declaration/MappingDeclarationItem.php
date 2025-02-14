@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Flytachi\Extra\Src\Factory\Mapping\Declaration;
 
+use Flytachi\Extra\Src\Factory\Mapping\OpenApi\Schema\Spl;
+use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 
 class MappingDeclarationItem
@@ -60,26 +64,29 @@ class MappingDeclarationItem
         return $this->middlewareClassNames;
     }
 
-//    /**
-//     * @return array<ReflectionAttribute>
-//     */
-//    public function getClassSpl(): array
-//    {
-//        $method = new ReflectionClass($this->className);
-//        return $method->getAttributes(Spl::class, ReflectionAttribute::IS_INSTANCEOF);
-//    }
-//
-//    /**
-//     * @return array<ReflectionAttribute>
-//     */
-//    public function getClassMethodSpl(): array
-//    {
-//        $method = new ReflectionMethod($this->className, $this->classMethod);
-//        return $method->getAttributes(Spl::class, ReflectionAttribute::IS_INSTANCEOF);
-//    }
+    /**
+     * @return array<ReflectionAttribute>
+     * @throws ReflectionException
+     */
+    public function getClassSpl(): array
+    {
+        $method = new ReflectionClass($this->className);
+        return $method->getAttributes(Spl::class, ReflectionAttribute::IS_INSTANCEOF);
+    }
+
+    /**
+     * @return array<ReflectionAttribute>
+     * @throws ReflectionException
+     */
+    public function getClassMethodSpl(): array
+    {
+        $method = new ReflectionMethod($this->className, $this->classMethod);
+        return $method->getAttributes(Spl::class, ReflectionAttribute::IS_INSTANCEOF);
+    }
 
     /**
      * @return ReflectionMethod
+     * @throws ReflectionException
      */
     public function getReflectionMethod(): ReflectionMethod
     {

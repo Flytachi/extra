@@ -160,18 +160,15 @@ class Cfg extends Cmd
 
     private function openapiArg(): void
     {
-//        if (!is_dir(PATH_APP . '/Controllers')) {
-//            mkdir(PATH_APP . '/Controllers', 0777, true);
-//        }
-//        if (!file_exists(PATH_APP . '/Controllers/OpenApiController.php')) {
-//            $code = file_get_contents($this->templatePath . '/Packages/OpenApiTemplate');
-//            $fp = fopen(PATH_APP . '/Controllers/OpenApiController.php', "x");
-//            fwrite($fp, $code);
-//            fclose($fp);
-//            self::printMessage("File 'OpenApiController' is created.", 32);
-//        } else {
-//            self::printMessage("File 'OpenApiController' is already exist.");
-//        }
+        if (!file_exists(Extra::$pathApp . '/OpenApiController.php')) {
+            $code = file_get_contents($this->templatePath . '/Packages/OpenApiTemplate');
+            $fp = fopen(Extra::$pathApp . '/OpenApiController.php', "x");
+            fwrite($fp, $code);
+            fclose($fp);
+            self::printMessage("File 'OpenApiController' is created.", 32);
+        } else {
+            self::printMessage("File 'OpenApiController' is already exist.");
+        }
     }
 
     public static function help(): void

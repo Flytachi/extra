@@ -66,21 +66,22 @@ class Run extends Cmd
 
     private function scriptArg(): void
     {
-        if (array_key_exists(2, $this->args['arguments'])) {
-            $name = ucwords($this->args['arguments'][2]);
-            $classname = "Command\\" . $name;
-            if (!class_exists($classname)) {
-                self::printMessage("Script named '{$name}' not found.");
-            } else {
-                $classname::script([
-                    'arguments' => array_values(array_slice($this->args['arguments'], 2)),
-                    'options' => $this->args['options'],
-                    'flags' => $this->args['flags'],
-                ]);
-            }
-        } else {
-            self::printMessage("Script name not specified.");
-        }
+        self::printMessage("Script currently in development");
+//        if (array_key_exists(2, $this->args['arguments'])) {
+//            $name = ucwords($this->args['arguments'][2]);
+//            $classname = "Command\\" . $name;
+//            if (!class_exists($classname)) {
+//                self::printMessage("Script named '{$name}' not found.");
+//            } else {
+//                $classname::script([
+//                    'arguments' => array_values(array_slice($this->args['arguments'], 2)),
+//                    'options' => $this->args['options'],
+//                    'flags' => $this->args['flags'],
+//                ]);
+//            }
+//        } else {
+//            self::printMessage("Script name not specified.");
+//        }
     }
 
     private function threadArg(): void
