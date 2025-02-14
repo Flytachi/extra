@@ -4,12 +4,13 @@
 if (extension_loaded('pcntl'))
     pcntl_async_signals(true);
 
+
 // Version PHP 8.3
 if (PHP_VERSION_ID >= 80300) {
 
     require './vendor/autoload.php';
-    \Flytachi\Extra\Extra::init();
-    new \Flytachi\Extra\Console\Core($argv);
+    Flytachi\Kernel\Extra::init();
+    new Flytachi\Kernel\Console\Core($argv);
 
 } else {
     echo "\033[33m"." Please use PHP version 8.3 or higher.\n";

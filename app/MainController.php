@@ -2,9 +2,9 @@
 
 namespace App;
 
-use Flytachi\Extra\Src\Factory\Mapping\Annotation\GetMapping;
-use Flytachi\Extra\Src\Stereotype\Response;
-use Flytachi\Extra\Src\Stereotype\RestController;
+use Flytachi\Kernel\Src\Factory\Mapping\Annotation\GetMapping;
+use Flytachi\Kernel\Src\Stereotype\Response;
+use Flytachi\Kernel\Src\Stereotype\RestController;
 
 class MainController extends RestController
 {
