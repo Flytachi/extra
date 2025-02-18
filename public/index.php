@@ -3,6 +3,6 @@
 require '../vendor/autoload.php';
 
 Flytachi\Kernel\Extra::init();
-Flytachi\Kernel\Src\Factory\Routing\Router::run(
+Flytachi\Kernel\Src\Http\Router::run(
     env('DEBUG', false)
 );
