@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Main;
 
 use Flytachi\Kernel\Src\Factory\Mapping\Annotation\GetMapping;
 use Flytachi\Kernel\Src\Stereotype\Response;
