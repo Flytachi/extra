@@ -8,6 +8,7 @@
 /.nova
 /.zed
 /phpcs.xml.dist
+.phpunit.result.cache
 
 ## App ----
 /.env
