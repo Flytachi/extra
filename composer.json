@@ -3,13 +3,14 @@
     "description": "Extra Framework",
     "type": "project",
     "license": "MIT",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "keywords": ["Extra","extra","framework"],
     "scripts": {
         "post-create-project-cmd": [
             "chmod -R 777 storage",
             "@php extra cfg env -i"
         ],
+        "dev-server": "@php -S 0.0.0.0:8000 -t ./public",
         "test": "phpunit tests"
     },
     "autoload": {
@@ -24,7 +25,7 @@
         }
     ],
     "require": {
-        "flytachi/kernel": "~5.3.0"
+        "flytachi/kernel": "~5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable"
