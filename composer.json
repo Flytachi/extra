@@ -3,7 +3,7 @@
     "description": "Extra Framework",
     "type": "project",
     "license": "MIT",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "keywords": ["Extra","extra","framework"],
     "scripts": {
         "post-create-project-cmd": [
@@ -25,7 +25,7 @@
         }
     ],
     "require": {
-        "flytachi/kernel": "~5.4.0"
+        "flytachi/kernel": "~5.5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable"
