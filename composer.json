@@ -30,7 +30,7 @@
         }
     ],
     "require": {
-        "flytachi/kernel": "5.7.x-dev"
+        "flytachi/kernel": "~5.7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable"
