@@ -22,7 +22,7 @@ class DefaultUnitTest extends TestCase
 
     public function testMapping()
     {
-        \Flytachi\Kernel\Src\Http\Router::generateMappingRoutes();
+        (new Flytachi\Kernel\Src\Http\Router)->generateMappingRoutes();
         $this->assertTrue(is_file(Extra::$pathFileMapping));
     }
 }
